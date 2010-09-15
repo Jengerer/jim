@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ItemManager", "ItemManager.vcxproj", "{ACBA57BF-AE9A-42C2-9813-1355F6BE788C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoUpdater", "AutoUpdater\AutoUpdater.vcxproj", "{B100D3BE-DA96-4ECB-B436-9DE7D048CCBA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Item Definition Parser", "Item Definition Parser\Item Definition Parser.vcxproj", "{44B78672-D4E4-4B51-802F-A81ED38DB9BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ACBA57BF-AE9A-42C2-9813-1355F6BE788C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ACBA57BF-AE9A-42C2-9813-1355F6BE788C}.Debug|Win32.Build.0 = Debug|Win32
+		{ACBA57BF-AE9A-42C2-9813-1355F6BE788C}.Release|Win32.ActiveCfg = Release|Win32
+		{ACBA57BF-AE9A-42C2-9813-1355F6BE788C}.Release|Win32.Build.0 = Release|Win32
+		{B100D3BE-DA96-4ECB-B436-9DE7D048CCBA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B100D3BE-DA96-4ECB-B436-9DE7D048CCBA}.Debug|Win32.Build.0 = Debug|Win32
+		{B100D3BE-DA96-4ECB-B436-9DE7D048CCBA}.Release|Win32.ActiveCfg = Release|Win32
+		{B100D3BE-DA96-4ECB-B436-9DE7D048CCBA}.Release|Win32.Build.0 = Release|Win32
+		{44B78672-D4E4-4B51-802F-A81ED38DB9BC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{44B78672-D4E4-4B51-802F-A81ED38DB9BC}.Debug|Win32.Build.0 = Debug|Win32
+		{44B78672-D4E4-4B51-802F-A81ED38DB9BC}.Release|Win32.ActiveCfg = Release|Win32
+		{44B78672-D4E4-4B51-802F-A81ED38DB9BC}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
