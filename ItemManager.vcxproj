@@ -43,10 +43,10 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\jsoncpp\include\;.\boost\;.\libcurl\include\;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;C:\Users\Jengerer\Documents\Programming\Jengerer%27s Item Manager\libcurl\include;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;C:\Users\Jengerer\Documents\Programming\Jengerer%27s Item Manager\libcurl\lib\Release;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\jsoncpp\libs\msvc100\;.\boost\libs\regex\build\;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;.\libcurl\lib\Debug\;$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProgramFiles)\JsonCpp\libs\msvc100\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Release\;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProgramFiles)\JsonCpp\libs\msvc100d\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -61,9 +61,9 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;steam/steam_api.lib;d3d9.lib;d3dx9.lib;libcurl.lib;ws2_32.lib;winmm.lib;json_vc100_libmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>steam/steam_api.lib;d3d9.lib;d3dx9.lib;libcurl.lib;ws2_32.lib;winmm.lib;json_vc100d_libmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcmtd.lib;msvcprtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmtd.lib;</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -75,15 +75,15 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;steam/steam_api.lib;d3d9.lib;d3dx9.lib;libcurl.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>steam/steam_api.lib;d3d9.lib;d3dx9.lib;libcurl.lib;ws2_32.lib;winmm.lib;json_vc100_libmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -92,16 +92,17 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Jengerer%27s Item Manager\Curl.cpp" />
-    <ClCompile Include="..\Jengerer%27s Item Manager\Exception.cpp" />
-    <ClCompile Include="..\Jengerer%27s Item Manager\Hashtable.cpp" />
-    <ClCompile Include="..\Jengerer%27s Item Manager\Inventory.cpp" />
-    <ClCompile Include="..\Jengerer%27s Item Manager\KeyValueParser.cpp" />
-    <ClCompile Include="..\Jengerer%27s Item Manager\Object.cpp" />
-    <ClCompile Include="..\Jengerer%27s Item Manager\StringObject.cpp" />
+    <ClCompile Include="Curl.cpp" />
+    <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="Hashtable.cpp" />
+    <ClCompile Include="Inventory.cpp" />
+    <ClCompile Include="KeyValueParser.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="StringObject.cpp" />
     <ClCompile Include="MouseListener.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="Item.cpp" />
@@ -113,13 +114,13 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Jengerer%27s Item Manager\Curl.h" />
-    <ClInclude Include="..\Jengerer%27s Item Manager\Exception.h" />
-    <ClInclude Include="..\Jengerer%27s Item Manager\Hashtable.h" />
-    <ClInclude Include="..\Jengerer%27s Item Manager\Inventory.h" />
-    <ClInclude Include="..\Jengerer%27s Item Manager\KeyValueParser.h" />
-    <ClInclude Include="..\Jengerer%27s Item Manager\Object.h" />
-    <ClInclude Include="..\Jengerer%27s Item Manager\StringObject.h" />
+    <ClInclude Include="Curl.h" />
+    <ClInclude Include="Exception.h" />
+    <ClInclude Include="Hashtable.h" />
+    <ClInclude Include="Inventory.h" />
+    <ClInclude Include="KeyValueParser.h" />
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="StringObject.h" />
     <ClInclude Include="DirectX.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="ItemManager.h" />

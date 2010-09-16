@@ -18,22 +18,22 @@
     <ClInclude Include="Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Hashtable.h">
+    <ClInclude Include="..\Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Exception.h">
+    <ClInclude Include="..\Hashtable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\KeyValueParser.h">
+    <ClInclude Include="..\KeyValueParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Curl.h">
+    <ClInclude Include="..\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Object.h">
+    <ClInclude Include="..\StringObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\StringObject.h">
+    <ClInclude Include="..\Curl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,22 +41,22 @@
     <ClCompile Include="Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Curl.cpp">
+    <ClCompile Include="..\Exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\KeyValueParser.cpp">
+    <ClCompile Include="..\Hashtable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Exception.cpp">
+    <ClCompile Include="..\KeyValueParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Hashtable.cpp">
+    <ClCompile Include="..\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\StringObject.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Object.cpp">
+    <ClCompile Include="..\Curl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

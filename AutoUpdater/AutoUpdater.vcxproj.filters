@@ -18,10 +18,10 @@
     <ClCompile Include="AutoUpdater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Curl.cpp">
+    <ClCompile Include="..\Exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Exception.cpp">
+    <ClCompile Include="..\Curl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,10 +29,10 @@
     <ClInclude Include="AutoUpdater.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Curl.h">
+    <ClInclude Include="..\Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Exception.h">
+    <ClInclude Include="..\Curl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -65,7 +65,7 @@ void Window::createWindow(HINSTANCE hInstance)
 	rectWindow.right = getWidth();
 	rectWindow.bottom = getHeight();
 
-	bool windowAdjust = AdjustWindowRect(&rectWindow, 
+	BOOL windowAdjust = AdjustWindowRect(&rectWindow, 
 		WS_VISIBLE | WS_CAPTION | WS_DLGFRAME | WS_MINIMIZEBOX | WS_SYSMENU, 
 		false);
 
