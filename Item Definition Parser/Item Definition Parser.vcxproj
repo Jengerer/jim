@@ -25,7 +25,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -39,11 +39,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\jsoncpp\include;..\;..\libcurl\include;..\boost\;$(IncludePath)</IncludePath>
-    <LibraryPath>..\jsoncpp\libs\msvc100\;..\libcurl\lib\Debug;..\boost\libs\regex\build\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;..\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProgramFiles)\JsonCpp\libs\msvc100d\;$(ProgramFiles)\Boost\stage\lib\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\;$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProgramFiles)\JsonCpp\libs\msvc100\;$(ProgramFiles)\Boost\stage\lib\;$(ProgramFiles)\LibCurl\lib\Release\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -57,8 +59,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libcurl.lib;ws2_32.lib;winmm.lib;json_vc100_libmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>libcurl.lib;ws2_32.lib;winmm.lib;json_vc100d_libmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmtd.lib;</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -69,30 +71,33 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>libcurl.lib;ws2_32.lib;winmm.lib;json_vc100_libmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvcprt.lib;</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Curl.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Exception.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Hashtable.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\KeyValueParser.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Object.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\StringObject.h" />
+    <ClInclude Include="..\Curl.h" />
+    <ClInclude Include="..\Exception.h" />
+    <ClInclude Include="..\Hashtable.h" />
+    <ClInclude Include="..\KeyValueParser.h" />
+    <ClInclude Include="..\Object.h" />
+    <ClInclude Include="..\StringObject.h" />
     <ClInclude Include="Parser.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Curl.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Exception.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Hashtable.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\KeyValueParser.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Object.cpp" />
+    <ClCompile Include="..\Curl.cpp" />
+    <ClCompile Include="..\Exception.cpp" />
+    <ClCompile Include="..\Hashtable.cpp" />
+    <ClCompile Include="..\KeyValueParser.cpp" />
+    <ClCompile Include="..\Object.cpp" />
     <ClCompile Include="..\StringObject.cpp" />
     <ClCompile Include="Parser.cpp" />
   </ItemGroup>
