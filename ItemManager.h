@@ -4,6 +4,7 @@
 #include "Hashtable.h"
 #include "KeyValueParser.h"
 #include "Inventory.h"
+#include "SerializedBuffer.h"
 
 #include <json/json.h>
 #include <boost/regex.hpp>

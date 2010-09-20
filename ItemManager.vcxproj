@@ -106,6 +106,7 @@
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SerializedBuffer.cpp" />
     <ClCompile Include="Slot.cpp" />
     <ClCompile Include="Steam.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -122,6 +123,7 @@
     <ClInclude Include="ItemManager.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="MouseListener.h" />
+    <ClInclude Include="SerializedBuffer.h" />
     <ClInclude Include="Slot.h" />
     <ClInclude Include="Steam.h" />
     <ClInclude Include="Texture.h" />
