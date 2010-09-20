@@ -92,11 +92,18 @@ void loadDefinitions()
 	Json::Value jsonRoot;
 	Json::StyledWriter jsonWriter;
 
-	/* Load all textures for items. */
-	stringHashMap::iterator hashIterator, itemIterator, nameIterator;
+	// Handle items.
+	stringAnyMap::iterator hashIterator, itemIterator, nameIterator;
 	for (hashIterator = definitionsTable->begin(); hashIterator != definitionsTable->end(); hashIterator++)
 	{
-		Hashtable* thisTable = (Hashtable*)hashIterator->second;
+		Hashtable* thisTable = NULL;
+		try
+		{
+			thisTable = boost::any_cast<Hashtable*>(hashIterator->second);
+		} catch (const boost::bad_any_cast &)
+		{
+			throw Exception("Failed to get table, unexpected variable type received.");
+		}
 
 		// Try get the item name.
 		string *itemName, *realName, *itemIndex, *itemSlot, *texturePath, *textureURL;
@@ -109,7 +116,7 @@ void loadDefinitions()
 			textureURL = thisTable->getString("image_url");
 		} catch (Exception tableException)
 		{
-			throw Exception("Unexpected format for item definitions. Found item with no 'item_name' value.");
+			throw Exception("Unexpected format for item definitions. Found item with no '" + tableException.getMessage() + "' value.");
 		}
 
 		boost::regex langToken("#(.*)");
@@ -159,29 +166,44 @@ void loadDefinitions()
 			try
 			{
 				classTable = usedByTable->getTable("class");
-
-				if (!classTable->empty())
-				{
-					Json::Value itemClasses;
-					stringHashMap::iterator hashIterator;
-					for (hashIterator = classTable->begin(); hashIterator != classTable->end(); hashIterator++)
-					{
-						// Get the class name.
-						StringObject* classNameObj = (StringObject*)hashIterator->second;
-						string* className = classNameObj->getString();
-						*className = toLower(*className);
-						itemClasses.append(*className);
-					}
-
-					thisObject["itemClasses"] = itemClasses;
-				}
 			} catch (Exception classException)
 			{
 				throw Exception("Unexpected definition format. " + *realName + " has class usage, but no classes defined.");
-			}			
+			}
+
+			if (!classTable->empty())
+			{
+				Json::Value itemClasses;
+				stringAnyMap::iterator hashIterator;
+				for (hashIterator = classTable->begin(); hashIterator != classTable->end(); hashIterator++)
+				{
+					// Get the class name.
+					try
+					{
+						string* className = boost::any_cast<string*>(hashIterator->second);
+						*className = toLower(*className);
+						itemClasses.append(*className);
+					} catch (const boost::bad_any_cast &)
+					{
+						throw Exception("Bad cast for class name. Expected string.");
+					}
+				}
+
+				thisObject["itemClasses"] = itemClasses;
+			}
 		}
 		jsonRoot[*itemIndex] = thisObject;
 	}
+
+	// Add definition for unknown item.
+	Json::Value unknownItem;
+	unknownItem["itemName"] = "Unknown Item";
+	unknownItem["itemSlot"] = "misc";
+	unknownItem["imageInventory"] = "backpack/unknown_item";
+	unknownItem["imageURL"] = "http://www.jengerer.com/itemManager/imgFiles/backpack/unknown_item.png";
+
+	// Set -1 to be unknown index.
+	jsonRoot["-1"] = unknownItem;
 
 	ofstream jsonOutput("itemDefinitions.json");
 	if (!jsonOutput)
@@ -196,9 +218,11 @@ void loadDefinitions()
 
 void exitApplication()
 {
+	cout << "Deallocating memory stored in tables... ";
 	// Erase all tables.
 	delete itemDefinitions;
 	delete langDefinitions;
 	itemDefinitions = NULL;
 	langDefinitions = NULL;
+	cout << "done!" << endl;
 }

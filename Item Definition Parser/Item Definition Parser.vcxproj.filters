@@ -21,19 +21,13 @@
     <ClInclude Include="..\Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Hashtable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\KeyValueParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\StringObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Curl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Hashtable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,19 +38,13 @@
     <ClCompile Include="..\Exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Hashtable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\KeyValueParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\StringObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Curl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Hashtable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

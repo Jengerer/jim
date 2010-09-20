@@ -88,8 +88,6 @@
     <ClInclude Include="..\Exception.h" />
     <ClInclude Include="..\Hashtable.h" />
     <ClInclude Include="..\KeyValueParser.h" />
-    <ClInclude Include="..\Object.h" />
-    <ClInclude Include="..\StringObject.h" />
     <ClInclude Include="Parser.h" />
   </ItemGroup>
   <ItemGroup>
@@ -97,8 +95,6 @@
     <ClCompile Include="..\Exception.cpp" />
     <ClCompile Include="..\Hashtable.cpp" />
     <ClCompile Include="..\KeyValueParser.cpp" />
-    <ClCompile Include="..\Object.cpp" />
-    <ClCompile Include="..\StringObject.cpp" />
     <ClCompile Include="Parser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

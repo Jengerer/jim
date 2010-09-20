@@ -52,14 +52,14 @@ public:
 	uint32				getAttributes() const;
 
 	/* Secondary attribute getters. */
-	string				getName();
-	bool				isHat() const;
-	bool				isEquipped() const;
-	EItemClass			getClass() const;
-	string				getSlot() const;
-	EItemGroup			getGroup() const;
-	EItemSelection		getSelection() const;
-	uint8				getPosition() const;
+	string					getName();
+	bool					isHat() const;
+	bool					isEquipped() const;
+	EItemClass				getClass() const;
+	string					getSlot() const;
+	EItemGroup				getGroup() const;
+	EItemSelection			getSelection() const;
+	uint8					getPosition() const;
 
 	/* Item attribute setters. */
 	void				setGroup(EItemGroup newGroup);
@@ -75,7 +75,7 @@ public:
 	bool				isTouching() const;
 
 	/* Public information table. */
-	static stringHashMap*	m_hInformation;
+	static Hashtable*	m_hInformation;
 
 private:
 	uint64				m_itemID;
@@ -91,7 +91,7 @@ private:
 	EItemSelection		m_itemSelection;
 	EItemGroup			m_itemGroup;
 
-	stringHashMap*		m_pInformation;
+	Hashtable*		m_pInformation;
 
 	string*				m_itemName;
 	Texture*			m_lpTexture;

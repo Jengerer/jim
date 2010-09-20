@@ -22,10 +22,6 @@ Hashtable* KeyValueParser::getHashtable()
 	Hashtable* addingTable = baseTable;
 	Hashtable* currentTable = NULL;
 
-	/* String/stream for parsing. */
-	string thisLine;
-	stringstream parseStream(m_strParse);
-
 	// Parsing index variables.
 	int nIndex = 0;
 	int nLength = m_strParse.length();
@@ -68,6 +64,8 @@ Hashtable* KeyValueParser::getHashtable()
 			{
 				// Get the word.
 				thisWord = m_strParse.substr(nStart, (nIndex - nStart));
+				if (thisWord == "TF_TTG_SamRevolver")
+					thisWord = thisWord;
 				writingNow = false;
 			
 				// Check if this is a key..

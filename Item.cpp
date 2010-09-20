@@ -13,8 +13,8 @@ const uint32 EQUIP_FLAGS[] = {
 	0x00800000 //Spy
 };
 
-/* Create definitions hashtable. */
-stringHashMap* Item::m_hInformation = NULL;
+/* Create definitions Hashtable. */
+Hashtable* Item::m_hInformation = NULL;
 
 Item::Item(uint64 newUniqueID,
 		   uint32 newType,
@@ -58,11 +58,20 @@ void Item::getInformation()
 	typeStream << getType();
 	string thisType = typeStream.str();
 
-	stringHashMap::iterator hashIterator = m_hInformation->find(thisType);
-	if (hashIterator != m_hInformation->end())
-		m_pInformation = (stringHashMap*)hashIterator->second;
-	else
-		m_pInformation = (stringHashMap*)(*m_hInformation)["-1"];
+	try
+	{
+		m_pInformation = m_hInformation->getTable(thisType);
+	} catch (Exception &)
+	{
+		try
+		{
+			//TODO: Make the parser add a "-1" table.
+			m_pInformation = m_hInformation->getTable("-1");
+		} catch (Exception &)
+		{
+			throw Exception("Failed to get item information, no definition or default definition found.");
+		}
+	}
 }
 
 uint64 Item::getUniqueID() const
@@ -107,10 +116,13 @@ uint8 Item::getPosition() const
 
 string Item::getName()
 {
-	if (m_itemName == NULL)
-		m_itemName = (string*)(*m_pInformation)["itemName"];
-
-	return *m_itemName;
+	try
+	{
+		return *m_pInformation->getString("itemName");
+	} catch (Exception &)
+	{
+		throw Exception("Failed to get item name from table.");
+	}
 }
 
 bool Item::isHat() const
@@ -120,8 +132,7 @@ bool Item::isHat() const
 
 string Item::getSlot() const
 {
-	string* thisSlot = (string*)(*m_pInformation)["itemSlot"];
-	return *thisSlot;
+	return *m_pInformation->getString("itemSlot");
 }
 
 EItemGroup Item::getGroup() const
@@ -184,7 +195,15 @@ void Item::setEquip(int whichClass, bool doEquip)
 Texture* Item::getTexture()
 {
 	if (m_lpTexture == NULL)
-		m_lpTexture = (Texture*)(*m_pInformation)["itemTexture"];
+	{
+		try
+		{
+			m_lpTexture = boost::any_cast<Texture*>(m_pInformation->get("itemTexture"));
+		} catch (const boost::bad_any_cast &)
+		{
+			throw Exception("Unexpected variable type for item texture.");
+		}
+	}
 	
 	return m_lpTexture;
 }

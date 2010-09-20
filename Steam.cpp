@@ -91,6 +91,9 @@ void Steam::loadInterfaces()
 
 	if (!m_pCoordinator)
 		throw Exception("Failed to get ISteamGameCoordinator interface.");
+
+	ISteamFriends001* steamFriends = (ISteamFriends001*)m_pClient->GetISteamFriends(m_hUser, m_hPipe, STEAMFRIENDS_INTERFACE_VERSION_001);
+	steamFriends->SetPersonaState(k_EPersonaStateOnline);
 }
 
 void Steam::closeInterfaces()

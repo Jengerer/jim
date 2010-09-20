@@ -59,5 +59,5 @@ private:
 	D3DPRESENT_PARAMETERS		m_d3dParams;
 
 	/* Texture handling. */
-	stringHashMap*				m_pTextures;
+	stringAnyMap*				m_pTextures;
 };

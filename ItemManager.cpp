@@ -172,7 +172,7 @@ void ItemManager::loadDefinitions()
 		throw Exception("Failed to parse item definitions.");
 	delete jsonRoot;
 
-	Item::m_hInformation = new stringHashMap();
+	Item::m_hInformation = new Hashtable();
 }
 
 void ItemManager::loadItems()

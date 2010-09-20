@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Object.h"
-#include "StringObject.h"
 #include "Exception.h"
 
 #include <hash_map>
 #include <string>
+#include <boost/any.hpp>
 
 using namespace std;
 
@@ -35,28 +34,32 @@ public:
 	}
 };
 
-typedef stdext::hash_map<string, Object*, stringHasher> stringHashMap;
-typedef stdext::pair<string, Object*> stringPair;
+// For easier type usage.
+typedef stdext::hash_map<string, boost::any, stringHasher>	stringAnyMap;
+typedef stdext::pair<string, boost::any>					hashPair;
 
-class Hashtable: public Object
+class Hashtable
 {
 public:
 	Hashtable();
-	virtual ~Hashtable();
+	~Hashtable();
 
-	void put(string whichKey, string* whichObject);
-	void put(string whichKey, Hashtable* whichObject);
+	// Adding and removing member.
+	void						put(const string& whichKey, boost::any whichObject);
+	void						remove(stringAnyMap::iterator& pIterator);
 
-	Object* get(string whichKey);
-	string* getString(string whichKey);
-	Hashtable* getTable(string whichTable);
+	// Member getter.
+	boost::any&					get(const string& whichKey);
+	string*						getString(const string& whichKey);
+	Hashtable*					getTable(const string& whichTable);
+	
+	// For iteration.
+	stringAnyMap::iterator		begin();
+	stringAnyMap::iterator		end();
 
-	stringHashMap::iterator begin();
-	stringHashMap::iterator end();
-	bool empty() const;
-
-	virtual string toString();
+	// Simple attribute getter.
+	bool						empty() const;
 	
 private:
-	stringHashMap* m_pMap;
+	stringAnyMap* m_pMap;
 };
