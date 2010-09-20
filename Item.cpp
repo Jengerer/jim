@@ -21,7 +21,6 @@ Item::Item(uint64 newUniqueID,
 		   uint32 newLevel,
 		   EItemQuality newQuality,
 		   uint32 newQuantity,
-		   uint32 newAttributes,
 		   uint32 newFlags)
 {
 	/* Set basic attributes. */
@@ -30,7 +29,6 @@ Item::Item(uint64 newUniqueID,
 	m_itemLevel = newLevel;
 	m_itemQuality = newQuality;
 	m_itemQuantity = newQuantity;
-	m_itemAttributes = newAttributes;
 	m_itemFlags = newFlags;
 
 	/* Set null for things to be gotten. */
@@ -102,11 +100,6 @@ uint32 Item::getFlags() const
 uint32 Item::getQuantity() const
 {
 	return m_itemQuantity;
-}
-
-uint32 Item::getAttributes() const
-{
-	return m_itemAttributes;
 }
 
 uint8 Item::getPosition() const

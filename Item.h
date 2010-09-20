@@ -1,8 +1,8 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-#include "steam/EItemQuality.h"
 #include "ItemInformation.h"
+#include "steam/UserItemsCommon.h"
 #include "Hashtable.h"
 #include <vector>
 #include <string>
@@ -35,7 +35,6 @@ public:
 		uint32 newLevel,
 		EItemQuality newQuality,
 		uint32 newQuantity,
-		uint32 newAttributes,
 		uint32 newFlags);
 	~Item();
 
@@ -49,7 +48,6 @@ public:
 	EItemQuality		getQuality() const;
 	uint32				getFlags() const;
 	uint32				getQuantity() const;
-	uint32				getAttributes() const;
 
 	/* Secondary attribute getters. */
 	string					getName();
@@ -83,7 +81,6 @@ private:
 	uint32				m_itemLevel;
 	EItemQuality		m_itemQuality;
 	uint32				m_itemQuantity;
-	uint32				m_itemAttributes;
 	uint32				m_itemFlags;
 
 	uint8				m_itemPosition;

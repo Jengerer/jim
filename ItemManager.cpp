@@ -312,7 +312,6 @@ void ItemManager::loadItems()
 				addedItem->itemlevel,
 				(EItemQuality)addedItem->itemquality,
 				addedItem->itemcount,
-				addedItem->attribcount,
 				addedItem->position);
 
 			/* Classify item based on slot validity. */
@@ -347,9 +346,9 @@ void ItemManager::handleCallbacks()
 	{
 		switch (tCallback.m_iCallback)
 		{
-		case GameCoordinatorMessageAvailable_t::k_iCallback:
+		case GCMessageAvailable_t::k_iCallback:
 			{
-				GameCoordinatorMessageAvailable_t *gcMsg = (GameCoordinatorMessageAvailable_t *)tCallback.m_pubParam;
+				GCMessageAvailable_t *gcMsg = (GCMessageAvailable_t *)tCallback.m_pubParam;
 				
 				uint32 iSize = 0;
 				if (m_pInventory->hasMessage(&iSize))
@@ -371,20 +370,23 @@ void ItemManager::handleCallbacks()
 						{
 							if (!isLoaded())
 							{
+								
 								setLoaded(true);
 								setLocked(false);
 
 								//Start loading items.
-								SOMsgCacheSubscribed_t *iList = (SOMsgCacheSubscribed_t *)messageBuffer;
-
-								void *itemIterator = ((unsigned char *)(iList) + sizeof(SOMsgCacheSubscribed_t));
+								SerializedBuffer thisBuffer(messageBuffer);
+								SOMsgCacheSubscribed_t *iList = thisBuffer.getValue<SOMsgCacheSubscribed_t>();
 								for (int I = 0; I < iList->itemcount; I++)
 								{
-									SOMsgCacheSubscribed_Item_t *pItem = (SOMsgCacheSubscribed_Item_t *)itemIterator;
+									SOMsgCacheSubscribed_Item_t *pItem = thisBuffer.getValue<SOMsgCacheSubscribed_Item_t>();
 
-									//Skip ahead to the next item.
-									for (int X = 0; X < pItem->attribcount; X++)
-										itemIterator = ((unsigned char *)itemIterator + sizeof(SOMsgCacheSubscribed_Item_Attrib_t));
+									// Skip past the name.
+									thisBuffer.pushBuffer(pItem->namelength);
+
+									// Get attribute count, and skip past.
+									uint16* attribCount = thisBuffer.getValue<uint16>();
+									thisBuffer.pushBuffer<SOMsgCacheSubscribed_Item_Attrib_t>(*attribCount);
 
 									//Create a new item from the information.
 									Item *newItem = new Item(
@@ -393,14 +395,10 @@ void ItemManager::handleCallbacks()
 										pItem->itemlevel,
 										(EItemQuality)pItem->itemquality,
 										pItem->itemcount,
-										pItem->attribcount,
 										pItem->position);
 
-									delete newItem;
-
-									/* Add the item, and move to next. */
-									//m_pInventory->addItem(newItem);
-									itemIterator = ((unsigned char *)itemIterator + sizeof(SOMsgCacheSubscribed_Item_t));
+									// Add the item.
+									m_pInventory->addItem(newItem);
 								}
 
 								//TODO: Update scrolling of excluded items.
@@ -423,19 +421,19 @@ void ItemManager::handleCallbacks()
 						}
 					case SOMsgCreate_t::k_iMessage:
 						{
-							SOMsgCreate_t *craftedItem = (SOMsgCreate_t*)messageBuffer;
+							SOMsgCreate_t *createdMsg = (SOMsgCreate_t*)messageBuffer;
+							SOMsgCacheSubscribed_Item_t* craftedItem = &createdMsg->item;
 
 							//Make sure it's a valid item.
-							if (craftedItem->unknown == 5)
+							if (createdMsg->unknown == 5)
 								break;
 
 							Item* newItem = new Item(
 								craftedItem->itemid,
-								craftedItem->itemtype,
+								craftedItem->itemdefindex,
 								craftedItem->itemlevel,
 								(EItemQuality)craftedItem->itemquality,
 								craftedItem->itemcount,
-								craftedItem->attribcount,
 								craftedItem->position);
 
 							/* Add this item to the excluded. */

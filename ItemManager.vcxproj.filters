@@ -63,6 +63,9 @@
     <ClCompile Include="Hashtable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SerializedBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectX.h">
@@ -747,6 +750,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Hashtable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SerializedBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
