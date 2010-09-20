@@ -8,5 +8,3 @@
 #include "Hashtable.h"
 #include "Curl.h"
 #include "KeyValueParser.h"
-
-using namespace std;

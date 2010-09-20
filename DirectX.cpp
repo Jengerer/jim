@@ -71,8 +71,8 @@ void DirectX::loadInterfaces()
 	if (hResult != D3D_OK)
 		throw Exception("Failed to create font device.");
 
-	/* Create an empty hashtable. */
-	m_pTextures = new stringHashMap();
+	/* Create an empty Hashtable. */
+	m_pTextures = new stringAnyMap();
 
 	/* Now attempt to load any textures. */
 	loadTextures();
@@ -80,7 +80,7 @@ void DirectX::loadInterfaces()
 
 void DirectX::closeInterfaces()
 {
-	/* Delete the hashtable of textures. */
+	/* Delete the Hashtable of textures. */
 	if (m_pTextures != NULL)
 	{
 		delete m_pTextures;
@@ -119,17 +119,23 @@ void DirectX::closeInterfaces()
 void DirectX::loadTextures()
 {
 	/* Reload any existing unloaded textures. */
-	stringHashMap::iterator hashIterator;
+	stringAnyMap::iterator hashIterator;
 	for (hashIterator = m_pTextures->begin(); hashIterator != m_pTextures->end(); hashIterator++)
 	{
-		Texture* thisTexture = (Texture*)hashIterator->second;
-		if (!thisTexture->isLoaded())
+		try
 		{
-			string textureFile = thisTexture->getFilename();
+			Texture* thisTexture = boost::any_cast<Texture*>(hashIterator->second);
+			if (!thisTexture->isLoaded())
+			{
+				string textureFile = thisTexture->getFilename();
 
-			/* Load and set the xture. */
-			Texture* tempTexture = loadTexture(textureFile);
-			thisTexture->setTexture(tempTexture->getTexture(), textureFile);
+				/* Load and set the xture. */
+				Texture* tempTexture = loadTexture(textureFile);
+				thisTexture->setTexture(tempTexture->getTexture(), textureFile);
+			}
+		} catch (const boost::bad_any_cast &)
+		{
+			throw Exception("Failed to get texture string, unexpected variable type received.");
 		}
 	}
 }
@@ -137,12 +143,18 @@ void DirectX::loadTextures()
 void DirectX::releaseTextures()
 {
 	/* Get textures and release them. */
-	stringHashMap::iterator hashIterator;
+	stringAnyMap::iterator hashIterator;
 	for (hashIterator = m_pTextures->begin(); hashIterator != m_pTextures->end(); hashIterator++)
 	{
 		// Just release it.
-		Texture* thisTexture = (Texture*)hashIterator->second;
-		thisTexture->releaseTexture();
+		try
+		{
+			Texture* thisTexture = boost::any_cast<Texture*>(hashIterator->second);
+			thisTexture->releaseTexture();
+		} catch (const boost::bad_any_cast &)
+		{
+			throw Exception("Failed to get texture from table, unexpected variable type received.");
+		}
 	}
 }
 
@@ -150,15 +162,23 @@ void DirectX::releaseTextures()
 Texture* DirectX::getTexture(const string textureName)
 {
 	//Check if that texture exists already.
-	stringHashMap::iterator hashIterator = m_pTextures->find(textureName);
+	stringAnyMap::iterator hashIterator = m_pTextures->find(textureName);
 	if (hashIterator != m_pTextures->end())
-		return (Texture*)hashIterator->second;
+	{
+		try
+		{
+			return boost::any_cast<Texture*>(hashIterator->second);
+		} catch (const boost::bad_any_cast &)
+		{
+			throw Exception("Failed to cast texture, unexpected variable type received.");
+		}
+	}
 
 	// Otherwise, load the texture.
 	Texture* destTexture = loadTexture(textureName);
 	
 	// Now add it to dictionary.
-	stringPair thisPair(textureName, destTexture);
+	hashPair thisPair(textureName, destTexture);
 	m_pTextures->insert(thisPair);
 	return destTexture;
 }

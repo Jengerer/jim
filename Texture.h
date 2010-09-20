@@ -4,15 +4,13 @@
 #include <d3dx9.h>
 #include <string>
 
-#include "Object.h"
-
 using namespace std;
 
 /*
  * Texture class that handles DirectX
  * textures to be drawn.
  */
-class Texture: public Object
+class Texture
 {
 public:
 	Texture(LPDIRECT3DTEXTURE9 newTexture, 

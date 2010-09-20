@@ -64,7 +64,7 @@ private:
 	bool		m_bLocked; //Read-only permissions?
 
 	// Item definitions.
-	stringHashMap		*m_langDefinitions, *m_itemDefinitions;
+	stringAnyMap		*m_langDefinitions, *m_itemDefinitions;
 
 	/* Application variables. */
 	float		m_fCamera, m_fSpeed, m_fDestination;
