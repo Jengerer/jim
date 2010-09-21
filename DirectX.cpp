@@ -72,7 +72,7 @@ void DirectX::loadInterfaces()
 		throw Exception("Failed to create font device.");
 
 	/* Create an empty Hashtable. */
-	m_pTextures = new stringAnyMap();
+	m_pTextures = new Hashtable();
 
 	/* Now attempt to load any textures. */
 	loadTextures();
@@ -127,11 +127,12 @@ void DirectX::loadTextures()
 			Texture* thisTexture = boost::any_cast<Texture*>(hashIterator->second);
 			if (!thisTexture->isLoaded())
 			{
-				string textureFile = thisTexture->getFilename();
+				const string* textureFile = thisTexture->getFilename();
+				const string* textureURL = thisTexture->getURL();
 
 				/* Load and set the xture. */
-				Texture* tempTexture = loadTexture(textureFile);
-				thisTexture->setTexture(tempTexture->getTexture(), textureFile);
+				Texture* tempTexture = loadTexture(textureFile, textureURL);
+				thisTexture->setTexture(tempTexture->getTexture(), textureFile, textureURL);
 			}
 		} catch (const boost::bad_any_cast &)
 		{
@@ -159,10 +160,10 @@ void DirectX::releaseTextures()
 }
 
 //TODO: Make sure all calls check for success.
-Texture* DirectX::getTexture(const string textureName)
+Texture* DirectX::getTexture(const string* textureName, const string* textureURL)
 {
 	//Check if that texture exists already.
-	stringAnyMap::iterator hashIterator = m_pTextures->find(textureName);
+	stringAnyMap::iterator hashIterator = m_pTextures->find(*textureName);
 	if (hashIterator != m_pTextures->end())
 	{
 		try
@@ -175,11 +176,12 @@ Texture* DirectX::getTexture(const string textureName)
 	}
 
 	// Otherwise, load the texture.
-	Texture* destTexture = loadTexture(textureName);
+	Texture* destTexture = loadTexture(textureName, textureURL);
 	
 	// Now add it to dictionary.
-	hashPair thisPair(textureName, destTexture);
-	m_pTextures->insert(thisPair);
+	m_pTextures->put(*textureName, destTexture);
+
+	// Return it.
 	return destTexture;
 }
 
@@ -199,37 +201,40 @@ int DirectX::getHeight() const
 }
 
 //TODO: Make sure all calls check for failure.
-Texture* DirectX::loadTexture(const string textureName)
+Texture* DirectX::loadTexture(const string* textureName, const string* textureURL)
 {
 	LPDIRECT3DTEXTURE9	lpTexture;
 	D3DXIMAGE_INFO		imgInfo;
 
-	string filePath = "imgFiles/" + textureName + ".png";
+	string filePath = "imgFiles/" + *textureName + ".png";
 	HRESULT hResult;
 	
 	hResult = D3DXGetImageInfoFromFile(filePath.c_str(), &imgInfo);
 	if (hResult != D3D_OK)
 	{
-		//Make sure image directory exists.
+		// Make sure image directory exists.
 		if (GetFileAttributes("imgFiles") == INVALID_FILE_ATTRIBUTES)
 			CreateDirectory("imgFiles", NULL);
 
-		string textureURL = "www.jengerer.com/itemManager/imgFiles/" + textureName + ".png";
-
-		//Try to download the texture.
-		if (!downloadFile(textureURL.c_str(), filePath.c_str()))
+		// Try to download the texture.
+		if (!downloadFile(*textureURL, filePath))
 		{
-			string errorMessage = "Failed to load texture: " + textureName + ".png";
-			throw Exception(errorMessage.c_str());
+			// Try the mirror.
+			string mirrorURL = "http://www.jengerer.com/itemManager/imgFiles/" + *textureName + ".png";
+			if (!downloadFile(mirrorURL, filePath))
+			{
+				string errorMessage = "Failed to load texture:\n" + filePath;
+				throw Exception(errorMessage);
+			}
 		}
 
 		hResult = D3DXGetImageInfoFromFile(filePath.c_str(), &imgInfo);
-		//If downloading succeeded, reload the texture.
+		// If downloading succeeded, reload the texture.
 		if (hResult != D3D_OK)
 			
 		{
-			string errorMessage = "Failed to load texture: " + textureName + ".png";
-			throw Exception(errorMessage.c_str());
+			string errorMessage = "Failed to load texture:\n" + filePath;
+			throw Exception(errorMessage);
 		}
 	}
 
@@ -250,12 +255,12 @@ Texture* DirectX::loadTexture(const string textureName)
 
 	if (hResult != D3D_OK)
 	{
-		string errorMessage = "Failed to load texture: " + textureName + ".png";
-		throw Exception(errorMessage.c_str());
+		string errorMessage = "Failed to load texture:\n" + filePath;
+		throw Exception(errorMessage);
 	}
 
 	/* If texture exists, fill it in. Otherwise, return new. */
-	return new Texture(lpTexture, textureName, imgInfo);
+	return new Texture(lpTexture, textureName, textureURL, imgInfo);
 }
 
 bool DirectX::beginDraw()

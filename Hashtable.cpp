@@ -50,7 +50,7 @@ void Hashtable::put(const string& whichKey, boost::any whichValue)
 	}
 
 	// Insert or re-insert now.
-	hashPair thisPair(whichKey, whichValue);
+	stringAnyPair thisPair(whichKey, whichValue);
 	m_pMap->insert(thisPair);
 }
 
@@ -69,6 +69,19 @@ void Hashtable::remove(stringAnyMap::iterator& pIterator)
 	} catch (const boost::bad_any_cast &)
 	{
 		// This is not a string, do nothing.
+	}
+
+	try
+	{
+		// Check if it's a texture.
+		Texture* thisTexture = boost::any_cast<Texture*>(pIterator->second);
+		
+		// Textures will be automatically released at the end, just remove.
+		m_pMap->erase(pIterator);
+		return;
+	} catch (const boost::bad_any_cast &)
+	{
+		// This is not a texture, do nothing.
 	}
 
 	try
@@ -119,6 +132,11 @@ Hashtable* Hashtable::getTable(const string& whichKey)
 	{
 		throw Exception("Unexpected type received from key '" + whichKey + "', expected table.");
 	}
+}
+
+stringAnyMap::iterator Hashtable::find(const string& whichKey)
+{
+	return m_pMap->find(whichKey);
 }
 
 stringAnyMap::iterator Hashtable::begin()

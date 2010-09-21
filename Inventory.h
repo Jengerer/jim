@@ -16,7 +16,7 @@ public:
 	~Inventory();
 
 	/* Initializing and ending. */
-	bool loadInterfaces();
+	void loadInterfaces();
 	void closeInterfaces();
 
 	// Inventory and item handling.

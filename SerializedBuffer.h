@@ -6,7 +6,12 @@ public:
 	SerializedBuffer(void* whichBuffer);
 	
 	template<class whichType>
-	whichType* getValue();
+	whichType* getValue()
+	{
+		whichType* returnValue = (whichType*)m_vPointer;
+		pushBuffer(sizeof(whichType));
+		return returnValue;
+	}
 
 	template<class whichType>
 	void pushBuffer(unsigned int numSteps);

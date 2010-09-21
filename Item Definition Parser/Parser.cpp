@@ -135,6 +135,7 @@ void loadDefinitions()
 		}
 
 		Json::Value thisObject;
+		thisObject["itemIndex"] = *itemIndex;
 		thisObject["itemName"] = *realName;
 		thisObject["itemSlot"] = *itemSlot;
 		thisObject["imageInventory"] = *texturePath;
@@ -192,18 +193,20 @@ void loadDefinitions()
 				thisObject["itemClasses"] = itemClasses;
 			}
 		}
-		jsonRoot[*itemIndex] = thisObject;
+
+		jsonRoot.append(thisObject);
 	}
 
 	// Add definition for unknown item.
 	Json::Value unknownItem;
+	unknownItem["itemIndex"] = "-1";
 	unknownItem["itemName"] = "Unknown Item";
 	unknownItem["itemSlot"] = "misc";
 	unknownItem["imageInventory"] = "backpack/unknown_item";
 	unknownItem["imageURL"] = "http://www.jengerer.com/itemManager/imgFiles/backpack/unknown_item.png";
 
 	// Set -1 to be unknown index.
-	jsonRoot["-1"] = unknownItem;
+	jsonRoot.append(unknownItem);
 
 	ofstream jsonOutput("itemDefinitions.json");
 	if (!jsonOutput)

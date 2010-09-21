@@ -15,11 +15,3 @@ void SerializedBuffer::pushBuffer(unsigned int numBytes)
 {
 	m_vPointer = ((char*)m_vPointer + numBytes);
 }
-
-template<class whichType>
-whichType* getValue()
-{
-	whichType* returnValue = (whichType*)m_vPointer;
-	pushBuffer(sizeof(whichType));
-	return returnValue;
-}
