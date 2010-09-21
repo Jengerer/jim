@@ -319,10 +319,16 @@ void DirectX::drawTexture(Texture* whichTexture, double xPosition, double yPosit
 		(float)yPosition,
 		0.0f);
 
+	// Get center.
+	D3DXVECTOR3 centerTexture(
+		(float)whichTexture->getWidth()/2,
+		(float)whichTexture->getHeight()/2,
+		0.0f);
+
 	/* Now draw it. */
 	m_lpSprite->Draw(
 		whichTexture->getTexture(),
-		NULL, NULL,
+		NULL, &centerTexture,
 		&posTexture,
 		D3DCOLOR_XRGB(255, 255, 255));
 }
@@ -359,4 +365,36 @@ bool DirectX::checkDevice()
 		/* Everything's fine. */
 		return true;
 	}
+}
+
+void DirectX::setTransform(const D3DXMATRIX *lpSprite)
+{
+	m_lpSprite->SetTransform(lpSprite);
+}
+
+void DirectX::setTransform(float xPos, float yPos, float numRadians, float xScale, float yScale)
+{
+	// Result matrix.
+	D3DXMATRIX mSprite;
+	D3DXVECTOR2 vecTranslation(0.0f, 0.0f);
+	D3DXVECTOR2 vecCenter(xPos, yPos);
+	D3DXVECTOR2 vecScale(xScale, yScale);
+	D3DXMatrixTransformation2D(
+		// Output variable.
+		&mSprite, 
+
+		// Scaling arguments.
+		&vecCenter, 
+		1.0f,
+		&vecScale,
+
+		// Rotation arguments
+		&vecCenter,
+		numRadians,
+
+		// Translation arguments.
+		&vecTranslation);		
+
+	// Set it.
+	setTransform(&mSprite);
 }

@@ -108,8 +108,8 @@ void ItemManager::closeInterfaces()
 }
 
 #include <cmath>
-float thisTime = 0.1;
 
+Item* lastItem = NULL;
 void ItemManager::onRedraw()
 {
 	RECT screenRect;
@@ -118,13 +118,14 @@ void ItemManager::onRedraw()
 	screenRect.bottom = getHeight() - 10;
 	screenRect.right = getWidth() - 10;
 
-	drawText("We're at this stage...", &screenRect);
-
 	const vector<Slot*>* m_vpInventory = m_pInventory->getInventory();
 	vector<Slot*>::const_iterator pSlot;
 	float thisX = getWidth()/2;
 	float thisY = getHeight()/2;
-	float numCount = 0;
+	int edgePadding = 10;
+	float xStart = edgePadding;
+	float yStart = edgePadding;
+	bool firstItem = true;
 	for (pSlot = m_vpInventory->begin(); pSlot != m_vpInventory->end(); pSlot++)
 	{
 		Slot* thisSlot = *pSlot;
@@ -133,11 +134,33 @@ void ItemManager::onRedraw()
 		if (thisItem != NULL)
 		{
 			Texture* thisTexture = thisItem->getTexture();
-			drawTexture(thisTexture, thisX+sin(numCount+thisTime)*300-thisTexture->getWidth()/2, thisY+sin((numCount+thisTime)*2)*200-thisTexture->getHeight()/2);
-			numCount += 0.2;
-			thisTime += 0.0005;
+
+			if (firstItem)
+			{
+				firstItem = false;
+				xStart = edgePadding + thisTexture->getWidth()/4;
+				yStart = edgePadding + thisTexture->getWidth()/4;
+			}
+
+			if (xStart > (getWidth() - thisTexture->getWidth()/4))
+			{
+				xStart = edgePadding + thisTexture->getWidth()/4;
+				yStart += thisTexture->getHeight()/2;
+			}
+
+			float xDist = getX() - xStart;
+			float yDist = getY() - yStart;
+			float totDist = sqrt(pow(xDist, 2) + pow(yDist, 2));
+			float facScale = 4/(pow(totDist/20, 2) + 2) + 0.5;
+
+			setTransform(xStart, yStart, 0.0f, facScale, facScale);
+			drawTexture(thisTexture, xStart, yStart);
+			lastItem = thisItem;
+			xStart += thisTexture->getWidth()/2;
 		}
 	}
+
+	lastItem = NULL;
 }
 
 void ItemManager::onFrame()

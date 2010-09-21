@@ -40,12 +40,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;..\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\JsonCpp\libs\msvc100d\;$(ProgramFiles)\Boost\stage\lib\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProgramFiles)\JsonCpp\libs\Debug\;$(ProgramFiles)\Boost\stage\lib\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>..\;$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\JsonCpp\libs\msvc100\;$(ProgramFiles)\Boost\stage\lib\;$(ProgramFiles)\LibCurl\lib\Release\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProgramFiles)\JsonCpp\libs\Release\;$(ProgramFiles)\Boost\stage\lib\;$(ProgramFiles)\LibCurl\lib\Release\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -59,7 +59,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libcurl.lib;ws2_32.lib;winmm.lib;json_vc100d_libmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
@@ -79,8 +79,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libcurl.lib;ws2_32.lib;winmm.lib;json_vc100_libmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvcprt.lib;</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcprt.lib;</IgnoreSpecificDefaultLibraries>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
