@@ -23,6 +23,7 @@ Item::Item(uint64 newUniqueID,
 		   uint32 newQuantity,
 		   uint32 newFlags)
 {
+	m_fX = m_fY = m_fdY = m_fdX;
 	/* Set basic attributes. */
 	m_itemID = newUniqueID;
 	m_itemType = newType;

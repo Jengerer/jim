@@ -74,6 +74,8 @@ public:
 
 	/* Public information table. */
 	static Hashtable*	m_hInformation;
+	float					m_fX, m_fY;
+	float					m_fdX, m_fdY;
 
 private:
 	uint64				m_itemID;
