@@ -20,44 +20,44 @@ public:
 		int newHeight);
 	~DirectX();
 
-	/* Initializing and closing. */
+	// Initializing and closing.
 	void loadInterfaces();
 	void closeInterfaces();
 
-	/* Resource handling. */
+	// Resource handling.
 	void loadTextures();
 	void releaseTextures();
-	Texture* getTexture(const string textureName);
-	Texture* loadTexture(const string textureName);
+	Texture* getTexture(const string* textureName, const string* textureURL);
+	Texture* loadTexture(const string* textureName, const string* textureURL);
 
-	/* Running functions. */
+	// Running functions.
 	virtual void onRedraw() = 0;
 	void redrawScreen();
 	bool checkDevice();
 	bool beginDraw();
 	void endDraw();
 
-	/* Drawing functions. */
+	// Drawing functions.
 	void drawTexture(Texture* whichTexture, double xPosition, double yPosition);
 	void drawText(string whichText, RECT *whichPosition);	
 
-	/* Window handling. */
+	// Window handling.
 	Window* getWindow();
 	int getWidth() const;
 	int getHeight() const;
 
 private:
-	/* Direct3D interfaces. */
+	// Direct3D interfaces.
 	LPDIRECT3D9					m_lpDirect3D;
 	LPDIRECT3DDEVICE9			m_lpDevice;
 	LPD3DXSPRITE				m_lpSprite;
 
-	/* Text drawing. */
+	// Text drawing.
 	LPD3DXFONT					m_lpBody;
 
-	/* Present parameters. */
+	// Present parameters.
 	D3DPRESENT_PARAMETERS		m_d3dParams;
 
-	/* Texture handling. */
-	stringAnyMap*				m_pTextures;
+	// Texture handling.
+	Hashtable*					m_pTextures;
 };

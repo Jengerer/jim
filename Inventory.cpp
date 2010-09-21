@@ -7,13 +7,13 @@ Inventory::Inventory(Curl* pCurl,
 	// Set cURL pointer.
 	m_pCurl = pCurl;
 
-	// Inventory has been created.
-	loadInterfaces();
-
 	// Set dimensions.
 	m_iWidth = newWidth;
 	m_iHeight = newHeight;
 	m_iPages = pageCount;
+
+	// Inventory has been created.
+	loadInterfaces();
 }
 
 Inventory::~Inventory()
@@ -22,12 +22,10 @@ Inventory::~Inventory()
 	closeInterfaces();
 }
 
-bool Inventory::loadInterfaces()
+void Inventory::loadInterfaces()
 {
 	/* Create slots for items. */
 	createSlots();
-
-	return true;
 }
 
 void Inventory::closeInterfaces()
@@ -148,7 +146,7 @@ void Inventory::deleteItem(Item* whichItem)
 
 Slot* Inventory::getSlot(uint8 whichIndex)
 {
-	/* Search for the item in that slot. */
+	// Search for that slot, return NULL if invalid.
 	return (slotValid(whichIndex) ? m_vInventory[whichIndex] : NULL);
 }
 

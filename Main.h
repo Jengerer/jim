@@ -21,6 +21,9 @@ public:
 		int newHeight);
 	~Main();
 
+	virtual void loadInterfaces() = 0;
+	virtual void closeInterfaces() = 0;
+
 	/* Getting window. */
 	Window*				getWindow() const;
 

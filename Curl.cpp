@@ -37,44 +37,52 @@ void Curl::cleanCurl()
 	curl_easy_cleanup(m_pCurl);
 }
 
-bool Curl::downloadFile(const string fileURL, const string fileDirectory)
+bool Curl::downloadFile(const string& fileURL, const string& fileDirectory)
 {
 	//Set the URL.
 	CURLcode cRes = curl_easy_setopt(m_pCurl, CURLOPT_URL, fileURL.c_str());
 
-	if (cRes != CURLE_OK) {
-		MessageBox(NULL, "Connection to server!", "Connection Failed", MB_ICONERROR | MB_OK);
+	if (cRes != CURLE_OK)
+	{
+		throw Exception("Failed to set cURL options.");
 		return false;
 	}
 
-	//Create the file.
+	// Create the folder(s) if needed.
+	size_t nextSlash = fileDirectory.find('/');
+	while (nextSlash != string::npos)
+	{
+		string currentPath = fileDirectory.substr(0, nextSlash);
+		if (GetFileAttributes(currentPath.c_str()) == INVALID_FILE_ATTRIBUTES)
+			CreateDirectory(currentPath.c_str(), NULL);
+
+		nextSlash = fileDirectory.find("/", nextSlash+1);
+	}
+
+	// Create the file.
 	struct Download downloadFile = {
 		fileDirectory.c_str(),
 		NULL
 	};
 
-	//Get the file ready for downloading.
+	// Get the file ready for downloading.
 	curl_easy_setopt(m_pCurl, CURLOPT_WRITEDATA, (void *)&downloadFile);
 	curl_easy_setopt(m_pCurl, CURLOPT_WRITEFUNCTION, fWrite);
 	curl_easy_setopt(m_pCurl, CURLOPT_FAILONERROR, true);
 
-	//Get it!
+	// Get it!
 	cRes = curl_easy_perform(m_pCurl);
 
-	//Close the stream if it exists.
+	// Close the stream if it exists.
 	if (downloadFile.fStream)
 		fclose(downloadFile.fStream);
 
-	if (cRes != CURLE_OK)
-	{
-		MessageBox(NULL, "Failed to download file!", fileDirectory.c_str(), MB_ICONERROR | MB_OK);
-		return false;
-	}
+	if (cRes != CURLE_OK) return false;
 
 	return true;
 }
 
-string Curl::readFile(const string fileURL)
+string Curl::readFile(const string& fileURL)
 {
 	struct Read readFile;
 	readFile.cMemory = NULL;

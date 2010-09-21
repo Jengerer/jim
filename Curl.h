@@ -38,8 +38,8 @@ public:
 	void cleanCurl();
 
 	/* External file functions. */
-	bool downloadFile(const string fileURL, const string fileDirectory);
-	string readFile(const string fileURL);
+	bool downloadFile(const string& fileURL, const string& fileDirectory);
+	string readFile(const string& fileURL);
 
 private:
 	CURL *m_pCurl;

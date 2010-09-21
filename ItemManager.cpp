@@ -37,6 +37,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	try
 	{
 		pApplication = new ItemManager(hInstance);
+		pApplication->loadInterfaces();
 	} catch (Exception mainException)
 	{
 		MessageBox(NULL, mainException.getMessage().c_str(), "Initialization failed!", MB_OK);
@@ -71,14 +72,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 ItemManager::ItemManager(HINSTANCE hInstance): DirectX(APPLICATION_TITLE, hInstance, APPLICATION_WIDTH, APPLICATION_HEIGHT)
 {
-	try
-	{
-		loadInterfaces();
-	} catch (Exception managerException)
-	{
-		closeInterfaces();
-		throw managerException;
-	}
 }
 
 ItemManager::~ItemManager()
@@ -114,20 +107,36 @@ void ItemManager::closeInterfaces()
 	}
 }
 
+#include <cmath>
+float thisTime = 0.1;
+
 void ItemManager::onRedraw()
 {
+	RECT screenRect;
+	screenRect.left = 10;
+	screenRect.top = 10;
+	screenRect.bottom = getHeight() - 10;
+	screenRect.right = getWidth() - 10;
+
+	drawText("We're at this stage...", &screenRect);
+
 	const vector<Slot*>* m_vpInventory = m_pInventory->getInventory();
 	vector<Slot*>::const_iterator pSlot;
-	float thisX = 50.0f, thisY = 50.0f;
+	float thisX = getWidth()/2;
+	float thisY = getHeight()/2;
+	float numCount = 0;
 	for (pSlot = m_vpInventory->begin(); pSlot != m_vpInventory->end(); pSlot++)
 	{
 		Slot* thisSlot = *pSlot;
 		Item* thisItem = thisSlot->getItem();
 
-		Texture* thisTexture = thisItem->getTexture();
-		drawTexture(thisTexture, thisX, thisY);
-
-		thisX += 10.0f;
+		if (thisItem != NULL)
+		{
+			Texture* thisTexture = thisItem->getTexture();
+			drawTexture(thisTexture, thisX+sin(numCount+thisTime)*300-thisTexture->getWidth()/2, thisY+sin((numCount+thisTime)*2)*200-thisTexture->getHeight()/2);
+			numCount += 0.2;
+			thisTime += 0.0005;
+		}
 	}
 }
 
@@ -167,12 +176,72 @@ void ItemManager::loadDefinitions()
 
 	// Begin parsing.
 	Json::Reader jsonReader;
-	Json::Value *jsonRoot = new Json::Value();
-	if (!jsonReader.parse(itemDefinitions, *jsonRoot, false))
+	Json::Value jsonRoot;
+	if (!jsonReader.parse(itemDefinitions, jsonRoot, false))
+	{
 		throw Exception("Failed to parse item definitions.");
-	delete jsonRoot;
+	}
 
 	Item::m_hInformation = new Hashtable();
+	for (Json::ValueIterator jsonIterator = jsonRoot.begin(); jsonIterator != jsonRoot.end(); jsonIterator++)
+	{
+		Json::Value thisItem = *jsonIterator;
+		
+		bool hasKeys = thisItem.isMember("itemIndex") &&
+			thisItem.isMember("itemName") &&
+			thisItem.isMember("itemSlot") &&
+			thisItem.isMember("imageURL") &&
+			thisItem.isMember("imageInventory");
+
+		if (!hasKeys)
+		{
+			throw Exception("Failed to parse item definitions. One or more missing members from item entry.");
+		}
+
+		// Get strings.
+		string stringIndex = thisItem.get("itemIndex", jsonRoot).asString();
+		string itemName = thisItem.get("itemName", jsonRoot).asString();
+		string imageInventory = thisItem.get("imageInventory", jsonRoot).asString();
+		string itemSlot = thisItem.get("itemSlot", jsonRoot).asString();
+
+		// Make sure there's a file.
+		string imageURL;
+		if (imageInventory.length() == 0)
+		{
+			imageInventory = "backpack/unknown_item";
+			imageURL = "http://www.jengerer.com/itemManager/imgFiles/backpack/unknown_item.png";
+		} else
+		{
+			imageURL = thisItem.get("imageURL", jsonRoot).asString();
+		}
+
+		string* pImage = new string(imageInventory);
+		string* pURL = new string(imageURL);
+
+		// Add strings to new table.
+		Hashtable* thisTable = new Hashtable();
+		thisTable->put("itemName", new string(itemName));
+		thisTable->put("imageURL", pURL);
+		thisTable->put("imageInventory", pImage);
+		thisTable->put("itemSlot", new string(itemSlot));
+
+		try
+		{
+			Texture* itemTexture = getTexture(pImage, pURL);
+			thisTable->put("itemTexture", itemTexture);
+		} catch (Exception &textureException)
+		{
+			if (thisTable != NULL)
+			{
+				delete thisTable;
+				thisTable = NULL;
+			}
+
+			throw textureException;
+		}
+
+		Item::m_hInformation->put(stringIndex, thisTable);
+	}
 }
 
 void ItemManager::loadItems()
@@ -184,14 +253,14 @@ void ItemManager::loadItems()
 	uint64 userID = m_pInventory->getSteamID();
 
 	stringstream urlStream;
-	urlStream << "steamcommunity.com/profiles/" << userID << "/tfitems?json=1";
+	urlStream << "http://api.steampowered.com/ITFItems_440/GetPlayerItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&SteamID=" << userID << "&format=json";
 	string communityURL = urlStream.str();
 
 	/* Items loaded in read-only. */
 	setLocked(true);
 	setLoaded(true);
 
-	/* Attempt to read the JSON file. */
+	// Attempt to read the file.
 	string jsonInventory;
 	try
 	{
@@ -201,131 +270,102 @@ void ItemManager::loadItems()
 		throw Exception("Failed to read inventory from profile.");
 	}
 	
-	/* Begin parsing the string. */
-	stringstream jsonFile(jsonInventory);
+	// Begin parsing the string.
+	Json::Reader jsonReader;
+	Json::Value jsonRoot;
 
-	bool doWrite = false;
-	string keyWord = "";
-
-	vector<string> wordLibrary;
-	int bracketScope = 0;
-
-	while (jsonFile.good())
+	// Attempt to parse it.
+	if (!jsonReader.parse(jsonInventory, jsonRoot, false))
 	{
-		char currentChar = jsonFile.get();
-
-		//Check if access denied.
-		if (currentChar == '[')
-			throw Exception ("Cound not load items in read-only mode. Profile is private.");
-
-		/* Skip attributes. */
-		if ((currentChar == '{') && (bracketScope == 2))
-		{
-			while (jsonFile.good() && (currentChar != '}'))
-				currentChar = jsonFile.get();
-
-			doWrite = false;
-			continue;
-		}
-
-		/* Write what we have now. */
-		if (doWrite)
-		{
-			if ((bracketScope == 1) && (currentChar == '"'))
-			{
-				/* End of item ID. */
-				doWrite = false;
-				wordLibrary.push_back(keyWord);
-
-				keyWord = "";
-			} else if ((bracketScope == 2) && ((currentChar == ',') || (currentChar == '}')))
-			{
-				/* End of number. */
-				doWrite = false;
-				wordLibrary.push_back(keyWord);
-
-				keyWord = "";
-			} else
-			{
-				/* Otherwise, we're just writing. */
-				keyWord += currentChar;
-			}
-		} else
-		{
-			/* Begin writing if we've reached an opening quote. */
-			if (((bracketScope == 1) && (currentChar == '"')) ||
-				((bracketScope == 2) && (currentChar == ':')))
-				doWrite = true;
-		}
-
-		/* Alter scope accordingly. */
-		if (currentChar == '{')
-			bracketScope++;
-		else if (currentChar == '}')
-			bracketScope--;
+		throw Exception("Failed to parse inventory JSON file.");
 	}
 
-	/* Keep track of an item's attributes. */
+	// Get the result.
+	if (!jsonRoot.isMember("result"))
+	{
+		throw Exception("Failed to parse player's items from Web API: no 'result' key received.");
+	}
+
+	Json::Value resultValue = jsonRoot.get("result", jsonRoot);
+	if (!resultValue.isMember("status"))
+	{
+		throw Exception("Failed to parse player's items from Web API: no 'status' key received.");
+	}
+
+	// Get the JSON value for the status.
+	int intStatus = resultValue.get("status", jsonRoot).asInt();
+	if (intStatus == 15)
+	{
+		throw Exception("Failed to parse player's items from Web API: no permissions.");
+	} else if (intStatus == 8)
+	{
+		throw Exception("Failed to parse player's items from Web API: invalid SteamID argument.");
+	}
+
+	if (!resultValue.isMember("items"))
+	{
+		throw Exception("Failed to parse player's items from Web API: no 'items' key received.");
+	}
+
+	// Get the items object.
+	Json::Value itemsObject = resultValue.get("items", jsonRoot);
+	
+	// TODO: Check that 'item' exists in an empty inventory.
+	if (!itemsObject.isMember("item"))
+	{
+		throw Exception("Failed to parse player's items from Web API: no 'item' key received.");
+	}
+
+	// Get the array of items.
+	Json::Value itemsArray = itemsObject.get("item", jsonRoot);
+	
+	// Keep track of attributes.
 	SOMsgCacheSubscribed_Item_t* addedItem = new SOMsgCacheSubscribed_Item_t();
 
-	/* Iterate through the words found. */
-	vector<string>::const_iterator keyWords;
-	int whichWord = 0;
-
-	for (keyWords = wordLibrary.begin(); keyWords != wordLibrary.end(); keyWords++)
+	for (Json::ValueIterator jsonIterator = itemsArray.begin(); jsonIterator != itemsArray.end(); jsonIterator++)
 	{
-		switch (whichWord++ % 6)
+		Json::Value thisItem = *jsonIterator;
+
+		bool hasKeys = thisItem.isMember("id") && 
+			thisItem.isMember("defindex") && 
+			thisItem.isMember("level") && 
+			thisItem.isMember("quality") && 
+			thisItem.isMember("inventory") &&
+			thisItem.isMember("quantity");
+
+		if (!hasKeys)
 		{
-		case 0:
-			/* This is the item ID. */
-			addedItem->itemid = atol(keyWords->c_str());
-			break;
-
-		case 1:
-			/* This is the item type. */
-			addedItem->itemdefindex = atoi(keyWords->c_str());
-			break;
-
-		case 2:
-			/* This is the item level. */
-			addedItem->itemlevel = atoi(keyWords->c_str());
-			break;
-
-		case 3:
-			/* This is the item quality. */
-			addedItem->itemquality = (EItemQuality)atoi(keyWords->c_str());
-			break;
-
-		case 4:
-			/* This is the item flags. */
-			addedItem->position = atol(keyWords->c_str());
-			break;
-
-		case 5:
-			/* This is the item quantity. */
-			addedItem->itemcount = atoi(keyWords->c_str());
-
-			/* All attributes accounted for; add the item. */
-			Item* newItem = new Item(
-				addedItem->itemid,
-				addedItem->itemdefindex,
-				addedItem->itemlevel,
-				(EItemQuality)addedItem->itemquality,
-				addedItem->itemcount,
-				addedItem->position);
-
-			/* Classify item based on slot validity. */
-			uint8 newPosition = newItem->getPosition();
-			Slot* newSlot = m_pInventory->getSlot(newPosition);
-			if ((newSlot != NULL) && (newSlot->isEmpty()))
-				newItem->setGroup(GROUP_INVENTORY);
-			else
-				newItem->setGroup(GROUP_EXCLUDED);
-
-			/* Add the item, and move to next. */
-			m_pInventory->addItem(newItem);
-			break;
+			throw Exception("Failed to parse player's items from Web API: unexpected format for items received.");
 		}
+
+		addedItem->itemid = thisItem.get("id", jsonRoot).asUInt64();
+		addedItem->itemdefindex = thisItem.get("defindex", jsonRoot).asUInt();
+		addedItem->itemlevel = thisItem.get("level", jsonRoot).asUInt();
+		addedItem->itemquality = thisItem.get("quality", jsonRoot).asUInt();
+		addedItem->position = thisItem.get("inventory", jsonRoot).asUInt();
+
+		// All attributes retrieved, make item.
+		Item* newItem = new Item(
+			addedItem->itemid,
+			addedItem->itemdefindex,
+			addedItem->itemlevel,
+			(EItemQuality)addedItem->itemquality,
+			addedItem->itemcount,
+			addedItem->position);
+
+		// Classify item by slot validity.
+		uint8 newPosition = newItem->getPosition();
+		Slot* newSlot = m_pInventory->getSlot(newPosition);
+		if ((newSlot != NULL) && (newSlot->isEmpty()))
+		{
+			newItem->setGroup(GROUP_INVENTORY);
+		} else
+		{
+			newItem->setGroup(GROUP_EXCLUDED);
+		}
+
+		// Add the item.
+		m_pInventory->addItem(newItem);
 	}
 
 	if (addedItem != NULL)
@@ -336,7 +376,6 @@ void ItemManager::loadItems()
 
 	//TODO: Update excluded scrolling.
 }
-
 
 void ItemManager::handleCallbacks()
 {

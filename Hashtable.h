@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Texture.h"
 #include "Exception.h"
 
 #include <hash_map>
@@ -36,7 +37,11 @@ public:
 
 // For easier type usage.
 typedef stdext::hash_map<string, boost::any, stringHasher>	stringAnyMap;
-typedef stdext::pair<string, boost::any>					hashPair;
+typedef stdext::pair<string, boost::any>					stringAnyPair;
+
+// TODO: Add integer support.
+//typedef stdext::hash_map<int, boost::any>					intAnyMap;
+//typedef stdext::pair<int, boost::any>						intAnyPair;
 
 class Hashtable
 {
@@ -54,6 +59,7 @@ public:
 	Hashtable*					getTable(const string& whichTable);
 	
 	// For iteration.
+	stringAnyMap::iterator		find(const string& whichKey);
 	stringAnyMap::iterator		begin();
 	stringAnyMap::iterator		end();
 
