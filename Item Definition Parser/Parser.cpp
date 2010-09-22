@@ -106,14 +106,13 @@ void loadDefinitions()
 		}
 
 		// Try get the item name.
-		string *itemName, *realName, *itemIndex, *itemSlot, *texturePath, *textureURL;
+		string *itemName, *realName, *itemIndex, *itemSlot, *texturePath;
 		try
 		{
 			itemName = thisTable->getString("item_name");
 			itemIndex = thisTable->getString("defindex");
 			itemSlot = thisTable->getString("item_slot");
 			texturePath = thisTable->getString("image_inventory");
-			textureURL = thisTable->getString("image_url");
 		} catch (Exception tableException)
 		{
 			throw Exception("Unexpected format for item definitions. Found item with no '" + tableException.getMessage() + "' value.");
@@ -139,7 +138,6 @@ void loadDefinitions()
 		thisObject["itemName"] = *realName;
 		thisObject["itemSlot"] = *itemSlot;
 		thisObject["imageInventory"] = *texturePath;
-		thisObject["imageURL"] = *textureURL;
 
 		Json::Value allClasses;
 		allClasses.append("scout");

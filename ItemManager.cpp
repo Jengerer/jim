@@ -214,7 +214,6 @@ void ItemManager::loadDefinitions()
 		bool hasKeys = thisItem.isMember("itemIndex") &&
 			thisItem.isMember("itemName") &&
 			thisItem.isMember("itemSlot") &&
-			thisItem.isMember("imageURL") &&
 			thisItem.isMember("imageInventory");
 
 		if (!hasKeys)
@@ -229,20 +228,14 @@ void ItemManager::loadDefinitions()
 		string itemSlot = thisItem.get("itemSlot", jsonRoot).asString();
 
 		// Make sure there's a file.
-		string imageURL;
 		if (imageInventory.length() == 0)
 		{
 			imageInventory = "backpack/unknown_item";
-			imageURL = "http://www.jengerer.com/itemManager/imgFiles/backpack/unknown_item.png";
-		} else
-		{
-			imageURL = thisItem.get("imageURL", jsonRoot).asString();
 		}
 
 		// Add strings to new table.
 		Hashtable* thisTable = new Hashtable();
 		thisTable->put("itemName", new string(itemName));
-		thisTable->put("imageURL", new string(imageURL));
 		thisTable->put("imageInventory", new string(imageInventory));
 		thisTable->put("itemSlot", new string(itemSlot));
 
