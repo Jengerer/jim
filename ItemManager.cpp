@@ -133,6 +133,7 @@ void ItemManager::onRedraw()
 	vector<Slot*>::const_iterator pSlot;
 
 	int itemIndex = 0;
+	// TODO: Don't draw slots off-screen.
 	for (pSlot = m_vpInventory->begin(); pSlot != m_vpInventory->end(); pSlot++)
 	{
 		Slot* thisSlot = *pSlot;
