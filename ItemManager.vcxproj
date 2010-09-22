@@ -101,7 +101,6 @@
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Hashtable.cpp" />
     <ClCompile Include="Inventory.cpp" />
-    <ClCompile Include="KeyValueParser.cpp" />
     <ClCompile Include="MouseListener.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="Item.cpp" />
@@ -119,7 +118,6 @@
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Hashtable.h" />
     <ClInclude Include="Inventory.h" />
-    <ClInclude Include="KeyValueParser.h" />
     <ClInclude Include="DirectX.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="ItemManager.h" />
