@@ -1,17 +1,24 @@
 #pragma once
 
+#include "Texture.h"
+#include "Drawable.h"
 #include "Item.h"
 
-class Slot
+class Slot: public Drawable
 {
 public:
 	Slot();
 	Slot(Item* whichItem);
 
-	void setItem(Item* newItem);
-	Item* getItem();
-	bool isEmpty() const;
+	// Drawing function.
+	void drawObject(DirectX* pDirectX);
 
-private:
+	// Size getters.
+	int getWidth();
+	int getHeight();
+
+	static Texture* m_slotTexture;
+
+	// The item stored by this slot.
 	Item*	m_pItem;
 };

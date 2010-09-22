@@ -23,7 +23,6 @@ Item::Item(uint64 newUniqueID,
 		   uint32 newQuantity,
 		   uint32 newFlags)
 {
-	m_fX = m_fY = m_fdY = m_fdX;
 	/* Set basic attributes. */
 	m_itemID = newUniqueID;
 	m_itemType = newType;
@@ -71,6 +70,9 @@ void Item::getInformation()
 			throw Exception("Failed to get item information, no definition or default definition found.");
 		}
 	}
+
+	// We've succesfully got information; set the texture.
+	getTexture();
 }
 
 uint64 Item::getUniqueID() const
@@ -200,4 +202,19 @@ Texture* Item::getTexture()
 	}
 	
 	return m_lpTexture;
+}
+
+void Item::drawObject(DirectX* pDirectX)
+{
+	pDirectX->drawTexture(m_lpTexture, m_fX, m_fY);
+}
+
+int Item::getWidth()
+{
+	return m_lpTexture->getWidth();
+}
+
+int Item::getHeight()
+{
+	return m_lpTexture->getHeight();
 }

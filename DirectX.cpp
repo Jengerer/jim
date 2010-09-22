@@ -127,12 +127,11 @@ void DirectX::loadTextures()
 			Texture* thisTexture = boost::any_cast<Texture*>(hashIterator->second);
 			if (!thisTexture->isLoaded())
 			{
-				const string* textureFile = thisTexture->getFilename();
-				const string* textureURL = thisTexture->getURL();
+				const string& textureFile = thisTexture->getFilename();
 
 				/* Load and set the xture. */
-				Texture* tempTexture = loadTexture(textureFile, textureURL);
-				thisTexture->setTexture(tempTexture->getTexture(), textureFile, textureURL);
+				Texture* tempTexture = loadTexture(textureFile);
+				thisTexture->setTexture(tempTexture->getTexture(), textureFile);
 			}
 		} catch (const boost::bad_any_cast &)
 		{
@@ -160,10 +159,10 @@ void DirectX::releaseTextures()
 }
 
 //TODO: Make sure all calls check for success.
-Texture* DirectX::getTexture(const string* textureName, const string* textureURL)
+Texture* DirectX::getTexture(const string& textureName)
 {
 	//Check if that texture exists already.
-	stringAnyMap::iterator hashIterator = m_pTextures->find(*textureName);
+	stringAnyMap::iterator hashIterator = m_pTextures->find(textureName);
 	if (hashIterator != m_pTextures->end())
 	{
 		try
@@ -176,10 +175,10 @@ Texture* DirectX::getTexture(const string* textureName, const string* textureURL
 	}
 
 	// Otherwise, load the texture.
-	Texture* destTexture = loadTexture(textureName, textureURL);
+	Texture* destTexture = loadTexture(textureName);
 	
 	// Now add it to dictionary.
-	m_pTextures->put(*textureName, destTexture);
+	m_pTextures->put(textureName, destTexture);
 
 	// Return it.
 	return destTexture;
@@ -201,12 +200,12 @@ int DirectX::getHeight() const
 }
 
 //TODO: Make sure all calls check for failure.
-Texture* DirectX::loadTexture(const string* textureName, const string* textureURL)
+Texture* DirectX::loadTexture(const string& textureName)
 {
 	LPDIRECT3DTEXTURE9	lpTexture;
 	D3DXIMAGE_INFO		imgInfo;
 
-	string filePath = "imgFiles/" + *textureName + ".png";
+	string filePath = "imgFiles/" + textureName + ".png";
 	HRESULT hResult;
 	
 	hResult = D3DXGetImageInfoFromFile(filePath.c_str(), &imgInfo);
@@ -217,15 +216,12 @@ Texture* DirectX::loadTexture(const string* textureName, const string* textureUR
 			CreateDirectory("imgFiles", NULL);
 
 		// Try to download the texture.
-		if (!downloadFile(*textureURL, filePath))
+		string fileURL = "http://www.jengerer.com/itemManager/" + filePath;
+		if (!downloadFile(fileURL, filePath))
 		{
 			// Try the mirror.
-			string mirrorURL = "http://www.jengerer.com/itemManager/imgFiles/" + *textureName + ".png";
-			if (!downloadFile(mirrorURL, filePath))
-			{
-				string errorMessage = "Failed to load texture:\n" + filePath;
-				throw Exception(errorMessage);
-			}
+			string errorMessage = "Failed to load texture:\n" + filePath;
+			throw Exception(errorMessage);
 		}
 
 		hResult = D3DXGetImageInfoFromFile(filePath.c_str(), &imgInfo);
@@ -260,7 +256,7 @@ Texture* DirectX::loadTexture(const string* textureName, const string* textureUR
 	}
 
 	/* If texture exists, fill it in. Otherwise, return new. */
-	return new Texture(lpTexture, textureName, textureURL, imgInfo);
+	return new Texture(lpTexture, textureName, imgInfo);
 }
 
 bool DirectX::beginDraw()
@@ -308,27 +304,21 @@ void DirectX::drawText(string whichText, RECT *whichPosition)
 	m_lpBody->DrawTextA(m_lpSprite, whichText.c_str(), -1, whichPosition, 0, D3DCOLOR_RGBA(255, 255, 255, 100));
 }
 
-void DirectX::drawTexture(Texture* whichTexture, double xPosition, double yPosition)
+void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const float yPosition)
 {
 	/* Get the texture. */
 	LPDIRECT3DTEXTURE9 lpTexture = whichTexture->getTexture();
 	
 	/* Create the position object. */
 	D3DXVECTOR3 posTexture(
-		(float)xPosition,
-		(float)yPosition,
-		0.0f);
-
-	// Get center.
-	D3DXVECTOR3 centerTexture(
-		(float)whichTexture->getWidth()/2,
-		(float)whichTexture->getHeight()/2,
+		xPosition,
+		yPosition,
 		0.0f);
 
 	/* Now draw it. */
 	m_lpSprite->Draw(
 		whichTexture->getTexture(),
-		NULL, &centerTexture,
+		NULL, NULL,
 		&posTexture,
 		D3DCOLOR_XRGB(255, 255, 255));
 }

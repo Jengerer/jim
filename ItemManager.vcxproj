@@ -46,7 +46,7 @@
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProgramFiles)\JsonCpp\libs\Release\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Release\;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProgramFiles)\JsonCpp\libs\Release\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProgramFiles)\JsonCpp\libs\Debug\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -97,6 +97,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Curl.cpp" />
+    <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Hashtable.cpp" />
     <ClCompile Include="Inventory.cpp" />
@@ -114,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Curl.h" />
+    <ClInclude Include="Drawable.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Hashtable.h" />
     <ClInclude Include="Inventory.h" />
