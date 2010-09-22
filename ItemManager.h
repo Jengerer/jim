@@ -13,18 +13,6 @@
 #include <sstream>
 #include <string>
 
-// Window properties.
-#define APPLICATION_TITLE		"Jengerer's Item Manager"
-#define APPLICATION_WIDTH		800
-#define APPLICATION_HEIGHT		500
-
-// Application attributes.
-#define APPLICATION_FRAMERATE	30.0f
-#define APPLICATION_FRAMESPEED	1000.0f/APPLICATION_FRAMERATE
-#define APPLICATION_VERSION		1000
-
-using namespace std;
-
 class ItemManager: public DirectX
 {
 public:

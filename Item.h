@@ -1,9 +1,11 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-#include "ItemInformation.h"
+#include "steam/SteamAPI.h"
+#include "steam/SteamTypes.h"
 #include "steam/UserItemsCommon.h"
 #include "Hashtable.h"
+#include "Drawable.h"
 #include <vector>
 #include <string>
 #include <sstream>
@@ -23,7 +25,7 @@ enum EItemSelection {
 	SELECT_DRAG
 };
 
-class Item
+class Item: public Drawable
 {
 public:
 	bool operator==(const Item &rOther) const; //TODO: { return (this->GetUniqueID() == rOther.GetUniqueID()); }
@@ -53,7 +55,6 @@ public:
 	string					getName();
 	bool					isHat() const;
 	bool					isEquipped() const;
-	EItemClass				getClass() const;
 	string					getSlot() const;
 	EItemGroup				getGroup() const;
 	EItemSelection			getSelection() const;
@@ -74,8 +75,13 @@ public:
 
 	/* Public information table. */
 	static Hashtable*	m_hInformation;
-	float					m_fX, m_fY;
-	float					m_fdX, m_fdY;
+
+	// Drawing functions.
+	void drawObject(DirectX* pDirectX);
+
+	// Size getters.
+	int getWidth();
+	int getHeight();
 
 private:
 	uint64				m_itemID;

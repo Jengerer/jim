@@ -27,8 +27,8 @@ public:
 	// Resource handling.
 	void loadTextures();
 	void releaseTextures();
-	Texture* getTexture(const string* textureName, const string* textureURL);
-	Texture* loadTexture(const string* textureName, const string* textureURL);
+	Texture* getTexture(const string& textureName);
+	Texture* loadTexture(const string& textureName);
 
 	// Running functions.
 	virtual void onRedraw() = 0;
@@ -38,7 +38,7 @@ public:
 	void endDraw();
 
 	// Drawing functions.
-	void drawTexture(Texture* whichTexture, double xPosition, double yPosition);
+	void drawTexture(Texture* whichTexture, float xPosition, float yPosition);
 	void drawText(string whichText, RECT *whichPosition);	
 	void setTransform(const D3DXMATRIX* lpMatrix);
 	void setTransform(float xPos, float yPos, float numRadians, float xScale, float yScale);

@@ -1,13 +1,4 @@
-#include "ItemManager.h"
-
-//TODO: Change screen depending on mouse position.
-
-#define	APPLICATION		"Jengerer's Item Manager"
-#define	VERSION			1000
-#define	FRAMESPEED		1000/30
-
-#define WIDTH			800
-#define HEIGHT			500
+#include "Main.h"
 
 /* Main constructor. */
 Main::Main(char* newTitle,

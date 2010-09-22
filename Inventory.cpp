@@ -92,10 +92,10 @@ void Inventory::addItem(Item* newItem)
 	{
 		Slot* movedSlot = m_vInventory[itemPosition];
 		/* Don't overlap items. */
-		if (movedSlot->isEmpty())
+		if (movedSlot->m_pItem == NULL)
 		{
 			newItem->setGroup(GROUP_INVENTORY);
-			movedSlot->setItem(newItem);
+			movedSlot->m_pItem = newItem;
 		} else
 		{
 			newItem->setGroup(GROUP_EXCLUDED);
@@ -127,7 +127,7 @@ void Inventory::deleteItem(Item* whichItem)
 			for (pSlot = m_vSelected.begin(); pSlot != m_vSelected.end(); pSlot++)
 			{
 				Slot* thisSlot = *pSlot;
-				if (thisSlot->getItem() == thisItem)
+				if (thisSlot->m_pItem == thisItem)
 				{
 					delete thisSlot;
 					m_vSelected.erase(pSlot);
@@ -178,19 +178,19 @@ uint8 Inventory::getCapacity() const
 void Inventory::moveItem(Slot *oldSlot, Slot* newSlot)
 {
 	/* Get the item we're moving. */
-	Item* itemMoved = oldSlot->getItem();
+	Item* itemMoved = oldSlot->m_pItem;
 
-	if (newSlot->isEmpty())
+	if (newSlot->m_pItem == NULL)
 	{
-		newSlot->setItem(itemMoved);
-		oldSlot->setItem(NULL);
+		newSlot->m_pItem = itemMoved;
+		oldSlot->m_pItem = NULL;
 
 		//m_pSteam->updateItem(itemMoved);
 	} else if (itemMoved->getGroup() == GROUP_INVENTORY)
 	{
-		Item* replacedItem = newSlot->getItem();
-		newSlot->setItem(itemMoved);
-		oldSlot->setItem(replacedItem);
+		Item* replacedItem = newSlot->m_pItem;
+		newSlot->m_pItem = itemMoved;
+		oldSlot->m_pItem = replacedItem;
 
 		//m_pSteam->updateItem(itemMoved);
 		//m_pSteam->updateItem(replacedItem);

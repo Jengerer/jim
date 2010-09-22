@@ -2,11 +2,24 @@
 
 using namespace std;
 
+// Window properties.
+#define APPLICATION_TITLE		"Jengerer's Item Manager"
+#define APPLICATION_WIDTH		795
+#define APPLICATION_HEIGHT		500
+
+// Application attributes.
+#define APPLICATION_FRAMERATE	30.0f
+#define APPLICATION_FRAMESPEED	1000.0f/APPLICATION_FRAMERATE
+#define APPLICATION_VERSION		1000
+
+// Inventory attributes.
 #define PAGE_WIDTH	10
 #define PAGE_HEIGHT	5
 #define PAGE_COUNT	2
 
-#define SLOT_SPACING 5
+// Drawing constants.
+#define PADDING			25.0f
+#define SLOT_SPACING	5.0f
 
 // Main application variable.
 Main* pApplication = NULL;
@@ -85,6 +98,10 @@ void ItemManager::loadInterfaces()
 	// Create inventory.
 	m_pInventory = new Inventory(this, PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT);
 
+	// Load the slot texture.
+	// TODO: have a table of texture names and URLs; should all load at once.
+	Slot::m_slotTexture = getTexture("manager/item_slot");
+
 	// Define and load items.
 	loadDefinitions();
 	loadItems();
@@ -112,52 +129,35 @@ void ItemManager::closeInterfaces()
 Item* lastItem = NULL;
 void ItemManager::onRedraw()
 {
-	RECT screenRect;
-	screenRect.left = 10;
-	screenRect.top = 10;
-	screenRect.bottom = getHeight() - 10;
-	screenRect.right = getWidth() - 10;
-
 	const vector<Slot*>* m_vpInventory = m_pInventory->getInventory();
 	vector<Slot*>::const_iterator pSlot;
-	float thisX = getWidth()/2;
-	float thisY = getHeight()/2;
-	int edgePadding = 10;
-	float xStart = edgePadding;
-	float yStart = edgePadding;
-	bool firstItem = true;
+
+	int itemIndex = 0;
 	for (pSlot = m_vpInventory->begin(); pSlot != m_vpInventory->end(); pSlot++)
 	{
 		Slot* thisSlot = *pSlot;
-		Item* thisItem = thisSlot->getItem();
 
-		if (thisItem != NULL)
+		int xIndex = (itemIndex % PAGE_WIDTH);
+		int yIndex = (itemIndex / PAGE_WIDTH);
+
+		float fX = PADDING, fY = PADDING;
+
+		// Overflow second page to off-screen.
+		if (yIndex >= PAGE_HEIGHT)
 		{
-			Texture* thisTexture = thisItem->getTexture();
-
-			if (firstItem)
-			{
-				firstItem = false;
-				xStart = edgePadding + thisTexture->getWidth()/4;
-				yStart = edgePadding + thisTexture->getWidth()/4;
-			}
-
-			if (xStart > (getWidth() - thisTexture->getWidth()/4))
-			{
-				xStart = edgePadding + thisTexture->getWidth()/4;
-				yStart += thisTexture->getHeight()/2;
-			}
-
-			float xDist = getX() - xStart;
-			float yDist = getY() - yStart;
-			float totDist = sqrt(pow(xDist, 2) + pow(yDist, 2));
-			float facScale = 4/(pow(totDist/20, 2) + 2) + 0.5;
-
-			setTransform(xStart, yStart, 0.0f, facScale, facScale);
-			drawTexture(thisTexture, xStart, yStart);
-			lastItem = thisItem;
-			xStart += thisTexture->getWidth()/2;
+			yIndex %= PAGE_HEIGHT;
+			fX += getWidth();
 		}
+
+		// Set position.
+		thisSlot->m_fX = fX + (thisSlot->getWidth() + SLOT_SPACING)*xIndex;
+		thisSlot->m_fY = fY + (thisSlot->getHeight() + SLOT_SPACING)*yIndex;
+
+		// Draw it.
+		thisSlot->drawObject(this);
+
+		// Increment.
+		itemIndex++;
 	}
 
 	lastItem = NULL;
@@ -238,19 +238,16 @@ void ItemManager::loadDefinitions()
 			imageURL = thisItem.get("imageURL", jsonRoot).asString();
 		}
 
-		string* pImage = new string(imageInventory);
-		string* pURL = new string(imageURL);
-
 		// Add strings to new table.
 		Hashtable* thisTable = new Hashtable();
 		thisTable->put("itemName", new string(itemName));
-		thisTable->put("imageURL", pURL);
-		thisTable->put("imageInventory", pImage);
+		thisTable->put("imageURL", new string(imageURL));
+		thisTable->put("imageInventory", new string(imageInventory));
 		thisTable->put("itemSlot", new string(itemSlot));
 
 		try
 		{
-			Texture* itemTexture = getTexture(pImage, pURL);
+			Texture* itemTexture = getTexture(imageInventory);
 			thisTable->put("itemTexture", itemTexture);
 		} catch (Exception &textureException)
 		{
@@ -379,7 +376,7 @@ void ItemManager::loadItems()
 		// Classify item by slot validity.
 		uint8 newPosition = newItem->getPosition();
 		Slot* newSlot = m_pInventory->getSlot(newPosition);
-		if ((newSlot != NULL) && (newSlot->isEmpty()))
+		if ((newSlot != NULL) && (newSlot->m_pItem == NULL))
 		{
 			newItem->setGroup(GROUP_INVENTORY);
 		} else
