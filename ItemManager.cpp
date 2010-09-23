@@ -154,10 +154,43 @@ void ItemManager::closeInterfaces()
 	}
 }
 
+// TODO: Maybe set position only once, and modify with camera view (maybe use translate).
 void ItemManager::onRedraw()
 {
 	if (m_pInventory->isLoaded())
 	{
+		const vector<Slot*>* m_vpInventory = m_pInventory->getSlots();
+		vector<Slot*>::const_iterator pSlot;
+
+		int itemIndex = 0;
+		// TODO: Don't draw slots off-screen.
+		for (pSlot = m_vpInventory->begin(); pSlot != m_vpInventory->end(); pSlot++)
+		{
+			Slot* thisSlot = *pSlot;
+
+			int xIndex = (itemIndex % PAGE_WIDTH);
+			int yIndex = (itemIndex / PAGE_WIDTH);
+
+			float fX = PADDING, fY = PADDING;
+
+			// Overflow second page to off-screen.
+			if (yIndex >= PAGE_HEIGHT)
+			{
+				yIndex %= PAGE_HEIGHT;
+				fX += getWidth();
+			}
+
+			// Set position.
+			thisSlot->m_fX = fX + (thisSlot->getWidth() + SLOT_SPACING)*xIndex;
+			thisSlot->m_fY = fY + (thisSlot->getHeight() + SLOT_SPACING)*yIndex;
+
+			// Draw it.
+			thisSlot->drawObject(this);
+
+			// Increment.
+			itemIndex++;
+		}
+
 		// Draw buttons.
 		vector<Button*>::iterator buttonIter;
 		for (buttonIter = m_buttonList.begin(); buttonIter != m_buttonList.end(); buttonIter++)
