@@ -11,6 +11,9 @@ public:
 	// Pure virtual; override me.
 	virtual void	drawObject(DirectX* pDirectX) = 0;
 
+	// Position getter/setter.
+	void			setPosition(const float xNew, const float yNew);
+
 	// Pure virtuals for getting width; defined by child.
 	virtual int		getWidth() = 0;
 	virtual int		getHeight() = 0;

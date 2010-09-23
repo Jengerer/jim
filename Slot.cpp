@@ -1,7 +1,7 @@
 #include "Slot.h"
 
 // Initialize the texture.
-Texture* Slot::m_slotTexture = NULL;
+Texture* Slot::m_lpTexture = NULL;
 
 Slot::Slot(Item* whichItem)
 {
@@ -16,7 +16,7 @@ Slot::Slot()
 void Slot::drawObject(DirectX* pDirectX)
 {
 	// Draw the slot texture here.
-	pDirectX->drawTexture(m_slotTexture, m_fX, m_fY);
+	pDirectX->drawTexture(m_lpTexture, m_fX, m_fY);
 
 	if (m_pItem != NULL)
 	{
@@ -31,10 +31,10 @@ void Slot::drawObject(DirectX* pDirectX)
 
 int Slot::getWidth()
 {
-	return m_slotTexture->getWidth();
+	return m_lpTexture->getWidth();
 }
 
 int Slot::getHeight()
 {
-	return m_slotTexture->getHeight();
+	return m_lpTexture->getHeight();
 }

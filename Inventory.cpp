@@ -1,16 +1,15 @@
 #include "Inventory.h"
 
-Inventory::Inventory(Curl* pCurl,
-	int newWidth, int newHeight, 
+Inventory::Inventory(int newWidth, int newHeight, 
 	int pageCount)
 {
-	// Set cURL pointer.
-	m_pCurl = pCurl;
-
 	// Set dimensions.
 	m_iWidth = newWidth;
 	m_iHeight = newHeight;
 	m_iPages = pageCount;
+
+	// Initially unloaded.
+	m_isLoaded = false;
 
 	// Inventory has been created.
 	loadInterfaces();
@@ -170,7 +169,7 @@ int Inventory::getPages() const
 	return m_iPages;
 }
 
-uint8 Inventory::getCapacity() const
+int Inventory::getCapacity() const
 {
 	return getPageSize()*getPages();
 }
@@ -207,7 +206,17 @@ void Inventory::selectItem(Item *whichItem)
 	whichItem->setSelect(whichItem->getSelection() == SELECT_NONE ? SELECT_DRAG : SELECT_NONE);
 }
 
-vector<Slot*>* Inventory::getInventory()
+const vector<Slot*>* Inventory::getSlots()
 {
 	return &m_vInventory;
+}
+
+void Inventory::setLoaded()
+{
+	m_isLoaded = true;
+}
+
+bool Inventory::isLoaded() const
+{
+	return m_isLoaded;
 }

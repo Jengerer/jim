@@ -1,8 +1,16 @@
 #pragma once
 
+// Drawing API.
 #include "DirectX.h"
+
+// User interface headers.
+#include "Button.h"
+#include "Popup.h"
+#include "Dialog.h"
+#include "Alert.h"
+
+// Item and definition headers.
 #include "Hashtable.h"
-#include "KeyValueParser.h"
 #include "Inventory.h"
 #include "SerializedBuffer.h"
 
@@ -19,41 +27,44 @@ public:
 	ItemManager(HINSTANCE hInstance);
 	~ItemManager();
 
-	/* Initializing and closing. */
+	// Initializing and closing.
 	void loadInterfaces();
 	void closeInterfaces();
 
-	/* Drawing functions. */
+	// Item defining and loading.
+	void loadDefinitions();
+	void loadItems();
+
+	// Drawing functions.
 	void onFrame();
 	void onRedraw();
 
-	/* Input handling. */
+	// Input handling.
 	void onMouseDown();
 	void onMouseUp();
 
 	// Inventory handling.
 	void handleCallbacks();
 
-	// Locking and loading inventory.
-	void setLocked(bool isLocked);
-	void setLoaded(bool isLoaded);
-	bool isLoaded() const;
-	bool isLocked() const;
-
-	/* Item defining. */
-	void loadDefinitions();
-	void loadItems();
+	// Interface handling.
+	Dialog* createDialog(const string& newMsg);
+	Alert* createAlert(const string& newMsg);
+	Button* createButton(const string& newCaption, const float xNew = 0, const float yNew = 0);
+	void	showPopup(Popup* whichPopup);
+	void	hidePopup(Popup* whichPopup);
 
 private:
-	/* Application interfaces. */
+	// Application interfaces.
 	Inventory*	m_pInventory;
 
-	/* Inventory variables. */
-	bool		m_bLoaded; //Items loaded?
-	bool		m_bLocked; //Read-only permissions?
+	// User interface stacks.
+	vector<Popup*> m_popupStack;
+	vector<Popup*> m_popupList;
+	vector<Button*> m_buttonList;
 
-	// Item definitions.
-	stringAnyMap		*m_langDefinitions, *m_itemDefinitions;
+	// Interface variables.
+	Dialog		*m_loadDialog;
+	Button		*m_deleteButton, *m_craftButton, *m_sortButton;
 
 	/* Application variables. */
 	float		m_fCamera, m_fSpeed, m_fDestination;

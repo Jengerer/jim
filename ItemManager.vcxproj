@@ -96,7 +96,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Alert.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Curl.cpp" />
+    <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Hashtable.cpp" />
@@ -113,7 +116,10 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Alert.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Curl.h" />
+    <ClInclude Include="Dialog.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Hashtable.h" />
@@ -123,6 +129,7 @@
     <ClInclude Include="ItemManager.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="MouseListener.h" />
+    <ClInclude Include="Popup.h" />
     <ClInclude Include="SerializedBuffer.h" />
     <ClInclude Include="Slot.h" />
     <ClInclude Include="Steam.h" />

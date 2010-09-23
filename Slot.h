@@ -17,7 +17,7 @@ public:
 	int getWidth();
 	int getHeight();
 
-	static Texture* m_slotTexture;
+	static Texture* m_lpTexture;
 
 	// The item stored by this slot.
 	Item*	m_pItem;

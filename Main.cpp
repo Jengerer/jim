@@ -30,3 +30,13 @@ Window* Main::getWindow() const
 {
 	return m_pWindow;
 }
+
+bool Main::keyDown(const int keyCode)
+{
+	return GetAsyncKeyState(keyCode) & 0x8000;
+}
+
+bool Main::keyUp(const int keyCode)
+{
+	return !keyDown(keyCode);
+}

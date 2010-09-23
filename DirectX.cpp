@@ -57,7 +57,7 @@ void DirectX::loadInterfaces()
 	/* Load font for body text. */
 	hResult = D3DXCreateFont(
 		m_lpDevice,
-		12, 0,
+		14, 0,
 		FW_NORMAL,
 		0,
 		FALSE,
@@ -261,18 +261,18 @@ Texture* DirectX::loadTexture(const string& textureName)
 
 bool DirectX::beginDraw()
 {
-	/* Ensure we have all interfaces functional. */
+	// Ensure we have all interfaces functional.
 	if (!checkDevice())
 		return false;
 
-	/* Clear background. */
+	// Clear background.
 	m_lpDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(43, 39, 37), 1.0, 0);
 
-	/* Begin scene. */
-	if (!m_lpDevice->BeginScene())
-		return false;
+	// Begin scene.
+	HRESULT hResult = m_lpDevice->BeginScene();
+	if (hResult != D3D_OK) return false;
 
-	/* Begin drawing with sprite. */
+	// Begin drawing with sprite.
 	m_lpSprite->Begin(D3DXSPRITE_ALPHABLEND);
 	return true;
 }
@@ -296,12 +296,15 @@ void DirectX::redrawScreen()
 	{
 		onRedraw();
 		endDraw();
+	} else
+	{
+		throw Exception("Failed to begin drawing.");
 	}
 }
 
-void DirectX::drawText(string whichText, RECT *whichPosition)
+void DirectX::drawText(const string& whichText, RECT *whichPosition, const DWORD& textFormat, const D3DCOLOR& whichColour)
 {
-	m_lpBody->DrawTextA(m_lpSprite, whichText.c_str(), -1, whichPosition, 0, D3DCOLOR_RGBA(255, 255, 255, 100));
+	m_lpBody->DrawTextA(m_lpSprite, whichText.c_str(), -1, whichPosition, textFormat, whichColour);
 }
 
 void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const float yPosition)

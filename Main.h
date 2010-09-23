@@ -24,15 +24,19 @@ public:
 	virtual void loadInterfaces() = 0;
 	virtual void closeInterfaces() = 0;
 
-	/* Getting window. */
+	// Getting window.
 	Window*				getWindow() const;
 
-	/* Main running functions. */
+	// Main running functions.
 	virtual void		onFrame() = 0;
 
-	/* Input functions. */
+	// Input functions.
 	virtual void		onMouseUp() = 0;
 	virtual void		onMouseDown() = 0;
+
+	// TODO: Make a better keyboard input function.
+	bool				keyUp(const int keyCode);
+	bool				keyDown(const int keyCode);
 
 protected:
 	Window*				m_pWindow;
