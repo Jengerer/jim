@@ -69,9 +69,6 @@
     <ClCompile Include="SerializedBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Drawable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Button.cpp">
       <Filter>Source Files\GUI Elements</Filter>
     </ClCompile>
@@ -79,6 +76,9 @@
       <Filter>Source Files\GUI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Alert.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawable.cpp">
       <Filter>Source Files\GUI Elements</Filter>
     </ClCompile>
   </ItemGroup>
@@ -767,9 +767,6 @@
     <ClInclude Include="SerializedBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Drawable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dialog.h">
       <Filter>Header Files\GUI Elements</Filter>
     </ClInclude>
@@ -780,6 +777,9 @@
       <Filter>Header Files\GUI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Alert.h">
+      <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawable.h">
       <Filter>Header Files\GUI Elements</Filter>
     </ClInclude>
   </ItemGroup>

@@ -13,12 +13,12 @@ public:
 	// Overriding Drawable virtual functions.
 	void	drawObject(DirectX* pDirectX);
 	void	mouseInteract();
-	int		getWidth();
-	int		getHeight();
 
 	void	setMessage(const string& newMsg);
 	void	appendMessage(const string& addMsg);
 
+	// Class-wide texture.
+	virtual const Texture* getTexture() const;
 	static Texture* m_lpTexture;
 
 private:

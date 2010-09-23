@@ -39,6 +39,7 @@ public:
 
 	// Drawing functions.
 	void drawTexture(Texture* whichTexture, float xPosition, float yPosition);
+	void drawTexture(Texture* whichTexture, float xPosition, float yPosition, const D3DCOLOR& whichColour);
 	void drawText(const string& whichText, RECT *whichPosition, const DWORD& textFormat, const D3DCOLOR& whichColour);	
 	void setTransform(const D3DXMATRIX* lpMatrix);
 	void setTransform(float xPos, float yPos, float numRadians, float xScale, float yScale);
