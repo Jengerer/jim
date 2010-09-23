@@ -16,6 +16,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Source Files\GUI Elements">
+      <UniqueIdentifier>{22d41e19-ad81-4eb8-b7cc-97a77123162d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GUI Elements">
+      <UniqueIdentifier>{8f6c6d41-e4fc-4c12-899a-dae4758aab66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
@@ -65,6 +71,15 @@
     </ClCompile>
     <ClCompile Include="Drawable.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialog.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Alert.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -754,6 +769,18 @@
     </ClInclude>
     <ClInclude Include="Drawable.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog.h">
+      <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Popup.h">
+      <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Alert.h">
+      <Filter>Header Files\GUI Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

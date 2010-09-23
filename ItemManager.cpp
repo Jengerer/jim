@@ -96,20 +96,34 @@ ItemManager::~ItemManager()
 void ItemManager::loadInterfaces()
 {
 	// Create inventory.
-	m_pInventory = new Inventory(this, PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT);
+	m_pInventory = new Inventory(PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT);
 
-	// Load the slot texture.
+	// Load the UI texture.
 	// TODO: have a table of texture names and URLs; should all load at once.
-	Slot::m_slotTexture = getTexture("manager/item_slot");
+	Slot::m_lpTexture		= getTexture("manager/item_slot");
+	Button::m_lpTexture		= getTexture("manager/button");
+	Dialog::m_lpTexture		= getTexture("manager/dialog_box");
+
+	// Create buttons.
+	m_deleteButton	= createButton("delete",	650.0f,	355.0f);
+	m_craftButton	= createButton("craft",		520.0f,	355.0f);
+	m_sortButton	= createButton("sort",		25.0f,	355.0f);
+
+	// Show dialog.
+	m_loadDialog = createDialog("Everything has been created.");
 
 	// Define and load items.
 	loadDefinitions();
 	loadItems();
+
+	// Hide the loading dialog.
+	hidePopup(m_loadDialog);
+	createAlert("Everything loaded successfully!");
 }
 
 void ItemManager::closeInterfaces()
 {
-	/* Delete Item Information. */
+	// Delete item information.
 	if (Item::m_hInformation != NULL)
 	{
 		delete Item::m_hInformation;
@@ -122,70 +136,59 @@ void ItemManager::closeInterfaces()
 		delete m_pInventory;
 		m_pInventory = NULL;
 	}
-}
 
-#include <cmath>
-
-Item* lastItem = NULL;
-void ItemManager::onRedraw()
-{
-	const vector<Slot*>* m_vpInventory = m_pInventory->getInventory();
-	vector<Slot*>::const_iterator pSlot;
-
-	int itemIndex = 0;
-	// TODO: Don't draw slots off-screen.
-	for (pSlot = m_vpInventory->begin(); pSlot != m_vpInventory->end(); pSlot++)
+	// Delete dialog boxes.
+	vector<Popup*>::iterator popupIter = m_popupList.begin();
+	while (popupIter != m_popupList.end())
 	{
-		Slot* thisSlot = *pSlot;
-
-		int xIndex = (itemIndex % PAGE_WIDTH);
-		int yIndex = (itemIndex / PAGE_WIDTH);
-
-		float fX = PADDING, fY = PADDING;
-
-		// Overflow second page to off-screen.
-		if (yIndex >= PAGE_HEIGHT)
-		{
-			yIndex %= PAGE_HEIGHT;
-			fX += getWidth();
-		}
-
-		// Set position.
-		thisSlot->m_fX = fX + (thisSlot->getWidth() + SLOT_SPACING)*xIndex;
-		thisSlot->m_fY = fY + (thisSlot->getHeight() + SLOT_SPACING)*yIndex;
-
-		// Draw it.
-		thisSlot->drawObject(this);
-
-		// Increment.
-		itemIndex++;
+		delete *popupIter;
+		m_popupList.erase(popupIter);
 	}
 
-	lastItem = NULL;
+	// Delete buttons.
+	vector<Button*>::iterator buttonIter = m_buttonList.begin();
+	while (buttonIter != m_buttonList.end())
+	{
+		delete *buttonIter;
+		m_buttonList.erase(buttonIter);
+	}
+}
+
+void ItemManager::onRedraw()
+{
+	if (m_pInventory->isLoaded())
+	{
+		// Draw buttons.
+		vector<Button*>::iterator buttonIter;
+		for (buttonIter = m_buttonList.begin(); buttonIter != m_buttonList.end(); buttonIter++)
+		{
+			Button* thisButton = *buttonIter;
+			thisButton->drawObject(this);
+		}
+	}
+
+	// Draw dialog boxes.
+	vector<Popup*>::iterator popupIter;
+	for (popupIter = m_popupStack.begin(); popupIter != m_popupStack.end(); popupIter++)
+	{
+		Popup* thisDialog = *popupIter;
+		thisDialog->drawObject(this);
+	}
 }
 
 void ItemManager::onFrame()
 {
+	// Check for exit.
+	if (keyDown(VK_ESCAPE))
+	{
+		PostMessage(getWindow()->getHandle(), WM_DESTROY, 0, 0);
+	}
+
 	redrawScreen();
 }
 
 void ItemManager::onMouseDown()
 {
-	// Check for hitting.
-	/*
-	for (int I=0; I<m_pInventory->getCapacity(); I++)
-	{
-		Slot* whichSlot = m_pInventory->getSlot(I);
-		if (!whichSlot->isEmpty() && m_pMouse->isTouching(whichSlot))
-		{
-			Item* thisItem = whichSlot->getItem();
-
-			// Toggle selection.
-			m_pInventory->selectItem(thisItem);
-
-			break;
-		}
-	}*/
 }
 
 void ItemManager::onMouseUp()
@@ -195,6 +198,10 @@ void ItemManager::onMouseUp()
 
 void ItemManager::loadDefinitions()
 {
+	// Set the message and redraw.
+	m_loadDialog->setMessage("Loading item definitions...");
+	redrawScreen();
+
 	// Load the item definitions.
 	string itemDefinitions = readFile("http://www.jengerer.com/itemManager/itemDefinitions.json");
 
@@ -241,7 +248,10 @@ void ItemManager::loadDefinitions()
 
 		try
 		{
+			// Get the texture.
 			Texture* itemTexture = getTexture(imageInventory);
+
+			// Add texture to table.
 			thisTable->put("itemTexture", itemTexture);
 		} catch (Exception &textureException)
 		{
@@ -256,10 +266,18 @@ void ItemManager::loadDefinitions()
 
 		Item::m_hInformation->put(stringIndex, thisTable);
 	}
+
+	// Set the message and redraw.
+	m_loadDialog->setMessage("Item definitions successfully loaded!");
+	redrawScreen();
 }
 
 void ItemManager::loadItems()
 {
+	// Append the message.
+	m_loadDialog->appendMessage("\nLoading items from Steam Web API...");
+	redrawScreen();
+
 	/* First clear all vectors. */
 	m_pInventory->clearItems();
 
@@ -269,10 +287,6 @@ void ItemManager::loadItems()
 	stringstream urlStream;
 	urlStream << "http://api.steampowered.com/ITFItems_440/GetPlayerItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&SteamID=" << userID << "&format=json";
 	string communityURL = urlStream.str();
-
-	/* Items loaded in read-only. */
-	setLocked(true);
-	setLoaded(true);
 
 	// Attempt to read the file.
 	string jsonInventory;
@@ -388,6 +402,13 @@ void ItemManager::loadItems()
 		addedItem = NULL;
 	}
 
+	// Show success.
+	m_loadDialog->setMessage("Items successfully loaded!");
+	redrawScreen();
+
+	// Set loaded.
+	m_pInventory->setLoaded();
+
 	//TODO: Update excluded scrolling.
 }
 
@@ -413,21 +434,17 @@ void ItemManager::handleCallbacks()
 					void* messageBuffer;
 					messageBuffer = malloc(iSize);
 
-					/* Retrieve the message. */
+					// Retrieve the message.
 					m_pInventory->getMessage(&messageID, messageBuffer, iSize, &sizeReal);
 
 					switch (messageID)
 					{
 					case SOMsgCacheSubscribed_t::k_iMessage:
-						//Item information has been received.
+						// Item information has been received.
 						{
-							if (!isLoaded())
+							// Start loading items.
+							if (!m_pInventory->isLoaded())
 							{
-								
-								setLoaded(true);
-								setLocked(false);
-
-								//Start loading items.
 								SerializedBuffer thisBuffer(messageBuffer);
 								SOMsgCacheSubscribed_t *iList = thisBuffer.getValue<SOMsgCacheSubscribed_t>();
 								for (int I = 0; I < iList->itemcount; I++)
@@ -454,9 +471,11 @@ void ItemManager::handleCallbacks()
 									m_pInventory->addItem(newItem);
 								}
 
-								//TODO: Update scrolling of excluded items.
+								// Loaded now.
+								m_pInventory->setLoaded();
 							}
-							
+
+							//TODO: Update scrolling of excluded items
 							break;
 						}
 
@@ -520,22 +539,62 @@ void ItemManager::handleCallbacks()
 	m_pInventory->releaseCallback();
 }
 
-void ItemManager::setLocked(bool isLocked)
+Button* ItemManager::createButton(const string& newCaption, const float xNew, const float yNew)
 {
-	m_bLocked = isLocked;
+	Button* newButton = new Button(newCaption);
+
+	// Set position.
+	newButton->setPosition(xNew, yNew);
+
+	// Add and return.
+	m_buttonList.push_back(newButton);
+	return newButton;
 }
 
-void ItemManager::setLoaded(bool isLoaded)
+Dialog* ItemManager::createDialog(const string& newMsg)
 {
-	m_bLoaded = isLoaded;
+	Dialog* newDialog = new Dialog(newMsg);
+
+	// Add to full list.
+	m_popupList.push_back(newDialog);
+
+	// Set position.
+	newDialog->m_fX = getWidth()/2 - newDialog->getWidth()/2;
+	newDialog->m_fY = getHeight()/2 - newDialog->getHeight()/2;
+
+	// Show and return.
+	showPopup(newDialog);
+	return newDialog;
 }
 
-bool ItemManager::isLocked() const
+Alert* ItemManager::createAlert(const string& newMsg)
 {
-	return m_bLocked;
+	Alert* newAlert = new Alert(newMsg);
+
+	// Add to full list.
+	m_popupList.push_back(newAlert);
+
+	// Set position.
+	newAlert->m_fX = getWidth()/2 - newAlert->getWidth()/2;
+	newAlert->m_fY = getHeight()/2 - newAlert->getHeight()/2;
+
+	// Show and return.
+	showPopup(newAlert);
+	return newAlert;
 }
 
-bool ItemManager::isLoaded() const
+void ItemManager::showPopup(Popup* whichPopup)
 {
-	return m_bLoaded;
+	m_popupStack.push_back(whichPopup);
+}
+
+void ItemManager::hidePopup(Popup* whichPopup)
+{
+	// Hide and remove the notification.
+	vector<Popup*>::iterator popupIter;
+	for (popupIter = m_popupStack.begin(); popupIter != m_popupStack.end(); popupIter++)
+	{
+		m_popupStack.erase(popupIter);
+		break;
+	}
 }

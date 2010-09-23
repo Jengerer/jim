@@ -65,23 +65,25 @@ void Window::createWindow(HINSTANCE hInstance)
 	rectWindow.right = getWidth();
 	rectWindow.bottom = getHeight();
 
-	BOOL windowAdjust = AdjustWindowRect(&rectWindow, 
-		WS_VISIBLE | WS_CAPTION | WS_DLGFRAME | WS_MINIMIZEBOX | WS_SYSMENU, 
-		false);
-
-	if (!windowAdjust)
-		throw Exception("Failed to adjust window rectangle.");
-
 	/* Create the window. */
 	m_hWnd = CreateWindowA(
 		m_strTitle,
 		m_strTitle,
-		WS_VISIBLE | WS_CAPTION | WS_DLGFRAME | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU,
+		WS_VISIBLE | WS_POPUP | WS_OVERLAPPED,
 		xWindow, yWindow,
 		rectWindow.right - rectWindow.left, rectWindow.bottom - rectWindow.top,
 		NULL, NULL,
 		hInstance,
 		NULL);
+
+	HRGN windowRegion = CreateRoundRectRgn(
+		rectWindow.left,
+		rectWindow.top,
+		rectWindow.right,
+		rectWindow.bottom,
+		5, 5);
+	SetWindowRgn(m_hWnd, windowRegion, true);
+	DeleteObject(windowRegion);
 
 	if (!m_hWnd)
 		throw Exception("Failed to create window.");
