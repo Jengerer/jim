@@ -5,8 +5,7 @@
 class Drawable
 {
 public:
-	Drawable();
-	Drawable(const float xNew, const float yNew);
+	Drawable(const float xNew = 0.0f, const float yNew = 0.0f);
 
 	// Pure virtual; override me.
 	virtual void	drawObject(DirectX* pDirectX) = 0;
@@ -14,10 +13,20 @@ public:
 	// Position getter/setter.
 	void			setPosition(const float xNew, const float yNew);
 
-	// Pure virtuals for getting width; defined by child.
-	virtual int		getWidth() = 0;
-	virtual int		getHeight() = 0;
+	// For input handling.
+	bool			mouseTouching(MouseListener* pMouse) const;
+
+	// Virtual size getters; return texture size by default.
+	virtual int		getWidth() const;
+	virtual int		getHeight() const;
 
 	// Position member variables.
 	float			m_fX, m_fY;
+
+	// Drawing variables.
+	int				m_nAlpha;
+
+	// Class-wide texture.
+	virtual const Texture*	getTexture() const;
+	static Texture* m_lpTexture;
 };

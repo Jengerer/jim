@@ -28,16 +28,6 @@ void Dialog::mouseInteract()
 	// Nothing yet.
 }
 
-int Dialog::getWidth()
-{
-	return m_lpTexture->getWidth();
-}
-
-int Dialog::getHeight()
-{
-	return m_lpTexture->getHeight();
-}
-
 void Dialog::setMessage(const string& newMsg)
 {
 	m_dialogMsg = newMsg;
@@ -46,4 +36,9 @@ void Dialog::setMessage(const string& newMsg)
 void Dialog::appendMessage(const string& addMsg)
 {
 	m_dialogMsg += addMsg;
+}
+
+const Texture* Dialog::getTexture() const
+{
+	return m_lpTexture;
 }

@@ -266,7 +266,7 @@ bool DirectX::beginDraw()
 		return false;
 
 	// Clear background.
-	m_lpDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(43, 39, 37), 1.0, 0);
+	m_lpDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 43, 39, 37), 1.0, 0);
 
 	// Begin scene.
 	HRESULT hResult = m_lpDevice->BeginScene();
@@ -309,6 +309,12 @@ void DirectX::drawText(const string& whichText, RECT *whichPosition, const DWORD
 
 void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const float yPosition)
 {
+	// Call other function with white colour.
+	drawTexture(whichTexture, xPosition, yPosition, D3DCOLOR_ARGB(255, 255, 255, 255));
+}
+
+void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const float yPosition, const D3DCOLOR& whichColour)
+{
 	/* Get the texture. */
 	LPDIRECT3DTEXTURE9 lpTexture = whichTexture->getTexture();
 	
@@ -323,7 +329,7 @@ void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const fl
 		whichTexture->getTexture(),
 		NULL, NULL,
 		&posTexture,
-		D3DCOLOR_XRGB(255, 255, 255));
+		whichColour);
 }
 
 bool DirectX::checkDevice()

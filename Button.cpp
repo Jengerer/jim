@@ -14,8 +14,18 @@ Button::Button(const string& newCaption, const float xNew, const float yNew): Dr
 
 void Button::drawObject(DirectX* pDirectX)
 {
+	// Check for collision.
+	D3DCOLOR thisColour;
+	if (mouseTouching(pDirectX))
+	{
+		thisColour = D3DCOLOR_ARGB(255, 180, 80, 15);
+	} else
+	{
+		thisColour = D3DCOLOR_ARGB(255, 255, 255, 255);
+	}
+
 	// Draw button base.
-	pDirectX->drawTexture(m_lpTexture, m_fX, m_fY);
+	pDirectX->drawTexture(m_lpTexture, m_fX, m_fY, thisColour);
 	
 	// Draw text in center.
 	RECT buttonRect;
@@ -26,12 +36,7 @@ void Button::drawObject(DirectX* pDirectX)
 	pDirectX->drawText(m_captionString, &buttonRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, D3DCOLOR_XRGB(0, 0, 0));
 }
 
-int Button::getWidth()
+const Texture* Button::getTexture() const
 {
-	return m_lpTexture->getWidth();
-}
-
-int Button::getHeight()
-{
-	return m_lpTexture->getHeight();
+	return m_lpTexture;
 }
