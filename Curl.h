@@ -10,21 +10,21 @@
 using namespace std;
 
 /* Struct for downloaded files. */
-struct Download {
-	const char *cFilename;
-	FILE *fStream;
+struct Download_t {
+	const char* filename;
+	FILE* file;
 };
 
 /* Struct for reading files. */
-struct Read {
-	char *cMemory;
-	size_t tSize;
+struct Memory_t {
+	char* memory;
+	size_t size;
 };
 
 /* Helper functions for downloading/reading. */
-static void *reAllocate(void *vBuffer, size_t tSize);
-static size_t fWrite(void *vBuffer, size_t tSize, size_t nMember, void *vStream);
-static size_t WriteMemoryCallback(void *vBuffer, size_t tSize, size_t nMember, void *vData);
+static void *reallocate( void *buffer, size_t size );
+static size_t write( void *buffer, size_t size, size_t nMembers, void* data );
+static size_t writeCallback( void *buffer, size_t size, size_t nMembers, void* data );
 
 class Curl
 {
@@ -32,15 +32,15 @@ public:
 	Curl();
 	~Curl();
 
-	/* Handling interfaces. */
-	void loadInterfaces();
-	void closeInterfaces();
-	void cleanCurl();
+	// Handling interfaces.
+	void	openInterfaces();
+	void	closeInterfaces();
+	void	clean();
 
-	/* External file functions. */
-	bool downloadFile(const string& fileURL, const string& fileDirectory);
-	string readFile(const string& fileURL);
+	// External file functions.
+	bool	download( const string& url, const string& destination );
+	string	read( const string& url );
 
 private:
-	CURL *m_pCurl;
+	CURL*	curl_;
 };

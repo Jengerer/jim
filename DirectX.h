@@ -14,53 +14,53 @@ using namespace std;
 class DirectX: public Main, public Curl
 {
 public:
-	DirectX(char* newTitle,
+	DirectX( const char* title,
 		HINSTANCE hInstance,
-		int newWidth,
-		int newHeight);
+		int width,
+		int height );
 	~DirectX();
 
 	// Initializing and closing.
-	void loadInterfaces();
+	void openInterfaces();
 	void closeInterfaces();
 
 	// Resource handling.
 	void loadTextures();
 	void releaseTextures();
-	Texture* getTexture(const string& textureName);
-	Texture* loadTexture(const string& textureName);
+	Texture* getTexture( const string& filename );
+	Texture* loadTexture( const string& filename );
 
 	// Running functions.
 	virtual void onRedraw() = 0;
-	void redrawScreen();
+	void redraw();
 	bool checkDevice();
 	bool beginDraw();
 	void endDraw();
 
 	// Drawing functions.
-	void drawTexture(Texture* whichTexture, float xPosition, float yPosition);
-	void drawTexture(Texture* whichTexture, float xPosition, float yPosition, const D3DCOLOR& whichColour);
-	void drawText(const string& whichText, RECT *whichPosition, const DWORD& textFormat, const D3DCOLOR& whichColour);	
-	void setTransform(const D3DXMATRIX* lpMatrix);
-	void setTransform(float xPos, float yPos, float numRadians, float xScale, float yScale);
+	void drawTexture( Texture* texture, float x, float y );
+	void drawTexture( Texture* texture, float x, float y, const D3DCOLOR& colour);
+	void drawText( const string& text, RECT* rect, const DWORD& format, const D3DCOLOR& colour );	
+	void setTransform( const D3DXMATRIX* matrix );
+	void setTransform( float x, float y, float rotation, float xScale, float yScale );
 
 	// Window handling.
 	Window* getWindow();
-	int getWidth() const;
-	int getHeight() const;
+	int		getWidth() const;
+	int		getHeight() const;
 
 private:
 	// Direct3D interfaces.
-	LPDIRECT3D9					m_lpDirect3D;
-	LPDIRECT3DDEVICE9			m_lpDevice;
-	LPD3DXSPRITE				m_lpSprite;
+	LPDIRECT3D9					d3d_;
+	LPDIRECT3DDEVICE9			d3ddev_;
+	LPD3DXSPRITE				sprite_;
 
 	// Text drawing.
-	LPD3DXFONT					m_lpBody;
+	LPD3DXFONT					bodyFont_;
 
 	// Present parameters.
-	D3DPRESENT_PARAMETERS		m_d3dParams;
+	D3DPRESENT_PARAMETERS		params_;
 
 	// Texture handling.
-	Hashtable*					m_pTextures;
+	Hashtable*					textures_;
 };

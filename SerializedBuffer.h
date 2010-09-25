@@ -3,22 +3,22 @@
 class SerializedBuffer
 {
 public:
-	SerializedBuffer(void* whichBuffer);
+	SerializedBuffer( void* buffer );
 	
-	template<class whichType>
-	whichType* getValue()
+	template<class T>
+	whichType* get()
 	{
-		whichType* returnValue = (whichType*)m_vPointer;
-		pushBuffer(sizeof(whichType));
-		return returnValue;
+		T* value = (T*)buffer_;
+		push( sizeof(T) );
+		return value;
 	}
 
-	template<class whichType>
-	void pushBuffer(unsigned int numSteps);
+	template<class T>
+	void push( unsigned int steps );
 
 	// For byte specification.
-	void pushBuffer(unsigned int numBytes);
+	void push( unsigned int bytes );
 
 private:
-	void* m_vPointer;
+	void* buffer_;
 };

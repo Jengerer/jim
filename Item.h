@@ -1,5 +1,4 @@
-#ifndef ITEM_H
-#define ITEM_H
+#pragma once
 
 #include "steam/SteamAPI.h"
 #include "steam/SteamTypes.h"
@@ -28,78 +27,75 @@ enum EItemSelection {
 class Item: public Drawable
 {
 public:
-	bool operator==(const Item &rOther) const; //TODO: { return (this->GetUniqueID() == rOther.GetUniqueID()); }
-	bool operator!=(const Item &rOther) const; //TODO: { return (this->GetUniqueID() != rOther.GetUniqueID()); }
+	bool operator==(const Item &other) const; //TODO: { return (this->GetUniqueID() == rOther.GetUniqueID()); }
+	bool operator!=(const Item &other) const; //TODO: { return (this->GetUniqueID() != rOther.GetUniqueID()); }
 
 	/* Constructor. */
-	Item(uint64 newUniqueID,
-		uint32 newType,
-		uint32 newLevel,
-		EItemQuality newQuality,
-		uint32 newQuantity,
-		uint32 newFlags);
+	Item(uint64 uniqueId,
+		uint32 defIndex,
+		uint32 level,
+		EItemQuality quality,
+		uint32 count,
+		uint32 flags );
 	~Item();
 
 	/* Initializing item. */
-	void				getInformation();
+	void				loadInformation();
 
-	/* Item attribute getters. */
-	uint64				getUniqueID() const;
+	// Item attribute getters.
+	uint64				getUniqueId() const;
 	uint32				getType() const;
 	uint32				getLevel() const;
 	EItemQuality		getQuality() const;
 	uint32				getFlags() const;
-	uint32				getQuantity() const;
+	uint32				getCount() const;
 
-	/* Secondary attribute getters. */
-	string					getName();
-	bool					isHat() const;
-	bool					isEquipped() const;
-	string					getSlot() const;
-	EItemGroup				getGroup() const;
-	EItemSelection			getSelection() const;
-	uint8					getPosition() const;
+	// Secondary attribute getters.
+	string				getName();
+	bool				isHat() const;
+	bool				isEquipped() const;
+	string				getSlot() const;
+	EItemGroup			getGroup() const;
+	uint8				getPosition() const;
 
-	/* Item attribute setters. */
-	void				setGroup(EItemGroup newGroup);
-	void				setSelect(EItemSelection newSelection);
+	// Modify item attributes.
+	void				setEquip( int classIndex, bool equip );
+	void				setPosition( uint8 position );
 
-	/* Modifying item attributes. */
-	void				setEquip(int whichClass, bool doEquip);
-	void				setPosition(uint8 newPosition);
-
-	/* Drawing and interaction. */
+	// Drawing and interaction.
 	Texture*			getTexture();
-	bool				isVisible() const;
 	bool				isTouching() const;
 
-	/* Public information table. */
-	static Hashtable*	m_hInformation;
+	// Item information table.
+	static Hashtable*	informationTable;
 
 	// Drawing functions.
-	void drawObject(DirectX* pDirectX);
+	void				drawObject( DirectX* directX );
+
+	// Input handling.
+	void				onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
 	// Size getters.
-	int getWidth();
-	int getHeight();
+	int					getWidth();
+	int					getHeight();
 
 private:
-	uint64				m_itemID;
-	uint32				m_itemType;
-	uint32				m_itemLevel;
-	EItemQuality		m_itemQuality;
-	uint32				m_itemQuantity;
-	uint32				m_itemFlags;
+	// Item information.
+	uint64				uniqueId_;
+	uint32				defIndex_;
+	uint32				level_;
+	EItemQuality		quality_;
+	uint32				count_;
+	uint32				flags_;
 
-	uint8				m_itemPosition;
+	// Secondary information.
+	uint8				position_;
+	EItemGroup			group_;
 
-	EItemSelection		m_itemSelection;
-	EItemGroup			m_itemGroup;
+	// Item definition information.
+	const Hashtable*	information_;
 
-	Hashtable*		m_pInformation;
-
-	string*				m_itemName;
-	Texture*			m_lpTexture;
+	// Pointers from the information.
+	string*				name_;
+	Texture*			texture_;
 };
-
-#endif //ITEM_H

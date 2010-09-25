@@ -201,9 +201,9 @@ bool Inventory::slotValid(uint8 whichIndex)
 	return ((whichIndex >= 0) && (whichIndex < getCapacity()));
 }
 
-void Inventory::selectItem(Item *whichItem)
+void Inventory::selectSlot(Slot* whichSlot)
 {
-	whichItem->setSelect(whichItem->getSelection() == SELECT_NONE ? SELECT_DRAG : SELECT_NONE);
+	// Nothing yet.
 }
 
 const vector<Slot*>* Inventory::getSlots()

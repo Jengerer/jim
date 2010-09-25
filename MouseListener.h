@@ -2,37 +2,34 @@
 
 #include "Window.h"
 
-enum EMouseState {
-	MOUSE_STATE_UP,
-	MOUSE_STATE_DOWN
+enum EMouseEvent {
+	MOUSE_EVENT_CLICK,
+	MOUSE_EVENT_RELEASE,
+	MOUSE_EVENT_MOVE,
 };
 
 class MouseListener
 {
 public:
 	MouseListener();
-	MouseListener(Window* pWindow);
+	MouseListener( Window* window );
 
-	/* Mouse control and settings. */
-	void setWindow(Window* pWindow);
-	void setState(bool mouseDown);
-	bool mouseDown() const;
+	// Mouse control and settings.
+	void setWindow( Window* window );
 
-	/* Mouse updating. */
+	// Mouse state functions.
 	void pollMouse();
-	virtual void onMouseDown() = 0;
-	virtual void onMouseUp() = 0;
+	virtual void onMouseClick() = 0;
+	virtual void onMouseRelease() = 0;
+	virtual void onMouseMove() = 0;
 
-	/* Setting position. */
-	void setPosition(int xNew, int yNew);
-
-	/* Getting position. */
-	int getX() const;
-	int getY() const;
-	void getPosition(int* pX, int* pY) const;
+	// Position functions.
+	void getPosition( int* x, int* y ) const;
+	void setPosition( int x, int y );
+	int getMouseX() const;
+	int getMouseY() const;
 
 private:
-	Window*		m_pWindow;
-	POINT		m_ptMouse;
-	EMouseState m_eMouseState;	
+	Window*		window_;
+	POINT		position_;
 };

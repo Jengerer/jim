@@ -1,42 +1,49 @@
 #include "Button.h"
 
-Texture* Button::m_lpTexture = NULL;
+Texture* Button::texture = NULL;
 
-Button::Button(const string& newCaption): Drawable(0.0f, 0.0f)
+Button::Button( const string& caption, float x, float y ): Drawable( x, y )
 {
-	m_captionString = newCaption;
+	isActive_ = false;
+	caption_ = caption;
 }
 
-Button::Button(const string& newCaption, const float xNew, const float yNew): Drawable(xNew, yNew)
+void Button::draw( DirectX* directX )
 {
-	m_captionString = newCaption;
-}
-
-void Button::drawObject(DirectX* pDirectX)
-{
-	// Check for collision.
-	D3DCOLOR thisColour;
-	if (mouseTouching(pDirectX))
-	{
-		thisColour = D3DCOLOR_ARGB(255, 180, 80, 15);
-	} else
-	{
-		thisColour = D3DCOLOR_ARGB(255, 255, 255, 255);
-	}
+	// Colour if mouse rolling over.
+	D3DCOLOR colour = ( isActive_ ? 
+		D3DCOLOR_ARGB( 255, 180, 80, 15 ) : D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
 
 	// Draw button base.
-	pDirectX->drawTexture(m_lpTexture, m_fX, m_fY, thisColour);
+	directX->drawTexture( texture, x, y, colour );
 	
 	// Draw text in center.
-	RECT buttonRect;
-	buttonRect.left = (long)m_fX;
-	buttonRect.top = (long)m_fY;
-	buttonRect.right = buttonRect.left + getWidth();
-	buttonRect.bottom = buttonRect.top + getHeight();
-	pDirectX->drawText(m_captionString, &buttonRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, D3DCOLOR_XRGB(0, 0, 0));
+	RECT rect;
+	rect.left = (long)x;
+	rect.top = (long)y;
+	rect.right = rect.left + getWidth();
+	rect.bottom = rect.top + getHeight();
+
+	// Write it.
+	directX->drawText( 
+		caption_, 
+		&rect, 
+		DT_CENTER | DT_SINGLELINE | DT_VCENTER, 
+		D3DCOLOR_XRGB( 0, 0, 0 ) );
+}
+
+void Button::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
+{
+	switch ( mEvent )
+	{
+	case MOUSE_EVENT_MOVE:
+		// Check for roll over.
+		isActive_ = mouseTouching( mouseListener );
+		break;
+	}
 }
 
 const Texture* Button::getTexture() const
 {
-	return m_lpTexture;
+	return texture;
 }

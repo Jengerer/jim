@@ -5,16 +5,17 @@
 class Button: public Drawable
 {
 public:
-	Button(const string& newCaption);
-	Button(const string& newCaption, const float xNew, const float yNew);
+	Button( const string& caption, float x = 0.0f, float y = 0.0f );
 	
-	// Override Drawable virtual functions.
-	void	drawObject(DirectX* pDirectX);
+	// Drawable functions.
+	void draw( DirectX* directX );
+	virtual void onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
 	// Class-wide texture.
 	virtual const Texture* getTexture() const;
-	static Texture* m_lpTexture;
+	static Texture* texture;
 
 private:
-	string	m_captionString;
+	bool isActive_;
+	string caption_;
 };

@@ -1,34 +1,35 @@
 #pragma once
 
+#include <vector>
+#include <sstream>
+#include <string>
+
+// Parsing APIs.
+#include <json/json.h>
+#include <boost/regex.hpp>
+
 // Drawing API.
 #include "DirectX.h"
 
-// User interface headers.
+// User interface.
 #include "Button.h"
 #include "Popup.h"
 #include "Dialog.h"
 #include "Alert.h"
 
-// Item and definition headers.
+// Items and definitions.
 #include "Hashtable.h"
 #include "Inventory.h"
 #include "SerializedBuffer.h"
 
-#include <json/json.h>
-#include <boost/regex.hpp>
-
-#include <vector>
-#include <sstream>
-#include <string>
-
 class ItemManager: public DirectX
 {
 public:
-	ItemManager(HINSTANCE hInstance);
+	ItemManager( HINSTANCE hInstance );
 	~ItemManager();
 
 	// Initializing and closing.
-	void loadInterfaces();
+	void openInterfaces();
 	void closeInterfaces();
 
 	// Item defining and loading.
@@ -40,32 +41,30 @@ public:
 	void onRedraw();
 
 	// Input handling.
-	void onMouseDown();
-	void onMouseUp();
+	void onMouseClick();
+	void onMouseRelease();
+	void onMouseMove();
 
 	// Inventory handling.
 	void handleCallbacks();
 
 	// Interface handling.
-	Dialog* createDialog(const string& newMsg);
-	Alert* createAlert(const string& newMsg);
-	Button* createButton(const string& newCaption, const float xNew = 0, const float yNew = 0);
-	void	showPopup(Popup* whichPopup);
-	void	hidePopup(Popup* whichPopup);
+	Dialog*	createDialog( const string& message );
+	Alert*	createAlert( const string& message );
+	Button*	createButton( const string& caption, float x = 0.0f, float y = 0.0f );
+	void	showPopup(Popup* popup);
+	void	hidePopup(Popup* popup);
 
 private:
 	// Application interfaces.
-	Inventory*	m_pInventory;
+	Inventory*		inventory_;
 
 	// User interface stacks.
-	vector<Popup*> m_popupStack;
-	vector<Popup*> m_popupList;
-	vector<Button*> m_buttonList;
+	vector<Popup*>	popupStack;
+	vector<Popup*>	popups;
+	vector<Button*>	buttons;
 
 	// Interface variables.
-	Dialog		*m_loadDialog;
-	Button		*m_deleteButton, *m_craftButton, *m_sortButton;
-
-	/* Application variables. */
-	float		m_fCamera, m_fSpeed, m_fDestination;
+	Dialog			*loadDialog_;
+	Button			*deleteButton_, *craftButton_, *sortButton_;
 };

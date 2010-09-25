@@ -2,9 +2,19 @@
 
 #include "Drawable.h"
 
+enum EPopupState
+{
+	POPUP_STATE_ACTIVE,
+	POPUP_STATE_INACTIVE
+};
+
 class Popup: public Drawable
 {
 public:
-	virtual void drawObject(DirectX* pDirectX) = 0;
-	virtual void mouseInteract() = 0;
+	Popup();
+
+	EPopupState		getState() const;
+
+protected:
+	EPopupState		state;
 };

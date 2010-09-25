@@ -7,18 +7,21 @@
 class Slot: public Drawable
 {
 public:
-	Slot();
-	Slot(Item* whichItem);
+	Slot( Item* item = NULL );
 
 	// Drawing function.
-	void drawObject(DirectX* pDirectX);
+	void drawObject( DirectX* directX );
 
-	// Size getters.
-	int getWidth();
-	int getHeight();
+	// Input handling.
+	void onMouseEvent( MouseListener* pMouse, EMouseEvent mEvent );
 
+	// Class-wide texture.
+	const Texture* getTexture() const;
 	static Texture* m_lpTexture;
 
 	// The item stored by this slot.
-	Item*	m_pItem;
+	Item*	item;
+
+private:
+	bool	isActive;
 };
