@@ -36,8 +36,8 @@ public:
 };
 
 // For easier type usage.
-typedef stdext::hash_map<string, boost::any, stringHasher>	stringAnyMap;
-typedef stdext::pair<string, boost::any>					stringAnyPair;
+typedef stdext::hash_map<string, boost::any, stringHasher>	stringMap;
+typedef stdext::pair<string, boost::any>					stringPair;
 
 // TODO: Add integer support.
 //typedef stdext::hash_map<int, boost::any>					intAnyMap;
@@ -51,21 +51,21 @@ public:
 
 	// Adding and removing member.
 	void						put( const string& key, boost::any obj );
-	void						remove( stringAnyMap::iterator& iter );
+	void						remove( stringMap::iterator& iter );
 
 	// Member getter.
-	boost::any&					get( const string& key );
+	boost::any&					get ( const string& key );
 	string*						getString( const string& key );
 	Hashtable*					getTable( const string& key );
 	
 	// For iteration.
-	stringAnyMap::iterator		find( const string& key );
-	stringAnyMap::iterator		begin();
-	stringAnyMap::iterator		end();
+	stringMap::iterator		find( const string& key );
+	stringMap::iterator		begin();
+	stringMap::iterator		end();
 
 	// Simple attribute getter.
 	bool						empty() const;
 	
 private:
-	stringAnyMap* map_;
+	stringMap* hashMap_;
 };

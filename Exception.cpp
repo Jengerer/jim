@@ -1,16 +1,11 @@
 #include "Exception.h"
 
-Exception::Exception(const string exceptionMsg)
+Exception::Exception( const std::string& message )
 {
-	setMessage(exceptionMsg);
+	message_ = message;
 }
 
-string Exception::getMessage()
+std::string Exception::getMessage()
 {
-	return m_strMessage;
-}
-
-void Exception::setMessage(const string exceptionMsg)
-{
-	m_strMessage = exceptionMsg;
+	return message_;
 }

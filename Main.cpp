@@ -7,28 +7,28 @@ Main::Main(char* newTitle,
 		int newHeight)
 {
 	// Create and initialize a window.
-	m_pWindow = new Window(
+	window_ = new Window(
 		hInstance,
 		WndProc,
 		newTitle,
 		newWidth, newHeight);
 
-	setWindow(m_pWindow);
+	setWindow(window_);
 }
 
 /* Main deconstructor. */
 Main::~Main()
 {
-	if (m_pWindow != NULL)
+	if (window_ != NULL)
 	{
-		delete m_pWindow;
-		m_pWindow = NULL;
+		delete window_;
+		window_ = NULL;
 	}
 }
 
 Window* Main::getWindow() const
 {
-	return m_pWindow;
+	return window_;
 }
 
 bool Main::keyDown(const int keyCode)

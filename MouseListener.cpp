@@ -12,13 +12,13 @@ MouseListener::MouseListener(Window* pWindow)
 
 void MouseListener::setWindow(Window* pWindow)
 {
-	m_pWindow = pWindow;
+	window_ = pWindow;
 }
 
 void MouseListener::pollMouse()
 {
 	GetCursorPos(&m_ptMouse);
-	ScreenToClient(m_pWindow->getHandle(), &m_ptMouse);
+	ScreenToClient(window_->getHandle(), &m_ptMouse);
 }
 
 void MouseListener::setPosition(int xNew, int yNew)

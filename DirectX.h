@@ -52,7 +52,7 @@ public:
 private:
 	// Direct3D interfaces.
 	LPDIRECT3D9					d3d_;
-	LPDIRECT3DDEVICE9			d3ddev_;
+	LPDIRECT3DDEVICE9			d3dDevice_;
 	LPD3DXSPRITE				sprite_;
 
 	// Text drawing.
@@ -62,5 +62,5 @@ private:
 	D3DPRESENT_PARAMETERS		params_;
 
 	// Texture handling.
-	Hashtable*					textures_;
+	Hashtable*					textureMap_;
 };

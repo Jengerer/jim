@@ -15,7 +15,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 class Main: public MouseListener
 {
 public:
-	Main(char* title,
+	Main(const char* title,
 		HINSTANCE hInstance,
 		int width,
 		int height);
