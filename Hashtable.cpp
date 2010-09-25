@@ -1,40 +1,40 @@
 #include "Hashtable.h"
 
-string toUpper(const string& whichString)
+string upper( const string& source )
 {
 	// Copy the string.
-	string newString(whichString);
+	string result( source );
 
-	string::iterator strIterator;
-	for (strIterator = newString.begin(); strIterator != newString.end(); strIterator++)
-		*strIterator = toupper(*strIterator);
+	string::iterator i;
+	for (i = result.begin(); i != result.end(); i++)
+		*i = toupper(*i);
 
-	return newString;
+	return result;
 }
 
-string toLower(const string& whichString)
+string lower( const string& source )
 {
 	// Copy the string.
-	string newString(whichString);
+	string result( source );
 
-	string::iterator strIterator;
-	for (strIterator = newString.begin(); strIterator != newString.end(); strIterator++)
-		*strIterator = tolower(*strIterator);
+	string::iterator i;
+	for (i = result.begin(); i != result.end(); i++)
+		*i = tolower(*i);
 
-	return newString;
+	return result;
 }
 
 Hashtable::Hashtable()
 {
-	m_pMap = new stringAnyMap();
+	hashMap_ = new stringMap();
 }
 
 Hashtable::~Hashtable()
 {
-	stringAnyMap::iterator hashIterator;
-	while (!m_pMap->empty())
+	stringMap::iterator hashIterator;
+	while (!hashMap_->empty())
 	{
-		remove(m_pMap->begin());
+		remove(hashMap_->begin());
 	}
 
 	delete m_pMap;
@@ -43,18 +43,18 @@ Hashtable::~Hashtable()
 void Hashtable::put(const string& whichKey, boost::any whichValue)
 {
 	// See if we need to replace it.
-	stringAnyMap::iterator hashIterator = m_pMap->find(whichKey);
+	stringMap::iterator hashIterator = m_pMap->find(whichKey);
 	if (hashIterator != m_pMap->end())
 	{
 		remove(hashIterator);
 	}
 
 	// Insert or re-insert now.
-	stringAnyPair thisPair(whichKey, whichValue);
+	stringPair thisPair(whichKey, whichValue);
 	m_pMap->insert(thisPair);
 }
 
-void Hashtable::remove(stringAnyMap::iterator& pIterator)
+void Hashtable::remove(stringMap::iterator& pIterator)
 {
 	try
 	{
@@ -103,7 +103,7 @@ void Hashtable::remove(stringAnyMap::iterator& pIterator)
 
 boost::any& Hashtable::get(const string& whichKey)
 {
-	stringAnyMap::iterator hashIterator = m_pMap->find(whichKey);
+	stringMap::iterator hashIterator = m_pMap->find(whichKey);
 
 	if (hashIterator == m_pMap->end())
 		throw Exception(whichKey);
@@ -134,17 +134,17 @@ Hashtable* Hashtable::getTable(const string& whichKey)
 	}
 }
 
-stringAnyMap::iterator Hashtable::find(const string& whichKey)
+stringMap::iterator Hashtable::find(const string& whichKey)
 {
 	return m_pMap->find(whichKey);
 }
 
-stringAnyMap::iterator Hashtable::begin()
+stringMap::iterator Hashtable::begin()
 {
 	return m_pMap->begin();
 }
 
-stringAnyMap::iterator Hashtable::end()
+stringMap::iterator Hashtable::end()
 {
 	return m_pMap->end();
 }

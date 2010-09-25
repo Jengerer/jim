@@ -93,7 +93,7 @@ void loadDefinitions()
 	Json::StyledWriter jsonWriter;
 
 	// Handle items.
-	stringAnyMap::iterator hashIterator, itemIterator, nameIterator;
+	stringMap::iterator hashIterator, itemIterator, nameIterator;
 	for (hashIterator = definitionsTable->begin(); hashIterator != definitionsTable->end(); hashIterator++)
 	{
 		Hashtable* thisTable = NULL;
@@ -173,7 +173,7 @@ void loadDefinitions()
 			if (!classTable->empty())
 			{
 				Json::Value itemClasses;
-				stringAnyMap::iterator hashIterator;
+				stringMap::iterator hashIterator;
 				for (hashIterator = classTable->begin(); hashIterator != classTable->end(); hashIterator++)
 				{
 					// Get the class name.

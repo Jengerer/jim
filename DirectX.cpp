@@ -1,17 +1,17 @@
 #include "DirectX.h"
 
-DirectX::DirectX(char* newTitle,
+DirectX::DirectX(const char* title,
 		HINSTANCE hInstance,
-		int newWidth,
-		int newHeight) : Main(newTitle, hInstance, newWidth, newHeight)
+		int width,
+		int height) : Main( title, hInstance, width, height )
 {
 	try
 	{
-		loadInterfaces();
-	} catch (Exception directException)
+		openInterfaces();
+	} catch (Exception dxException)
 	{
 		closeInterfaces();
-		throw directException;
+		throw dxException;
 	}
 }
 
@@ -21,42 +21,42 @@ DirectX::~DirectX()
 	closeInterfaces();
 }
 
-void DirectX::loadInterfaces()
+void DirectX::openInterfaces()
 {
-	m_lpDirect3D = Direct3DCreate9(D3D_SDK_VERSION);
+	d3d_ = Direct3DCreate9( D3D_SDK_VERSION );
 
-	if (m_lpDirect3D == NULL)
-		throw Exception("Failed to create Direct3D.");
+	if (d3d_ == 0)
+		throw Exception( "Failed to create Direct3D." );
 
-	ZeroMemory(&m_d3dParams, sizeof(m_d3dParams));
+	ZeroMemory(&params_, sizeof(params_));
 
-	m_d3dParams.Windowed			= TRUE;
-	m_d3dParams.BackBufferCount		= 1;
-	m_d3dParams.BackBufferFormat	= D3DFMT_X8R8G8B8;
-	m_d3dParams.BackBufferWidth		= m_pWindow->getWidth();
-	m_d3dParams.BackBufferHeight	= m_pWindow->getHeight();
-	m_d3dParams.SwapEffect			= D3DSWAPEFFECT_DISCARD;
-	m_d3dParams.hDeviceWindow		= m_pWindow->getHandle();
+	params_.Windowed			= TRUE;
+	params_.BackBufferCount		= 1;
+	params_.BackBufferFormat	= D3DFMT_X8R8G8B8;
+	params_.BackBufferWidth		= window_->getWidth();
+	params_.BackBufferHeight	= window_->getHeight();
+	params_.SwapEffect			= D3DSWAPEFFECT_DISCARD;
+	params_.hDeviceWindow		= window_->getHandle();
 
-	m_lpDirect3D->CreateDevice(
+	d3d_->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
-		m_pWindow->getHandle(),
+		window_->getHandle(),
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-		&m_d3dParams,
-		&m_lpDevice);
+		&params_,
+		&d3dDevice_);
 
-	if (m_lpDevice == NULL)
-		throw Exception("Failed to create Direct3D device!");
+	if (d3dDevice_ == 0)
+		throw Exception( "Failed to create Direct3D device!" );
 
 	HRESULT hResult;
-	hResult = D3DXCreateSprite(m_lpDevice, &m_lpSprite);
+	hResult = D3DXCreateSprite( d3dDevice_, &sprite_ );
 	if (hResult != D3D_OK)
-		throw Exception("Failed to create sprite handler.");
+		throw Exception( "Failed to create sprite handler." );
 
-	/* Load font for body text. */
+	// Get font for body text.
 	hResult = D3DXCreateFont(
-		m_lpDevice,
+		d3dDevice_,
 		14, 0,
 		FW_NORMAL,
 		0,
@@ -66,76 +66,77 @@ void DirectX::loadInterfaces()
 		DEFAULT_QUALITY,
 		DEFAULT_PITCH | FF_DONTCARE,
 		"Arial",
-		&m_lpBody);
+		&bodyFont_);
 
 	if (hResult != D3D_OK)
-		throw Exception("Failed to create font device.");
+		throw Exception( "Failed to create font device." );
 
-	/* Create an empty Hashtable. */
-	m_pTextures = new Hashtable();
+	// Create empty hashtable.
+	textureMap_ = new Hashtable();
 
-	/* Now attempt to load any textures. */
+	// Attempt to load any textures.
 	loadTextures();
 }
 
 void DirectX::closeInterfaces()
 {
-	/* Delete the Hashtable of textures. */
-	if (m_pTextures != NULL)
+	// Delete map of vectors.
+	if (textureMap_ != 0)
 	{
-		delete m_pTextures;
-		m_pTextures = NULL;
+		delete textureMap_;
+		textureMap_ = 0;
 	}
 
 	/* Delete fonts. */
-	if (m_lpBody != NULL)
+	if (bodyFont_ != NULL)
 	{
-		m_lpBody->Release();
-		m_lpBody = NULL;
+		bodyFont_->Release();
+		bodyFont_ = 0;
 	}
 
 	/* Delete Sprite handler. */
-	if (m_lpSprite)
+	if (sprite_)
 	{
-		m_lpSprite->Release();
-		m_lpSprite = NULL;
+		sprite_->Release();
+		sprite_ = 0;
 	}
 
 	/* Delete Device. */
-	if (m_lpDevice)
+	if (d3dDevice_)
 	{
-		m_lpDevice->Release();
-		m_lpDevice = NULL;
+		d3dDevice_->Release();
+		d3dDevice_ = NULL;
 	}
 
 	/* Delete Direct3D. */
-	if (m_lpDirect3D)
+	if (d3d_)
 	{
-		m_lpDirect3D->Release();
-		m_lpDirect3D = NULL;
+		d3d_->Release();
+		d3d_ = NULL;
 	}
 }
 
 void DirectX::loadTextures()
 {
 	/* Reload any existing unloaded textures. */
-	stringAnyMap::iterator hashIterator;
-	for (hashIterator = m_pTextures->begin(); hashIterator != m_pTextures->end(); hashIterator++)
+	stringMap::iterator i;
+	for (i = textureMap_->begin(); i != textureMap_->end(); i++)
 	{
+		boost::any& value = i->second;
 		try
 		{
-			Texture* thisTexture = boost::any_cast<Texture*>(hashIterator->second);
-			if (!thisTexture->isLoaded())
+			Texture* texture = boost::any_cast<Texture*>(value);
+			if (!texture->isLoaded())
 			{
-				const string& textureFile = thisTexture->getFilename();
+				const string& filePath = texture->getFilename();
 
-				/* Load and set the xture. */
-				Texture* tempTexture = loadTexture(textureFile);
-				thisTexture->setTexture(tempTexture->getTexture(), textureFile);
+				// Load and set the texture.
+				Texture* tempTexture = loadTexture( filePath );
+				texture->setTexture( tempTexture->getTexture(), filePath );
 			}
 		} catch (const boost::bad_any_cast &)
 		{
-			throw Exception("Failed to get texture string, unexpected variable type received.");
+			throw Exception( "Failed to get texture string, unexpected variable type received." );
 		}
 	}
 }
@@ -143,7 +144,7 @@ void DirectX::loadTextures()
 void DirectX::releaseTextures()
 {
 	/* Get textures and release them. */
-	stringAnyMap::iterator hashIterator;
+	stringMap::iterator hashIterator;
 	for (hashIterator = m_pTextures->begin(); hashIterator != m_pTextures->end(); hashIterator++)
 	{
 		// Just release it.
@@ -162,7 +163,7 @@ void DirectX::releaseTextures()
 Texture* DirectX::getTexture(const string& textureName)
 {
 	//Check if that texture exists already.
-	stringAnyMap::iterator hashIterator = m_pTextures->find(textureName);
+	stringMap::iterator hashIterator = m_pTextures->find(textureName);
 	if (hashIterator != m_pTextures->end())
 	{
 		try
@@ -186,17 +187,17 @@ Texture* DirectX::getTexture(const string& textureName)
 
 Window* DirectX::getWindow()
 {
-	return m_pWindow;
+	return window_;
 }
 
 int DirectX::getWidth() const
 {
-	return m_pWindow->getWidth();
+	return window_->getWidth();
 }
 
 int DirectX::getHeight() const
 {
-	return m_pWindow->getHeight();
+	return window_->getHeight();
 }
 
 //TODO: Make sure all calls check for failure.
@@ -236,7 +237,7 @@ Texture* DirectX::loadTexture(const string& textureName)
 
 	//Load the texture.
 	hResult = D3DXCreateTextureFromFileEx(
-		m_lpDevice,
+		d3dDevice_,
 		filePath.c_str(),
 		imgInfo.Width, //Use file size.
 		imgInfo.Height, //Use file size.
@@ -266,27 +267,27 @@ bool DirectX::beginDraw()
 		return false;
 
 	// Clear background.
-	m_lpDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 43, 39, 37), 1.0, 0);
+	d3dDevice_->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 43, 39, 37), 1.0, 0);
 
 	// Begin scene.
-	HRESULT hResult = m_lpDevice->BeginScene();
+	HRESULT hResult = d3dDevice_->BeginScene();
 	if (hResult != D3D_OK) return false;
 
 	// Begin drawing with sprite.
-	m_lpSprite->Begin(D3DXSPRITE_ALPHABLEND);
+	sprite_->Begin(D3DXSPRITE_ALPHABLEND);
 	return true;
 }
 
 void DirectX::endDraw()
 {
 	/* End drawing with sprite. */
-	m_lpSprite->End();
+	sprite_->End();
 
 	/* End scene. */
-	m_lpDevice->EndScene();
+	d3dDevice_->EndScene();
 
 	/* Present scene. */
-	m_lpDevice->Present(NULL, NULL, NULL, NULL);
+	d3dDevice_->Present(NULL, NULL, NULL, NULL);
 }
 
 void DirectX::redrawScreen()
@@ -304,7 +305,7 @@ void DirectX::redrawScreen()
 
 void DirectX::drawText(const string& whichText, RECT *whichPosition, const DWORD& textFormat, const D3DCOLOR& whichColour)
 {
-	m_lpBody->DrawTextA(m_lpSprite, whichText.c_str(), -1, whichPosition, textFormat, whichColour);
+	m_lpBody->DrawTextA(sprite_, whichText.c_str(), -1, whichPosition, textFormat, whichColour);
 }
 
 void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const float yPosition)
@@ -325,7 +326,7 @@ void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const fl
 		0.0f);
 
 	/* Now draw it. */
-	m_lpSprite->Draw(
+	sprite_->Draw(
 		whichTexture->getTexture(),
 		NULL, NULL,
 		&posTexture,
@@ -334,7 +335,7 @@ void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const fl
 
 bool DirectX::checkDevice()
 {
-	switch (m_lpDevice->TestCooperativeLevel())
+	switch (d3dDevice_->TestCooperativeLevel())
 	{
 	case D3DERR_DEVICELOST:
 		return false;
@@ -344,15 +345,15 @@ bool DirectX::checkDevice()
 			releaseTextures();
 
 			/* Refresh the sprite. */
-			m_lpSprite->OnLostDevice();
-			HRESULT hResult = m_lpDevice->Reset(&m_d3dParams);
-			m_lpSprite->OnResetDevice();
+			sprite_->OnLostDevice();
+			HRESULT hResult = d3dDevice_->Reset(&params_);
+			sprite_->OnResetDevice();
 
 			/* Check that everything was properly refreshed. */
 			if (hResult != D3D_OK)
 			{
 				MessageBox(NULL, "Failed to reset Direct3D device!", "Direct3D Device Failure", MB_OK);
-				PostMessage(m_pWindow->getHandle(), WM_DESTROY, 0, 0);
+				PostMessage(window_->getHandle(), WM_DESTROY, 0, 0);
 			}
 
 			/* Now load all the textures again. */
@@ -368,7 +369,7 @@ bool DirectX::checkDevice()
 
 void DirectX::setTransform(const D3DXMATRIX *lpSprite)
 {
-	m_lpSprite->SetTransform(lpSprite);
+	sprite_->SetTransform(lpSprite);
 }
 
 void DirectX::setTransform(float xPos, float yPos, float numRadians, float xScale, float yScale)
