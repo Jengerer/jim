@@ -1,16 +1,14 @@
 #pragma once
 
 #include "Steam.h"
-#include "Curl.h"
 #include "Item.h"
 #include "Slot.h"
 #include <vector>
 
-class Inventory: public Steam
+class Inventory: public Steam, public Drawable
 {
 public:
-	Inventory(int newWidth, int newHeight, 
-		int pageCount);
+	Inventory(int width, int height, int pages);
 	~Inventory();
 
 	/* Initializing and ending. */
@@ -20,9 +18,10 @@ public:
 	// Slot handling.
 	void					createSlots();
 	void					clearSlots();
-	void					moveItem(Slot* oldSlot, Slot* newSlot);
-	bool					slotValid(uint8 whichIndex);
-	Slot*					getSlot(uint8 whichIndex);
+	void					select( Slot* slot );
+	void					move( Slot* slot1, Slot* slot2 );
+	bool					isValid( uint8 index );
+	Slot*					get( uint8 index );
 	const vector<Slot*>*	getSlots();
 
 	// State methods.
@@ -30,9 +29,8 @@ public:
 	bool					isLoaded() const;
 
 	// Item handling.
-	void					addItem(Item *newItem);
-	void					deleteItem(Item *whichItem);
-	void					selectItem(Item *whichItem);
+	void					add( Item* item );
+	void					remove( Item* item );
 	void					clearItems();
 
 	// Item selection methods.
@@ -42,26 +40,17 @@ public:
 	// Steam callback handling.
 	void					handleCallbacks();
 
-	// Size getters.
-	int						getWidth() const;
-	int						getHeight() const;
-	int						getPageSize() const;
-	int						getPages() const;
-	int						getCapacity() const;
-
 private:
 	// Vector for all items.
-	vector<Item*>			m_vItems;
+	vector<Item*>	items_;
 
 	// Slot vectors.
-	vector<Slot*>			m_vInventory;
-	vector<Slot*>			m_vSelected;
-	vector<Slot*>			m_vExcluded;
+	vector<Slot*>	inventory_;
+	vector<Slot*>	excluded_;
+	vector<Slot*>	selected_;
 
-	// Status variables.
-	bool					m_isLoaded;
-
-	// Dimensions.
-	int						m_iWidth, m_iHeight;
-	int						m_iPages;
+	// Inventory attributes.
+	bool			isLoaded_;
+	int				width_, height_;
+	int				pages_;
 };

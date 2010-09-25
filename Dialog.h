@@ -8,19 +8,20 @@
 class Dialog: public Popup
 {
 public:
-	Dialog(const string& newMsg);
+	Dialog( const string& message );
 
-	// Overriding Drawable virtual functions.
-	void	drawObject(DirectX* pDirectX);
-	void	mouseInteract();
+	// Drawable functions.
+	void draw( DirectX* directX );
+	virtual void onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
-	void	setMessage(const string& newMsg);
-	void	appendMessage(const string& addMsg);
+	// Message handling.
+	void setMessage( const string& message );
+	void appendMessage( const string& message );
 
 	// Class-wide texture.
 	virtual const Texture* getTexture() const;
-	static Texture* m_lpTexture;
+	static Texture* texture;
 
 private:
-	string	m_dialogMsg;
+	string message_;
 };

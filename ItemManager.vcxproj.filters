@@ -81,6 +81,9 @@
     <ClCompile Include="Drawable.cpp">
       <Filter>Source Files\GUI Elements</Filter>
     </ClCompile>
+    <ClCompile Include="Popup.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectX.h">

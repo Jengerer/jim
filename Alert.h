@@ -6,12 +6,12 @@
 class Alert: public Dialog
 {
 public:
-	Alert(const string& newMsg);
+	Alert( const string& message );
 	~Alert();
 
-	void drawObject(DirectX* pDirectX);
-	void mouseInteract();
+	void draw( DirectX* directX );
+	void onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
 private:
-	Button* m_okayButton;
+	Button* okButton;
 };

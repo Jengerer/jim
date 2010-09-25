@@ -15,29 +15,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 class Main: public MouseListener
 {
 public:
-	Main(char* newTitle,
+	Main(char* title,
 		HINSTANCE hInstance,
-		int newWidth,
-		int newHeight);
+		int width,
+		int height);
 	~Main();
 
-	virtual void loadInterfaces() = 0;
-	virtual void closeInterfaces() = 0;
+	virtual void	openInterfaces() = 0;
+	virtual void	closeInterfaces() = 0;
 
 	// Getting window.
-	Window*				getWindow() const;
+	Window*			getWindow() const;
 
 	// Main running functions.
-	virtual void		onFrame() = 0;
+	virtual void	onFrame() = 0;
 
-	// Input functions.
-	virtual void		onMouseUp() = 0;
-	virtual void		onMouseDown() = 0;
-
-	// TODO: Make a better keyboard input function.
-	bool				keyUp(const int keyCode);
-	bool				keyDown(const int keyCode);
+	// TODO: Make a better keyboard input interface.
+	bool			isKeyUp( const int keyCode );
+	bool			isKeyDown( const int keyCode );
 
 protected:
-	Window*				m_pWindow;
+	Window*			window_;
 };

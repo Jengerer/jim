@@ -9,29 +9,29 @@
 
 using namespace std;
 
-string toLower(const string& whichString);
-string toUpper(const string& whichString);
+string lower(const string& source);
+string upper(const string& source);
 
-// The following class defines a hash function for strings 
+// The following class defines a hash function for strings.
 class stringHasher : public stdext::hash_compare<string>
 {
 public:
 	// Inspired by the java.lang.String.hashCode() algorithm.
 	size_t operator() (const string& whichString) const
 	{
-		size_t hNum = 0;
-		string::const_iterator pIter, pEnd;
+		size_t result = 0;
+		string::const_iterator i, end;
 
-		string newString = toLower(whichString);
-		for(pIter = newString.begin(), pEnd = newString.end(); pIter != pEnd; ++pIter)
-			hNum = 31 * hNum + (*pIter);
+		string newString = lower(whichString);
+		for(i = newString.begin(), end = newString.end(); i != end; i++)
+			result = 31 * result + (*i);
 
-		return hNum;
+		return result;
 	}
 
-	bool operator() (const string& stringOne, const string& stringTwo) const
+	bool operator() (const string& s1, const string& s2) const
 	{
-		return toLower(stringOne) < toLower(stringTwo);
+		return lower(s1) < lower(s2);
 	}
 };
 
@@ -50,16 +50,16 @@ public:
 	~Hashtable();
 
 	// Adding and removing member.
-	void						put(const string& whichKey, boost::any whichObject);
-	void						remove(stringAnyMap::iterator& pIterator);
+	void						put( const string& key, boost::any obj );
+	void						remove( stringAnyMap::iterator& iter );
 
 	// Member getter.
-	boost::any&					get(const string& whichKey);
-	string*						getString(const string& whichKey);
-	Hashtable*					getTable(const string& whichTable);
+	boost::any&					get( const string& key );
+	string*						getString( const string& key );
+	Hashtable*					getTable( const string& key );
 	
 	// For iteration.
-	stringAnyMap::iterator		find(const string& whichKey);
+	stringAnyMap::iterator		find( const string& key );
 	stringAnyMap::iterator		begin();
 	stringAnyMap::iterator		end();
 
@@ -67,5 +67,5 @@ public:
 	bool						empty() const;
 	
 private:
-	stringAnyMap* m_pMap;
+	stringAnyMap* map_;
 };

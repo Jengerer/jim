@@ -1,44 +1,36 @@
 #include "Drawable.h"
 
-Texture* Drawable::m_lpTexture = NULL;
-
-Drawable::Drawable(const float xNew, const float yNew)
+Drawable::Drawable( float x, float y )
 {
 	// Just set the position.
-	setPosition(xNew, yNew);
-	m_nAlpha = 100;
+	setPosition(x, y);
+	alpha = 100;
 }
 
-void Drawable::setPosition(const float xNew, const float yNew)
+void Drawable::setPosition( float x, float y )
 {
-	m_fX = xNew;
-	m_fY = yNew;
+	setPosition(x, y);
 }
 
-bool Drawable::mouseTouching(MouseListener* pMouse) const
+bool Drawable::mouseTouching( MouseListener* mouseListener ) const
 {
 	// Get mouse position.
 	int xMouse, yMouse;
-	pMouse->getPosition(&xMouse, &yMouse);
+	mouseListener->getPosition( &xMouse, &yMouse );
 
 	// Check collision.
-	return ((xMouse >= m_fX) &&
-		(xMouse <= (m_fX + getWidth())) &&
-		(yMouse >= m_fY) &&
-		(yMouse <= (m_fY + getHeight())));
+	return (xMouse >= x) &&	(xMouse <= x + getWidth()) &&
+		(yMouse >= y) && (yMouse <= y + getHeight());
 }
 
 int Drawable::getWidth() const
 {
-	return getTexture()->getWidth();
+	const Texture* texture = getTexture();
+	return texture->getWidth();
 }
 
 int Drawable::getHeight() const
 {
-	return getTexture()->getHeight();
-}
-
-const Texture* Drawable::getTexture() const
-{
-	return m_lpTexture;
+	const Texture* texture = getTexture();
+	return texture->getHeight();
 }

@@ -1,32 +1,43 @@
 #include "Alert.h"
 
-Alert::Alert(const string& newMsg): Dialog(newMsg)
+Alert::Alert( const string& message ): Dialog( message )
 {
 	// Make OK button.
-	m_okayButton = new Button("okay");
+	okButton = new Button( "okay" );
 }
 
 Alert::~Alert()
 {
-	if (m_okayButton != NULL)
+	if (okButton != 0)
 	{
-		delete m_okayButton;
-		m_okayButton = NULL;
+		delete okButton;
+		okButton = 0;
 	}
 }
 
-void Alert::drawObject(DirectX* pDirectX)
+void Alert::draw( DirectX* directX )
 {
 	// Draw like our parent.
-	Dialog::drawObject(pDirectX);
+	Dialog::drawObject(directX);
 
 	// Just add the button.
-	m_okayButton->m_fX = m_fX + getWidth()/2 - m_okayButton->getWidth()/2;
-	m_okayButton->m_fY = m_fY + getHeight() - m_okayButton->getHeight() - PADDING;
-	m_okayButton->drawObject(pDirectX);
+	okButton->x = x + getWidth()/2 - okButton->getWidth()/2;
+	okButton->y = y + getHeight()/2 - okButton->getHeight()/2 - PADDING;
+	okButton->draw( directX );
 }
 
-void Alert::mouseInteract()
+void Alert::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
 {
-	// Nothing yet.
+	switch ( mEvent )
+	{
+	case MOUSE_EVENT_RELEASE:
+		if ( okButton->mouseTouching( mouseListener ) )
+		{
+			state = POPUP_STATE_INACTIVE;
+		}
+		break;
+	default:
+		// Pass the event to the button.
+		okButton->onMouseEvent( mouseListener, mEvent );
+	}
 }

@@ -32,13 +32,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	case WM_MOUSEMOVE:
-		if (pApplication != NULL) pApplication->pollMouse();
+		if (pApplication != NULL) pApplication->onMouseMove();
 		break;
 	case WM_LBUTTONDOWN:
-		if (pApplication != NULL) pApplication->onMouseDown();
+		if (pApplication != NULL) pApplication->onMouseClick();
 		break;
 	case WM_LBUTTONUP:
-		if (pApplication != NULL) pApplication->onMouseUp();
+		if (pApplication != NULL) pApplication->onMouseRelease();
 		break;
 	}
 
@@ -220,13 +220,81 @@ void ItemManager::onFrame()
 	redrawScreen();
 }
 
-void ItemManager::onMouseDown()
+void ItemManager::onMouseClick()
 {
+	// Mouse clicked.
+	if (!m_popupStack.empty())
+	{
+		// Get the topmost popup/iterator.
+		vector<Popup*>::iterator popupIter = m_popupStack.end() - 1;
+		Popup* topPopup = *popupIter;
+
+		// Process the click.
+		topPopup->onMouseEvent(this, MOUSE_EVENT_CLICK);
+	}
+
+	// Handling base UI events.
+	const vector<Slot*>* inventorySlots = m_pInventory->getSlots();
+	vector<Slot*>::const_iterator slotIter;
+	for (slotIter = inventorySlots->begin(); slotIter != inventorySlots->end(); slotIter++)
+	{
+		Slot* thisSlot = *slotIter;
+		if (thisSlot->mouseTouching(this) && (thisSlot->m_pItem != NULL))
+		{
+			m_pInventory->selectSlot(thisSlot);
+		}
+		thisSlot->onMouseEvent(this, MOUSE_EVENT_CLICK);
+	}
 }
 
-void ItemManager::onMouseUp()
+void ItemManager::onMouseRelease()
 {
-	/* Mouse released. */
+	// Mouse released.
+	if (!m_popupStack.empty())
+	{
+		// Get the topmost popup/iterator.
+		vector<Popup*>::iterator popupIter = m_popupStack.end() - 1;
+		Popup* topPopup = *popupIter;
+
+		// Process the click.
+		topPopup->onMouseEvent(this, MOUSE_EVENT_RELEASE);
+
+		// Check if this popup should quit.
+		if (topPopup->getState() == POPUP_STATE_INACTIVE)
+		{
+			m_popupStack.erase(popupIter);
+		}
+	}
+}
+
+void ItemManager::onMouseMove()
+{
+	// First, poll position.
+	pollMouse();
+
+	// Mouse moved.
+	if (!m_popupStack.empty())
+	{
+		Popup* topPopup = *(m_popupStack.end() - 1);
+		topPopup->onMouseEvent(this, MOUSE_EVENT_MOVE);
+	} else
+	{
+		// Handling base UI events.
+		const vector<Slot*>* inventorySlots = m_pInventory->getSlots();
+		vector<Slot*>::const_iterator slotIter;
+		for (slotIter = inventorySlots->begin(); slotIter != inventorySlots->end(); slotIter++)
+		{
+			Slot* thisSlot = *slotIter;
+			thisSlot->onMouseEvent(this, MOUSE_EVENT_MOVE);
+		}
+
+		vector<Button*>::const_iterator buttonIter;
+		for (buttonIter = m_buttonList.begin(); buttonIter != m_buttonList.end(); buttonIter++)
+		{
+			Button* thisButton = *buttonIter;
+			thisButton->onMouseEvent(this, MOUSE_EVENT_MOVE);
+		}
+	}
 }
 
 void ItemManager::loadDefinitions()

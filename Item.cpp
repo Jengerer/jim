@@ -204,9 +204,9 @@ Texture* Item::getTexture()
 	return m_lpTexture;
 }
 
-void Item::drawObject(DirectX* pDirectX)
+void Item::drawObject(DirectX* directX)
 {
-	pDirectX->drawTexture(m_lpTexture, m_fX, m_fY);
+	directX->drawTexture(m_lpTexture, m_fX, m_fY);
 }
 
 int Item::getWidth()
@@ -217,4 +217,9 @@ int Item::getWidth()
 int Item::getHeight()
 {
 	return m_lpTexture->getHeight();
+}
+
+void Item::onMouseEvent(MouseListener* pMouse, EMouseEvent mEvent)
+{
+	// Nothing yet.
 }

@@ -5,11 +5,11 @@ Curl::Curl()
 	// Curl object has been created.
 	try
 	{
-		loadInterfaces();
-	} catch (Exception curlException)
+		openInterfaces();
+	} catch ( Exception exception )
 	{
 		closeInterfaces();
-		throw curlException;
+		throw exception;
 	}
 }
 
@@ -19,132 +19,136 @@ Curl::~Curl()
 	closeInterfaces();
 }
 
-void Curl::loadInterfaces()
+void Curl::openInterfaces()
 {
-	m_pCurl = curl_easy_init();
-	if (m_pCurl == NULL)
-		throw Exception("Failed to initialize cURL.");
+	curl_ = curl_easy_init();
+	if (curl_ == NULL)
+		throw Exception( "Failed to initialize cURL." );
 }
 
 void Curl::closeInterfaces()
 {
-	cleanCurl();
+	clean();
 	curl_global_cleanup();
 }
 
-void Curl::cleanCurl()
+void Curl::clean()
 {
-	curl_easy_cleanup(m_pCurl);
+	curl_easy_cleanup( curl_ );
 }
 
-bool Curl::downloadFile(const string& fileURL, const string& fileDirectory)
+bool Curl::download( const string& url, const string& destination )
 {
 	//Set the URL.
-	CURLcode cRes = curl_easy_setopt(m_pCurl, CURLOPT_URL, fileURL.c_str());
+	CURLcode result = curl_easy_setopt( curl_, CURLOPT_URL, url.c_str() );
 
-	if (cRes != CURLE_OK)
+	if (result != CURLE_OK)
 	{
-		throw Exception("Failed to set cURL options.");
+		throw Exception( "Failed to set cURL options." );
 		return false;
 	}
 
 	// Create the folder(s) if needed.
-	size_t nextSlash = fileDirectory.find('/');
-	while (nextSlash != string::npos)
+	size_t slash = destination.find('/');
+	while (slash != string::npos)
 	{
-		string currentPath = fileDirectory.substr(0, nextSlash);
-		if (GetFileAttributes(currentPath.c_str()) == INVALID_FILE_ATTRIBUTES)
+		string currentPath = destination.substr( 0, slash );
+		if ( GetFileAttributes( currentPath.c_str() ) == INVALID_FILE_ATTRIBUTES )
 			CreateDirectory(currentPath.c_str(), NULL);
 
-		nextSlash = fileDirectory.find("/", nextSlash+1);
+		slash = destination.find("/", slash+1);
 	}
 
 	// Create the file.
-	struct Download downloadFile = {
-		fileDirectory.c_str(),
-		NULL
+	Download_t downloadFile = {
+		destination.c_str(),
+		0
 	};
 
 	// Get the file ready for downloading.
-	curl_easy_setopt(m_pCurl, CURLOPT_WRITEDATA, (void *)&downloadFile);
-	curl_easy_setopt(m_pCurl, CURLOPT_WRITEFUNCTION, fWrite);
-	curl_easy_setopt(m_pCurl, CURLOPT_FAILONERROR, true);
+	curl_easy_setopt( curl_, CURLOPT_WRITEDATA, &downloadFile );
+	curl_easy_setopt( curl_, CURLOPT_WRITEFUNCTION, write );
+	curl_easy_setopt( curl_, CURLOPT_FAILONERROR, true );
 
 	// Get it!
-	cRes = curl_easy_perform(m_pCurl);
+	result = curl_easy_perform( curl_ );
+	if (result != CURLE_OK)
+	{
+		throw Exception( "Failed to perform file download." );
+		return false;
+	}
 
 	// Close the stream if it exists.
-	if (downloadFile.fStream)
-		fclose(downloadFile.fStream);
+	if ( downloadFile.file )
+		fclose( downloadFile.file );
 
-	if (cRes != CURLE_OK) return false;
-
+	// All succeeded.
 	return true;
 }
 
-string Curl::readFile(const string& fileURL)
+string Curl::read( const string& url )
 {
-	struct Read readFile;
-	readFile.cMemory = NULL;
-	readFile.tSize = 0;
+	Memory_t readFile;
+	ZeroMemory( &readFile, sizeof(Memory_t) );
 
 	//Specify url.
-	curl_easy_setopt(m_pCurl, CURLOPT_URL, fileURL.c_str());
+	curl_easy_setopt( curl_, CURLOPT_URL, url.c_str() );
 
 	//Send all data to this function.
-	curl_easy_setopt(m_pCurl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+	curl_easy_setopt( curl_, CURLOPT_WRITEFUNCTION, WriteMemoryCallback );
 
 	//Send chuck struct.
-	curl_easy_setopt(m_pCurl, CURLOPT_WRITEDATA, (void*)&readFile);
+	curl_easy_setopt( curl_, CURLOPT_WRITEDATA, &readFile );
 
 	//Get it!
-	CURLcode cRes = curl_easy_perform(m_pCurl);
-	if (cRes != CURLE_OK)
-		throw Exception("Failed to download file.");
+	CURLcode result = curl_easy_perform( curl_ );
+	if (result != CURLE_OK)
+		throw Exception( "Failed to perform file read." );
 
 	//Now get the string.
-	string thisString = readFile.cMemory;
+	string output = readFile.memory;
 
 	//Free the memory.
-	if (readFile.cMemory)
-		free(readFile.cMemory);
+	if (readFile.memory != 0)
+		free( readFile.memory );
 
-	return thisString;
+	return output;
 }
 
-static void *reAllocate(void *vBuffer, size_t tSize)
+static void *reallocate( void *buffer, size_t size )
 {
-	if (vBuffer)
-		return realloc(vBuffer, tSize);
+	if (buffer != 0)
+		return realloc( buffer, size );
 	else
-		return malloc(tSize);
+		return malloc( size );
 }
 
-static size_t WriteMemoryCallback(void *vBuffer, size_t tSize, size_t nMember, void *vData)
+static size_t WriteMemoryCallback( void *buffer, size_t size, size_t nMembers, void* data )
 {
-	size_t realSize = tSize*nMember;
-	struct Read *readFile = (struct Read *)vData;
+	size_t realSize = size*nMembers;
+	struct Memory_t *readFile = (struct Memory_t *)data;
 
-	readFile->cMemory = (char*)reAllocate(readFile->cMemory, readFile->tSize + realSize + 1);
-	if (readFile->cMemory) {
-		memcpy(&(readFile->cMemory[readFile->tSize]), vBuffer, realSize);
-		readFile->tSize += realSize;
-		readFile->cMemory[readFile->tSize] = 0;
+	readFile->memory = (char*)reallocate( readFile->memory, readFile->size + realSize + 1 );
+	if (readFile->memory != 0) {
+		void* copyMemory = &readFile->memory[readFile->size];
+		memcpy( copyMemory, buffer, realSize );
+		readFile->size += realSize;
+		readFile->memory[readFile->size] = 0;
 	}
 
 	return realSize;
 }
 
-static size_t fWrite(void *vBuffer, size_t tSize, size_t nMember, void *vStream)
+static size_t write( void *buffer, size_t size, size_t nMembers, void* data )
 {
-	struct Download *downloadFile = (struct Download *)vStream;
+	struct Download_t *downloadFile = (struct Download_t *)data;
 
-	if (downloadFile && !downloadFile->fStream)
+	if ((downloadFile != 0) && (downloadFile->file == 0))
 	{
-		fopen_s(&downloadFile->fStream, downloadFile->cFilename, "wb");		
-		if (!downloadFile->fStream)
+		fopen_s( &downloadFile->file, downloadFile->filename, "wb" );
+		if (downloadFile->file == 0)
 			return -1;
 	}
 
-	return fwrite(vBuffer, tSize, nMember, downloadFile->fStream);
+	return fwrite( buffer, size, nMembers, downloadFile->file );
 }

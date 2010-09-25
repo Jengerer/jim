@@ -1,44 +1,44 @@
 #include "Dialog.h"
 
-Texture* Dialog::m_lpTexture = NULL;
+Texture* Dialog::texture = NULL;
 
-Dialog::Dialog(const string& newMsg)
+Dialog::Dialog( const string& message )
 {
-	setMessage(newMsg);
+	setMessage( message);
 }
 
-void Dialog::drawObject(DirectX* pDirectX)
+void Dialog::draw( DirectX* directX )
 {
 	// Draw the background texture.
-	pDirectX->drawTexture(m_lpTexture, m_fX, m_fY);
+	directX->drawTexture( texture, x, y );
 
 	// Center the text.
-	RECT textRect;
-	textRect.left = (long)m_fX + PADDING;
-	textRect.top = (long)m_fY + PADDING;
-	textRect.right = (long)m_fX + getWidth() - PADDING;
-	textRect.bottom = (long)m_fY + getHeight() - PADDING;
+	RECT rect;
+	rect.left	= (long)x + PADDING;
+	rect.top	= (long)y + PADDING;
+	rect.right	= (long)x + getWidth()	- PADDING;
+	rect.bottom	= (long)y + getHeight() - PADDING;
 
 	// Draw it.
-	pDirectX->drawText(m_dialogMsg, &textRect, DT_CENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
+	directX->drawText(message_, &rect, DT_CENTER, D3DCOLOR_ARGB( 255, 255, 255, 255 ));
 }
 
-void Dialog::mouseInteract()
+void Dialog::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
 {
-	// Nothing yet.
+	// Nothing for dialogs yet.
 }
 
-void Dialog::setMessage(const string& newMsg)
+void Dialog::setMessage( const string& message )
 {
-	m_dialogMsg = newMsg;
+	message_ = message;
 }
 
-void Dialog::appendMessage(const string& addMsg)
+void Dialog::appendMessage( const string& message )
 {
-	m_dialogMsg += addMsg;
+	message_ += message;
 }
 
 const Texture* Dialog::getTexture() const
 {
-	return m_lpTexture;
+	return texture;
 }

@@ -1,10 +1,11 @@
 #pragma once
 
+#include <vector>
+
 #include "steam/SteamclientAPI.h"
+
 #include "Item.h"
 #include "Exception.h"
-
-#include <vector>
 
 using namespace std;
 
@@ -15,29 +16,29 @@ public:
 	~Steam();
 
 	/* Initializing and closing. */
-	void loadInterfaces();
+	void openInterfaces();
 	void closeInterfaces();
 
 	/* Callback and message handling. */
-	bool getCallback(CallbackMsg_t* tCallback);
+	bool getCallback( CallbackMsg_t* callback );
 	void releaseCallback();
-	bool hasMessage(uint32* messageSize);
-	void getMessage(unsigned int* messageID, void* messageBuffer, uint32 iSize, unsigned int* iReal);
+	bool hasMessage( uint32* size );
+	void getMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize );
 
 	/* Interface handling. */
-	void updateItem(Item* whichItem);
-	void deleteItem(uint64 itemID);
+	void updateItem( Item* item );
+	void deleteItem( uint64 uniqueId );
 
 	/* Steam getters. */
-	uint64 getSteamID() const;
+	uint64 getSteamId() const;
 
 private:
 	/* Steam handlers. */
-	HSteamUser					m_hUser;
-	HSteamPipe					m_hPipe;
+	HSteamUser					hUser_;
+	HSteamPipe					HPipe_;
 
 	/* Steam interfaces. */
-	ISteamClient008*			m_pClient;
-	ISteamUser012*				m_pUser;
-	ISteamGameCoordinator001*	m_pCoordinator;
+	ISteamClient008*			steamClient_;
+	ISteamUser012*				steamUser_;
+	ISteamGameCoordinator001*	gameCoordinator_;
 };

@@ -15,16 +15,6 @@ void MouseListener::setWindow(Window* pWindow)
 	m_pWindow = pWindow;
 }
 
-void MouseListener::setState(bool mouseDown)
-{
-	m_eMouseState = (mouseDown ? MOUSE_STATE_DOWN : MOUSE_STATE_UP);
-}
-
-bool MouseListener::mouseDown() const
-{
-	return (m_eMouseState == MOUSE_STATE_DOWN);
-}
-
 void MouseListener::pollMouse()
 {
 	GetCursorPos(&m_ptMouse);
