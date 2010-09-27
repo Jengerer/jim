@@ -1,17 +1,17 @@
 #include "SerializedBuffer.h"
 
-SerializedBuffer::SerializedBuffer(void* whichBuffer)
+SerializedBuffer::SerializedBuffer(void* buffer)
 {
-	m_vPointer = whichBuffer;
+	buffer_ = buffer;
 }
 
-template<class whichType>
-void SerializedBuffer::pushBuffer(unsigned int numSteps)
+template<class T>
+void SerializedBuffer::push( unsigned int steps )
 {
-	m_vPointer = ((char*)m_vPointer + numBytes*whichType);
+	buffer_ = ((char*)buffer_ + steps*sizeof(T));
 }
 
-void SerializedBuffer::pushBuffer(unsigned int numBytes)
+void SerializedBuffer::push( unsigned int bytes )
 {
-	m_vPointer = ((char*)m_vPointer + numBytes);
+	push<char>( bytes );
 }

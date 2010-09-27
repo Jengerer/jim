@@ -1,17 +1,18 @@
 #pragma once
 
-#include "Window.h"
-#include "MouseListener.h"
 #include <string>
 #include <sstream>
+#include <vector>
+
+#include "Window.h"
+#include "MouseListener.h"
 
 using namespace std;
 
-// Function prototype.
-LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+// Message handler prototype.
+LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-/* The main class that controls all elements
- * of the application. */
+// Main class that's the base of all applications.
 class Main: public MouseListener
 {
 public:
@@ -23,6 +24,9 @@ public:
 
 	virtual void	openInterfaces() = 0;
 	virtual void	closeInterfaces() = 0;
+
+	// Mouse listener methods.
+	void			addMouseListener( MouseListener* mouseListener );
 
 	// Getting window.
 	Window*			getWindow() const;
@@ -36,4 +40,5 @@ public:
 
 protected:
 	Window*			window_;
+	vector<MouseListener*> mouseListeners_;
 };

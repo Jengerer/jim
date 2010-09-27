@@ -106,7 +106,7 @@ Hashtable* KeyValueParser::getHashtable()
 			if (tableDepth.empty())
 			{
 				delete baseTable;
-				throw Exception("Unexpected format in KeyValue file. Parsing failed.");
+				throw Exception( "Unexpected format in KeyValue file. Parsing failed." );
 			}
 
 			addingTable = tableDepth.back();

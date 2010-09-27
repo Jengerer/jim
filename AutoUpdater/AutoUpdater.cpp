@@ -6,64 +6,65 @@
 
 int main()
 {
-	printf("=== Jengerer's Item Manager AutoUpdater ===\n\n");
+	printf( "=== Jengerer's Item Manager AutoUpdater ===\n\n" );
 
-	printf("Waiting for Jengerer's Item Manager to close...\n\n");
+	printf( "Waiting for Jengerer's Item Manager to close...\n\n" );
 	Sleep(2500);
 
-	printf("Initiating connection to update server...\n");
+	printf( "Initiating connection to update server...\n" );
 
-	Curl *pCurl = NULL;
+	Curl* curl = 0;
 
-	try
-	{
-		pCurl = new Curl();
-	} catch (Exception curlException)
-	{
-		printf("Failed to initialize cURL. Updating failed.");
+	try {
+		curl = new Curl();
+	}
+	catch (Exception curlException) {
+		printf( "Failed to initialize cURL. Updating failed." );
 
-		if (pCurl != NULL)
+		if (curl)
 		{
-			delete pCurl;
-			pCurl = NULL;
+			delete curl;
+			curl = 0;
 		}
 	}
 
-	printf("Connection successfully initialized!\n\n");
-	printf("Downloading updated files...\n\n");
+	printf( "Connection successfully initialized!\n\n" );
+	printf( "Downloading updated files...\n\n" );
 
 	bool bSucceeded = true;
 
 	//Download the latest files.
-	if (!pCurl->downloadFile("http://www.jengerer.com/itemManager/ItemManager.exe", "ItemManager.exe") ||
-		!pCurl->downloadFile("http://www.jengerer.com/itemManager/steam_api.dll", "steam_api.dll"))
+	if (!curl->download( "http://www.jengerer.com/itemManager/ItemManager.exe", "ItemManager.exe" ) ||
+		!curl->download( "http://www.jengerer.com/itemManager/steam_api.dll", "steam_api.dll" ))
 	{
-		printf("Failed to download one or more files from the latest version of the item manager!\n");
-		printf("Make sure the Item Manager isn't running, and try again.\n\n");
+		printf( "Failed to download one or more files from the latest version of the item manager!\n" );
+		printf( "Make sure the Item Manager isn't running, and try again.\n\n" );
 
-		printf("Press any key to close...\n");
+		printf( "Press any key to close...\n" );
 
 		_getch();
 	} else
 	{
-		printf("Update successfully completed!\n\n");
+		printf( "Update successfully completed!\n\n" );
 
-		FILE *exeManager;
-		fopen_s(&exeManager, "ItemManager.exe", "r");
+		FILE* exeManager;
+		fopen_s( &exeManager, "ItemManager.exe", "r" );
 		if (!exeManager) {
-			printf("ItemManager.exe could not be found...\n\n");
+			printf( "ItemManager.exe could not be found...\n\n" );
 		} else {
-			printf("Press any key to run Jengerer's Item Manager.\n");
-			fclose(exeManager);
+			printf( "Press any key to run Jengerer's Item Manager.\n" );
+			fclose( exeManager );
 
 			_getch();
 
-			ShellExecute(NULL, NULL, "ItemManager.exe", NULL, NULL, SW_SHOWDEFAULT);
+			ShellExecute( 0, 0, "ItemManager.exe", 0, 0, SW_SHOWDEFAULT );
 		}
 	}
 
-	if (pCurl != NULL)
-		delete pCurl;
+	if (curl) {
+		delete curl;
+		curl = 0;
+	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }

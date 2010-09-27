@@ -1,5 +1,7 @@
 #include "Alert.h"
 
+const int	ALERT_PADDING	= 20;
+
 Alert::Alert( const string& message ): Dialog( message )
 {
 	// Make OK button.
@@ -18,26 +20,34 @@ Alert::~Alert()
 void Alert::draw( DirectX* directX )
 {
 	// Draw like our parent.
-	Dialog::drawObject(directX);
+	Dialog::draw(directX);
 
 	// Just add the button.
 	okButton->x = x + getWidth()/2 - okButton->getWidth()/2;
-	okButton->y = y + getHeight()/2 - okButton->getHeight()/2 - PADDING;
+	okButton->y = y + getHeight() - okButton->getHeight() - ALERT_PADDING;
 	okButton->draw( directX );
 }
 
 void Alert::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
 {
-	switch ( mEvent )
-	{
+	switch (mEvent) {
 	case MOUSE_EVENT_RELEASE:
-		if ( okButton->mouseTouching( mouseListener ) )
-		{
-			state = POPUP_STATE_INACTIVE;
-		}
+		if (okButton->mouseTouching( mouseListener ))
+			buttonListener_->onButtonRelease( okButton );
 		break;
 	default:
 		// Pass the event to the button.
 		okButton->onMouseEvent( mouseListener, mEvent );
+		break;
 	}
+}
+
+void Alert::setButtonListener( ButtonListener* buttonListener)
+{
+	buttonListener_ = buttonListener;
+}
+
+const Button* Alert::getButton() const
+{
+	return okButton;
 }

@@ -43,20 +43,16 @@ bool Curl::download( const string& url, const string& destination )
 	CURLcode result = curl_easy_setopt( curl_, CURLOPT_URL, url.c_str() );
 
 	if (result != CURLE_OK)
-	{
-		throw Exception( "Failed to set cURL options." );
 		return false;
-	}
 
 	// Create the folder(s) if needed.
-	size_t slash = destination.find('/');
-	while (slash != string::npos)
-	{
-		string currentPath = destination.substr( 0, slash );
-		if ( GetFileAttributes( currentPath.c_str() ) == INVALID_FILE_ATTRIBUTES )
-			CreateDirectory(currentPath.c_str(), NULL);
+	size_t slash = destination.find( '/' );
+	while (slash != string::npos) {
+		string path = destination.substr( 0, slash );
+		if ( GetFileAttributes( path.c_str() ) == INVALID_FILE_ATTRIBUTES )
+			CreateDirectory( path.c_str(), 0 );
 
-		slash = destination.find("/", slash+1);
+		slash = destination.find( "/", slash+1 );
 	}
 
 	// Create the file.
@@ -73,10 +69,7 @@ bool Curl::download( const string& url, const string& destination )
 	// Get it!
 	result = curl_easy_perform( curl_ );
 	if (result != CURLE_OK)
-	{
-		throw Exception( "Failed to perform file download." );
 		return false;
-	}
 
 	// Close the stream if it exists.
 	if ( downloadFile.file )
@@ -95,10 +88,13 @@ string Curl::read( const string& url )
 	curl_easy_setopt( curl_, CURLOPT_URL, url.c_str() );
 
 	//Send all data to this function.
-	curl_easy_setopt( curl_, CURLOPT_WRITEFUNCTION, WriteMemoryCallback );
+	curl_easy_setopt( curl_, CURLOPT_WRITEFUNCTION, writeCallback );
 
 	//Send chuck struct.
 	curl_easy_setopt( curl_, CURLOPT_WRITEDATA, &readFile );
+
+	// Fail if not found.
+	curl_easy_setopt( curl_, CURLOPT_FAILONERROR, true );
 
 	//Get it!
 	CURLcode result = curl_easy_perform( curl_ );
@@ -117,13 +113,10 @@ string Curl::read( const string& url )
 
 static void *reallocate( void *buffer, size_t size )
 {
-	if (buffer != 0)
-		return realloc( buffer, size );
-	else
-		return malloc( size );
+	return (buffer != 0 ? realloc( buffer, size) : malloc( size ));
 }
 
-static size_t WriteMemoryCallback( void *buffer, size_t size, size_t nMembers, void* data )
+static size_t writeCallback( void *buffer, size_t size, size_t nMembers, void* data )
 {
 	size_t realSize = size*nMembers;
 	struct Memory_t *readFile = (struct Memory_t *)data;
@@ -143,8 +136,7 @@ static size_t write( void *buffer, size_t size, size_t nMembers, void* data )
 {
 	struct Download_t *downloadFile = (struct Download_t *)data;
 
-	if ((downloadFile != 0) && (downloadFile->file == 0))
-	{
+	if ((downloadFile != 0) && (downloadFile->file == 0)) {
 		fopen_s( &downloadFile->file, downloadFile->filename, "wb" );
 		if (downloadFile->file == 0)
 			return -1;

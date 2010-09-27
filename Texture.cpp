@@ -1,11 +1,12 @@
 #include "Texture.h"
 
-Texture::Texture(LPDIRECT3DTEXTURE9 newTexture,
-				 const string& newFilename,
-				 D3DXIMAGE_INFO newInfo)
+Texture::Texture(
+	LPDIRECT3DTEXTURE9 texture,
+	const string& filename,
+	D3DXIMAGE_INFO info )
 {
-	setTexture(newTexture, newFilename);
-	m_d3dInfo = newInfo;
+	setTexture(texture, filename);
+	info_ = info;
 }
 
 Texture::~Texture()
@@ -14,42 +15,42 @@ Texture::~Texture()
 	releaseTexture();
 }
 
-void Texture::setTexture(LPDIRECT3DTEXTURE9 newTexture, const string& newFilename)
+void Texture::setTexture( LPDIRECT3DTEXTURE9 texture, const string& filename )
 {
-	m_lpTexture = newTexture;
-	m_textureName = newFilename;
+	texture_	= texture;
+	filename_	= filename;
 }
 
 void Texture::releaseTexture()
 {
-	if (m_lpTexture != NULL)
+	if (texture_)
 	{
-		m_lpTexture->Release();
-		m_lpTexture = NULL;
+		texture_->Release();
+		texture_ = 0;
 	}
 }
 
 bool Texture::isLoaded() const
 {
-	return (m_lpTexture != NULL);
+	return texture_;
 }
 
 int Texture::getWidth() const
 {
-	return m_d3dInfo.Width;
+	return info_.Width;
 }
 
 int Texture::getHeight() const
 {
-	return m_d3dInfo.Height;
+	return info_.Height;
 }
 
 LPDIRECT3DTEXTURE9 Texture::getTexture()
 {
-	return m_lpTexture;
+	return texture_;
 }
 
 const string& Texture::getFilename() const
 {
-	return m_textureName;
+	return filename_;
 }

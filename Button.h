@@ -1,21 +1,28 @@
 #pragma once
 
-#include "Drawable.h"
+#include <vector>
 
+#include "Drawable.h"
+#include "ButtonListener.h"
+
+using namespace std;
+
+class ButtonListener;
 class Button: public Drawable
 {
 public:
 	Button( const string& caption, float x = 0.0f, float y = 0.0f );
 	
 	// Drawable functions.
-	void draw( DirectX* directX );
-	virtual void onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
+	void			draw( DirectX* directX );
+	virtual int		getWidth() const;
+	virtual int		getHeight() const;
+	virtual void	onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
 	// Class-wide texture.
-	virtual const Texture* getTexture() const;
-	static Texture* texture;
+	static Texture*	texture;
 
 private:
-	bool isActive_;
-	string caption_;
+	bool			isActive_;
+	string			caption_;
 };

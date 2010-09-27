@@ -17,14 +17,11 @@ public:
 	virtual void onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent ) = 0;
 	bool mouseTouching( MouseListener* mouseListener ) const;
 
-	// Virtual size getters; return texture size by default.
-	virtual int getWidth() const;
-	virtual int getHeight() const;
+	// Virtual size getters.
+	virtual int getWidth() const = 0;
+	virtual int getHeight() const = 0;
 
 	// Drawing parameters.
 	float	x, y;
 	int		alpha;
-
-	// Texture getter.
-	virtual const Texture*	getTexture() const = 0;
 };

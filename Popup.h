@@ -13,6 +13,7 @@ class Popup: public Drawable
 public:
 	Popup();
 
+	// Get activity state.
 	EPopupState		getState() const;
 
 protected:

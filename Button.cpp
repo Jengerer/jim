@@ -1,6 +1,6 @@
 #include "Button.h"
 
-Texture* Button::texture = NULL;
+Texture* Button::texture = 0;
 
 Button::Button( const string& caption, float x, float y ): Drawable( x, y )
 {
@@ -43,7 +43,12 @@ void Button::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
 	}
 }
 
-const Texture* Button::getTexture() const
+int Button::getWidth() const
 {
-	return texture;
+	return texture->getWidth();
+}
+
+int Button::getHeight() const
+{
+	return texture->getHeight();
 }

@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "Hashtable.h"
 #include "Exception.h"
+#include "MouseListener.h"
 
 #include <string>
 #include <sstream>
@@ -41,7 +42,7 @@ public:
 	void drawTexture( Texture* texture, float x, float y );
 	void drawTexture( Texture* texture, float x, float y, const D3DCOLOR& colour);
 	void drawText( const string& text, RECT* rect, const DWORD& format, const D3DCOLOR& colour );	
-	void setTransform( const D3DXMATRIX* matrix );
+	void setTransform( const D3DXMATRIX* d3dMatrix );
 	void setTransform( float x, float y, float rotation, float xScale, float yScale );
 
 	// Window handling.

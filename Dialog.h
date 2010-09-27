@@ -3,7 +3,11 @@
 #include "Drawable.h"
 #include "Popup.h"
 
-#define PADDING 20
+enum EPopupType {
+	POPUP_TYPE_DIALOG,
+	POPUP_TYPE_ALERT,
+	POPUP_TYPE_CONFIRM
+};
 
 class Dialog: public Popup
 {
@@ -11,15 +15,16 @@ public:
 	Dialog( const string& message );
 
 	// Drawable functions.
-	void draw( DirectX* directX );
-	virtual void onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
+	void			draw( DirectX* directX );
+	virtual int		getWidth() const;
+	virtual int		getHeight() const;
+	virtual void	onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
 	// Message handling.
 	void setMessage( const string& message );
 	void appendMessage( const string& message );
 
 	// Class-wide texture.
-	virtual const Texture* getTexture() const;
 	static Texture* texture;
 
 private:

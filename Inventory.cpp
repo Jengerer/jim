@@ -1,222 +1,391 @@
 #include "Inventory.h"
 
-Inventory::Inventory(int newWidth, int newHeight, 
-	int pageCount)
+const float	SLOT_SPACING = 5.0f;
+
+Inventory::Inventory( 
+	Window* window,
+	float x, float y,
+	int width, int height, 
+	int pages ) : Drawable( x, y )
 {
 	// Set dimensions.
-	m_iWidth = newWidth;
-	m_iHeight = newHeight;
-	m_iPages = pageCount;
+	width_ = width;
+	height_ = height;
+	pages_ = pages;
+
+	// Set window.
+	window_ = window;
 
 	// Initially unloaded.
-	m_isLoaded = false;
+	isLoaded_ = false;
 
 	// Inventory has been created.
-	loadInterfaces();
+	openInterfaces();
 }
 
 Inventory::~Inventory()
 {
-	//Inventory has been deleted.
+	// Inventory has been deleted.
 	closeInterfaces();
 }
 
-void Inventory::loadInterfaces()
+void Inventory::openInterfaces()
 {
-	/* Create slots for items. */
+	// Create slots for items.
 	createSlots();
 }
 
 void Inventory::closeInterfaces()
 {
-	/* Remove all slots and items. */
+	// Remove all slots and items.
 	clearSlots();
 	clearItems();
 }
 
-void Inventory::createSlots()
+void Inventory::draw( DirectX* directX )
 {
-	/* Create inventory slots. */
-	for (int I=0; I<getCapacity(); I++)
+	// Draw slots.
+	// TODO: Don't draw hidden items.
+	vector<Slot*>::iterator i;
+	for (i = inventory_.begin(); i != inventory_.end(); i++)
 	{
-		Slot* thisSlot = new Slot();
-		m_vInventory.push_back(thisSlot);
+		Slot* slot = *i;
+		slot->draw( directX );
 	}
+}
+
+void Inventory::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
+{
+	vector<Slot*>::iterator iter;
+
+	switch (mEvent) {
+	case MOUSE_EVENT_MOVE:
+		for (iter = inventory_.begin(); iter != inventory_.end(); iter++) {
+			Slot* slot = *iter;
+			slot->onMouseEvent( mouseListener, mEvent );
+		}
+		break;
+
+	case MOUSE_EVENT_CLICK:
+		for (iter = inventory_.begin(); iter != inventory_.end(); iter++) {
+			Slot* slot = *iter;
+			if (slot->mouseTouching( mouseListener )) {
+				if (selected_.empty()) {
+					slot->setSelectType( SELECT_TYPE_DRAG );
+				}
+				else {
+					slot->setSelectType( SELECT_TYPE_NORMAL );
+				}
+
+				selected_.push_back( slot );
+			}
+		}
+		break;
+
+	case MOUSE_EVENT_RELEASE:
+		for (iter = selected_.begin(); iter != selected_.end(); iter++) {
+			Slot* slot = *iter;
+			slot->onMouseEvent( mouseListener, mEvent );
+		}
+		break;	
+	}
+}
+
+void Inventory::handleCallbacks()
+{
+	//Get waiting callback.
+	CallbackMsg_t callback;
+	if (getCallback( &callback ))
+	{
+		switch (callback.m_iCallback)
+		{
+		case GCMessageAvailable_t::k_iCallback:
+			{
+				GCMessageAvailable_t *message = (GCMessageAvailable_t *)callback.m_pubParam;
+				
+				uint32 size;
+				if (hasMessage( &size ))
+				{
+					unsigned int id, realSize = 0;
+
+					// Allocate memory.
+					void* buffer = malloc( size );
+
+					// Retrieve the message.
+					getMessage( &id, buffer, size, &realSize );
+
+					switch (id)
+					{
+					case SOMsgCacheSubscribed_t::k_iMessage:
+						// Item information has been received.
+						{
+							// Start loading items.
+							if (!isLoaded())
+							{
+								SerializedBuffer serializedBuffer(buffer);
+								SOMsgCacheSubscribed_t *iList = serializedBuffer.get<SOMsgCacheSubscribed_t>();
+								for (int I = 0; I < iList->itemcount; I++)
+								{
+									SOMsgCacheSubscribed_Item_t *pItem = serializedBuffer.get<SOMsgCacheSubscribed_Item_t>();
+
+									// Skip past the name.
+									serializedBuffer.push( pItem->namelength );
+
+									// Get attribute count, and skip past.
+									uint16* attribCount = serializedBuffer.get<uint16>();
+									serializedBuffer.push<SOMsgCacheSubscribed_Item_Attrib_t>( *attribCount );
+
+									//Create a new item from the information.
+									Item *newItem = new Item(
+										pItem->itemid,
+										pItem->itemdefindex,
+										pItem->itemlevel,
+										(EItemQuality)pItem->itemquality,
+										pItem->itemcount,
+										pItem->position );
+
+									// Add the item.
+									add( newItem );
+								}
+
+								// Loaded now.
+								setLoaded();
+							}
+
+							//TODO: Update scrolling of excluded items
+							break;
+						}
+
+					case GCCraftResponse_t::k_iMessage:
+						{
+							GCCraftResponse_t *pResponse = (GCCraftResponse_t*)buffer;
+
+							if (pResponse->blueprint == 0xFFFF)
+							{
+								//TODO: Display the dialog for crafting failed.
+							}
+
+							break;
+						}
+					case SOMsgCreate_t::k_iMessage:
+						{
+							SOMsgCreate_t *msgCreate = (SOMsgCreate_t*)buffer;
+							SOMsgCacheSubscribed_Item_t* craftedItem = &msgCreate->item;
+
+							//Make sure it's a valid item.
+							if (msgCreate->unknown == 5)
+								break;
+
+							Item* newItem = new Item(
+								craftedItem->itemid,
+								craftedItem->itemdefindex,
+								craftedItem->itemlevel,
+								(EItemQuality)craftedItem->itemquality,
+								craftedItem->itemcount,
+								craftedItem->position);
+
+							// Add this item to excluded.
+							newItem->setGroup(GROUP_EXCLUDED);
+							add(newItem);
+
+							//TODO: Update excluded scrolling.
+
+							break;
+						}
+					case SOMsgDeleted_t::k_iMessage:
+						{
+							SOMsgDeleted_t *pDeleted = (SOMsgDeleted_t*)buffer;
+
+							// TODO: Iterate through both vectors and remove it.
+
+							break;
+						}
+					}
+
+					// Free up memory.
+					if (buffer)
+						free(buffer);
+				}
+				
+			}
+		}
+	}
+
+	releaseCallback();
+}
+
+void Inventory::select( Slot* slot )
+{
+	// Deselect all selected.
+	vector<Slot*>::iterator i;
+	for (i = selected_.begin(); i != selected_.end(); i++) {
+		Slot* thisSlot = *i;
+		thisSlot->setSelectType( SELECT_TYPE_NONE );
+	}
+	selected_.clear();
+
+	// Add this one.
+	slot->setSelectType( SELECT_TYPE_NORMAL );
+	selected_.push_back( slot );
 }
 
 void Inventory::clearItems()
 {
-	/* Iterator for all vectors. */
-	vector<Item*>::iterator pItem;
+	// Iterate and delete.
+	vector<Item*>::iterator iter;
+	while (!items_.empty()) {
+		// Get this item.
+		iter = items_.begin();
+		Item* item = *iter;
 
-	/* Delete inventory. */
-	for (pItem = m_vItems.begin(); pItem != m_vItems.end(); pItem++)
-		delete *pItem;
-	
-	/* Now just empty the vector. */
-	m_vItems.clear();
+		// Delete item.
+		delete item;
+		item = NULL;
+
+		// Remove from vector.
+		items_.erase(iter);
+	}
+}
+
+void Inventory::createSlots()
+{
+	// Create slots.
+	for (int i = 0; i < getCapacity(); i++) {
+		Slot* slot = new Slot();
+
+		// Calculate the real position of this slot.
+		int xIndex = i % width_;
+		int yIndex = i / width_;
+
+		if (yIndex >= height_) {
+			xIndex += window_->getWidth() * (yIndex / height_);
+			yIndex %= height_;
+		}
+
+		float xSlot = xIndex*(Slot::texture->getWidth() + SLOT_SPACING);
+		float ySlot = yIndex*(Slot::texture->getHeight() + SLOT_SPACING);
+
+		// Set position.
+		slot->x = x + xSlot;
+		slot->y = y + ySlot;
+
+		// Add to inventory.
+		inventory_.push_back( slot );
+	}
 }
 
 void Inventory::clearSlots()
 {
-	/* Iterator for slots. */
-	vector<Slot*>::iterator pSlot;
+	// Clear selected.
+	selected_.clear();
 
-	/* Delete inventory slots. */
-	for (pSlot = m_vInventory.begin(); pSlot != m_vInventory.end(); pSlot++)
-		delete *pSlot;
+	// Iterator for slots.
+	vector<Slot*>::iterator i;
 
-	/* Delete excluded slots. */
-	for (pSlot = m_vExcluded.begin(); pSlot != m_vExcluded.end(); pSlot++)
-		delete *pSlot;
+	// Delete inventory.
+	for (i = inventory_.begin(); i != inventory_.end(); i++)
+		delete *i;
 
-	/* Delete selected slots. */
-	for (pSlot = m_vSelected.begin(); pSlot != m_vSelected.end(); pSlot++)
-		delete *pSlot;
+	// Delete excluded.
+	for (i = excluded_.begin(); i != excluded_.end(); i++)
+		delete *i;
 
-	/* Now clear vectors. */
-	m_vInventory.clear();
-	m_vExcluded.clear();
-	m_vSelected.clear();
+	// Clear vectors.
+	inventory_.clear();
+	excluded_.clear();
 }
 
-void Inventory::addItem(Item* newItem)
+void Inventory::add( Item* item )
 {
-	/* Add it to the item list. */
-	m_vItems.push_back(newItem);
+	// Add to list.
+	items_.push_back( item );
 
-	/* Add this item to correct slot. */
-	uint8 itemPosition = newItem->getPosition() - 1;
-	if ((itemPosition >= 0) && (itemPosition < getCapacity()))
-	{
-		Slot* movedSlot = m_vInventory[itemPosition];
-		/* Don't overlap items. */
-		if (movedSlot->m_pItem == NULL)
-		{
-			newItem->setGroup(GROUP_INVENTORY);
-			movedSlot->m_pItem = newItem;
-		} else
-		{
-			newItem->setGroup(GROUP_EXCLUDED);
+	// Add item to correct slot.
+	uint8 position = item->getPosition() - 1;
+	if (isValid( position )) {
+		Slot* destSlot = inventory_[position];
 
-			/* Make new slot for excluded. */
-			movedSlot = new Slot(newItem);
-			m_vExcluded.push_back(movedSlot);
+		// Don't overlap.
+		if (!destSlot->item) {
+			item->setGroup( GROUP_INVENTORY );
+			destSlot->item = item;
+		}
+		else {
+			item->setGroup( GROUP_EXCLUDED );
+
+			// Make new slot for excluded.
+			destSlot = new Slot( item );
+			excluded_.push_back( destSlot );
 		}
 	}
 }
 
-void Inventory::deleteItem(Item* whichItem)
+void Inventory::remove( Item* whichItem )
 {
-	/* Iterator for searching. */
-	vector<Item*>::iterator pSearcher;
-	uint64 itemID = whichItem->getUniqueID();
+	// TODO: Find the item in inventory.
+}
 
-	/* Cycle through selected for item. */
-	for (pSearcher = m_vItems.begin(); pSearcher != m_vItems.end(); pSearcher++)
+void Inventory::move( Slot* slot1, Slot* slot2 )
+{
+	// Get item we're moving.
+	Item* item1 = slot1->item;
+
+	if (!slot2->item)
 	{
-		Item* thisItem = *pSearcher;
-		if (thisItem->getUniqueID() == itemID)
-		{
-			/* Send delete message. */
-			Steam::deleteItem(itemID);
+		slot2->item = item1;
+		slot1->item = 0;
 
-			/* Delete the slot with this item. */
-			vector<Slot*>::iterator pSlot;
-			for (pSlot = m_vSelected.begin(); pSlot != m_vSelected.end(); pSlot++)
-			{
-				Slot* thisSlot = *pSlot;
-				if (thisSlot->m_pItem == thisItem)
-				{
-					delete thisSlot;
-					m_vSelected.erase(pSlot);
-					break;
-				}
-			}
+		// updateItem( item1 );
+	} else if (slot1->item->getGroup() == GROUP_INVENTORY)
+	{
+		Item* tempItem = item1;
+		slot1->item = slot2->item;
+		slot2->item = tempItem;
 
-			/* Delete the item object. */
-			delete thisItem;
-			m_vItems.erase(pSearcher);
-
-			break;
-		}
+		// updateItem ( item1 );
+		// updateItem ( item2 );
 	}
 }
 
-Slot* Inventory::getSlot(uint8 whichIndex)
+Slot* Inventory::get( uint8 index )
 {
 	// Search for that slot, return NULL if invalid.
-	return (slotValid(whichIndex) ? m_vInventory[whichIndex] : NULL);
+	if (!isValid( index ))
+		throw Exception( "Attempted to get slot with invalid index." );
+
+	return inventory_[index];
 }
 
 int Inventory::getWidth() const
 {
-	return m_iWidth;
+	int slotsWidth = width_ * Slot::texture->getWidth();
+	int spacingWidth = (width_ - 1) * SLOT_SPACING;
+	return ( slotsWidth + spacingWidth );
 }
 
 int Inventory::getHeight() const
 {
-	return m_iHeight;
-}
-
-int Inventory::getPageSize() const
-{
-	return getWidth()*getHeight();
-}
-
-int Inventory::getPages() const
-{
-	return m_iPages;
+	int slotsHeight = height_ * Slot::texture->getHeight();
+	int spacingHeight = (height_ - 1) * SLOT_SPACING;
+	return ( slotsHeight + spacingHeight );
 }
 
 int Inventory::getCapacity() const
 {
-	return getPageSize()*getPages();
+	return (width_ * height_ * pages_);
 }
 
-void Inventory::moveItem(Slot *oldSlot, Slot* newSlot)
+bool Inventory::isValid ( uint8 index )
 {
-	/* Get the item we're moving. */
-	Item* itemMoved = oldSlot->m_pItem;
-
-	if (newSlot->m_pItem == NULL)
-	{
-		newSlot->m_pItem = itemMoved;
-		oldSlot->m_pItem = NULL;
-
-		//m_pSteam->updateItem(itemMoved);
-	} else if (itemMoved->getGroup() == GROUP_INVENTORY)
-	{
-		Item* replacedItem = newSlot->m_pItem;
-		newSlot->m_pItem = itemMoved;
-		oldSlot->m_pItem = replacedItem;
-
-		//m_pSteam->updateItem(itemMoved);
-		//m_pSteam->updateItem(replacedItem);
-	}
-}
-
-bool Inventory::slotValid(uint8 whichIndex)
-{
-	return ((whichIndex >= 0) && (whichIndex < getCapacity()));
-}
-
-void Inventory::selectSlot(Slot* whichSlot)
-{
-	// Nothing yet.
-}
-
-const vector<Slot*>* Inventory::getSlots()
-{
-	return &m_vInventory;
+	return (index >= 0) && (index < getCapacity());
 }
 
 void Inventory::setLoaded()
 {
-	m_isLoaded = true;
+	isLoaded_ = true;
 }
 
 bool Inventory::isLoaded() const
 {
-	return m_isLoaded;
+	return isLoaded_;
 }

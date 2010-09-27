@@ -9,7 +9,7 @@ public:
 	//Class constructor.
 	Window( HINSTANCE hInstance,
 		WNDPROC wndProc, 
-		char* title,
+		const char* title,
 		int width, int height );
 	~Window();
 
@@ -20,8 +20,8 @@ public:
 	int		getHeight() const;
 	HWND	getHandle() const;
 private:
-	HWND	hWnd_;
+	HWND		hWnd_;
 
-	char*	title_;
-	int		width_, height_;
+	const char*	title_;
+	int			width_, height_;
 };

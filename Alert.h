@@ -12,6 +12,12 @@ public:
 	void draw( DirectX* directX );
 	void onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
+	// Button listener methods.
+	void setButtonListener( ButtonListener* buttonListener );
+
+	const Button* getButton() const;
+
 private:
 	Button* okButton;
+	ButtonListener* buttonListener_;
 };

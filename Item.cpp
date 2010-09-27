@@ -14,34 +14,34 @@ const uint32 EQUIP_FLAGS[] = {
 };
 
 /* Create definitions Hashtable. */
-Hashtable* Item::m_hInformation = NULL;
+Hashtable* Item::informationTable = NULL;
 
-Item::Item(uint64 newUniqueID,
-		   uint32 newType,
-		   uint32 newLevel,
-		   EItemQuality newQuality,
-		   uint32 newQuantity,
-		   uint32 newFlags)
+Item::Item(
+	uint64 uniqueId,
+	uint32 defIndex,
+	uint32 level,
+	EItemQuality quality,
+	uint32 count,
+	uint32 flags )
 {
-	/* Set basic attributes. */
-	m_itemID = newUniqueID;
-	m_itemType = newType;
-	m_itemLevel = newLevel;
-	m_itemQuality = newQuality;
-	m_itemQuantity = newQuantity;
-	m_itemFlags = newFlags;
+	// Set basic attributes.
+	uniqueId_ = uniqueId;
+	defIndex_ = defIndex;
+	level_ = level;
+	quality_ = quality;
+	count_ = count;
+	flags_ = flags;
 
-	/* Set null for things to be gotten. */
-	m_lpTexture = NULL;
-	m_itemName = NULL;
-	m_pInformation = NULL;
+	// Set null pointers for things to be acquired.
+	texture_ = 0;
+	name_ = 0;
+	information_ = 0;
 
-	/* Load item's definition. */
-	getInformation();
+	// Load item's definition.
+	loadInformation();
 
-	/* Set selection and position. */
-	setSelect(SELECT_NONE);
-	m_itemPosition = m_itemFlags & 0xFF;
+	// Reset selection and position.
+	position_ = flags_ & 0xFF;
 }
 
 Item::~Item()
@@ -49,25 +49,22 @@ Item::~Item()
 	//Item has been destroyed.
 }
 
-void Item::getInformation()
+void Item::loadInformation()
 {
-	/* Convert item type to string. */
-	stringstream typeStream;
-	typeStream << getType();
-	string thisType = typeStream.str();
+	// Convert item type to string.
+	string defIndex = boost::lexical_cast<string, int>( defIndex_ );
 
-	try
-	{
-		m_pInformation = m_hInformation->getTable(thisType);
-	} catch (Exception &)
-	{
-		try
-		{
-			//TODO: Make the parser add a "-1" table.
-			m_pInformation = m_hInformation->getTable("-1");
-		} catch (Exception &)
-		{
-			throw Exception("Failed to get item information, no definition or default definition found.");
+	try {
+		information_ = informationTable->getTable( defIndex );
+	}
+	catch (Exception &) {
+		// Failed to load definition; fall back to unknown.
+		try {
+			information_ = informationTable->getTable( "-1" );
+		}
+		catch (Exception &) {
+			// Both failed.
+			throw Exception( "Failed to get item information. No definition or default definition found." );
 		}
 	}
 
@@ -75,151 +72,138 @@ void Item::getInformation()
 	getTexture();
 }
 
-uint64 Item::getUniqueID() const
+void Item::draw( DirectX* directX )
 {
-	return m_itemID;
+	directX->drawTexture( texture_, x, y );
 }
 
-uint32 Item::getType() const
+uint64 Item::getUniqueId() const
 {
-	return m_itemType;
+	return uniqueId_;
+}
+
+uint32 Item::getDefIndex() const
+{
+	return defIndex_;
 }
 
 uint32 Item::getLevel() const
 {
-	return m_itemLevel;
+	return level_;
 }
 
 EItemQuality Item::getQuality() const
 {
-	return m_itemQuality;
+	return quality_;
 }
 
 uint32 Item::getFlags() const
 {
-	return m_itemFlags;
+	return flags_;
 }
 
-uint32 Item::getQuantity() const
+uint32 Item::getCount() const
 {
-	return m_itemQuantity;
+	return count_;
 }
 
 uint8 Item::getPosition() const
 {
-	return m_itemPosition;
+	return position_;
 }
 
 string Item::getName()
 {
-	try
-	{
-		return *m_pInformation->getString("itemName");
-	} catch (Exception &)
-	{
-		throw Exception("Failed to get item name from table.");
+	try {
+		return *information_->getString( "name" );
+	}
+	catch (Exception &) {
+		throw Exception( "Failed to get item name from table." );
 	}
 }
 
 bool Item::isHat() const
 {
-	return (getSlot() == "hat");
+	return getSlot() == "hat";
 }
 
 string Item::getSlot() const
 {
-	return *m_pInformation->getString("itemSlot");
+	return *information_->getString( "slot" );
 }
 
 EItemGroup Item::getGroup() const
 {
-	return m_itemGroup;
+	return group_;
 }
 
-EItemSelection Item::getSelection() const
+void Item::setGroup( EItemGroup group )
 {
-	return m_itemSelection;
+	group_ = group;
 }
 
-void Item::setGroup(EItemGroup newGroup)
+void Item::setPosition( uint8 position )
 {
-	m_itemGroup = newGroup;
-}
+	// Set to new position.
+	position_ = position;
 
-void Item::setSelect(EItemSelection newSelection)
-{
-	m_itemSelection = newSelection;
-}
+	// Reset item position.
+	flags_ &= 0xFFFFFF00;
 
-void Item::setPosition(uint8 newPosition)
-{
-	//Set to new position.
-	m_itemPosition = newPosition;
+	// Fix improper flags.
+	if ((flags_ & 0xF0000000) != 0x80000000)
+		flags_ = 0x80000000;
 
-	//If item has improper flags, fix them.
-	uint32 newFlags = m_itemFlags & 0xFFFFFF00;
-	if ((m_itemFlags & 0xF0000000) != 0x80000000)
-		newFlags = 0x80000000;
-
-	//Put new position.
-	newFlags += newPosition;
-	m_itemFlags = newFlags;
+	// Put new position.
+	flags_ += position_;
 }
 
 bool Item::isEquipped() const
 {
-	int equipFlags = m_itemFlags & 0x0FFFFF00;
-	int validFlags = m_itemFlags & 0xF0000000;
+	int equipFlags = flags_ & 0x0FFFFF00;
+	int validFlags = flags_ & 0xF0000000;
 	return ((validFlags == 0x80000000) && (equipFlags != 0x00000000));
 }
 
-void Item::setEquip(int whichClass, bool doEquip)
+void Item::setEquip( int classIndex, bool equip )
 {
-	if (m_itemFlags & EQUIP_FLAGS[whichClass])
-	{
-		//This item is equipped to that class; remove them.
-		if (!doEquip)
-			m_itemFlags -= EQUIP_FLAGS[whichClass];
-	} else
-	{
-		//This item is not equipped.
-		if (doEquip)
-			m_itemFlags += EQUIP_FLAGS[whichClass];
+	if (flags_ & EQUIP_FLAGS[classIndex]) {
+		if (!equip)
+			// Item is equipped to this class; remove flag.
+			flags_ -= EQUIP_FLAGS[classIndex];
+	}
+	else {
+		if (equip)
+			// This item is not equipped to the class; add flag.
+			flags_ += EQUIP_FLAGS[classIndex];
 	}
 }
 
 Texture* Item::getTexture()
 {
-	if (m_lpTexture == NULL)
-	{
-		try
-		{
-			m_lpTexture = boost::any_cast<Texture*>(m_pInformation->get("itemTexture"));
-		} catch (const boost::bad_any_cast &)
-		{
-			throw Exception("Unexpected variable type for item texture.");
+	if (texture_ == 0) {
+		try	{
+			texture_ = boost::any_cast<Texture*>( information_->get( "texture" ) );
+		}
+		catch (const boost::bad_any_cast &) {
+			throw Exception( "Unexpected variable type for item texture." );
 		}
 	}
 	
-	return m_lpTexture;
+	return texture_;
 }
 
-void Item::drawObject(DirectX* directX)
+int Item::getWidth() const
 {
-	directX->drawTexture(m_lpTexture, m_fX, m_fY);
+	return texture_->getWidth();
 }
 
-int Item::getWidth()
+int Item::getHeight() const
 {
-	return m_lpTexture->getWidth();
+	return texture_->getHeight();
 }
 
-int Item::getHeight()
-{
-	return m_lpTexture->getHeight();
-}
-
-void Item::onMouseEvent(MouseListener* pMouse, EMouseEvent mEvent)
+void Item::onMouseEvent( MouseListener* pMouse, EMouseEvent mEvent )
 {
 	// Nothing yet.
 }

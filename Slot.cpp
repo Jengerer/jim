@@ -1,46 +1,79 @@
 #include "Slot.h"
 
 // Initialize the texture.
-Texture* Slot::m_lpTexture = NULL;
+Texture* Slot::texture = 0;
 
-Slot::Slot(Item* whichItem)
+// Colours for slot.
+const D3DCOLOR SELECTED_COLOUR	= D3DCOLOR_ARGB( 255, 255, 255, 255 );
+const D3DCOLOR HOVER_COLOUR		= D3DCOLOR_ARGB( 255, 200, 200, 200 );
+const D3DCOLOR NORMAL_COLOUR	= D3DCOLOR_ARGB( 255, 100, 100, 100 );
+const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 175, 255, 255, 255 );
+
+Slot::Slot( Item* item )
 {
-	m_pItem = whichItem;
-	m_isActive = false;
+	this->item = item;
+
+	// Inactive and deselected by default.
+	isActive_ = false;
+	setSelectType( SELECT_TYPE_NONE );
 }
 
-Slot::Slot()
-{
-	m_pItem = NULL;
-	m_isActive = false;
-}
-
-void Slot::drawObject(DirectX* directX)
+void Slot::draw( DirectX* directX )
 {
 	// Check for collision.
-	D3DCOLOR thisColour = (m_isActive ? D3DCOLOR_ARGB(255, 200, 200, 200) : D3DCOLOR_ARGB(255, 100, 100, 100));
+	D3DCOLOR drawColour;
+	switch (selectType_) {
+	case SELECT_TYPE_NONE:
+		drawColour = (isActive_ ? HOVER_COLOUR : NORMAL_COLOUR );
+		break;
+	case SELECT_TYPE_NORMAL:
+		drawColour = SELECTED_COLOUR;
+		break;
+	case SELECT_TYPE_DRAG:
+		drawColour = DRAG_COLOUR;
+		break;
+	}
 
 	// Draw the slot texture here.
-	directX->drawTexture(m_lpTexture, m_fX, m_fY, thisColour);
+	directX->drawTexture( texture, x, y, drawColour );
 
-	if (m_pItem != NULL)
-	{
+	if (item) {
 		// Move it to the center of this slot.
-		m_pItem->m_fX = m_fX + getWidth()/2 - m_pItem->getWidth()/2;
-		m_pItem->m_fY = m_fY + getHeight()/2 - m_pItem->getHeight()/2;
+		item->x = x + (getWidth() / 2) - (item->getWidth() / 2);
+		item->y = y + (getHeight() / 2) - (item->getHeight() / 2);
 
 		// Draw it.
-		m_pItem->drawObject(directX);
+		item->draw( directX );
 	}
 }
 
-void Slot::onMouseEvent(MouseListener* pMouse, EMouseEvent mEvent)
+void Slot::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
 {
 	// Check collision.
-	m_isActive = mouseTouching(pMouse);
+	switch (mEvent) {
+	case MOUSE_EVENT_MOVE:
+		isActive_ = mouseTouching( mouseListener );
+		break;
+	case MOUSE_EVENT_RELEASE:
+		setSelectType( SELECT_TYPE_NORMAL );
+		break;
+	}
 }
 
-const Texture* Slot::getTexture() const
+ESelectType Slot::getSelectType() const {
+	return selectType_;
+}
+
+void Slot::setSelectType( ESelectType selectType ) {
+	selectType_ = selectType;
+}
+
+int Slot::getWidth() const
 {
-	return m_lpTexture;
+	return texture->getWidth();
+}
+
+int Slot::getHeight() const
+{
+	return texture->getHeight();
 }

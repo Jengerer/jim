@@ -33,28 +33,27 @@ void loadDefinitions()
 {
 	cout << "Starting item definition parser." << endl;
 
-	Curl* pCurl = new Curl();
+	Curl* curl = new Curl();
 
 	string itemDefinition, langDefinition;
 	
 	// Download API definitions.
 	cout << "Opening item definitions... ";
-	itemDefinition = pCurl->readFile("http://api.steampowered.com/ITFItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=vdf");
+	itemDefinition = curl->read( "http://api.steampowered.com/ITFItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=vdf" );
 	cout << "loaded!" << endl;
 
 	// Download language definitions.
 	cout << "Opening language definitions... ";
-	langDefinition = pCurl->readFile("http://www.jengerer.com/tf_english.txt");
+	langDefinition = curl->read( "http://www.jengerer.com/itemManager/tf_english.txt" );
 	cout << "loaded!" << endl;
 
 	// Spacing!
 	cout << endl;
 
-	KeyValueParser definitionParser(itemDefinition);
-	KeyValueParser languageParser(langDefinition);
+	KeyValueParser definitionParser( itemDefinition );
+	KeyValueParser languageParser( langDefinition );
 
-	try
-	{
+	try {
 		cout << "Parsing item definitions... ";
 		itemDefinitions = definitionParser.getHashtable();
 		cout << "done!" << endl;
@@ -62,34 +61,32 @@ void loadDefinitions()
 		cout << "Parsing language definitions... ";
 		langDefinitions = languageParser.getHashtable();
 		cout << "done!" << endl;
-	} catch (Exception parseException)
-	{
+	}
+	catch (Exception parseException) {
 		throw Exception("Failed to parse items and language: " + parseException.getMessage());
 	}
 
 	Hashtable *resultTable, *itemsTable, *definitionsTable;
 	Hashtable *langTable, *tokenTable;
 
-	try
-	{
-		resultTable = itemDefinitions->getTable("result");
-		itemsTable = resultTable->getTable("items");
-		definitionsTable = itemsTable->getTable("item");
-	} catch (Exception tableException)
-	{
+	try {
+		resultTable = itemDefinitions->getTable( "result");
+		itemsTable = resultTable->getTable( "items" );
+		definitionsTable = itemsTable->getTable( "item" );
+	}
+	catch (Exception tableException) {
 		throw Exception("Unexpected format for item definitions. Key '" + tableException.getMessage() + "' not found.");
 	}
 
-	try
-	{
+	try {
 		langTable = langDefinitions->getTable("lang");
 		tokenTable = langTable->getTable("Tokens");
-	} catch (Exception tableException)
-	{
+	}
+	catch (Exception tableException) {
 		throw Exception("Unexpected format for language definitions. Key '" + tableException.getMessage() + "' not found.");
 	}
 
-	Json::Value jsonRoot;
+	Json::Value root;
 	Json::StyledWriter jsonWriter;
 
 	// Handle items.
@@ -102,7 +99,7 @@ void loadDefinitions()
 			thisTable = boost::any_cast<Hashtable*>(hashIterator->second);
 		} catch (const boost::bad_any_cast &)
 		{
-			throw Exception("Failed to get table, unexpected variable type received.");
+			throw Exception( "Failed to get table, unexpected variable type received." );
 		}
 
 		// Try get the item name.
@@ -121,7 +118,7 @@ void loadDefinitions()
 		boost::regex langToken("#(.*)");
 		boost::cmatch regexMatches;
 		if (!boost::regex_match(itemName->c_str(), regexMatches, langToken))
-			throw Exception("Unexpected format for item definitions. Tokened name didn't match token format.");
+			throw Exception( "Unexpected format for item definitions. Tokened name didn't match token format." );
 
 		*itemName = regexMatches[1];
 
@@ -134,10 +131,10 @@ void loadDefinitions()
 		}
 
 		Json::Value thisObject;
-		thisObject["itemIndex"] = *itemIndex;
-		thisObject["itemName"] = *realName;
-		thisObject["itemSlot"] = *itemSlot;
-		thisObject["imageInventory"] = *texturePath;
+		thisObject["index"] = *itemIndex;
+		thisObject["name"] = *realName;
+		thisObject["slot"] = *itemSlot;
+		thisObject["image"] = *texturePath;
 
 		Json::Value allClasses;
 		allClasses.append("scout");
@@ -157,7 +154,7 @@ void loadDefinitions()
 		} catch (Exception tableException)
 		{
 			// Item is used by all classes.
-			thisObject["itemClasses"] = allClasses;
+			thisObject["classes"] = allClasses;
 		}
 
 		if (usedByTable != NULL)
@@ -180,37 +177,36 @@ void loadDefinitions()
 					try
 					{
 						string* className = boost::any_cast<string*>(hashIterator->second);
-						*className = toLower(*className);
+						*className = lower(*className);
 						itemClasses.append(*className);
 					} catch (const boost::bad_any_cast &)
 					{
-						throw Exception("Bad cast for class name. Expected string.");
+						throw Exception( "Bad cast for class name. Expected string." );
 					}
 				}
 
-				thisObject["itemClasses"] = itemClasses;
+				thisObject["classes"] = itemClasses;
 			}
 		}
 
-		jsonRoot.append(thisObject);
+		root.append(thisObject);
 	}
 
 	// Add definition for unknown item.
 	Json::Value unknownItem;
-	unknownItem["itemIndex"] = "-1";
-	unknownItem["itemName"] = "Unknown Item";
-	unknownItem["itemSlot"] = "misc";
-	unknownItem["imageInventory"] = "backpack/unknown_item";
-	unknownItem["imageURL"] = "http://www.jengerer.com/itemManager/imgFiles/backpack/unknown_item.png";
+	unknownItem["index"] = "-1";
+	unknownItem["name"] = "Unknown Item";
+	unknownItem["slot"] = "misc";
+	unknownItem["image"] = "backpack/unknown_item";
 
 	// Set -1 to be unknown index.
-	jsonRoot.append(unknownItem);
+	root.append(unknownItem);
 
 	ofstream jsonOutput("itemDefinitions.json");
 	if (!jsonOutput)
-		throw Exception("Couldn't write to file.");
+		throw Exception( "Couldn't write to file." );
 
-	string jsonText = jsonWriter.write(jsonRoot);
+	string jsonText = jsonWriter.write(root);
 	jsonOutput << jsonText;
 	jsonOutput.close();
 

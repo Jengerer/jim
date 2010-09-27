@@ -1,44 +1,33 @@
 #include "MouseListener.h"
 
-MouseListener::MouseListener()
+MouseListener::MouseListener( Window* window )
 {
-	setWindow(NULL);
+	setWindow( window );
 }
 
-MouseListener::MouseListener(Window* pWindow)
+void MouseListener::setWindow( Window* window )
 {
-	setWindow(pWindow);
-}
-
-void MouseListener::setWindow(Window* pWindow)
-{
-	window_ = pWindow;
+	window_ = window;
 }
 
 void MouseListener::pollMouse()
 {
-	GetCursorPos(&m_ptMouse);
-	ScreenToClient(window_->getHandle(), &m_ptMouse);
+	GetCursorPos( &position_ );
+	ScreenToClient( window_->getHandle(), &position_ );
 }
 
-void MouseListener::setPosition(int xNew, int yNew)
+void MouseListener::getPosition( int* x, int* y ) const
 {
-	m_ptMouse.x = xNew;
-	m_ptMouse.y = yNew;
+	*x = position_.x;
+	*y = position_.y;
 }
 
-int MouseListener::getX() const
+int MouseListener::getMouseX() const
 {
-	return (int)m_ptMouse.x;
+	return (int)position_.x;
 }
 
-int MouseListener::getY() const
+int MouseListener::getMouseY() const
 {
-	return (int)m_ptMouse.y;
-}
-
-void MouseListener::getPosition(int* pX, int* pY) const
-{
-	*pX = m_ptMouse.x;
-	*pY = m_ptMouse.y;
+	return (int)position_.y;
 }
