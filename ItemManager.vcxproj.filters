@@ -785,6 +785,9 @@
     <ClInclude Include="Drawable.h">
       <Filter>Header Files\GUI Elements</Filter>
     </ClInclude>
+    <ClInclude Include="ButtonListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="steam\steam_api.lib">

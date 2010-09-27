@@ -31,40 +31,46 @@ Hashtable::Hashtable()
 
 Hashtable::~Hashtable()
 {
-	stringMap::iterator hashIterator;
-	while (!hashMap_->empty())
+	if (hashMap_ != 0)
 	{
-		remove(hashMap_->begin());
-	}
+		stringMap::iterator hashIterator;
+		while (!hashMap_->empty())
+		{
+			remove( hashMap_->begin() );
+		}
 
-	delete m_pMap;
+		delete hashMap_;
+		hashMap_ = 0;
+	}
 }
 
-void Hashtable::put(const string& whichKey, boost::any whichValue)
+void Hashtable::put( const string& key, boost::any value )
 {
 	// See if we need to replace it.
-	stringMap::iterator hashIterator = m_pMap->find(whichKey);
-	if (hashIterator != m_pMap->end())
+	stringMap::iterator i = hashMap_->find( key );
+	if (i != hashMap_->end())
 	{
-		remove(hashIterator);
+		remove( i );
 	}
 
 	// Insert or re-insert now.
-	stringPair thisPair(whichKey, whichValue);
-	m_pMap->insert(thisPair);
+	stringPair pair( key, value );
+	hashMap_->insert( pair );
 }
 
-void Hashtable::remove(stringMap::iterator& pIterator)
+void Hashtable::remove( stringMap::iterator& iter )
 {
 	try
 	{
 		// Check if it's a string.
-		string* thisString = boost::any_cast<string*>(pIterator->second);
-		delete thisString;
-		thisString = NULL;
+		string* stringValue = boost::any_cast<string*>( iter->second );
+
+		// Delete value.
+		delete stringValue;
+		stringValue = 0;
 
 		// It worked, remove this and exit.
-		m_pMap->erase(pIterator);
+		hashMap_->erase( iter );
 		return;
 	} catch (const boost::bad_any_cast &)
 	{
@@ -74,10 +80,10 @@ void Hashtable::remove(stringMap::iterator& pIterator)
 	try
 	{
 		// Check if it's a texture.
-		Texture* thisTexture = boost::any_cast<Texture*>(pIterator->second);
+		Texture* textureValue = boost::any_cast<Texture*>( iter->second );
 		
 		// Textures will be automatically released at the end, just remove.
-		m_pMap->erase(pIterator);
+		hashMap_->erase( iter );
 		return;
 	} catch (const boost::bad_any_cast &)
 	{
@@ -87,69 +93,70 @@ void Hashtable::remove(stringMap::iterator& pIterator)
 	try
 	{
 		// Then it must be a table.
-		Hashtable* thisTable = boost::any_cast<Hashtable*>(pIterator->second);
+		Hashtable* tableValue = boost::any_cast<Hashtable*>( iter->second );
 
-		delete thisTable;
-		thisTable = NULL;
+		// Delete it.
+		delete tableValue;
+		tableValue = NULL;
 
 		// Remove this.
-		m_pMap->erase(pIterator);
+		hashMap_->erase( iter );
 	} catch (const boost::bad_any_cast &)
 	{
 		// It's neither, bad!
-		throw Exception("Failed to deallocate variable from table. Please report this error as soon as possible.");
+		throw Exception( "Failed to deallocate variable from table. Please report this error as soon as possible." );
 	}
 }
 
-boost::any& Hashtable::get(const string& whichKey)
+boost::any& Hashtable::get( const string& key ) const
 {
-	stringMap::iterator hashIterator = m_pMap->find(whichKey);
+	stringMap::iterator iter = hashMap_->find( key );
 
-	if (hashIterator == m_pMap->end())
-		throw Exception(whichKey);
+	if (iter == hashMap_->end())
+		throw Exception( key );
 
-	return hashIterator->second;
+	return iter->second;
 }
 
-string* Hashtable::getString(const string& whichKey)
+string* Hashtable::getString( const string& key ) const
 {
 	try
 	{
-		return boost::any_cast<string*>(get(whichKey));
+		return boost::any_cast<string*>( get( key ) );
 	} catch (const boost::bad_any_cast &)
 	{
-		throw Exception("Unexpected type received from key '" + whichKey + "', expected string.");
+		throw Exception( "Unexpected type received from key '" + key + "', expected string." );
 	}
 }
 
-Hashtable* Hashtable::getTable(const string& whichKey)
+Hashtable* Hashtable::getTable( const string& key ) const
 {
 	try
 	{
-		Hashtable* thisMap = boost::any_cast<Hashtable*>(get(whichKey));
-		return thisMap;
+		Hashtable* tableValue = boost::any_cast<Hashtable*>( get( key ) );
+		return tableValue;
 	} catch (const boost::bad_any_cast &)
 	{
-		throw Exception("Unexpected type received from key '" + whichKey + "', expected table.");
+		throw Exception( "Unexpected type received from key '" + key + "', expected table." );
 	}
 }
 
-stringMap::iterator Hashtable::find(const string& whichKey)
+stringMap::iterator Hashtable::find( const string& key )
 {
-	return m_pMap->find(whichKey);
+	return hashMap_->find( key );
 }
 
 stringMap::iterator Hashtable::begin()
 {
-	return m_pMap->begin();
+	return hashMap_->begin();
 }
 
 stringMap::iterator Hashtable::end()
 {
-	return m_pMap->end();
+	return hashMap_->end();
 }
 
 bool Hashtable::empty() const
 {
-	return m_pMap->empty();
+	return hashMap_->empty();
 }

@@ -6,9 +6,12 @@ void* (*Steam_FreeLastCallback) (HSteamPipe hSteamPipe);
 
 Steam::Steam()
 {
+	// Set to null.
+	steamClient_	= 0;
+
 	// Steam has been created.
 	try {
-		loadInterfaces();
+		openInterfaces();
 	} catch (Exception steamException) {
 		// Shut down Steam, and pass exception.
 		closeInterfaces();
@@ -22,95 +25,104 @@ Steam::~Steam()
 	closeInterfaces();
 }
 
-void Steam::loadInterfaces()
+void Steam::openInterfaces()
 {
-	//We're loading TF2.
-	SetEnvironmentVariable("SteamAppId", "440");
+	// Set Team Fortress 2 application ID.
+	SetEnvironmentVariable( "SteamAppId", "440" );
 
-	//Get Steam directory.
-	char SteamPath[512];
+	// Get Steam directory.
+	char steamPath[512];
 	HKEY hkRegistry;
 
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Valve\\Steam\\", 0, KEY_QUERY_VALUE, &hkRegistry) == ERROR_SUCCESS)
+	if (RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Valve\\Steam\\", 0, KEY_QUERY_VALUE, &hkRegistry ) == ERROR_SUCCESS)
 	{
-		//Clear the string.
-		memset(SteamPath, 0, 512);
+		// Clear the string.
+		memset( steamPath, 0, 512 );
 
 		DWORD regType, regSize=511;
-		if (RegQueryValueEx(hkRegistry, "InstallPath", 0, &regType, (unsigned char *)SteamPath, &regSize) == ERROR_SUCCESS)
-			SetDllDirectory(SteamPath);
+		if (RegQueryValueEx( hkRegistry, "InstallPath", 0, &regType, (unsigned char *)steamPath, &regSize ) == ERROR_SUCCESS)
+			SetDllDirectory( steamPath );
 		else
-			throw Exception("Failed to get Steam install path from registry.");
+			throw Exception( "Failed to get Steam install path from registry." );
 	} else
 	{
-		throw Exception("Failed to get Steam install path from registry.");
+		throw Exception( "Failed to get Steam install path from registry." );
 	}
 
 	//Load the library.
-	HMODULE ClientDLL = LoadLibrary("steamclient.dll");
-	if (ClientDLL == NULL)
-		throw Exception("Failed to load steamclient.dll from Steam install path.");
+	HMODULE clientDll = LoadLibrary( "steamclient.dll" );
+	if ( !clientDll )
+		throw Exception( "Failed to load steamclient.dll from Steam install path." );
 
 	//Now define the functions.
 	if (!Steam_BGetCallback)
-		Steam_BGetCallback = (bool* (*)(HSteamPipe, CallbackMsg_t *, HSteamCall *))GetProcAddress(ClientDLL, "Steam_BGetCallback");
+		Steam_BGetCallback = (bool* (*)(HSteamPipe, CallbackMsg_t *, HSteamCall *))GetProcAddress( clientDll_, "Steam_BGetCallback" );
 
 	if (!Steam_FreeLastCallback)
-		Steam_FreeLastCallback = (void* (*)(HSteamPipe))GetProcAddress(ClientDLL, "Steam_FreeLastCallback");
+		Steam_FreeLastCallback = (void* (*)(HSteamPipe))GetProcAddress( clientDll_, "Steam_FreeLastCallback" );
 
 	//Now load the API.
 	CSteamAPILoader apiLoader;
 
 	CreateInterfaceFn clientFactory = apiLoader.Load();
 	if (clientFactory == NULL)
-		throw Exception("Failed to load Steam API from factory.");
+		throw Exception( "Failed to load Steam API from factory." );
 
-	m_pClient = (ISteamClient008*)clientFactory(STEAMCLIENT_INTERFACE_VERSION_008, NULL);
-	if (m_pClient == NULL)
-		throw Exception("Failed to create Steam client interface.");
+	steamClient_ = (ISteamClient008*)clientFactory( STEAMCLIENT_INTERFACE_VERSION_008, 0 );
+	if (!steamClient_)
+		throw Exception( "Failed to create Steam client interface." );
 
 	//Down to to the nitty-gritty. Start 'er up!
 	if (!SteamAPI_Init())
-		throw Exception("Failed to initialize Steam API. Make sure Steam is running and try again.");
+		throw Exception( "Failed to initialize Steam API. Make sure Steam is running and try again." );
 
-	m_hPipe = m_pClient->CreateSteamPipe();
-	m_hUser = m_pClient->ConnectToGlobalUser(m_hPipe);
+	hPipe_ = steamClient_->CreateSteamPipe();
+	hUser_ = steamClient_->ConnectToGlobalUser(hPipe_);
 
-	//Make sure we've got a user.
-	if (m_hUser == 0)
-		throw Exception("Failed to connect to global user.");
+	// Make sure we've got a user.
+	if (hUser_ == 0)
+		throw Exception( "Failed to connect to global user." );
 
-	//Make sure we're logged on correctly.
-	m_pUser = (ISteamUser012*)m_pClient->GetISteamUser(m_hUser, m_hPipe, STEAMUSER_INTERFACE_VERSION_012);
-	if (!m_pUser->LoggedOn())
-		throw Exception("You're not properly logged into Steam.");
+	// Make sure we're logged on correctly.
+	steamUser_ = (ISteamUser012*)steamClient_->GetISteamUser(
+		hUser_,
+		hPipe_,
+		STEAMUSER_INTERFACE_VERSION_012 );
+	if (!steamUser_->LoggedOn())
+		throw Exception( "You're not properly logged into Steam." );
 
-	m_pCoordinator = (ISteamGameCoordinator001*)m_pClient->GetISteamGenericInterface(
-		m_hUser, m_hPipe,
-		STEAMGAMECOORDINATOR_INTERFACE_VERSION_001);
+	gameCoordinator_ = (ISteamGameCoordinator001*)steamClient_->GetISteamGenericInterface(
+		hUser_, hPipe_,
+		STEAMGAMECOORDINATOR_INTERFACE_VERSION_001 );
 
-	if (!m_pCoordinator)
-		throw Exception("Failed to get ISteamGameCoordinator interface.");
+	if (!gameCoordinator_)
+		throw Exception( "Failed to get ISteamGameCoordinator interface." );
 }
 
 void Steam::closeInterfaces()
 {
-	//Release user.
-	if (m_hUser)
-		m_pClient->ReleaseUser(m_hPipe, m_hUser);
+	if (steamClient_)
+	{
+		//Release user.
+		if (hUser_)
+			steamClient_->ReleaseUser( hPipe_, hUser_ );
 
-	//Release pipe.
-	if (m_hPipe)
-		m_pClient->ReleaseSteamPipe(m_hPipe);
+		//Release pipe.
+		if (hPipe_)
+			steamClient_->ReleaseSteamPipe( hPipe_ );
+	}
+
+	if (clientDll_)
+		FreeLibrary( clientDll_ );
 
 	//Finally, shut down API.
 	SteamAPI_Shutdown();
 }
 
-bool Steam::getCallback(CallbackMsg_t* tCallback)
+bool Steam::getCallback( CallbackMsg_t* tCallback )
 {
 	HSteamCall hSteamCall;
-	if (Steam_BGetCallback(m_hPipe, tCallback, &hSteamCall))
+	if (Steam_BGetCallback( hPipe_, tCallback, &hSteamCall ))
 		return true;
 	else
 		return false;
@@ -118,42 +130,52 @@ bool Steam::getCallback(CallbackMsg_t* tCallback)
 
 void Steam::releaseCallback()
 {
-	Steam_FreeLastCallback(m_hPipe);
+	Steam_FreeLastCallback( hPipe_ );
 }
 
-bool Steam::hasMessage(uint32* messageSize)
+bool Steam::hasMessage( uint32* messageSize )
 {
-	return m_pCoordinator->IsMessageAvailable(messageSize);
+	return gameCoordinator_->IsMessageAvailable(messageSize);
 }
 
-void Steam::getMessage(unsigned int* messageID, void* messageBuffer, uint32 iSize, unsigned int* sizeReal)
+void Steam::getMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize )
 {
-	m_pCoordinator->RetrieveMessage(messageID, messageBuffer, iSize, sizeReal);
+	gameCoordinator_->RetrieveMessage( id, buffer, size, realSize );
 }
 
-void Steam::updateItem(Item* whichItem)
+void Steam::updateItem( Item* item )
 {
-	/* Generate the message with the new flags. */
-	SOMsgUpdate_t msgUpdate;
-	msgUpdate.itemID = whichItem->getUniqueID();
-	msgUpdate.position = whichItem->getFlags();
+	// Generate message with new flags.
+	SOMsgUpdate_t message;
+	memset( &message, 0xFF, sizeof( SOMsgUpdate_t ) );
 
-	/* Send it. */
-	m_pCoordinator->SendMessage(SOMsgUpdate_t::k_iMessage, &msgUpdate, sizeof(msgUpdate));
+	message.itemID = item->getUniqueId();
+	message.position = item->getFlags();
+
+	// Send it.
+	gameCoordinator_->SendMessage(
+		SOMsgUpdate_t::k_iMessage, 
+		&message, 
+		sizeof( SOMsgUpdate_t ));
 }
 
-void Steam::deleteItem(uint64 itemID)
+void Steam::deleteItem( uint64 itemId )
 {
-	/* Generate the message. */
-	SOMsgDeleted_t msgDelete;
-	msgDelete.itemid = itemID;
+	// Generate message.
+	SOMsgDeleted_t message;
+	memset( &message, 0xFF, sizeof( SOMsgUpdate_t ) );
+
+	message.itemid = itemId;
 	
 	/* Send it. */
-	m_pCoordinator->SendMessage(SOMsgDeleted_t::k_iMessage, &msgDelete, sizeof(msgDelete));
+	gameCoordinator_->SendMessage(
+		SOMsgDeleted_t::k_iMessage,
+		&message,
+		sizeof( SOMsgDeleted_t ));
 }
 
-uint64 Steam::getSteamID() const
+uint64 Steam::getSteamId() const
 {
-	CSteamID steamID = m_pUser->GetSteamID();
-	return steamID.ConvertToUint64();
+	CSteamID steamId = steamUser_->GetSteamID();
+	return steamId.ConvertToUint64();
 }

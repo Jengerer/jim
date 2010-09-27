@@ -1,22 +1,21 @@
 #include "Main.h"
 
 /* Main constructor. */
-Main::Main(char* newTitle,
-		HINSTANCE hInstance,
-		int newWidth,
-		int newHeight)
+Main::Main(
+	const char* title,
+	HINSTANCE hInstance,
+	int width, int height )
 {
 	// Create and initialize a window.
 	window_ = new Window(
 		hInstance,
-		WndProc,
-		newTitle,
-		newWidth, newHeight);
+		wndProc,
+		title,
+		width, height );
 
-	setWindow(window_);
+	setWindow( window_ );
 }
 
-/* Main deconstructor. */
 Main::~Main()
 {
 	if (window_ != NULL)
@@ -26,17 +25,13 @@ Main::~Main()
 	}
 }
 
+void Main::addMouseListener( MouseListener* mouseListener )
+{
+	mouseListener->setWindow( window_ );
+	mouseListeners_.push_back( mouseListener );
+}
+
 Window* Main::getWindow() const
 {
 	return window_;
-}
-
-bool Main::keyDown(const int keyCode)
-{
-	return GetAsyncKeyState(keyCode) & 0x8000;
-}
-
-bool Main::keyUp(const int keyCode)
-{
-	return !keyDown(keyCode);
 }

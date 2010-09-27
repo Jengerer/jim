@@ -119,6 +119,7 @@
   <ItemGroup>
     <ClInclude Include="Alert.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="ButtonListener.h" />
     <ClInclude Include="Curl.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="Drawable.h" />

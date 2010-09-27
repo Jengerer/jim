@@ -2,15 +2,15 @@
 
 Window::Window(HINSTANCE hInstance,
 			   WNDPROC wndProc,
-			   char* newTitle, 
-			   int newWidth, int newHeight)
+			   const char* title,
+			   int width, int height)
 {
-	m_strTitle = newTitle;
-	m_iWidth = newWidth;
-	m_iHeight = newHeight;
+	title_ = title;
+	width_ = width;
+	height_ = height;
 
-	if (!registerClass(hInstance, wndProc)) 
-		throw Exception("Failed to register class.");
+	if (!registerClass( hInstance, wndProc )) 
+		throw Exception( "Failed to register class." );
 
 	createWindow(hInstance);
 }
@@ -35,74 +35,68 @@ bool Window::registerClass(HINSTANCE hInstance, WNDPROC wndProc)
 	wndCls.cbClsExtra		= 0;
 
 	wndCls.lpfnWndProc		= wndProc;
-	wndCls.lpszClassName	= m_strTitle;
+	wndCls.lpszClassName	= title_;
 	wndCls.lpszMenuName		= NULL;
 
 	wndCls.style			= NULL;
 
-	if (!RegisterClassEx(&wndCls))
-	{
-		MessageBox(NULL, "Failed to create window class!", "Window Error", MB_OK | MB_ICONEXCLAMATION);
-		return false;
-	}
-
-	return true;
+	return RegisterClassEx( &wndCls );
 }
 
 void Window::createWindow(HINSTANCE hInstance)
 {
 	// Get screen resolution to center window.
-	RECT rectScreen;
-	GetWindowRect(GetDesktopWindow(), &rectScreen);
+	RECT screenRect;
+	GetWindowRect( GetDesktopWindow(), &screenRect );
 
-	int xWindow = (rectScreen.right/2)-(getWidth()/2);
-	int yWindow = (rectScreen.bottom/2)-(getHeight()/2);
+	int x = (screenRect.right / 2) - (getWidth() / 2);
+	int y = (screenRect.bottom / 2) - (getHeight() / 2);
 
-	/* Adjust window dimensions based on style. */
-	RECT rectWindow;
-	rectWindow.left = 0;
-	rectWindow.top = 0;
-	rectWindow.right = getWidth();
-	rectWindow.bottom = getHeight();
+	// Adjust bounds based on style.
+	RECT windowRect;
+	windowRect.left	= 0;
+	windowRect.top	= 0;
+	windowRect.right	= getWidth();
+	windowRect.bottom	= getHeight();
 
-	/* Create the window. */
-	m_hWnd = CreateWindowA(
-		m_strTitle,
-		m_strTitle,
+	// Create window.
+	hWnd_ = CreateWindow(
+		title_, title_,
 		WS_VISIBLE | WS_POPUP | WS_OVERLAPPED,
-		xWindow, yWindow,
-		rectWindow.right - rectWindow.left, rectWindow.bottom - rectWindow.top,
+		x, y,
+		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
 		NULL, NULL,
 		hInstance,
-		NULL);
+		NULL );
 
+	// Add rounded corners.
 	HRGN windowRegion = CreateRoundRectRgn(
-		rectWindow.left,
-		rectWindow.top,
-		rectWindow.right,
-		rectWindow.bottom,
-		5, 5);
-	SetWindowRgn(m_hWnd, windowRegion, true);
-	DeleteObject(windowRegion);
+		windowRect.left,
+		windowRect.top,
+		windowRect.right,
+		windowRect.bottom,
+		5, 5 );
+	SetWindowRgn( hWnd_, windowRegion, true );
+	DeleteObject( windowRegion );
 
-	if (!m_hWnd)
-		throw Exception("Failed to create window.");
+	if (!hWnd_)
+		throw Exception( "Failed to create window." );
 
-	ShowWindow(m_hWnd, SW_SHOWDEFAULT);
-	UpdateWindow(m_hWnd);
+	ShowWindow( hWnd_, SW_SHOWDEFAULT );
+	UpdateWindow( hWnd_ );
 }
 
 int Window::getWidth() const
 {
-	return m_iWidth;
+	return width_;
 }
 
 int Window::getHeight() const
 {
-	return m_iHeight;
+	return height_;
 }
 
 HWND Window::getHandle() const
 {
-	return m_hWnd;
+	return hWnd_;
 }

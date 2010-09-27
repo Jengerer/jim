@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <deque>
 #include <sstream>
 #include <string>
 
@@ -13,6 +14,7 @@
 
 // User interface.
 #include "Button.h"
+#include "ButtonListener.h"
 #include "Popup.h"
 #include "Dialog.h"
 #include "Alert.h"
@@ -22,7 +24,7 @@
 #include "Inventory.h"
 #include "SerializedBuffer.h"
 
-class ItemManager: public DirectX
+class ItemManager: public DirectX, public ButtonListener
 {
 public:
 	ItemManager( HINSTANCE hInstance );
@@ -44,9 +46,8 @@ public:
 	void onMouseClick();
 	void onMouseRelease();
 	void onMouseMove();
-
-	// Inventory handling.
-	void handleCallbacks();
+	void onButtonClick( Button* button );
+	void onButtonRelease( Button* button );
 
 	// Interface handling.
 	Dialog*	createDialog( const string& message );
@@ -60,11 +61,12 @@ private:
 	Inventory*		inventory_;
 
 	// User interface stacks.
-	vector<Popup*>	popupStack;
-	vector<Popup*>	popups;
-	vector<Button*>	buttons;
+	deque<Popup*>	popupStack_;
+	vector<Popup*>	popupList_;
+	vector<Button*>	buttonList_;
 
 	// Interface variables.
 	Dialog			*loadDialog_;
+	Alert			*alert_;
 	Button			*deleteButton_, *craftButton_, *sortButton_;
 };

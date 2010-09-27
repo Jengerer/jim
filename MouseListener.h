@@ -11,8 +11,7 @@ enum EMouseEvent {
 class MouseListener
 {
 public:
-	MouseListener();
-	MouseListener( Window* window );
+	MouseListener( Window* window = 0 );
 
 	// Mouse control and settings.
 	void setWindow( Window* window );

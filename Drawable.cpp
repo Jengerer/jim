@@ -9,7 +9,8 @@ Drawable::Drawable( float x, float y )
 
 void Drawable::setPosition( float x, float y )
 {
-	setPosition(x, y);
+	this->x = x;
+	this->y = y;
 }
 
 bool Drawable::mouseTouching( MouseListener* mouseListener ) const
@@ -21,16 +22,4 @@ bool Drawable::mouseTouching( MouseListener* mouseListener ) const
 	// Check collision.
 	return (xMouse >= x) &&	(xMouse <= x + getWidth()) &&
 		(yMouse >= y) && (yMouse <= y + getHeight());
-}
-
-int Drawable::getWidth() const
-{
-	const Texture* texture = getTexture();
-	return texture->getWidth();
-}
-
-int Drawable::getHeight() const
-{
-	const Texture* texture = getTexture();
-	return texture->getHeight();
 }

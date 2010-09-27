@@ -50,22 +50,22 @@ public:
 	~Hashtable();
 
 	// Adding and removing member.
-	void						put( const string& key, boost::any obj );
-	void						remove( stringMap::iterator& iter );
+	void				put( const string& key, boost::any obj );
+	void				remove( stringMap::iterator& iter );
 
 	// Member getter.
-	boost::any&					get ( const string& key );
-	string*						getString( const string& key );
-	Hashtable*					getTable( const string& key );
+	boost::any&			get ( const string& key ) const;
+	string*				getString( const string& key ) const;
+	Hashtable*			getTable( const string& key ) const;
 	
 	// For iteration.
-	stringMap::iterator		find( const string& key );
-	stringMap::iterator		begin();
-	stringMap::iterator		end();
+	stringMap::iterator	find( const string& key );
+	stringMap::iterator	begin();
+	stringMap::iterator	end();
 
 	// Simple attribute getter.
-	bool						empty() const;
+	bool				empty() const;
 	
 private:
-	stringMap* hashMap_;
+	stringMap*			hashMap_;
 };

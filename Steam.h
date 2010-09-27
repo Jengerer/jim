@@ -15,30 +15,33 @@ public:
 	Steam();
 	~Steam();
 
-	/* Initializing and closing. */
+	// Initializing and closing.
 	void openInterfaces();
 	void closeInterfaces();
 
-	/* Callback and message handling. */
+	// Callback and message handling.
 	bool getCallback( CallbackMsg_t* callback );
 	void releaseCallback();
 	bool hasMessage( uint32* size );
 	void getMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize );
 
-	/* Interface handling. */
+	// Interface handling.
 	void updateItem( Item* item );
 	void deleteItem( uint64 uniqueId );
 
-	/* Steam getters. */
+	// Steam getters.
 	uint64 getSteamId() const;
 
 private:
-	/* Steam handlers. */
+	// Steam handles.
 	HSteamUser					hUser_;
-	HSteamPipe					HPipe_;
+	HSteamPipe					hPipe_;
 
-	/* Steam interfaces. */
+	// Steam interfaces.
 	ISteamClient008*			steamClient_;
 	ISteamUser012*				steamUser_;
 	ISteamGameCoordinator001*	gameCoordinator_;
+
+	// For function loading.
+	HMODULE						clientDll_;
 };

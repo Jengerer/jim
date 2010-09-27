@@ -1,37 +1,35 @@
 #pragma once
 
-#include "steam/SteamAPI.h"
-#include "steam/SteamTypes.h"
-#include "steam/UserItemsCommon.h"
-#include "Hashtable.h"
-#include "Drawable.h"
 #include <vector>
 #include <string>
 #include <sstream>
 
+#include <boost/lexical_cast.hpp>
+
+#include "steam/SteamAPI.h"
+#include "steam/SteamTypes.h"
+#include "steam/UserItemsCommon.h"
+
+#include "Hashtable.h"
+#include "Drawable.h"
+
 using namespace std;
 
-//Item type for manager handling.
+// Item type for manager handling.
 enum EItemGroup {
 	GROUP_INVENTORY,
 	GROUP_EXCLUDED
 };
 
-//Item selection type for manager handling.
-enum EItemSelection {
-	SELECT_NONE,
-	SELECT_NORMAL,
-	SELECT_DRAG
-};
-
 class Item: public Drawable
 {
 public:
-	bool operator==(const Item &other) const; //TODO: { return (this->GetUniqueID() == rOther.GetUniqueID()); }
-	bool operator!=(const Item &other) const; //TODO: { return (this->GetUniqueID() != rOther.GetUniqueID()); }
+	bool operator==(const Item &other) const; // TODO: { return (this->GetUniqueID() == rOther.GetUniqueID()); }
+	bool operator!=(const Item &other) const; // TODO: { return (this->GetUniqueID() != rOther.GetUniqueID()); }
 
 	/* Constructor. */
-	Item(uint64 uniqueId,
+	Item(
+		uint64 uniqueId,
 		uint32 defIndex,
 		uint32 level,
 		EItemQuality quality,
@@ -42,9 +40,16 @@ public:
 	/* Initializing item. */
 	void				loadInformation();
 
+	// Drawable functions.
+	void				draw( DirectX* directX );
+	int					getWidth() const;
+	int					getHeight() const;
+	void				onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
+
+
 	// Item attribute getters.
 	uint64				getUniqueId() const;
-	uint32				getType() const;
+	uint32				getDefIndex() const;
 	uint32				getLevel() const;
 	EItemQuality		getQuality() const;
 	uint32				getFlags() const;
@@ -58,6 +63,9 @@ public:
 	EItemGroup			getGroup() const;
 	uint8				getPosition() const;
 
+	// Secondary attribute setters.
+	void				setGroup( EItemGroup group );
+
 	// Modify item attributes.
 	void				setEquip( int classIndex, bool equip );
 	void				setPosition( uint8 position );
@@ -68,16 +76,6 @@ public:
 
 	// Item information table.
 	static Hashtable*	informationTable;
-
-	// Drawing functions.
-	void				drawObject( DirectX* directX );
-
-	// Input handling.
-	void				onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
-
-	// Size getters.
-	int					getWidth();
-	int					getHeight();
 
 private:
 	// Item information.

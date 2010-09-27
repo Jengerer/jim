@@ -1,15 +1,17 @@
 #include "DirectX.h"
 
+const D3DCOLOR WHITE_COLOUR = D3DCOLOR_ARGB( 255, 255, 255, 255 );
+const D3DCOLOR BACKGROUND_COLOUR = D3DCOLOR_ARGB( 255, 43, 39, 37 );
+
 DirectX::DirectX(const char* title,
 		HINSTANCE hInstance,
 		int width,
 		int height) : Main( title, hInstance, width, height )
 {
-	try
-	{
+	try {
 		openInterfaces();
-	} catch (Exception dxException)
-	{
+	}
+	catch (Exception dxException) {
 		closeInterfaces();
 		throw dxException;
 	}
@@ -28,7 +30,7 @@ void DirectX::openInterfaces()
 	if (d3d_ == 0)
 		throw Exception( "Failed to create Direct3D." );
 
-	ZeroMemory(&params_, sizeof(params_));
+	ZeroMemory( &params_, sizeof( D3DPRESENT_PARAMETERS ) );
 
 	params_.Windowed			= TRUE;
 	params_.BackBufferCount		= 1;
@@ -73,46 +75,38 @@ void DirectX::openInterfaces()
 
 	// Create empty hashtable.
 	textureMap_ = new Hashtable();
-
-	// Attempt to load any textures.
-	loadTextures();
 }
 
 void DirectX::closeInterfaces()
 {
 	// Delete map of vectors.
-	if (textureMap_ != 0)
-	{
+	if (textureMap_) {
 		delete textureMap_;
 		textureMap_ = 0;
 	}
 
-	/* Delete fonts. */
-	if (bodyFont_ != NULL)
-	{
+	// Delete fonts.
+	if (bodyFont_) {
 		bodyFont_->Release();
 		bodyFont_ = 0;
 	}
 
-	/* Delete Sprite handler. */
-	if (sprite_)
-	{
+	// Delete sprite handler.
+	if (sprite_) {
 		sprite_->Release();
 		sprite_ = 0;
 	}
 
-	/* Delete Device. */
-	if (d3dDevice_)
-	{
+	// Delete Direct3D device.
+	if (d3dDevice_) {
 		d3dDevice_->Release();
-		d3dDevice_ = NULL;
+		d3dDevice_ = 0;
 	}
 
-	/* Delete Direct3D. */
-	if (d3d_)
-	{
+	// Delete Direct3D interface.
+	if (d3d_) {
 		d3d_->Release();
-		d3d_ = NULL;
+		d3d_ = 0;
 	}
 }
 
@@ -120,22 +114,19 @@ void DirectX::loadTextures()
 {
 	/* Reload any existing unloaded textures. */
 	stringMap::iterator i;
-	for (i = textureMap_->begin(); i != textureMap_->end(); i++)
-	{
+	for (i = textureMap_->begin(); i != textureMap_->end(); i++) {
 		boost::any& value = i->second;
-		try
-		{
+		try {
 			Texture* texture = boost::any_cast<Texture*>(value);
-			if (!texture->isLoaded())
-			{
+			if (!texture->isLoaded()) {
 				const string& filePath = texture->getFilename();
 
 				// Load and set the texture.
 				Texture* tempTexture = loadTexture( filePath );
 				texture->setTexture( tempTexture->getTexture(), filePath );
 			}
-		} catch (const boost::bad_any_cast &)
-		{
+		}
+		catch (const boost::bad_any_cast &) {
 			throw Exception( "Failed to get texture string, unexpected variable type received." );
 		}
 	}
@@ -144,45 +135,96 @@ void DirectX::loadTextures()
 void DirectX::releaseTextures()
 {
 	/* Get textures and release them. */
-	stringMap::iterator hashIterator;
-	for (hashIterator = m_pTextures->begin(); hashIterator != m_pTextures->end(); hashIterator++)
-	{
-		// Just release it.
-		try
-		{
-			Texture* thisTexture = boost::any_cast<Texture*>(hashIterator->second);
+	stringMap::iterator i;
+	for (i = textureMap_->begin(); i != textureMap_->end(); i++) {
+		try {
+			// Just release it.
+			Texture* thisTexture = boost::any_cast<Texture*>(i->second);
 			thisTexture->releaseTexture();
-		} catch (const boost::bad_any_cast &)
-		{
-			throw Exception("Failed to get texture from table, unexpected variable type received.");
+		}
+		catch (const boost::bad_any_cast &) {
+			throw Exception( "Failed to get texture from table, unexpected variable type received." );
 		}
 	}
 }
 
-//TODO: Make sure all calls check for success.
-Texture* DirectX::getTexture(const string& textureName)
+// TODO: Make sure all calls check for success.
+Texture* DirectX::getTexture( const string& filename )
 {
 	//Check if that texture exists already.
-	stringMap::iterator hashIterator = m_pTextures->find(textureName);
-	if (hashIterator != m_pTextures->end())
-	{
-		try
-		{
-			return boost::any_cast<Texture*>(hashIterator->second);
-		} catch (const boost::bad_any_cast &)
-		{
-			throw Exception("Failed to cast texture, unexpected variable type received.");
+	stringMap::iterator iter = textureMap_->find( filename );
+	if (iter != textureMap_->end()) {
+		try {
+			return boost::any_cast<Texture*>( iter->second );
+		}
+		catch (const boost::bad_any_cast &) {
+			throw Exception( "Failed to cast texture, unexpected variable type received." );
 		}
 	}
 
-	// Otherwise, load the texture.
-	Texture* destTexture = loadTexture(textureName);
-	
-	// Now add it to dictionary.
-	m_pTextures->put(textureName, destTexture);
+	// Load texture, and add to map.
+	Texture* dest = loadTexture( filename );
+	textureMap_->put( filename, dest );
 
 	// Return it.
-	return destTexture;
+	return dest;
+}
+
+//TODO: Make sure all calls check for failure.
+Texture* DirectX::loadTexture( const string& filename )
+{
+	LPDIRECT3DTEXTURE9	texture;
+	D3DXIMAGE_INFO		info;
+
+	string path = "imgFiles/" + filename + ".png";
+	HRESULT hResult;
+	
+	hResult = D3DXGetImageInfoFromFile( path.c_str(), &info );
+	if (hResult != D3D_OK)
+	{
+		// Make sure image directory exists.
+		if (GetFileAttributes( "imgFiles" ) == INVALID_FILE_ATTRIBUTES)
+			CreateDirectory( "imgFiles", 0 );
+
+		// Try to download the texture.
+		string fileURL = "http://www.jengerer.com/itemManager/" + path;
+		if (!download( fileURL, path )) {
+			// Try the mirror.
+			string errorMessage = "Failed to load texture:\n" + path;
+			throw Exception( errorMessage );
+		}
+
+		hResult = D3DXGetImageInfoFromFile( path.c_str(), &info );
+		// If downloading succeeded, reload the texture.
+		if (hResult != D3D_OK) {
+			string errorMessage = "Failed to load texture:\n" + path;
+			throw Exception( errorMessage );
+		}
+	}
+
+	// Load the texture.
+	hResult = D3DXCreateTextureFromFileEx(
+		d3dDevice_,
+		path.c_str(),
+		info.Width, // Use file size.
+		info.Height, // Use file size.
+		1, 0,
+		D3DFMT_A8R8G8B8,
+		D3DPOOL_MANAGED,
+		D3DX_DEFAULT,
+		D3DX_DEFAULT,
+		0,
+		NULL, NULL,
+		&texture);
+
+	if (hResult != D3D_OK) {
+		string errorMessage = "Failed to load texture:\n" + path;
+		throw Exception( errorMessage );
+	}
+
+	// Return new texture.
+	// TODO: Investigate whether there's a need for filling in texture.
+	return new Texture( texture, filename, info );
 }
 
 Window* DirectX::getWindow()
@@ -200,66 +242,6 @@ int DirectX::getHeight() const
 	return window_->getHeight();
 }
 
-//TODO: Make sure all calls check for failure.
-Texture* DirectX::loadTexture(const string& textureName)
-{
-	LPDIRECT3DTEXTURE9	lpTexture;
-	D3DXIMAGE_INFO		imgInfo;
-
-	string filePath = "imgFiles/" + textureName + ".png";
-	HRESULT hResult;
-	
-	hResult = D3DXGetImageInfoFromFile(filePath.c_str(), &imgInfo);
-	if (hResult != D3D_OK)
-	{
-		// Make sure image directory exists.
-		if (GetFileAttributes("imgFiles") == INVALID_FILE_ATTRIBUTES)
-			CreateDirectory("imgFiles", NULL);
-
-		// Try to download the texture.
-		string fileURL = "http://www.jengerer.com/itemManager/" + filePath;
-		if (!downloadFile(fileURL, filePath))
-		{
-			// Try the mirror.
-			string errorMessage = "Failed to load texture:\n" + filePath;
-			throw Exception(errorMessage);
-		}
-
-		hResult = D3DXGetImageInfoFromFile(filePath.c_str(), &imgInfo);
-		// If downloading succeeded, reload the texture.
-		if (hResult != D3D_OK)
-			
-		{
-			string errorMessage = "Failed to load texture:\n" + filePath;
-			throw Exception(errorMessage);
-		}
-	}
-
-	//Load the texture.
-	hResult = D3DXCreateTextureFromFileEx(
-		d3dDevice_,
-		filePath.c_str(),
-		imgInfo.Width, //Use file size.
-		imgInfo.Height, //Use file size.
-		1, 0,
-		D3DFMT_A8R8G8B8,
-		D3DPOOL_MANAGED,
-		D3DX_DEFAULT,
-		D3DX_DEFAULT,
-		0,
-		NULL, NULL,
-		&lpTexture);
-
-	if (hResult != D3D_OK)
-	{
-		string errorMessage = "Failed to load texture:\n" + filePath;
-		throw Exception(errorMessage);
-	}
-
-	/* If texture exists, fill it in. Otherwise, return new. */
-	return new Texture(lpTexture, textureName, imgInfo);
-}
-
 bool DirectX::beginDraw()
 {
 	// Ensure we have all interfaces functional.
@@ -267,14 +249,15 @@ bool DirectX::beginDraw()
 		return false;
 
 	// Clear background.
-	d3dDevice_->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 43, 39, 37), 1.0, 0);
+	d3dDevice_->Clear( 0, NULL, D3DCLEAR_TARGET, BACKGROUND_COLOUR, 1.0f, 0 );
 
 	// Begin scene.
 	HRESULT hResult = d3dDevice_->BeginScene();
-	if (hResult != D3D_OK) return false;
+	if (hResult != D3D_OK)
+		return false;
 
 	// Begin drawing with sprite.
-	sprite_->Begin(D3DXSPRITE_ALPHABLEND);
+	sprite_->Begin( D3DXSPRITE_ALPHABLEND );
 	return true;
 }
 
@@ -290,98 +273,98 @@ void DirectX::endDraw()
 	d3dDevice_->Present(NULL, NULL, NULL, NULL);
 }
 
-void DirectX::redrawScreen()
+void DirectX::redraw()
 {
 	// Start redraw.
-	if (beginDraw())
-	{
+	if (beginDraw()) {
 		onRedraw();
 		endDraw();
-	} else
-	{
-		throw Exception("Failed to begin drawing.");
+	}
+	else {
+		throw Exception( "Failed to begin drawing." );
 	}
 }
 
-void DirectX::drawText(const string& whichText, RECT *whichPosition, const DWORD& textFormat, const D3DCOLOR& whichColour)
+void DirectX::drawText( const string& text, RECT *rect, const DWORD& format, const D3DCOLOR& colour )
 {
-	m_lpBody->DrawTextA(sprite_, whichText.c_str(), -1, whichPosition, textFormat, whichColour);
+	bodyFont_->DrawTextA( sprite_, text.c_str(), -1, rect, format, colour );
 }
 
-void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const float yPosition)
+void DirectX::drawTexture( Texture* texture, float x, float y )
 {
 	// Call other function with white colour.
-	drawTexture(whichTexture, xPosition, yPosition, D3DCOLOR_ARGB(255, 255, 255, 255));
+	drawTexture( texture, x, y, WHITE_COLOUR );
 }
 
-void DirectX::drawTexture(Texture* whichTexture, const float xPosition, const float yPosition, const D3DCOLOR& whichColour)
+void DirectX::drawTexture( Texture* texture, const float x, const float y, const D3DCOLOR& colour)
 {
-	/* Get the texture. */
-	LPDIRECT3DTEXTURE9 lpTexture = whichTexture->getTexture();
+	// Get the texture.
+	LPDIRECT3DTEXTURE9 d3dTexture = texture->getTexture();
 	
 	/* Create the position object. */
-	D3DXVECTOR3 posTexture(
-		xPosition,
-		yPosition,
-		0.0f);
+	D3DXVECTOR3 position( x, y, 0.0f );
 
 	/* Now draw it. */
 	sprite_->Draw(
-		whichTexture->getTexture(),
+		d3dTexture,
 		NULL, NULL,
-		&posTexture,
-		whichColour);
+		&position,
+		colour);
 }
 
 bool DirectX::checkDevice()
 {
-	switch (d3dDevice_->TestCooperativeLevel())
+	HRESULT hResult = d3dDevice_->TestCooperativeLevel();
+	switch (hResult)
 	{
 	case D3DERR_DEVICELOST:
 		return false;
 	case D3DERR_DEVICENOTRESET:
 		{
-			/* Release all the textures. */
+			// Release all textures.
 			releaseTextures();
 
-			/* Refresh the sprite. */
+			// Refresh the sprite.
 			sprite_->OnLostDevice();
-			HRESULT hResult = d3dDevice_->Reset(&params_);
+			HRESULT hResult = d3dDevice_->Reset( &params_ );
 			sprite_->OnResetDevice();
 
-			/* Check that everything was properly refreshed. */
+			// Check that everything was properly refreshed.
 			if (hResult != D3D_OK)
 			{
-				MessageBox(NULL, "Failed to reset Direct3D device!", "Direct3D Device Failure", MB_OK);
-				PostMessage(window_->getHandle(), WM_DESTROY, 0, 0);
+				throw Exception( "Failed to reset Direct3D device." );
+				PostMessage( window_->getHandle(), WM_DESTROY, 0, 0 );
 			}
 
-			/* Now load all the textures again. */
+			// Reload all textures.
 			loadTextures();
 		}
 
 		return false;
 	default:
-		/* Everything's fine. */
+		// Device is fine.
 		return true;
 	}
 }
 
-void DirectX::setTransform(const D3DXMATRIX *lpSprite)
+void DirectX::setTransform( const D3DXMATRIX *d3dMatrix )
 {
-	sprite_->SetTransform(lpSprite);
+	sprite_->SetTransform( d3dMatrix );
 }
 
-void DirectX::setTransform(float xPos, float yPos, float numRadians, float xScale, float yScale)
+void DirectX::setTransform( float x, float y, float rotation, float xScale, float yScale)
 {
 	// Result matrix.
-	D3DXMATRIX mSprite;
-	D3DXVECTOR2 vecTranslation(0.0f, 0.0f);
-	D3DXVECTOR2 vecCenter(xPos, yPos);
-	D3DXVECTOR2 vecScale(xScale, yScale);
+	D3DXMATRIX matrix;
+
+	// Transform vectors.
+	D3DXVECTOR2 vecTranslation( 0.0f, 0.0f );
+	D3DXVECTOR2 vecCenter( x, y );
+	D3DXVECTOR2 vecScale( xScale, yScale );
+
 	D3DXMatrixTransformation2D(
 		// Output variable.
-		&mSprite, 
+		&matrix, 
 
 		// Scaling arguments.
 		&vecCenter, 
@@ -390,11 +373,11 @@ void DirectX::setTransform(float xPos, float yPos, float numRadians, float xScal
 
 		// Rotation arguments
 		&vecCenter,
-		numRadians,
+		rotation,
 
 		// Translation arguments.
 		&vecTranslation);		
 
 	// Set it.
-	setTransform(&mSprite);
+	setTransform(&matrix);
 }

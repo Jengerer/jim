@@ -6,7 +6,7 @@ public:
 	SerializedBuffer( void* buffer );
 	
 	template<class T>
-	whichType* get()
+	T* get()
 	{
 		T* value = (T*)buffer_;
 		push( sizeof(T) );
