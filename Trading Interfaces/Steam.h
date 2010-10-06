@@ -22,6 +22,7 @@ public:
 	void releaseCallback();
 	bool hasMessage( uint32* size );
 	void getMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize );
+	void sendMessage( 
 
 	// Interface handling.
 	void deleteItem( uint64 uniqueId );
