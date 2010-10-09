@@ -13,6 +13,10 @@ public:
 		return value;
 	}
 
+	void* here() {
+		return buffer_;
+	}
+
 	template<class T>
 	void push( unsigned int steps );
 

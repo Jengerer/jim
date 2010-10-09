@@ -14,7 +14,7 @@ enum ESelectType {
 class Slot: public Drawable
 {
 public:
-	Slot( Item* item = NULL );
+	Slot( Item* item = NULL, int index = -1 );
 
 	// Drawing function.
 	void		draw( DirectX* directX );
@@ -36,5 +36,7 @@ public:
 
 private:
 	bool	isActive_;
+
+	int		index_;
 	ESelectType selectType_;
 };

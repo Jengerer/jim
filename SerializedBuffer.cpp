@@ -8,7 +8,8 @@ SerializedBuffer::SerializedBuffer(void* buffer)
 template<class T>
 void SerializedBuffer::push( unsigned int steps )
 {
-	buffer_ = ((char*)buffer_ + steps*sizeof(T));
+	unsigned int numBytes = steps*sizeof(T);
+	buffer_ = ((char*)buffer_ + numBytes);
 }
 
 void SerializedBuffer::push( unsigned int bytes )

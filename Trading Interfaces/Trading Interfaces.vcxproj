@@ -81,11 +81,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="SerializedBuffer.cpp" />
     <ClCompile Include="Steam.cpp" />
     <ClCompile Include="Trading Interfaces.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="SerializedBuffer.h" />
     <ClInclude Include="Steam.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

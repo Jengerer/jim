@@ -64,6 +64,7 @@ public:
 	stringMap::iterator	end();
 
 	// Simple attribute getter.
+	size_t				size() const;
 	bool				empty() const;
 	
 private:

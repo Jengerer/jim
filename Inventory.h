@@ -1,72 +1,49 @@
 #pragma once
 
-#include "Steam.h"
-#include "Item.h"
-#include "Slot.h"
-#include "SerializedBuffer.h"
 #include <vector>
 
-class Inventory: public Steam, public Drawable
+#include "Item.h"
+#include "Slot.h"
+
+typedef vector<Slot*> slotVector;
+typedef vector<Item*> itemVector;
+
+class Inventory
 {
 public:
 	Inventory(
-		Window* window,
-		float x, float y, 
 		int width, int height, 
 		int pages );
 	~Inventory();
 
-	// Initializing and closing.
-	void			openInterfaces();
-	void			closeInterfaces();
-
-	// Drawable functions.
-	void			draw( DirectX* directX );
-	int				getWidth() const;
-	int				getHeight() const;
-	void			onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
-
 	// Dimension getters.
-	int				getCapacity() const;
+	int					getCapacity() const;
+
+	// Get slot vector.
+	const slotVector*	getInventory();
+	const slotVector*	getExcluded();
 
 	// Slot handling.
 	void			createSlots();
 	void			clearSlots();
-	void			select( Slot* slot );
 	void			move( Slot* slot1, Slot* slot2 );
-	bool			isValid( uint8 index );
-	Slot*			get( uint8 index );
-
-	// State methods.
-	void			setLoaded();
-	bool			isLoaded() const;
+	bool			isValidSlot( uint8 index );
+	Slot*			getSlot( uint8 index );
 
 	// Item handling.
 	void			add( Item* item );
+	bool			insert( Item* item );
 	void			remove( Item* item );
 	void			clearItems();
 
-	// Item selection methods.
-	void			deleteSelected();
-	void			craftSelected();
-
-	// Steam callback handling.
-	void			handleCallbacks();
-
-private:
-	// Vector for all items.
-	vector<Item*>	items_;
-
-	// Slot vectors.
-	vector<Slot*>	inventory_;
-	vector<Slot*>	excluded_;
-	vector<Slot*>	selected_;
-
-	// Window for overflow width.
-	Window*			window_;
-
+protected:
 	// Inventory attributes.
-	bool			isLoaded_;
 	int				width_, height_;
 	int				pages_;
+
+private:
+	// Slot vectors.
+	itemVector	items_;
+	slotVector	inventory_;
+	slotVector	excluded_;
 };
