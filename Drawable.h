@@ -18,8 +18,8 @@ public:
 	bool mouseTouching( MouseListener* mouseListener ) const;
 
 	// Virtual size getters.
-	virtual int getWidth() const = 0;
-	virtual int getHeight() const = 0;
+	virtual int		getWidth() const = 0;
+	virtual int		getHeight() const = 0;
 
 	// Drawing parameters.
 	float	x, y;

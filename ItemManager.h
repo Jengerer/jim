@@ -21,7 +21,7 @@
 
 // Items and definitions.
 #include "Hashtable.h"
-#include "Inventory.h"
+#include "Backpack.h"
 #include "SerializedBuffer.h"
 
 class ItemManager: public DirectX, public ButtonListener
@@ -42,6 +42,9 @@ public:
 	void onFrame();
 	void onRedraw();
 
+	// Steam handling.
+	void handleCallbacks();
+
 	// Input handling.
 	void onMouseClick();
 	void onMouseRelease();
@@ -58,7 +61,7 @@ public:
 
 private:
 	// Application interfaces.
-	Inventory*		inventory_;
+	Backpack*		backpack_;
 
 	// User interface stacks.
 	deque<Popup*>	popupStack_;
@@ -68,5 +71,6 @@ private:
 	// Interface variables.
 	Dialog			*loadDialog_;
 	Alert			*alert_;
+	Alert			*error_;
 	Button			*deleteButton_, *craftButton_, *sortButton_;
 };

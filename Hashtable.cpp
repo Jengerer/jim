@@ -156,6 +156,11 @@ stringMap::iterator Hashtable::end()
 	return hashMap_->end();
 }
 
+size_t Hashtable::size() const
+{
+	return hashMap_->size();
+}
+
 bool Hashtable::empty() const
 {
 	return hashMap_->empty();

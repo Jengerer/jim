@@ -2,18 +2,24 @@
 #include <iomanip>
 #include <fstream>
 #include <conio.h>
+#include <Windows.h>
+#include <TlHelp32.h>
+
 #include "Steam.h"
+#include "SerializedBuffer.h"
 
 using namespace std;
 
+#pragma pack(push, 1)
 struct TradeRequest_t {
 	enum { k_iCallback = k_EMsgGCTrading_InitiateTradeRequest };
 	uint16 id;
 	char garbage[16];
 	uint32 tradeId;
 	uint64 steamId;
-	char* clientName;
+	//char* clientName;
 };
+#pragma pack(pop)
 
 struct TradeResponse_t {
 	enum { k_iCallback = k_EMsgGCTrading_InitiateTradeResponse };
@@ -23,6 +29,8 @@ struct TradeResponse_t {
 
 int main()
 {
+	vector<uint32> tradeIds;
+
 	Steam steam;
 	try {
 		steam.openInterfaces();
@@ -43,31 +51,62 @@ int main()
 		if (thisChar == ' ') {
 			break;
 		} else if (thisChar == 'p') {
-			char* playerName = "A Noobcake's Left Nut";
-			cout << strlen(playerName) << endl;
-			size_t messageSize = sizeof(uint16) + sizeof(char)*16 + sizeof(uint32) + sizeof(uint64) + strlen(playerName) + 1;
-			TradeRequest_t* sendRequest = (TradeRequest_t*)malloc(messageSize);
-			memset(sendRequest, 0xFF, messageSize);
+			string command;
+			cout << "command: ";
+			cin >> command;
 
-			void* voidBuffer = sendRequest;
-			unsigned char* messageBuffer = (unsigned char*)voidBuffer;
-			cout << "Message being sent: ";
-			for (int i=0; i<messageSize; i++) {
-				cout << hex << setw(2) << setfill('0') << (unsigned int)messageBuffer[i] << " ";
+			if (command == "invite") {
+				int numFriends = steam.getFriends();
+				bool foundName = false;
+				string targetName;
+				CSteamID targetId;
+
+				cout << "Enter target name: ";
+				cin >> targetName;
+				for (int i=0; i<numFriends; i++) {
+					CSteamID friendId = steam.getFriend( i );
+
+					// Get information.
+					FriendGameInfo_t gameInfo;
+					steam.getFriendGameInfo( friendId, &gameInfo );
+					if (gameInfo.m_gameID == CGameID( 440 )) {
+						string friendName( steam.getPersonaName( friendId ) );
+						if (targetName == friendName) {
+							targetId = friendId;
+							foundName = true;
+							break;
+						}
+					}
+				}
+
+				if (foundName) {
+					size_t messageSize = sizeof(TradeRequest_t);
+					TradeRequest_t* sendRequest = (TradeRequest_t*)malloc(messageSize);
+					memset(sendRequest, 0x00, messageSize);
+					memset(sendRequest->garbage, 0xff, sizeof(sendRequest->garbage));
+
+					sendRequest->id = 1;
+					sendRequest->steamId = targetId.ConvertToUint64();
+					sendRequest->tradeId = 0;
+
+					void* voidBuffer = sendRequest;
+					unsigned char* messageBuffer = (unsigned char*)voidBuffer;
+					cout << "Message being sent (size " << dec << messageSize << "): ";
+					for (int i=0; i<messageSize; i++) {
+						cout << hex << setw(2) << setfill('0') << (unsigned int)messageBuffer[i] << " ";
+					}
+
+					cout << "\nSend message? ";
+					char confirm = _getch();
+					cout << "\n";
+
+					if (confirm == 'y') {
+						cout << "\nMessage sent!\n" << endl;
+						steam.sendMessage( sendRequest->k_iCallback, sendRequest, messageSize );
+					}
+				}
+			} else if (command == "accept") {
 			}
-
-			sendRequest->id = 1;
-			void* thisPointer = ((unsigned char*)sendRequest) + sizeof(uint16) + sizeof(char)*16 + sizeof(uint32) + sizeof(uint64);
-			memcpy(thisPointer, playerName, strlen(playerName));
-			sendRequest->tradeId = 500000;
-			sendRequest->steamId = steam.getSteamId();
-
-			cout << "Message being sent: ";
-			for (int i=0; i<messageSize; i++) {
-				cout << hex << setw(2) << setfill('0') << (unsigned int)messageBuffer[i] << " ";
-			}
-
-			steam.sendMessage
 		}
 
 		if (steam.getCallback(&callback)) {
@@ -85,27 +124,38 @@ int main()
 					unsigned int id, real;
 					void* buffer = malloc(size);
 					steam.getMessage(&id, buffer, size, &real);
+					SerializedBuffer serializedBuffer(buffer);
 
 					switch (id) {
 					case TradeRequest_t::k_iCallback:
 						{
-							TradeRequest_t* tradeRequest = (TradeRequest_t*)buffer;
-							cout << "Trade request #" << tradeRequest->tradeId << " received from " << tradeRequest->clientName << ".\n";
+							TradeRequest_t* tradeRequest = serializedBuffer.get<TradeRequest_t>();
+							const char* clientName = (const char*)serializedBuffer.here();
+							cout << "Trade request for #" << tradeRequest->tradeId << " received from " << clientName << ".\n";
+						}
+					case TradeResponse_t::k_iCallback:
+						{
+							TradeResponse_t* tradeResponse = serializedBuffer.get<TradeResponse_t>();
+							cout << "Trade response " << tradeResponse->tradeResponse << " received for trade #" << tradeResponse->tradeId << ".\n";
+						}
+
+						break;
+					default:
+						{
+							// Output message types.
+							outputFile << "Message received of type " << id << "!\n";
+							cout << "Message received of type " << id << "!\n";
+							unsigned char* bufferArray = (unsigned char*)buffer;
+							for (unsigned int i=0; i<size; i++) {
+								cout << hex << setw(2) << setfill('0') << (unsigned int)bufferArray[i] << " ";
+								outputFile << hex << setw(2) << setfill('0') << (unsigned int)bufferArray[i] << " ";
+							}
+							outputFile << "\n\n";
+							cout << "\n\n";
 						}
 
 						break;
 					}
-
-					// Output message types.
-					outputFile << "Message received of type " << id << "!\n";
-					cout << "Message received of type " << id << "!\n";
-					unsigned char* bufferArray = (unsigned char*)buffer;
-					for (unsigned int i=0; i<size; i++) {
-						cout << hex << setw(2) << setfill('0') << (unsigned int)bufferArray[i] << " ";
-						outputFile << hex << setw(2) << setfill('0') << (unsigned int)bufferArray[i] << " ";
-					}
-					outputFile << "\n\n";
-					cout << "\n\n";
 
 					free(buffer);
 				}

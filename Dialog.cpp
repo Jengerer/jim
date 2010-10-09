@@ -21,7 +21,7 @@ void Dialog::draw( DirectX* directX )
 	rect.bottom	= (long)y + getHeight()		- DIALOG_PADDING;
 
 	// Draw it.
-	directX->drawText(message_, &rect, DT_CENTER, D3DCOLOR_ARGB( 255, 255, 255, 255 ));
+	directX->drawText(message_, &rect, DT_CENTER | DT_WORDBREAK, D3DCOLOR_ARGB( 255, 255, 255, 255 ));
 }
 
 void Dialog::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )

@@ -84,6 +84,9 @@
     <ClCompile Include="Popup.cpp">
       <Filter>Source Files\GUI Elements</Filter>
     </ClCompile>
+    <ClCompile Include="Backpack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectX.h">
@@ -786,6 +789,9 @@
       <Filter>Header Files\GUI Elements</Filter>
     </ClInclude>
     <ClInclude Include="ButtonListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Backpack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

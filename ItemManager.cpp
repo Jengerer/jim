@@ -83,6 +83,10 @@ int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 ItemManager::ItemManager( HINSTANCE hInstance ): DirectX( APPLICATION_TITLE, hInstance, APPLICATION_WIDTH, APPLICATION_HEIGHT )
 {
+	// Zero all pointers.
+	backpack_ = 0;
+	alert_ = error_ = 0;
+
 	// Add mouse listener.
 	addMouseListener( this );
 }
@@ -105,24 +109,29 @@ void ItemManager::openInterfaces()
 	craftButton_	= createButton( "craft",	520.0f,	355.0f );
 	sortButton_		= createButton( "sort",		25.0f,	355.0f );
 
-	// Create inventory.
-	inventory_ = new Inventory( 
-		getWindow(), 
-		PADDING, PADDING, 
-		PAGE_WIDTH, PAGE_HEIGHT, 
-		PAGE_COUNT );
-
 	// Show dialog.
 	loadDialog_ = createDialog( "Initializing..." );
 
-	// Define and load items.
-	loadDefinitions();
-	loadItems();
+	try {
+		// Create inventory.
+		backpack_ = new Backpack(
+			PADDING, PADDING, 
+			PAGE_WIDTH, PAGE_HEIGHT, 
+			PAGE_COUNT );
 
-	// Hide the loading dialog.
-	hidePopup( loadDialog_ );
-	alert_ = createAlert( "Everything loaded successfully!" );
-	alert_->setButtonListener( this );
+		// Define and load items.
+		loadDefinitions();
+		loadItems();
+
+		// Hide the loading dialog.
+		hidePopup( loadDialog_ );
+		error_ = createAlert( "Everything loaded successfully!" );
+		error_->setButtonListener( this );
+	}
+	catch (Exception loadException) {
+		alert_ = createAlert( loadException.getMessage() );
+		alert_->setButtonListener( this );
+	}
 }
 
 void ItemManager::closeInterfaces()
@@ -134,9 +143,9 @@ void ItemManager::closeInterfaces()
 	}
 
 	// Delete inventory.
-	if (inventory_) {
-		delete inventory_;
-		inventory_ = 0;
+	if (backpack_) {
+		delete backpack_;
+		backpack_ = 0;
 	}
 
 	// Delete dialog boxes.
@@ -175,8 +184,8 @@ void ItemManager::closeInterfaces()
 // TODO: Set slot position only once, and modify with camera view (maybe use translate).
 void ItemManager::onRedraw()
 {
-	if (inventory_->isLoaded()) {
-		inventory_->draw( this );
+	if (backpack_ && backpack_->isLoaded()) {
+		backpack_->draw( this );
 
 		// Draw buttons.
 		vector<Button*>::iterator buttonIter;
@@ -206,6 +215,12 @@ void ItemManager::onButtonClick( Button* button )
 
 void ItemManager::onButtonRelease( Button* button )
 {
+	// Check if the error was clicked.
+	if (error_ && (error_->getButton() == button)) {
+		hidePopup( alert_ );
+		PostMessage( getWindow()->getHandle(), WM_DESTROY, 0, 0 );
+	}
+
 	// Check if alert was clicked.
 	if (alert_ && (alert_->getButton() == button)) {
 		hidePopup( alert_ );
@@ -221,7 +236,7 @@ void ItemManager::onMouseClick()
 	}
 	else {
 		// Handling base UI events.
-		inventory_->onMouseEvent( this, MOUSE_EVENT_CLICK );
+		backpack_->onMouseEvent( this, MOUSE_EVENT_CLICK );
 	}
 }
 
@@ -234,7 +249,7 @@ void ItemManager::onMouseRelease()
 	}
 	else {
 		// Handling base UI events.
-		inventory_->onMouseEvent( this, MOUSE_EVENT_RELEASE );
+		backpack_->onMouseEvent( this, MOUSE_EVENT_RELEASE );
 	}
 }
 
@@ -250,8 +265,8 @@ void ItemManager::onMouseMove()
 	}
 	else {
 		// Handling base UI events.
-		if (inventory_)
-			inventory_->onMouseEvent( this, MOUSE_EVENT_MOVE );
+		if (backpack_)
+			backpack_->onMouseEvent( this, MOUSE_EVENT_MOVE );
 
 		vector<Button*>::const_iterator buttonIter;
 		for (buttonIter = buttonList_.begin(); buttonIter != buttonList_.end(); buttonIter++) {
@@ -333,10 +348,11 @@ void ItemManager::loadItems()
 	redraw();
 
 	/* First clear all vectors. */
-	inventory_->clearItems();
+	backpack_->clearSlots();
+	backpack_->clearItems();
 
 	/* Get user's Steam community URL. */
-	uint64 userId = inventory_->getSteamId();
+	uint64 userId = backpack_->getSteamId();
 
 	stringstream urlStream;
 	urlStream << "http://api.steampowered.com/ITFItems_440/GetPlayerItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&SteamID=" << userId << "&format=json";
@@ -420,17 +436,129 @@ void ItemManager::loadItems()
 			item.position );
 
 		// Add the item.
-		inventory_->add( newItem );
+		backpack_->add( newItem );
 	}
 
 	// Show success.
 	loadDialog_->setMessage( "Items successfully loaded!" );
 	redraw();
 
-	// Set loaded.
-	inventory_->setLoaded();
-
 	//TODO: Update excluded scrolling.
+}
+
+void ItemManager::handleCallbacks() {
+	//Get waiting callback.
+	CallbackMsg_t callback;
+	if (backpack_->getCallback( &callback ))
+	{
+		switch (callback.m_iCallback)
+		{
+		case GCMessageAvailable_t::k_iCallback:
+			{
+				GCMessageAvailable_t *message = (GCMessageAvailable_t *)callback.m_pubParam;
+				
+				uint32 size;
+				if (backpack_->hasMessage( &size ))
+				{
+					unsigned int id, realSize = 0;
+
+					// Allocate memory.
+					void* buffer = malloc( size );
+
+					// Retrieve the message.
+					backpack_->getMessage( &id, buffer, size, &realSize );
+
+					switch (id)
+					{
+					case SOMsgCacheSubscribed_t::k_iMessage:
+						// Item information has been received.
+						{
+							// Start loading items.
+							SerializedBuffer serializedBuffer(buffer);
+							SOMsgCacheSubscribed_t *iList = serializedBuffer.get<SOMsgCacheSubscribed_t>();
+							for (int I = 0; I < iList->itemcount; I++)
+							{
+								SOMsgCacheSubscribed_Item_t *pItem = serializedBuffer.get<SOMsgCacheSubscribed_Item_t>();
+
+								// Skip past the name.
+								serializedBuffer.push( pItem->namelength );
+
+								// Get attribute count, and skip past.
+								uint16* attribCount = serializedBuffer.get<uint16>();
+								serializedBuffer.push<SOMsgCacheSubscribed_Item_Attrib_t>( *attribCount );
+
+								//Create a new item from the information.
+								Item *newItem = new Item(
+									pItem->itemid,
+									pItem->itemdefindex,
+									pItem->itemlevel,
+									(EItemQuality)pItem->itemquality,
+									pItem->itemcount,
+									pItem->position );
+
+								// Add the item.
+								backpack_->add( newItem );
+							}
+
+							//TODO: Update scrolling of excluded items
+							break;
+						}
+
+					case GCCraftResponse_t::k_iMessage:
+						{
+							GCCraftResponse_t *pResponse = (GCCraftResponse_t*)buffer;
+
+							if (pResponse->blueprint == 0xFFFF) {
+								//TODO: Display the dialog for crafting failed.
+							}
+
+							break;
+						}
+					case SOMsgCreate_t::k_iMessage:
+						{
+							SOMsgCreate_t *msgCreate = (SOMsgCreate_t*)buffer;
+							SOMsgCacheSubscribed_Item_t* craftedItem = &msgCreate->item;
+
+							//Make sure it's a valid item.
+							if (msgCreate->unknown == 5)
+								break;
+
+							Item* newItem = new Item(
+								craftedItem->itemid,
+								craftedItem->itemdefindex,
+								craftedItem->itemlevel,
+								(EItemQuality)craftedItem->itemquality,
+								craftedItem->itemcount,
+								craftedItem->position);
+
+							// Add this item to excluded.
+							newItem->setGroup(GROUP_EXCLUDED);
+							backpack_->add(newItem);
+
+							//TODO: Update excluded scrolling.
+
+							break;
+						}
+					case SOMsgDeleted_t::k_iMessage:
+						{
+							SOMsgDeleted_t *pDeleted = (SOMsgDeleted_t*)buffer;
+
+							// TODO: Iterate through both vectors and remove it.
+
+							break;
+						}
+					}
+
+					// Free up memory.
+					if (buffer)
+						free(buffer);
+				}
+				
+			}
+		}
+	}
+
+	backpack_->releaseCallback();
 }
 
 Button* ItemManager::createButton( const string& caption, float x, float y )
@@ -447,8 +575,8 @@ Dialog* ItemManager::createDialog( const string& message )
 	Dialog* newDialog = new Dialog( message );
 
 	// Set position.
-	newDialog->x = (getWidth() / 2) - (newDialog->getWidth() / 2);
-	newDialog->y = (getHeight() / 2) - (newDialog->getHeight() / 2);
+	newDialog->x = (float)(getWidth() / 2) - (float)(newDialog->getWidth() / 2);
+	newDialog->y = (float)(getHeight() / 2) - (float)(newDialog->getHeight() / 2);
 
 	// Show popup.
 	showPopup( newDialog );
@@ -463,8 +591,8 @@ Alert* ItemManager::createAlert( const string& message )
 	Alert* newAlert = new Alert( message );
 
 	// Set position.
-	newAlert->x = (getWidth() / 2) - (newAlert->getWidth() / 2);
-	newAlert->y = (getHeight() / 2) - (newAlert->getHeight() / 2);
+	newAlert->x = (float)(getWidth() / 2) - (newAlert->getWidth() / 2);
+	newAlert->y = (float)(getHeight() / 2) - (newAlert->getHeight() / 2);
 
 	// Show popup.
 	showPopup( newAlert );
@@ -484,7 +612,9 @@ void ItemManager::hidePopup( Popup* whichPopup )
 	// Hide and remove the notification.
 	deque<Popup*>::iterator popupIter;
 	for (popupIter = popupStack_.begin(); popupIter != popupStack_.end(); popupIter++) {
-		popupStack_.erase( popupIter );
-		break;
+		if (*popupIter == whichPopup) {
+			popupStack_.erase( popupIter );
+			break;
+		}
 	}
 }

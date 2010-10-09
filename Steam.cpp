@@ -8,6 +8,8 @@ Steam::Steam()
 {
 	// Set to null.
 	steamClient_	= 0;
+	hPipe_ = 0;
+	hUser_ = 0;
 
 	// Steam has been created.
 	try {
@@ -104,12 +106,16 @@ void Steam::closeInterfaces()
 	if (steamClient_)
 	{
 		//Release user.
-		if (hUser_)
+		if (hUser_) {
 			steamClient_->ReleaseUser( hPipe_, hUser_ );
+			hUser_ = 0;
+		}
 
 		//Release pipe.
-		if (hPipe_)
+		if (hPipe_) {
 			steamClient_->ReleaseSteamPipe( hPipe_ );
+			hPipe_ = 0;
+		}
 	}
 
 	if (clientDll_)

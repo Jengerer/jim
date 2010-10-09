@@ -18,6 +18,7 @@ Steam::~Steam()
 
 void Steam::openInterfaces()
 {
+
 	// Set Team Fortress 2 application ID.
 	SetEnvironmentVariable( "SteamAppId", "440" );
 
@@ -86,6 +87,11 @@ void Steam::openInterfaces()
 		hUser_, hPipe_,
 		STEAMGAMECOORDINATOR_INTERFACE_VERSION_001 );
 
+	// Get friends.
+	steamFriends_ = (ISteamFriends005*)steamClient_->GetISteamFriends(
+		hUser_, hPipe_,
+		STEAMFRIENDS_INTERFACE_VERSION_005 );
+
 	if (!gameCoordinator_)
 		throw Exception( "Failed to get ISteamGameCoordinator interface." );
 }
@@ -142,15 +148,40 @@ void Steam::deleteItem( uint64 itemId )
 
 	message.itemid = itemId;
 	
-	/* Send it. */
-	gameCoordinator_->SendMessage(
+	// Send it.
+	sendMessage( 
 		SOMsgDeleted_t::k_iMessage,
 		&message,
-		sizeof( SOMsgDeleted_t ));
+		sizeof( SOMsgDeleted_t ) );
+}
+
+void Steam::sendMessage( uint32 id, void* message, uint32 size )
+{
+	gameCoordinator_->SendMessage( id, message, size );
 }
 
 uint64 Steam::getSteamId() const
 {
 	CSteamID steamId = steamUser_->GetSteamID();
 	return steamId.ConvertToUint64();
+}
+
+int Steam::getFriends()
+{
+	return steamFriends_->GetFriendCount( k_EFriendFlagAll );
+}
+
+CSteamID Steam::getFriend( int index )
+{
+	return steamFriends_->GetFriendByIndex( index, k_EFriendFlagAll );
+}
+
+bool Steam::getFriendGameInfo( CSteamID steamId, FriendGameInfo_t* friendGameInfo )
+{
+	return steamFriends_->GetFriendGamePlayed( steamId, friendGameInfo );
+}
+
+const char* Steam::getPersonaName( CSteamID steamId )
+{
+	return steamFriends_->GetFriendPersonaName( steamId );
 }
