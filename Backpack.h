@@ -8,7 +8,8 @@
 class Backpack: public Inventory, public Drawable, public Steam
 {
 public:
-	Backpack( float x, float y,
+	Backpack( Window* window,
+		float x, float y,
 		int width, int height,
 		int pages );
 

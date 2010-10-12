@@ -21,19 +21,33 @@ Inventory::~Inventory()
 
 void Inventory::clearItems()
 {
-	// Iterate and delete.
-	vector<Item*>::iterator iter;
-	while (!items_.empty()) {
-		// Get this item.
-		iter = items_.begin();
-		Item* item = *iter;
+	// First remove items from slots.
+	slotVector::iterator i;
+	for (i = inventory_.begin(); i != inventory_.end(); i++) {
+		Slot* slot = *i;
+		if (slot->item)
+			slot->item = 0;
+	}
 
-		// Delete item.
+	for (i = excluded_.begin(); i != excluded_.end(); i++) {
+		Slot* slot = *i;
+		if (slot->item)
+			slot->item = 0;
+	}
+
+	// Now delete all items.
+	itemVector::iterator j;
+	while (!items_.empty()) {
+		// Get item.
+		j = items_.begin();
+		Item* item = *j;
+
+		// Delete it.
 		delete item;
-		item = NULL;
+		item = 0;
 
 		// Remove from vector.
-		items_.erase(iter);
+		items_.erase( j );
 	}
 }
 
@@ -42,10 +56,7 @@ void Inventory::createSlots()
 	// Create slots.
 	for (int i = 0; i < getCapacity(); i++) {
 		Slot* slot = new Slot();
-
-		// Calculate the real position of this slot.
-		int xIndex = i % width_;
-		int yIndex = i / width_;
+		slot->index = i;
 
 		// Add to inventory.
 		inventory_.push_back( slot );
@@ -55,7 +66,7 @@ void Inventory::createSlots()
 void Inventory::clearSlots()
 {
 	// Iterator for slots.
-	vector<Slot*>::iterator i;
+	slotVector::iterator i;
 
 	// Delete inventory.
 	for (i = inventory_.begin(); i != inventory_.end(); i++)

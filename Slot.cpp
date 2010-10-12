@@ -12,7 +12,7 @@ const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 175, 255, 255, 255 );
 Slot::Slot( Item* item, int index )
 {
 	this->item = item;
-	index_ = index;
+	this->index = index;
 
 	// Inactive and deselected by default.
 	isActive_ = false;

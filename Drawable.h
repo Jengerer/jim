@@ -17,6 +17,10 @@ public:
 	virtual void onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent ) = 0;
 	bool mouseTouching( MouseListener* mouseListener ) const;
 
+	// Position getter.
+	virtual float	getX() const;
+	virtual float	getY() const;
+
 	// Virtual size getters.
 	virtual int		getWidth() const = 0;
 	virtual int		getHeight() const = 0;

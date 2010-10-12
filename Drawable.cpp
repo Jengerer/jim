@@ -23,3 +23,13 @@ bool Drawable::mouseTouching( MouseListener* mouseListener ) const
 	return (xMouse >= x) &&	(xMouse <= x + getWidth()) &&
 		(yMouse >= y) && (yMouse <= y + getHeight());
 }
+
+float Drawable::getX() const
+{
+	return x;
+}
+
+float Drawable::getY() const
+{
+	return y;
+}

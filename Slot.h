@@ -33,10 +33,10 @@ public:
 
 	// The item stored by this slot.
 	Item*	item;
+	int		index;
 
 private:
 	bool	isActive_;
 
-	int		index_;
 	ESelectType selectType_;
 };

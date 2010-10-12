@@ -115,6 +115,7 @@ void ItemManager::openInterfaces()
 	try {
 		// Create inventory.
 		backpack_ = new Backpack(
+			getWindow(),
 			PADDING, PADDING, 
 			PAGE_WIDTH, PAGE_HEIGHT, 
 			PAGE_COUNT );
@@ -123,14 +124,17 @@ void ItemManager::openInterfaces()
 		loadDefinitions();
 		loadItems();
 
+		// Set backpack to loaded.
+		backpack_->setLoaded();
+
 		// Hide the loading dialog.
 		hidePopup( loadDialog_ );
-		error_ = createAlert( "Everything loaded successfully!" );
-		error_->setButtonListener( this );
+		alert_ = createAlert( "Everything loaded successfully!" );
+		alert_->setButtonListener( this );
 	}
 	catch (Exception loadException) {
-		alert_ = createAlert( loadException.getMessage() );
-		alert_->setButtonListener( this );
+		error_ = createAlert( loadException.getMessage() );
+		error_->setButtonListener( this );
 	}
 }
 
@@ -347,8 +351,7 @@ void ItemManager::loadItems()
 	loadDialog_->appendMessage( "\nLoading items from Steam Web API..." );
 	redraw();
 
-	/* First clear all vectors. */
-	backpack_->clearSlots();
+	// First clear items.
 	backpack_->clearItems();
 
 	/* Get user's Steam community URL. */

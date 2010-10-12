@@ -101,6 +101,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Curl.cpp" />
     <ClCompile Include="Dialog.cpp" />
+    <ClCompile Include="Draggable.cpp" />
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Hashtable.cpp" />
@@ -124,6 +125,7 @@
     <ClInclude Include="ButtonListener.h" />
     <ClInclude Include="Curl.h" />
     <ClInclude Include="Dialog.h" />
+    <ClInclude Include="Draggable.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Hashtable.h" />
