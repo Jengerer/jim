@@ -2,12 +2,32 @@
 
 const float	SLOT_SPACING = 5.0f;
 
-Backpack::Backpack( float x, float y,
+Backpack::Backpack( Window* window,
+	float x, float y,
 	int width, int height,
 	int pages ) : Inventory( width, height, pages ), Drawable( x, y )
 {
 	// Backpack was created.
 	isLoaded_ = false;
+
+	// Position all slots.
+	slotVector::const_iterator i;
+	const slotVector* inventory = getInventory();
+	for (i = inventory->begin(); i != inventory->end(); i++) {
+		Slot* slot = *i;
+
+		int x = slot->index % width_;
+		int y = slot->index / width_;
+
+		if (y >= height_) {
+			x += window->getWidth() * (y / height_);
+			y %= height_;
+		}
+
+		// Set position.
+		slot->x = this->x + x*(Slot::texture->getWidth() + SLOT_SPACING);
+		slot->y = this->y + y*(Slot::texture->getHeight() + SLOT_SPACING);
+	}
 }
 
 void Backpack::draw( DirectX* directX )
