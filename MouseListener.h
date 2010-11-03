@@ -10,11 +10,12 @@ enum EMouseEvent {
 };
 
 class Mouse;
+class Component;
 class MouseListener
 {
 public:
 	// Mouse handling virtuals.
-	virtual void mouseClicked( Mouse *mouse ) = 0;
-	virtual void mouseReleased( Mouse *mouse ) = 0;
-	virtual void mouseMoved( Mouse *mouse ) = 0;
+	virtual void mouseClicked( Mouse *mouse, Component *component ) = 0;
+	virtual void mouseReleased( Mouse *mouse, Component *component ) = 0;
+	virtual void mouseMoved( Mouse *mouse, Component *component ) = 0;
 };

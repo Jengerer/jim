@@ -15,6 +15,7 @@ Backpack::Backpack( Window* window,
 	const slotVector* inventory = getInventory();
 	for (i = inventory->begin(); i != inventory->end(); i++) {
 		Slot* slot = *i;
+		slot->addMouseListener( this );
 
 		int x = slot->index % width_;
 		int y = slot->index / width_;
@@ -54,6 +55,21 @@ void Backpack::select( Slot* slot )
 	// Add this one.
 	slot->setSelectType( SELECT_TYPE_NORMAL );
 	selected_.push_back( slot );
+}
+
+void Backpack::mouseClicked( Mouse *mouse, Component *component )
+{
+	// Mouse clicked.
+}
+
+void Backpack::mouseReleased( Mouse *mouse, Component *component )
+{
+	// Mouse released.
+}
+
+void Backpack::mouseMoved( Mouse *mouse, Component *component )
+{
+	// Mouse moved.
 }
 
 int Backpack::getWidth() const

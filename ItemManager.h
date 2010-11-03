@@ -49,9 +49,9 @@ public:
 	void triggerMouse( EMouseEvent eventType );
 
 	// Mouse handling virtuals.
-	virtual void mouseClicked( Mouse *mouse );
-	virtual void mouseReleased( Mouse *mouse );
-	virtual void mouseMoved( Mouse *mouse );
+	virtual void mouseClicked( Mouse *mouse, Component *component );
+	virtual void mouseReleased( Mouse *mouse, Component *component );
+	virtual void mouseMoved( Mouse *mouse, Component *component );
 
 	// Handling button input.
 	virtual void buttonPressed( Button *button );
