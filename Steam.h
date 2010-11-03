@@ -13,7 +13,7 @@ class Steam
 {
 public:
 	Steam();
-	~Steam();
+	virtual ~Steam();
 
 	// Initializing and closing.
 	void openInterfaces();

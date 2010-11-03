@@ -28,7 +28,7 @@ class ItemManager: public DirectX, public ButtonListener
 {
 public:
 	ItemManager( HINSTANCE hInstance );
-	~ItemManager();
+	virtual ~ItemManager();
 
 	// Initializing and closing.
 	void openInterfaces();

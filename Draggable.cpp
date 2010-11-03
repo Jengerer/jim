@@ -6,15 +6,20 @@ Draggable::Draggable( float x, float y ) : Drawable( x, y )
 	offsetX_ = offsetY_ = 0.0f;
 }
 
+Draggable::~Draggable()
+{
+	// Draggable destroyed.
+}
+
 float Draggable::getX() const
 {
-	//TODO: Make dragging work.
+	// TODO: Make dragging work.
 	return this->x;
 }
 
 float Draggable::getY() const
 {
-	//TODO: Make dragging work.
+	// TODO: Make dragging work.
 	return this->y;
 }
 

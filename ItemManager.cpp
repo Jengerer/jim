@@ -53,35 +53,33 @@ LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
-	{
-		try {
-			itemManager = new ItemManager(hInstance);
-			itemManager->openInterfaces();
-		}
-		catch (Exception mainException) {
-			MessageBox( NULL, mainException.getMessage()->c_str(), "Initialization failed!", MB_OK );
-			return EXIT_FAILURE;
-		}
+	try {
+		itemManager = new ItemManager(hInstance);
+		itemManager->openInterfaces();
+	}
+	catch (Exception mainException) {
+		MessageBox( NULL, mainException.getMessage()->c_str(), "Initialization failed!", MB_OK );
+		return EXIT_FAILURE;
+	}
 
-		bool isDone = false;
+	bool isDone = false;
 
-		MSG msg;
-		while (!isDone) {
-			if (PeekMessage( &msg, NULL, 0, 0, PM_REMOVE )) {
-				if (msg.message == WM_QUIT)
-					isDone = true;
+	MSG msg;
+	while (!isDone) {
+		if (PeekMessage( &msg, NULL, 0, 0, PM_REMOVE )) {
+			if (msg.message == WM_QUIT)
+				isDone = true;
 
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-
-			itemManager->run();
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
 
-		if (itemManager) {
-			delete itemManager;
-			itemManager = 0;
-		}
+		itemManager->run();
+	}
+
+	if (itemManager) {
+		delete itemManager;
+		itemManager = 0;
 	}
 
 	_CrtDumpMemoryLeaks();
@@ -143,12 +141,21 @@ void ItemManager::openInterfaces()
 		alert_ = createAlert( "Everything loaded successfully!" );
 	}
 	catch (Exception& loadException) {
-		error_ = createAlert( *loadException.getMessage() );
+		error_ = createAlert( "This is really bad." );
 	}
 }
 
 void ItemManager::closeInterfaces()
 {
+	// Clear component vector.
+	Mouse::clearComponents();
+
+	// Delete the mouse.
+	if (mouse_) {
+		delete mouse_;
+		mouse_ = 0;
+	}
+
 	// Delete item information.
 	if (Item::informationTable) {
 		delete Item::informationTable;
@@ -168,7 +175,14 @@ void ItemManager::closeInterfaces()
 
 		// Delete object.
 		if (popup) {
-			delete popup;
+			if (popup == error_) {
+				const string* msg = error_->getMessage();
+				const char* msg2 = error_->getMessage()->c_str();
+				delete popup;
+				int stop = 5;
+			} else {
+				delete popup;
+			}
 			popup = 0;
 		}
 

@@ -6,9 +6,11 @@
 
 using namespace std;
 
+class MouseListener;
 class Component {
 public:
 	Component( float x = 0.0f, float y = 0.0f);
+	virtual ~Component();
 
 	// Mouse handling functions.
 	void addMouseListener( MouseListener* mouseListener );

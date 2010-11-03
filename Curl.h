@@ -30,7 +30,7 @@ class Curl
 {
 public:
 	Curl();
-	~Curl();
+	virtual ~Curl();
 
 	// Handling interfaces.
 	void	openInterfaces();

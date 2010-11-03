@@ -9,6 +9,7 @@ enum EMouseEvent {
 	MOUSE_EVENT_MOVE,
 };
 
+class Mouse;
 class MouseListener
 {
 public:

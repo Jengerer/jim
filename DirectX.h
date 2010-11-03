@@ -19,7 +19,7 @@ public:
 		HINSTANCE hInstance,
 		int width,
 		int height );
-	~DirectX();
+	virtual ~DirectX();
 
 	// Initializing and closing.
 	void openInterfaces();
@@ -27,6 +27,7 @@ public:
 
 	// Resource handling.
 	void loadTextures();
+	void freeTextures();
 	void releaseTextures();
 	Texture* getTexture( const string& filename );
 	Texture* loadTexture( const string& filename );
