@@ -13,12 +13,14 @@ class Dialog: public Popup
 {
 public:
 	Dialog( const string& message );
+	virtual ~Dialog() { 
+		int i = 5;
+	}
 
 	// Drawable functions.
 	void			draw( DirectX* directX );
 	virtual int		getWidth() const;
 	virtual int		getHeight() const;
-	virtual void	onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
 	// Message handling.
 	void setMessage( const string& message );

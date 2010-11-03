@@ -1,5 +1,9 @@
 #include "ItemManager.h"
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 using namespace std;
 
 // Window properties.
@@ -21,7 +25,7 @@ const int	PAGE_COUNT			= 2;
 const float	PADDING				= 25.0f;
 
 // Main application variable.
-ItemManager* itemManager = 0;
+ItemManager* itemManager		= 0;
 
 LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
@@ -32,15 +36,15 @@ LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 		break;
 	case WM_MOUSEMOVE:
 		if (itemManager)
-			itemManager->onMouseMove();
+			itemManager->triggerMouse( MOUSE_EVENT_MOVE );
 		break;
 	case WM_LBUTTONDOWN:
 		if (itemManager)
-			itemManager->onMouseClick();
+			itemManager->triggerMouse( MOUSE_EVENT_CLICK );
 		break;
 	case WM_LBUTTONUP:
 		if (itemManager)
-			itemManager->onMouseRelease();
+			itemManager->triggerMouse( MOUSE_EVENT_RELEASE );
 		break;
 	}
 
@@ -49,34 +53,38 @@ LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
-	try {
-		itemManager = new ItemManager(hInstance);
-		itemManager->openInterfaces();
-	}
-	catch (Exception mainException) {
-		MessageBox( NULL, mainException.getMessage().c_str(), "Initialization failed!", MB_OK );
-		return EXIT_FAILURE;
-	}
-
-	bool isDone = false;
-
-	MSG msg;
-	while (!isDone) {
-		if (PeekMessage( &msg, NULL, 0, 0, PM_REMOVE )) {
-			if (msg.message == WM_QUIT)
-				isDone = true;
-
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+	{
+		try {
+			itemManager = new ItemManager(hInstance);
+			itemManager->openInterfaces();
+		}
+		catch (Exception mainException) {
+			MessageBox( NULL, mainException.getMessage()->c_str(), "Initialization failed!", MB_OK );
+			return EXIT_FAILURE;
 		}
 
-		itemManager->onFrame();
+		bool isDone = false;
+
+		MSG msg;
+		while (!isDone) {
+			if (PeekMessage( &msg, NULL, 0, 0, PM_REMOVE )) {
+				if (msg.message == WM_QUIT)
+					isDone = true;
+
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
+			itemManager->run();
+		}
+
+		if (itemManager) {
+			delete itemManager;
+			itemManager = 0;
+		}
 	}
 
-	if (itemManager) {
-		delete itemManager;
-		itemManager = 0;
-	}
+	_CrtDumpMemoryLeaks();
 
 	return EXIT_SUCCESS;
 }
@@ -86,6 +94,9 @@ ItemManager::ItemManager( HINSTANCE hInstance ): DirectX( APPLICATION_TITLE, hIn
 	// Zero all pointers.
 	backpack_ = 0;
 	alert_ = error_ = 0;
+
+	// Create mouse.
+	mouse_ = new Mouse( getWindow() );
 
 	// Add mouse listener.
 	addMouseListener( this );
@@ -130,11 +141,9 @@ void ItemManager::openInterfaces()
 		// Hide the loading dialog.
 		hidePopup( loadDialog_ );
 		alert_ = createAlert( "Everything loaded successfully!" );
-		alert_->setButtonListener( this );
 	}
-	catch (Exception loadException) {
-		error_ = createAlert( loadException.getMessage() );
-		error_->setButtonListener( this );
+	catch (Exception& loadException) {
+		error_ = createAlert( *loadException.getMessage() );
 	}
 }
 
@@ -207,77 +216,45 @@ void ItemManager::onRedraw()
 	}
 }
 
-void ItemManager::onFrame()
+void ItemManager::run()
 {
 	redraw();
 }
 
-void ItemManager::onButtonClick( Button* button )
+void ItemManager::triggerMouse( EMouseEvent eventType )
 {
-	// Nothing yet.
-}
-
-void ItemManager::onButtonRelease( Button* button )
-{
-	// Check if the error was clicked.
-	if (error_ && (error_->getButton() == button)) {
-		hidePopup( alert_ );
-		PostMessage( getWindow()->getHandle(), WM_DESTROY, 0, 0 );
-	}
-
-	// Check if alert was clicked.
-	if (alert_ && (alert_->getButton() == button)) {
-		hidePopup( alert_ );
+	// Call to listeners.
+	switch (eventType) {
+	case MOUSE_EVENT_MOVE:
+		mouse_->pollPosition();
+		break;
 	}
 }
 
-void ItemManager::onMouseClick()
+void ItemManager::mouseClicked( Mouse* mouse )
 {
-	// Mouse clicked.
-	if (!popupStack_.empty()) {
-		Popup* topPopup = popupStack_.back();
-		topPopup->onMouseEvent( this, MOUSE_EVENT_CLICK );
-	}
-	else {
-		// Handling base UI events.
-		backpack_->onMouseEvent( this, MOUSE_EVENT_CLICK );
-	}
+
 }
 
-void ItemManager::onMouseRelease()
+void ItemManager::mouseReleased( Mouse* mouse )
 {
 	// Mouse released.
-	if (!popupStack_.empty()) {
-		Popup* topPopup = popupStack_.back();
-		topPopup->onMouseEvent( this, MOUSE_EVENT_RELEASE );
-	}
-	else {
-		// Handling base UI events.
-		backpack_->onMouseEvent( this, MOUSE_EVENT_RELEASE );
-	}
 }
 
-void ItemManager::onMouseMove()
+void ItemManager::mouseMoved( Mouse* mouse )
 {
 	// First, poll position.
-	pollMouse();
+	mouse_->pollPosition();
+}
 
-	// Mouse moved.
-	if (!popupStack_.empty()) {
-		Popup* topPopup = popupStack_.back();
-		topPopup->onMouseEvent(this, MOUSE_EVENT_MOVE);
-	}
-	else {
-		// Handling base UI events.
-		if (backpack_)
-			backpack_->onMouseEvent( this, MOUSE_EVENT_MOVE );
+void ItemManager::buttonPressed( Button* button )
+{
+	// Button pressed.
+}
 
-		vector<Button*>::const_iterator buttonIter;
-		for (buttonIter = buttonList_.begin(); buttonIter != buttonList_.end(); buttonIter++) {
-			Button* thisButton = *buttonIter;
-			thisButton->onMouseEvent( this, MOUSE_EVENT_MOVE );
-		}
-	}
+void ItemManager::buttonReleased( Button* button )
+{
+	// Button released.
 }
 
 void ItemManager::loadDefinitions()
@@ -592,6 +569,8 @@ Dialog* ItemManager::createDialog( const string& message )
 Alert* ItemManager::createAlert( const string& message )
 {
 	Alert* newAlert = new Alert( message );
+	const string* str = &message;
+	const char* msg = message.c_str();
 
 	// Set position.
 	newAlert->x = (float)(getWidth() / 2) - (newAlert->getWidth() / 2);

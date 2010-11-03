@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Drawable.h"
+#include "Draggable.h"
 
 enum EPopupState
 {
@@ -8,10 +8,13 @@ enum EPopupState
 	POPUP_STATE_INACTIVE
 };
 
-class Popup: public Drawable
+class Popup: public Draggable
 {
 public:
-	Popup();
+	Popup( float x = 0.0f, float y = 0.0f );
+	~Popup() {
+		int i = 10;
+	}
 
 	// Get activity state.
 	EPopupState		getState() const;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Texture.h"
-#include "Drawable.h"
+#include "Draggable.h"
 #include "Item.h"
 
 // Slot selection type for manager handling.
@@ -11,7 +11,7 @@ enum ESelectType {
 	SELECT_TYPE_DRAG
 };
 
-class Slot: public Drawable
+class Slot: public Draggable
 {
 public:
 	Slot( Item* item = NULL, int index = -1 );
@@ -37,6 +37,5 @@ public:
 
 private:
 	bool	isActive_;
-
 	ESelectType selectType_;
 };

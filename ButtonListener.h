@@ -6,6 +6,6 @@ class Button;
 class ButtonListener
 {
 public:
-	virtual void onButtonClick( Button* button ) = 0;
-	virtual void onButtonRelease( Button* button ) = 0;
+	virtual void buttonPressed( Button* button ) = 0;
+	virtual void buttonReleased( Button* button ) = 0;
 };

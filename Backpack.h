@@ -23,9 +23,6 @@ public:
 	void	setLoaded();
 	void	select( Slot* slot );
 
-	// Input functions.
-	void	onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
-
 private:
 	slotVector selected_;
 

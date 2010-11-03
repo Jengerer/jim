@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Mouse.h"
 #include "Window.h"
 
 enum EMouseEvent {
@@ -11,24 +12,8 @@ enum EMouseEvent {
 class MouseListener
 {
 public:
-	MouseListener( Window* window = 0 );
-
-	// Mouse control and settings.
-	void setWindow( Window* window );
-
-	// Mouse state functions.
-	void pollMouse();
-	virtual void onMouseClick() = 0;
-	virtual void onMouseRelease() = 0;
-	virtual void onMouseMove() = 0;
-
-	// Position functions.
-	void getPosition( int* x, int* y ) const;
-	void setPosition( int x, int y );
-	int getMouseX() const;
-	int getMouseY() const;
-
-private:
-	Window*		window_;
-	POINT		position_;
+	// Mouse handling virtuals.
+	virtual void mouseClicked( Mouse *mouse ) = 0;
+	virtual void mouseReleased( Mouse *mouse ) = 0;
+	virtual void mouseMoved( Mouse *mouse ) = 0;
 };

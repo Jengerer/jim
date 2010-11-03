@@ -1,14 +1,14 @@
 #pragma once
 
 #include <string>
+using namespace std;
 
 class Exception
 {
 public:
-	Exception( const std::string& message );
-
-	std::string getMessage();
+	Exception( const string& message );
+	const string* getMessage();
 
 private:
-	std::string	message_;
+	string message_;
 };

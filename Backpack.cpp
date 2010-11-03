@@ -40,37 +40,6 @@ void Backpack::draw( DirectX* directX )
 	}
 }
 
-void Backpack::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
-{
-	slotVector::const_iterator i;
-	const slotVector* inventory = getInventory();
-
-	switch (mEvent) {
-	case MOUSE_EVENT_MOVE:
-		for (i = inventory->begin(); i != inventory->end(); i++) {
-			Slot* slot = *i;
-			slot->onMouseEvent( mouseListener, mEvent );
-		}
-		break;
-
-	case MOUSE_EVENT_CLICK:
-		for (i = inventory->begin(); i != inventory->end(); i++) {
-			Slot* slot = *i;
-			if (slot->item && slot->mouseTouching( mouseListener )) {
-				select( slot );
-			}
-		}
-		break;
-
-	case MOUSE_EVENT_RELEASE:
-		for (i = selected_.begin(); i != selected_.end(); i++) {
-			Slot* slot = *i;
-			slot->onMouseEvent( mouseListener, mEvent );
-		}
-		break;	
-	}
-}
-
 void Backpack::select( Slot* slot )
 {
 	// Deselect all selected.
