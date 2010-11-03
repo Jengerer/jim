@@ -17,7 +17,6 @@ public:
 	void			draw( DirectX* directX );
 	virtual int		getWidth() const;
 	virtual int		getHeight() const;
-	virtual void	onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
 	// Class-wide texture.
 	static Texture*	texture;

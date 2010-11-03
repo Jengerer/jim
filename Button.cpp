@@ -32,17 +32,6 @@ void Button::draw( DirectX* directX )
 		D3DCOLOR_XRGB( 0, 0, 0 ) );
 }
 
-void Button::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
-{
-	switch ( mEvent )
-	{
-	case MOUSE_EVENT_MOVE:
-		// Check for roll over.
-		isActive_ = mouseTouching( mouseListener );
-		break;
-	}
-}
-
 int Button::getWidth() const
 {
 	return texture->getWidth();

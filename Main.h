@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 
+#include "Component.h"
 #include "Window.h"
 #include "MouseListener.h"
 
@@ -13,7 +14,7 @@ using namespace std;
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 // Main class that's the base of all applications.
-class Main: public MouseListener
+class Main: public Component, public MouseListener
 {
 public:
 	Main(const char* title,
@@ -22,23 +23,23 @@ public:
 		int height);
 	~Main();
 
+	// Initializing.
 	virtual void	openInterfaces() = 0;
 	virtual void	closeInterfaces() = 0;
-
-	// Mouse listener methods.
-	void			addMouseListener( MouseListener* mouseListener );
 
 	// Getting window.
 	Window*			getWindow() const;
 
+	// Component size getters.
+	virtual int		getWidth() const;
+	virtual int		getHeight() const;
+
 	// Main running functions.
-	virtual void	onFrame() = 0;
+	virtual void	run() = 0;
 
 	// TODO: Make a better keyboard input interface.
-	bool			isKeyUp( const int keyCode );
-	bool			isKeyDown( const int keyCode );
+	bool			keyPressed( const int keyCode );
 
 protected:
 	Window*			window_;
-	vector<MouseListener*> mouseListeners_;
 };

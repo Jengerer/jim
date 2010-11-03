@@ -12,8 +12,6 @@ Main::Main(
 		wndProc,
 		title,
 		width, height );
-
-	setWindow( window_ );
 }
 
 Main::~Main()
@@ -25,13 +23,22 @@ Main::~Main()
 	}
 }
 
-void Main::addMouseListener( MouseListener* mouseListener )
-{
-	mouseListener->setWindow( window_ );
-	mouseListeners_.push_back( mouseListener );
-}
-
 Window* Main::getWindow() const
 {
 	return window_;
+}
+
+int Main::getWidth() const
+{
+	return window_->getWidth();
+}
+
+int Main::getHeight() const
+{
+	return window_->getHeight();
+}
+
+bool Main::keyPressed( const int keyCode )
+{
+	return (GetAsyncKeyState( keyCode ) & 0x8000);
 }

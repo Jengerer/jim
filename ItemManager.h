@@ -39,18 +39,23 @@ public:
 	void loadItems();
 
 	// Drawing functions.
-	void onFrame();
+	void run();
 	void onRedraw();
 
 	// Steam handling.
 	void handleCallbacks();
 
-	// Input handling.
-	void onMouseClick();
-	void onMouseRelease();
-	void onMouseMove();
-	void onButtonClick( Button* button );
-	void onButtonRelease( Button* button );
+	// Input message transmitting.
+	void triggerMouse( EMouseEvent eventType );
+
+	// Mouse handling virtuals.
+	virtual void mouseClicked( Mouse *mouse );
+	virtual void mouseReleased( Mouse *mouse );
+	virtual void mouseMoved( Mouse *mouse );
+
+	// Handling button input.
+	virtual void buttonPressed( Button *button );
+	virtual void buttonReleased( Button *button );
 
 	// Interface handling.
 	Dialog*	createDialog( const string& message );
@@ -67,6 +72,9 @@ private:
 	deque<Popup*>	popupStack_;
 	vector<Popup*>	popupList_;
 	vector<Button*>	buttonList_;
+
+	// Input handling.
+	Mouse*			mouse_;
 
 	// Interface variables.
 	Dialog			*loadDialog_;

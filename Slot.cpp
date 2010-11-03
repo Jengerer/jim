@@ -36,28 +36,15 @@ void Slot::draw( DirectX* directX )
 	}
 
 	// Draw the slot texture here.
-	directX->drawTexture( texture, x, y, drawColour );
+	directX->drawTexture( texture, getX(), getY(), drawColour );
 
 	if (item) {
 		// Move it to the center of this slot.
-		item->x = x + (getWidth() / 2) - (item->getWidth() / 2);
-		item->y = y + (getHeight() / 2) - (item->getHeight() / 2);
+		item->x = getX() + (getWidth() / 2) - (item->getWidth() / 2);
+		item->y = getY() + (getHeight() / 2) - (item->getHeight() / 2);
 
 		// Draw it.
 		item->draw( directX );
-	}
-}
-
-void Slot::onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent )
-{
-	// Check collision.
-	switch (mEvent) {
-	case MOUSE_EVENT_MOVE:
-		isActive_ = mouseTouching( mouseListener );
-		break;
-	case MOUSE_EVENT_RELEASE:
-		setSelectType( SELECT_TYPE_NORMAL );
-		break;
 	}
 }
 

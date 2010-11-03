@@ -63,7 +63,7 @@ void loadDefinitions()
 		cout << "done!" << endl;
 	}
 	catch (Exception parseException) {
-		throw Exception("Failed to parse items and language: " + parseException.getMessage());
+		throw Exception("Failed to parse items and language: " + *parseException.getMessage());
 	}
 
 	Hashtable *resultTable, *itemsTable, *definitionsTable;
@@ -75,7 +75,7 @@ void loadDefinitions()
 		definitionsTable = itemsTable->getTable( "item" );
 	}
 	catch (Exception tableException) {
-		throw Exception("Unexpected format for item definitions. Key '" + tableException.getMessage() + "' not found.");
+		throw Exception("Unexpected format for item definitions. Key '" + *tableException.getMessage() + "' not found.");
 	}
 
 	try {
@@ -83,7 +83,7 @@ void loadDefinitions()
 		tokenTable = langTable->getTable("Tokens");
 	}
 	catch (Exception tableException) {
-		throw Exception("Unexpected format for language definitions. Key '" + tableException.getMessage() + "' not found.");
+		throw Exception("Unexpected format for language definitions. Key '" + *tableException.getMessage() + "' not found.");
 	}
 
 	Json::Value root;
@@ -116,7 +116,7 @@ void loadDefinitions()
 			textureUrl = thisTable->getString("image_url");
 		} catch (Exception tableException)
 		{
-			throw Exception("Unexpected format for item definitions. Found item with no '" + tableException.getMessage() + "' value.");
+			throw Exception("Unexpected format for item definitions. Found item with no '" + *tableException.getMessage() + "' value.");
 		}
 
 		if (texturePath->empty()) {
@@ -138,9 +138,9 @@ void loadDefinitions()
 		try
 		{
 			realName = tokenTable->getString(*itemName);
-		} catch (Exception tableException)
+		} catch (Exception& tableException)
 		{
-			printf("Couldn't find language translation of item %s name '%s'.\n", itemIndex->c_str(), tableException.getMessage().c_str());
+			printf("Couldn't find language translation of item %s name '%s'.\n", itemIndex->c_str(), tableException.getMessage()->c_str());
 			realName = itemName;
 		}
 
@@ -233,8 +233,9 @@ void loadDefinitions()
 						classIndex = 8;
 					else if (className == "spy")
 						classIndex = 9;
-					else
+					else {
 						throw Exception("Unknown class name: " + className);
+					}
 				}
 
 				Json::Value itemClasses;

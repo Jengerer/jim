@@ -99,6 +99,7 @@
     <ClCompile Include="Alert.cpp" />
     <ClCompile Include="Backpack.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Component.cpp" />
     <ClCompile Include="Curl.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Draggable.cpp" />
@@ -106,6 +107,7 @@
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Hashtable.cpp" />
     <ClCompile Include="Inventory.cpp" />
+    <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="MouseListener.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="Item.cpp" />
@@ -123,6 +125,7 @@
     <ClInclude Include="Backpack.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="ButtonListener.h" />
+    <ClInclude Include="Component.h" />
     <ClInclude Include="Curl.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="Draggable.h" />
@@ -134,6 +137,7 @@
     <ClInclude Include="Item.h" />
     <ClInclude Include="ItemManager.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="Mouse.h" />
     <ClInclude Include="MouseListener.h" />
     <ClInclude Include="Popup.h" />
     <ClInclude Include="SerializedBuffer.h" />

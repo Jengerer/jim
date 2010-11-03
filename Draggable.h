@@ -6,15 +6,17 @@
 class Draggable: public Drawable
 {
 public:
-	Draggable( MouseListener* mouseListener, float x, float y );
+	Draggable( float x = 0.0f, float y = 0.0f );
 
-	virtual void onDrag() = 0;
-	virtual void onRelease() = 0;
+	virtual void onDrag();
+	virtual void onRelease();
 
 	virtual float getX() const;
 	virtual float getY() const;
 
+	bool			isDragging;
+
 private:
-	MouseListener* mouseListener_;
-	float offsetX_, offsetY_;
+	MouseListener*	mouseListener_;
+	float			offsetX_, offsetY_;
 };

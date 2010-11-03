@@ -88,6 +88,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Draggable.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -798,6 +804,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Draggable.h">
+      <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

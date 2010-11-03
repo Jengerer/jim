@@ -90,8 +90,9 @@ void Steam::openInterfaces()
 		hUser_,
 		hPipe_,
 		STEAMUSER_INTERFACE_VERSION_012 );
-	if (!steamUser_->LoggedOn())
-		throw Exception( "You're not properly logged into Steam." );
+	if (!steamUser_->LoggedOn()) {
+		throw Exception( "You are not properly logged into Steam." );
+	}
 
 	gameCoordinator_ = (ISteamGameCoordinator001*)steamClient_->GetISteamGenericInterface(
 		hUser_, hPipe_,

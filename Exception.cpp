@@ -1,11 +1,11 @@
 #include "Exception.h"
 
-Exception::Exception( const std::string& message )
+Exception::Exception( const string& message )
 {
 	message_ = message;
 }
 
-std::string Exception::getMessage()
+const string* Exception::getMessage()
 {
-	return message_;
+	return &message_;
 }

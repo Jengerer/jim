@@ -1,6 +1,6 @@
 #include "Popup.h"
 
-Popup::Popup()
+Popup::Popup( float x, float y ) : Draggable( x, y )
 {
 	state = POPUP_STATE_ACTIVE;
 }
