@@ -7,6 +7,7 @@ class Drawable: public Component
 {
 public:
 	Drawable( float x = 0.0f, float y = 0.0f );
+	virtual ~Drawable();
 
 	// Pure virtual; override me.
 	virtual void draw( DirectX* directX ) = 0;

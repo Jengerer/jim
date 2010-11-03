@@ -12,9 +12,7 @@ class Popup: public Draggable
 {
 public:
 	Popup( float x = 0.0f, float y = 0.0f );
-	~Popup() {
-		int i = 10;
-	}
+	virtual ~Popup();
 
 	// Get activity state.
 	EPopupState		getState() const;

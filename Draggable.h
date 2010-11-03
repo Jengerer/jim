@@ -7,6 +7,7 @@ class Draggable: public Drawable
 {
 public:
 	Draggable( float x = 0.0f, float y = 0.0f );
+	virtual ~Draggable();
 
 	virtual void onDrag();
 	virtual void onRelease();

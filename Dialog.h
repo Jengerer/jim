@@ -13,9 +13,7 @@ class Dialog: public Popup
 {
 public:
 	Dialog( const string& message );
-	virtual ~Dialog() { 
-		int i = 5;
-	}
+	virtual ~Dialog();
 
 	// Drawable functions.
 	void			draw( DirectX* directX );
@@ -23,6 +21,7 @@ public:
 	virtual int		getHeight() const;
 
 	// Message handling.
+	const string* getMessage() const { return &message_; }
 	void setMessage( const string& message );
 	void appendMessage( const string& message );
 

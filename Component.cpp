@@ -2,6 +2,14 @@
 
 Component::Component( float x, float y ) {
 	setPosition( x, y );
+
+	// Add this component to the array.
+	Mouse::addComponent( this );
+}
+
+Component::~Component() {
+	// Component is destroyed.
+	Mouse::removeComponent( this );
 }
 
 void Component::addMouseListener( MouseListener* mouseListener ) {

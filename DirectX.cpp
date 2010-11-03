@@ -80,6 +80,7 @@ void DirectX::openInterfaces()
 void DirectX::closeInterfaces()
 {
 	// Delete map of vectors.
+	freeTextures();
 	if (textureMap_) {
 		delete textureMap_;
 		textureMap_ = 0;
@@ -110,9 +111,29 @@ void DirectX::closeInterfaces()
 	}
 }
 
+void DirectX::freeTextures()
+{
+	// Delete all texture objects.
+	stringMap::iterator i;
+	while (!textureMap_->empty()) {
+		i = textureMap_->begin();
+
+		try {
+			Texture* thisTexture = boost::any_cast<Texture*>(i->second);
+
+			// Delete the texture and remove it.
+			delete thisTexture;
+			textureMap_->remove(i);
+		}
+		catch (const boost::bad_any_cast &) {
+			throw Exception( "Failed to get texture from table, unexpected variable type received." );
+		}
+	}
+}
+
 void DirectX::loadTextures()
 {
-	/* Reload any existing unloaded textures. */
+	// Reload any existing unloaded textures.
 	stringMap::iterator i;
 	for (i = textureMap_->begin(); i != textureMap_->end(); i++) {
 		boost::any& value = i->second;
@@ -134,7 +155,7 @@ void DirectX::loadTextures()
 
 void DirectX::releaseTextures()
 {
-	/* Get textures and release them. */
+	// Get textures and release them.
 	stringMap::iterator i;
 	for (i = textureMap_->begin(); i != textureMap_->end(); i++) {
 		try {

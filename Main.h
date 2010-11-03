@@ -21,7 +21,7 @@ public:
 		HINSTANCE hInstance,
 		int width,
 		int height);
-	~Main();
+	virtual ~Main();
 
 	// Initializing.
 	virtual void	openInterfaces() = 0;

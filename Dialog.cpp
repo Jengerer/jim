@@ -8,6 +8,11 @@ Dialog::Dialog( const string& message )
 	setMessage( message );
 }
 
+Dialog::~Dialog()
+{
+	// Dialog is destroyed.
+}
+
 void Dialog::draw( DirectX* directX )
 {
 	// Draw the background texture.
