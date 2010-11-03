@@ -4,6 +4,7 @@ Component::Component( float x, float y ) {
 	setPosition( x, y );
 
 	// Add this component to the array.
+	Mouse::createComponents();
 	Mouse::addComponent( this );
 }
 
@@ -14,6 +15,14 @@ Component::~Component() {
 
 void Component::addMouseListener( MouseListener* mouseListener ) {
 	mouseListeners_.push_back( mouseListener );
+}
+
+void Component::callMouseListener( EMouseEvent eventType ) {
+	vector<MouseListener*>::iterator i;
+	for (i = mouseListeners_.begin(); i != mouseListeners_.end(); i++) {
+		MouseListener* mouseListener = *i;
+		mouseListener->mouseClicked( NULL, this );
+	}
 }
 
 void Component::setPosition( float x, float y ) {

@@ -141,7 +141,7 @@ void ItemManager::openInterfaces()
 		alert_ = createAlert( "Everything loaded successfully!" );
 	}
 	catch (Exception& loadException) {
-		error_ = createAlert( "This is really bad." );
+		error_ = createAlert( *loadException.getMessage() );
 	}
 }
 
@@ -237,25 +237,26 @@ void ItemManager::run()
 
 void ItemManager::triggerMouse( EMouseEvent eventType )
 {
-	// Call to listeners.
-	switch (eventType) {
-	case MOUSE_EVENT_MOVE:
+	// Poll if moved.
+	if (eventType == MOUSE_EVENT_MOVE) {
 		mouse_->pollPosition();
-		break;
 	}
+
+	// Send message.
+	mouse_->triggerEvent( eventType );
 }
 
-void ItemManager::mouseClicked( Mouse* mouse )
+void ItemManager::mouseClicked( Mouse *mouse, Component *component )
 {
 
 }
 
-void ItemManager::mouseReleased( Mouse* mouse )
+void ItemManager::mouseReleased( Mouse *mouse, Component *component )
 {
 	// Mouse released.
 }
 
-void ItemManager::mouseMoved( Mouse* mouse )
+void ItemManager::mouseMoved( Mouse *mouse, Component *component )
 {
 	// First, poll position.
 	mouse_->pollPosition();

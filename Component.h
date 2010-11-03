@@ -6,6 +6,7 @@
 
 using namespace std;
 
+enum EMouseEvent;
 class MouseListener;
 class Component {
 public:
@@ -14,6 +15,7 @@ public:
 
 	// Mouse handling functions.
 	void addMouseListener( MouseListener* mouseListener );
+	void callMouseListener( EMouseEvent eventType );
 
 	// Position functions.
 	void			setPosition( float x, float y );
