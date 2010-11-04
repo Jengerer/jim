@@ -74,7 +74,7 @@ void Item::loadInformation()
 
 void Item::draw( DirectX* directX )
 {
-	directX->drawTexture( texture_, x, y );
+	directX->drawTexture( texture_, getX(), getY() );
 }
 
 uint64 Item::getUniqueId() const
@@ -142,7 +142,7 @@ void Item::setGroup( EItemGroup group )
 	group_ = group;
 }
 
-void Item::setPosition( uint8 position )
+void Item::move( uint8 position )
 {
 	// Set to new position.
 	position_ = position;

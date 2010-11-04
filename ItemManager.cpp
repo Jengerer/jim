@@ -124,10 +124,10 @@ void ItemManager::openInterfaces()
 	try {
 		// Create inventory.
 		backpack_ = new Backpack(
-			getWindow(),
 			PADDING, PADDING, 
 			PAGE_WIDTH, PAGE_HEIGHT, 
-			PAGE_COUNT );
+			PAGE_COUNT,
+			this );		
 
 		// Define and load items.
 		loadDefinitions();
@@ -147,9 +147,6 @@ void ItemManager::openInterfaces()
 
 void ItemManager::closeInterfaces()
 {
-	// Clear component vector.
-	Mouse::clearComponents();
-
 	// Delete the mouse.
 	if (mouse_) {
 		delete mouse_;
@@ -243,12 +240,34 @@ void ItemManager::triggerMouse( EMouseEvent eventType )
 	}
 
 	// Send message.
-	mouse_->triggerEvent( eventType );
+	mouse_->triggerEvent( this, eventType );
 }
 
 void ItemManager::mouseClicked( Mouse *mouse, Component *component )
 {
+	// Mouse clicked.
+	if (!popupStack_.empty()) {
+		Popup* top = popupStack_.back();
+		if (top == component) {
+			// Handle button if this is an alert.
+			if (top == alert_) {
+				const Button *alertButton = alert_->getButton();
 
+				if (mouse->isTouching( alertButton )) {
+					hidePopup( alert_ );
+				}
+			}
+			else if (top == error_) {
+				const Button *errorButton = error_->getButton();
+
+				if (mouse->isTouching( errorButton )) {
+					hidePopup( error_ );
+					exitApplication();
+				}
+			}
+		}
+		return;
+	}
 }
 
 void ItemManager::mouseReleased( Mouse *mouse, Component *component )
@@ -431,7 +450,7 @@ void ItemManager::loadItems()
 			item.position );
 
 		// Add the item.
-		backpack_->add( newItem );
+		backpack_->addItem( newItem );
 	}
 
 	// Show success.
@@ -568,10 +587,12 @@ Button* ItemManager::createButton( const string& caption, float x, float y )
 Dialog* ItemManager::createDialog( const string& message )
 {
 	Dialog* newDialog = new Dialog( message );
+	newDialog->addMouseListener( this );
 
 	// Set position.
-	newDialog->x = (float)(getWidth() / 2) - (float)(newDialog->getWidth() / 2);
-	newDialog->y = (float)(getHeight() / 2) - (float)(newDialog->getHeight() / 2);
+	float x = (float)(getWidth() / 2) - (float)(newDialog->getWidth() / 2);
+	float y = (float)(getHeight() / 2) - (float)(newDialog->getHeight() / 2);
+	newDialog->setPosition( x, y );
 
 	// Show popup.
 	showPopup( newDialog );
@@ -584,12 +605,15 @@ Dialog* ItemManager::createDialog( const string& message )
 Alert* ItemManager::createAlert( const string& message )
 {
 	Alert* newAlert = new Alert( message );
+	newAlert->addMouseListener( this );
+
 	const string* str = &message;
 	const char* msg = message.c_str();
 
 	// Set position.
-	newAlert->x = (float)(getWidth() / 2) - (newAlert->getWidth() / 2);
-	newAlert->y = (float)(getHeight() / 2) - (newAlert->getHeight() / 2);
+	float alertX = (float)(getWidth() / 2) - (newAlert->getWidth() / 2);
+	float alertY = (float)(getHeight() / 2) - (newAlert->getHeight() / 2);
+	newAlert->setPosition( alertX, alertY );
 
 	// Show popup.
 	showPopup( newAlert );

@@ -2,16 +2,18 @@
 
 #include <vector>
 
-#include "Drawable.h"
+#include "Panel.h"
 #include "ButtonListener.h"
 
 using namespace std;
 
 class ButtonListener;
-class Button: public Drawable
+class Button: public Panel
 {
 public:
-	Button( const string& caption, float x = 0.0f, float y = 0.0f );
+	Button( const string& caption, 
+		float x = 0.0f, float y = 0.0f );
+	virtual ~Button();
 	
 	// Drawable functions.
 	void			draw( DirectX* directX );

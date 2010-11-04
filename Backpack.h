@@ -1,23 +1,25 @@
 #pragma once
 
 #include "Inventory.h"
+#include "Container.h"
 #include "Steam.h"
-#include "Drawable.h"
 #include "MouseListener.h"
 #include "SerializedBuffer.h"
 
-class Backpack: public Inventory, public MouseListener, public Drawable, public Steam
+class Backpack: public Inventory, public MouseListener, public Container, public Steam
 {
 public:
-	Backpack( Window* window,
-		float x, float y,
+	Backpack( float x, float y,
 		int width, int height,
-		int pages );
+		int pages,
+		Component* parent );
+	virtual ~Backpack();
 
 	// Drawing functions.
 	void	draw( DirectX* directX );
-	int		getWidth() const;
-	int		getHeight() const;
+	virtual void setPosition( float x, float y );
+	virtual int	getWidth() const;
+	virtual int	getHeight() const;
 
 	// Mouse input handling.
 	virtual void mouseClicked( Mouse *mouse, Component *component );
@@ -31,6 +33,5 @@ public:
 
 private:
 	slotVector selected_;
-
 	bool isLoaded_;
 };

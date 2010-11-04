@@ -11,12 +11,17 @@ const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 175, 255, 255, 255 );
 
 Slot::Slot( Item* item, int index )
 {
-	this->item = item;
-	this->index = index;
+	setItem( item );
+	index_ = index;
 
 	// Inactive and deselected by default.
 	isActive_ = false;
 	setSelectType( SELECT_TYPE_NONE );
+}
+
+Slot::~Slot()
+{
+	// Slot is destroyed.
 }
 
 void Slot::draw( DirectX* directX )
@@ -35,16 +40,48 @@ void Slot::draw( DirectX* directX )
 		break;
 	}
 
-	// Draw the slot texture here.
+	// Draw slot texture.
 	directX->drawTexture( texture, getX(), getY(), drawColour );
 
+	Item* item = getItem();
 	if (item) {
-		// Move it to the center of this slot.
-		item->x = getX() + (getWidth() / 2) - (item->getWidth() / 2);
-		item->y = getY() + (getHeight() / 2) - (item->getHeight() / 2);
-
 		// Draw it.
 		item->draw( directX );
+	}
+}
+
+Item* Slot::getItem()
+{
+	return item_;
+}
+
+void Slot::setItem( Item* item )
+{
+	item_ = item;
+
+	// Shift item to center.
+	updatePosition();
+}
+
+int Slot::getIndex() const
+{
+	return index_;
+}
+
+void Slot::setPosition( float x, float y )
+{
+	Component::setPosition( x, y );
+	updatePosition();
+}
+
+void Slot::updatePosition()
+{
+	// Move the item.
+	Item* item = getItem();
+	if (item) {
+		float itemX = getX() + (getWidth() / 2) - (item->getWidth() / 2);
+		float itemY = getY() + (getHeight() / 2) - (item->getHeight() / 2);
+		item->setPosition( itemX, itemY );
 	}
 }
 

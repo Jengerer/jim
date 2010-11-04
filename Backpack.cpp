@@ -2,33 +2,23 @@
 
 const float	SLOT_SPACING = 5.0f;
 
-Backpack::Backpack( Window* window,
+Backpack::Backpack(
 	float x, float y,
 	int width, int height,
-	int pages ) : Inventory( width, height, pages ), Drawable( x, y )
+	int pages,
+	Component* parent ) : Inventory( width, height, pages ), Container( x, y )
 {
 	// Backpack was created.
 	isLoaded_ = false;
+	addMouseListener( this ); // TODO: May not need.
 
-	// Position all slots.
-	slotVector::const_iterator i;
-	const slotVector* inventory = getInventory();
-	for (i = inventory->begin(); i != inventory->end(); i++) {
-		Slot* slot = *i;
-		slot->addMouseListener( this );
+	// Move to start.
+	setPosition( x, y );
+}
 
-		int x = slot->index % width_;
-		int y = slot->index / width_;
-
-		if (y >= height_) {
-			x += window->getWidth() * (y / height_);
-			y %= height_;
-		}
-
-		// Set position.
-		slot->x = this->x + x*(Slot::texture->getWidth() + SLOT_SPACING);
-		slot->y = this->y + y*(Slot::texture->getHeight() + SLOT_SPACING);
-	}
+Backpack::~Backpack()
+{
+	// Backpack has been destroyed.
 }
 
 void Backpack::draw( DirectX* directX )
@@ -38,6 +28,29 @@ void Backpack::draw( DirectX* directX )
 	for (i = inventory->begin(); i != inventory->end(); i++) {
 		Slot* slot = *i;
 		slot->draw( directX );
+	}
+}
+
+void Backpack::setPosition( float x, float y )
+{
+	const slotVector* inventory = getInventory();
+	slotVector::const_iterator i;
+	for (i = inventory->begin(); i != inventory->end(); i++) {
+		Slot* slot = *i;
+
+		int index = slot->getIndex();
+		int x = index % width_;
+		int y = index / height_;
+
+		if (y >= height_) {
+			x += getWidth() * (y / width_);
+			y %= height_;
+		}
+		
+		// Set position.
+		float slotX = getX() + x*(Slot::texture->getWidth() + SLOT_SPACING);
+		float slotY = getY() + y*(Slot::texture->getHeight() + SLOT_SPACING);
+		slot->setPosition( slotX, slotY );
 	}
 }
 
@@ -74,16 +87,14 @@ void Backpack::mouseMoved( Mouse *mouse, Component *component )
 
 int Backpack::getWidth() const
 {
-	int slotsWidth = width_ * Slot::texture->getWidth();
-	int spacingWidth = (width_ - 1) * (int)SLOT_SPACING;
-	return ( slotsWidth + spacingWidth );
+	// HACK: Need to get actual size.
+	return 795;
 }
 
 int Backpack::getHeight() const
 {
-	int slotsHeight = height_ * Slot::texture->getHeight();
-	int spacingHeight = (height_ - 1) * (int)SLOT_SPACING;
-	return ( slotsHeight + spacingHeight );
+	// HACK: Need to get actual size.
+	return 0;
 }
 
 void Backpack::setLoaded()

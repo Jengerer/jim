@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Drawable.h"
-#include "MouseListener.h"
+#include "Panel.h"
 
-class Draggable: public Drawable
+class Draggable: public Panel
 {
 public:
 	Draggable( float x = 0.0f, float y = 0.0f );
@@ -18,6 +17,5 @@ public:
 	bool			isDragging;
 
 private:
-	MouseListener*	mouseListener_;
 	float			offsetX_, offsetY_;
 };

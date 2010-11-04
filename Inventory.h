@@ -14,7 +14,7 @@ public:
 	Inventory(
 		int width, int height, 
 		int pages );
-	~Inventory();
+	virtual ~Inventory();
 
 	// Dimension getters.
 	int					getCapacity() const;
@@ -31,9 +31,9 @@ public:
 	Slot*			getSlot( uint8 index );
 
 	// Item handling.
-	void			add( Item* item );
+	void			addItem( Item* item );
 	bool			insert( Item* item );
-	void			remove( Item* item );
+	void			removeItem( Item* item );
 	void			clearItems();
 
 protected:

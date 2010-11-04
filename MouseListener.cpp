@@ -1,3 +1,6 @@
 #include "MouseListener.h"
 
-//TODO: Remove if not needed.
+MouseListener::~MouseListener()
+{
+	// MouseListener has been destroyed.
+}

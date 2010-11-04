@@ -96,6 +96,15 @@
     <ClCompile Include="Mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Container.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Source Files\GUI Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectX.h">
@@ -764,9 +773,6 @@
     <ClInclude Include="steam\UtilsCommon.h">
       <Filter>Header Files\Steam API</Filter>
     </ClInclude>
-    <ClInclude Include="MouseListener.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -811,6 +817,18 @@
     </ClInclude>
     <ClInclude Include="Mouse.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Container.h">
+      <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseListener.h">
+      <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
+      <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Header Files\GUI Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

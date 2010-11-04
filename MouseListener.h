@@ -14,6 +14,8 @@ class Component;
 class MouseListener
 {
 public:
+	virtual ~MouseListener();
+
 	// Mouse handling virtuals.
 	virtual void mouseClicked( Mouse *mouse, Component *component ) = 0;
 	virtual void mouseReleased( Mouse *mouse, Component *component ) = 0;

@@ -4,7 +4,7 @@
 #include <sstream>
 #include <vector>
 
-#include "Component.h"
+#include "Container.h"
 #include "Window.h"
 #include "MouseListener.h"
 
@@ -14,7 +14,7 @@ using namespace std;
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 // Main class that's the base of all applications.
-class Main: public Component, public MouseListener
+class Main: public Container, public MouseListener
 {
 public:
 	Main(const char* title,
@@ -23,9 +23,10 @@ public:
 		int height);
 	virtual ~Main();
 
-	// Initializing.
+	// Initializing/closing.
 	virtual void	openInterfaces() = 0;
 	virtual void	closeInterfaces() = 0;
+	void			exitApplication();
 
 	// Getting window.
 	Window*			getWindow() const;

@@ -100,12 +100,14 @@
     <ClCompile Include="Backpack.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="Container.cpp" />
     <ClCompile Include="Curl.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Draggable.cpp" />
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Hashtable.cpp" />
+    <ClCompile Include="Image.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="MouseListener.cpp" />
@@ -113,6 +115,7 @@
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Panel.cpp" />
     <ClCompile Include="Popup.cpp" />
     <ClCompile Include="SerializedBuffer.cpp" />
     <ClCompile Include="Slot.cpp" />
@@ -126,12 +129,14 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="ButtonListener.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="Container.h" />
     <ClInclude Include="Curl.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="Draggable.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Hashtable.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="DirectX.h" />
     <ClInclude Include="Item.h" />
@@ -139,6 +144,7 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="MouseListener.h" />
+    <ClInclude Include="Panel.h" />
     <ClInclude Include="Popup.h" />
     <ClInclude Include="SerializedBuffer.h" />
     <ClInclude Include="Slot.h" />
