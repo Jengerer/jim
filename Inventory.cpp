@@ -25,14 +25,12 @@ void Inventory::clearItems()
 	slotVector::iterator i;
 	for (i = inventory_.begin(); i != inventory_.end(); i++) {
 		Slot* slot = *i;
-		if (slot->item)
-			slot->item = 0;
+		slot->setItem( 0 );
 	}
 
 	for (i = excluded_.begin(); i != excluded_.end(); i++) {
 		Slot* slot = *i;
-		if (slot->item)
-			slot->item = 0;
+		slot->setItem( 0 );
 	}
 
 	// Now delete all items.
@@ -55,8 +53,7 @@ void Inventory::createSlots()
 {
 	// Create slots.
 	for (int i = 0; i < getCapacity(); i++) {
-		Slot* slot = new Slot();
-		slot->index = i;
+		Slot* slot = new Slot( 0, i );
 
 		// Add to inventory.
 		inventory_.push_back( slot );
@@ -81,7 +78,7 @@ void Inventory::clearSlots()
 	excluded_.clear();
 }
 
-void Inventory::add( Item* item )
+void Inventory::addItem( Item* item )
 {
 	// Add to list.
 	items_.push_back( item );
@@ -92,12 +89,12 @@ void Inventory::add( Item* item )
 		Slot* destSlot = inventory_[position];
 
 		// Should not allow overlap.
-		if (destSlot->item) {
+		if (destSlot->getItem()) {
 			item->setGroup( GROUP_EXCLUDED );
 			excluded_.push_back( new Slot( item ) );
 		}
 		else {
-			destSlot->item = item;
+			destSlot->setItem( item );
 		}
 	}
 	else {
@@ -106,7 +103,7 @@ void Inventory::add( Item* item )
 	}
 }
 
-void Inventory::remove( Item* whichItem )
+void Inventory::removeItem( Item* whichItem )
 {
 	// TODO: Find the item in inventory.
 }
@@ -114,17 +111,17 @@ void Inventory::remove( Item* whichItem )
 void Inventory::move( Slot* source, Slot* destination )
 {
 	// Get item we're moving.
-	Item* item1 = source->item;
+	Item* item1 = source->getItem();
 
-	if (!destination->item)
+	if (!destination->getItem())
 	{
-		destination->item = item1;
-		source->item = 0;
+		destination->setItem( item1 );
+		source->setItem( 0 );
 	}
 	else {
 		Item* tempItem = item1;
-		source->item = destination->item;
-		destination->item = tempItem;
+		source->setItem( destination->getItem() );
+		destination->setItem( tempItem );
 	}
 }
 

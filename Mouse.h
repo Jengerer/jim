@@ -24,15 +24,10 @@ public:
 	int getY() const;
 
 	// Call to components.
-	void triggerEvent( EMouseEvent eventType );
-
-	static void createComponents();
-	static void addComponent( Component* component );
-	static void removeComponent( Component* component );
-	static void clearComponents();
+	void triggerEvent( Component* component, EMouseEvent eventType );
+	bool isTouching( const Component* component );
 
 private:
-	static vector<Component*>* components_;
 	Window*	window_;
 	POINT	position_;
 };

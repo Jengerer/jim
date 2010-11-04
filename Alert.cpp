@@ -21,11 +21,21 @@ void Alert::draw( DirectX* directX )
 {
 	// Draw like our parent.
 	Dialog::draw( directX );
-
-	// Just add the button.
-	okButton->x = getX() + getWidth()/2 - okButton->getWidth()/2;
-	okButton->y = getY() + getHeight() - okButton->getHeight() - ALERT_PADDING;
 	okButton->draw( directX );
+}
+
+void Alert::setPosition( float x, float y )
+{
+	Component::setPosition( x, y );
+	updatePosition();
+}
+
+void Alert::updatePosition()
+{
+	// Move the button.
+	float buttonX = getX() + getWidth()/2 - okButton->getWidth()/2;
+	float buttonY = getY() + getHeight() - okButton->getHeight() - ALERT_PADDING;
+	okButton->setPosition( buttonX, buttonY );
 }
 
 const Button* Alert::getButton() const

@@ -23,6 +23,11 @@ Main::~Main()
 	}
 }
 
+void Main::exitApplication()
+{
+	PostMessage( getWindow()->getHandle(), WM_DESTROY, 0, 0 );
+}
+
 Window* Main::getWindow() const
 {
 	return window_;

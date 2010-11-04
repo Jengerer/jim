@@ -11,6 +11,7 @@
 #include "steam/UserItemsCommon.h"
 
 #include "Hashtable.h"
+#include "Image.h"
 #include "Drawable.h"
 
 using namespace std;
@@ -21,13 +22,13 @@ enum EItemGroup {
 	GROUP_EXCLUDED
 };
 
-class Item: public Drawable
+class Item: public Image
 {
 public:
 	bool operator==(const Item &other) const; // TODO: { return (this->GetUniqueID() == rOther.GetUniqueID()); }
 	bool operator!=(const Item &other) const; // TODO: { return (this->GetUniqueID() != rOther.GetUniqueID()); }
 
-	/* Constructor. */
+	// Constructor.
 	Item(
 		uint64 uniqueId,
 		uint32 defIndex,
@@ -35,7 +36,7 @@ public:
 		EItemQuality quality,
 		uint32 count,
 		uint32 flags );
-	~Item();
+	virtual ~Item();
 
 	/* Initializing item. */
 	void				loadInformation();
@@ -45,7 +46,6 @@ public:
 	int					getWidth() const;
 	int					getHeight() const;
 	void				onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
-
 
 	// Item attribute getters.
 	uint64				getUniqueId() const;
@@ -68,7 +68,7 @@ public:
 
 	// Modify item attributes.
 	void				setEquip( int classIndex, bool equip );
-	void				setPosition( uint8 position );
+	void				move( uint8 position );
 
 	// Drawing and interaction.
 	Texture*			getTexture();

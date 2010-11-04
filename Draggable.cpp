@@ -1,6 +1,6 @@
 #include "Draggable.h"
 
-Draggable::Draggable( float x, float y ) : Drawable( x, y )
+Draggable::Draggable( float x, float y ) : Panel( x, y )
 {
 	isDragging = false;
 	offsetX_ = offsetY_ = 0.0f;
@@ -14,13 +14,13 @@ Draggable::~Draggable()
 float Draggable::getX() const
 {
 	// TODO: Make dragging work.
-	return this->x;
+	return Component::getX();
 }
 
 float Draggable::getY() const
 {
 	// TODO: Make dragging work.
-	return this->y;
+	return Component::getY();
 }
 
 void Draggable::onDrag() {
@@ -30,8 +30,7 @@ void Draggable::onDrag() {
 
 void Draggable::onRelease() {
 	// Set this as the permanent position.
-	x = getX();
-	y = getY();
+	setPosition( getX(), getY() );
 
 	// Release control.
 	isDragging = false;

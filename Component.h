@@ -2,23 +2,25 @@
 
 #include <vector>
 
+#include "Mouse.h"
 #include "MouseListener.h"
 
 using namespace std;
 
 enum EMouseEvent;
 class MouseListener;
+class Mouse;
 class Component {
 public:
-	Component( float x = 0.0f, float y = 0.0f);
+	Component( float x = 0.0f, float y = 0.0f );
 	virtual ~Component();
 
 	// Mouse handling functions.
 	void addMouseListener( MouseListener* mouseListener );
-	void callMouseListener( EMouseEvent eventType );
+	void callMouseListener( Mouse* mouse, EMouseEvent eventType );
 
 	// Position functions.
-	void			setPosition( float x, float y );
+	virtual void	setPosition( float x, float y );
 	virtual float	getX() const;
 	virtual float	getY() const;
 
@@ -26,7 +28,7 @@ public:
 	virtual int		getWidth() const = 0;
 	virtual int		getHeight() const = 0;
 
-	float x, y;
 private:
+	float x_, y_;
 	vector<MouseListener*> mouseListeners_;
 };

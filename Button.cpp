@@ -2,11 +2,16 @@
 
 Texture* Button::texture = 0;
 
-Button::Button( const string& caption, float x, float y ): Drawable( x, y )
+Button::Button( const string& caption, float x, float y ): Panel( x, y )
 {
 	isActive_ = false;
 	caption_ = caption;
 }
+
+Button::~Button()
+{
+	// Button has been destroyed.
+	}
 
 void Button::draw( DirectX* directX )
 {
@@ -15,12 +20,12 @@ void Button::draw( DirectX* directX )
 		D3DCOLOR_ARGB( 255, 180, 80, 15 ) : D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
 
 	// Draw button base.
-	directX->drawTexture( texture, x, y, colour );
+	directX->drawTexture( texture, getX(), getY(), colour );
 	
 	// Draw text in center.
 	RECT rect;
-	rect.left = (long)x;
-	rect.top = (long)y;
+	rect.left = (long)getX();
+	rect.top = (long)getY();
 	rect.right = rect.left + getWidth();
 	rect.bottom = rect.top + getHeight();
 
