@@ -23,6 +23,11 @@ public:
 	int getX() const;
 	int getY() const;
 
+	// Mouse state functions.
+	void leftMouseDown();
+	void leftMouseUp();
+	bool isLeftDown();
+
 	// Call to components.
 	void triggerEvent( Component* component, EMouseEvent eventType );
 	bool isTouching( const Component* component );
@@ -30,5 +35,6 @@ public:
 private:
 	Window*	window_;
 	POINT	position_;
+	bool	leftClicked_;
 };
 

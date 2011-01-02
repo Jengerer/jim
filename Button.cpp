@@ -11,7 +11,7 @@ Button::Button( const string& caption, float x, float y ): Panel( x, y )
 Button::~Button()
 {
 	// Button has been destroyed.
-	}
+}
 
 void Button::draw( DirectX* directX )
 {

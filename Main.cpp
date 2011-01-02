@@ -45,5 +45,5 @@ int Main::getHeight() const
 
 bool Main::keyPressed( const int keyCode )
 {
-	return (GetAsyncKeyState( keyCode ) & 0x8000);
+	return ((GetAsyncKeyState( keyCode ) & 0x8000) != 0);
 }

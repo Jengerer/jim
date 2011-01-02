@@ -1,25 +1,28 @@
 #include "Inventory.h"
 
+// Excluded capacity.
+const int	EXCLUDED_WIDTH		= 5;
+
 Inventory::Inventory( 
 	int width, int height, 
 	int pages )
 {
 	// Set dimensions.
-	width_ = width;
-	height_ = height;
+	invWidth_ = width;
+	invHeight_ = height;
 	pages_ = pages;
 
-	createSlots();
+	generateSlots();
 }
 
 Inventory::~Inventory()
 {
 	// Inventory has been deleted.
-	clearSlots();
 	clearItems();
+	clearSlots();
 }
 
-void Inventory::clearItems()
+void Inventory::emptySlots()
 {
 	// First remove items from slots.
 	slotVector::iterator i;
@@ -28,78 +31,123 @@ void Inventory::clearItems()
 		slot->setItem( 0 );
 	}
 
-	for (i = excluded_.begin(); i != excluded_.end(); i++) {
+	for (i = excludedSlots_.begin(); i != excludedSlots_.end(); i++) {
 		Slot* slot = *i;
 		slot->setItem( 0 );
 	}
+}
 
+void Inventory::clearItems()
+{
 	// Now delete all items.
-	itemVector::iterator j;
 	while (!items_.empty()) {
 		// Get item.
-		j = items_.begin();
-		Item* item = *j;
+		Item* item = items_.back();
 
 		// Delete it.
 		delete item;
-		item = 0;
+		items_.pop_back();
+	}
 
-		// Remove from vector.
-		items_.erase( j );
+	// Delete excluded.
+	while (!excludedItems_.empty()) {
+		// Get item.
+		Item* item = excludedItems_.back();
+
+		// Delete it.
+		delete item;
+		excludedItems_.pop_back();
 	}
 }
 
-void Inventory::createSlots()
+void Inventory::clearSlots() {
+	while (!inventory_.empty()) {
+		Slot* slot = inventory_.back();
+
+		// Delete it.
+		delete slot;
+		inventory_.pop_back();
+	}
+
+	while (!excludedSlots_.empty()) {
+		Slot* slot = excludedSlots_.back();
+
+		// Delete it.
+		delete slot;
+		excludedSlots_.pop_back();
+	}
+}
+
+void Inventory::generateSlots()
 {
 	// Create slots.
 	for (int i = 0; i < getCapacity(); i++) {
-		Slot* slot = new Slot( 0, i );
-
-		// Add to inventory.
+		Slot *slot = new Slot( i );
+		slot->setGroup( GROUP_INVENTORY );
+		slot->setIndex( i );
 		inventory_.push_back( slot );
+	}
+
+	// Create excluded slots.
+	for (int i = 0; i < EXCLUDED_WIDTH; i++) {
+		Slot *slot = new Slot();
+		slot->setGroup( GROUP_EXCLUDED );
+		excludedSlots_.push_back( slot );
 	}
 }
 
-void Inventory::clearSlots()
-{
-	// Iterator for slots.
-	slotVector::iterator i;
-
-	// Delete inventory.
-	for (i = inventory_.begin(); i != inventory_.end(); i++)
-		delete *i;
-
-	// Delete excluded.
-	for (i = excluded_.begin(); i != excluded_.end(); i++)
-		delete *i;
-
-	// Clear vectors.
-	inventory_.clear();
-	excluded_.clear();
-}
-
-void Inventory::addItem( Item* item )
+Slot* Inventory::addItem( Item* item )
 {
 	// Add to list.
-	items_.push_back( item );
+	Slot* slot = insert( item );
+	if (slot == 0 || slot->getGroup() == GROUP_EXCLUDED) {
+		excludedItems_.push_back( item );
+	}
+	else {
+		items_.push_back( item );
+	}
 
+	return slot;
+}
+
+Slot* Inventory::insert( Item* item ) {
 	// Add item to correct slot.
-	uint8 position = item->getPosition() - 1;
-	if (isValidSlot( position )) {
-		Slot* destSlot = inventory_[position];
+	uint32 flags = item->getFlags();
+	uint16 position = item->getIndex() - 1;
+	if ((flags & 0xfff) && isValidSlot( position )) {
+		Slot* destination = inventory_[position];
 
 		// Should not allow overlap.
-		if (destSlot->getItem()) {
-			item->setGroup( GROUP_EXCLUDED );
-			excluded_.push_back( new Slot( item ) );
+		if (destination->getItem() != 0) {
+			// Check if slot free in excluded.
+			slotVector::const_iterator i;
+			for (i = excludedSlots_.begin(); i != excludedSlots_.end(); i++) {
+				Slot *slot = *i;
+				if (slot->getItem() == 0) {
+					slot->setItem( item );
+					return slot;
+				}
+			}
+
+			return 0;
 		}
 		else {
-			destSlot->setItem( item );
+			destination->setItem( item );
+			return destination;
 		}
 	}
 	else {
-		item->setGroup( GROUP_EXCLUDED );
-		excluded_.push_back( new Slot( item ) );
+		// Check if slot free in excluded.
+		slotVector::const_iterator i;
+		for (i = excludedSlots_.begin(); i != excludedSlots_.end(); i++) {
+			Slot *slot = *i;
+			if (slot->getItem() == 0) {
+				slot->setItem( item );
+				return slot;
+			}
+		}
+
+		return 0;
 	}
 }
 
@@ -108,20 +156,44 @@ void Inventory::removeItem( Item* whichItem )
 	// TODO: Find the item in inventory.
 }
 
-void Inventory::move( Slot* source, Slot* destination )
+void Inventory::move( Slot *source, Slot *destination )
 {
-	// Get item we're moving.
-	Item* item1 = source->getItem();
+	// Check if needs transfer.
+	Item* target = source->getItem();
+	if (source->getGroup() == GROUP_EXCLUDED) {
 
-	if (!destination->getItem())
-	{
-		destination->setItem( item1 );
-		source->setItem( 0 );
+		// Remove item from excluded.
+		itemVector::iterator i;
+		for (i = excludedItems_.begin(); i != excludedItems_.end(); i++) {
+			Item* item = *i;
+			if (item == target) {
+				excludedItems_.erase( i );
+				break;
+			}
+		}
+
+		// Add to inventory.
+		items_.push_back( target );
+		updateExcluded();
 	}
-	else {
-		Item* tempItem = item1;
-		source->setItem( destination->getItem() );
-		destination->setItem( tempItem );
+
+	// Move items.
+	source->setItem( destination->getItem() );
+	destination->setItem( target );
+}
+
+void Inventory::updateExcluded() {
+	slotVector::iterator i;
+	itemVector::iterator k = excludedItems_.begin();;
+	for (i = excludedSlots_.begin(); i != excludedSlots_.end(); i++) {
+		Slot* slot = *i;
+		if (k != excludedItems_.end()) {
+			slot->setItem( *k );
+			k++;
+		}
+		else {
+			slot->setItem( 0 );
+		}
 	}
 }
 
@@ -141,12 +213,12 @@ const slotVector* Inventory::getInventory()
 
 const slotVector* Inventory::getExcluded()
 {
-	return &excluded_;
+	return &excludedSlots_;
 }
 
 int Inventory::getCapacity() const
 {
-	return (width_ * height_ * pages_);
+	return (invWidth_ * invHeight_ * pages_);
 }
 
 bool Inventory::isValidSlot ( uint8 index )

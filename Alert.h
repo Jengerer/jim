@@ -11,7 +11,6 @@ public:
 	virtual ~Alert();
 
 	void draw( DirectX* directX );
-	virtual void setPosition( float x, float y );
 	virtual void updatePosition();
 	const Button* getButton() const;
 

@@ -12,26 +12,40 @@ public:
 	Backpack( float x, float y,
 		int width, int height,
 		int pages,
-		Component* parent );
+		Container* parent );
 	virtual ~Backpack();
+
+	// Removing.
+	void removeSlots();
 
 	// Drawing functions.
 	void	draw( DirectX* directX );
-	virtual void setPosition( float x, float y );
-	virtual int	getWidth() const;
-	virtual int	getHeight() const;
+
+	// Position handling.
+	virtual void updatePosition();
 
 	// Mouse input handling.
+	virtual bool mouseEvent( Mouse *mouse, EMouseEvent eventType );
 	virtual void mouseClicked( Mouse *mouse, Component *component );
 	virtual void mouseReleased( Mouse *mouse, Component *component );
 	virtual void mouseMoved( Mouse *mouse, Component *component );
 
+	// Page viewing functions.
+	void nextPage();
+	void prevPage();
+	void moveCamera();
+
 	// Inventory handling.
-	bool	isLoaded() const;
-	void	setLoaded();
-	void	select( Slot* slot );
+	bool			isLoaded() const;
+	void			setLoaded();
+	void			select( Slot *slot );
 
 private:
 	slotVector selected_;
 	bool isLoaded_;
+
+	// Backpack navigation.
+	int page_, excludedPage_;
+	int pageDelay;
+	float cameraX_, cameraDest_, cameraSpeed_;
 };

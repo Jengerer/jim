@@ -41,7 +41,7 @@ Item::Item(
 	loadInformation();
 
 	// Reset selection and position.
-	position_ = flags_ & 0xFF;
+	position_ = flags_ & 0xfff;
 }
 
 Item::~Item()
@@ -107,7 +107,7 @@ uint32 Item::getCount() const
 	return count_;
 }
 
-uint8 Item::getPosition() const
+uint16 Item::getIndex() const
 {
 	return position_;
 }
@@ -132,26 +132,16 @@ string Item::getSlot() const
 	return *information_->getString( "slot" );
 }
 
-EItemGroup Item::getGroup() const
-{
-	return group_;
-}
-
-void Item::setGroup( EItemGroup group )
-{
-	group_ = group;
-}
-
-void Item::move( uint8 position )
+void Item::move( uint16 position )
 {
 	// Set to new position.
 	position_ = position;
 
 	// Reset item position.
-	flags_ &= 0xFFFFFF00;
+	flags_ &= 0xfffff000;
 
 	// Fix improper flags.
-	if ((flags_ & 0xF0000000) != 0x80000000)
+	if ((flags_ & 0xf0000000) != 0x80000000)
 		flags_ = 0x80000000;
 
 	// Put new position.
@@ -160,7 +150,7 @@ void Item::move( uint8 position )
 
 bool Item::isEquipped() const
 {
-	int equipFlags = flags_ & 0x0FFFFF00;
+	int equipFlags = flags_ & 0x0FFFF000;
 	int validFlags = flags_ & 0xF0000000;
 	return ((validFlags == 0x80000000) && (equipFlags != 0x00000000));
 }
@@ -201,9 +191,4 @@ int Item::getWidth() const
 int Item::getHeight() const
 {
 	return texture_->getHeight();
-}
-
-void Item::onMouseEvent( MouseListener* pMouse, EMouseEvent mEvent )
-{
-	// Nothing yet.
 }

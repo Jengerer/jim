@@ -18,7 +18,7 @@ int main()
 		loadDefinitions();
 	} catch (Exception defineException)
 	{
-		cout << defineException.getMessage() << endl;
+		cout << "Exception: " << defineException.getMessage() << endl;
 	}
 
 	exitApplication();

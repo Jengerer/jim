@@ -15,6 +15,9 @@ public:
 	Popup( float x = 0.0f, float y = 0.0f );
 	virtual ~Popup();
 
+	// Mouse input over-ride.
+	virtual bool mouseEvent( Mouse* mouse, EMouseEvent eventType );
+
 	// Get activity state.
 	EPopupState		getState() const;
 

@@ -24,12 +24,6 @@ void Alert::draw( DirectX* directX )
 	okButton->draw( directX );
 }
 
-void Alert::setPosition( float x, float y )
-{
-	Component::setPosition( x, y );
-	updatePosition();
-}
-
 void Alert::updatePosition()
 {
 	// Move the button.
