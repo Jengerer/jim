@@ -19,13 +19,7 @@ const int	APPLICATION_VERSION		= 1000;
 // Inventory attributes.
 const int	PAGE_WIDTH			= 10;
 const int	PAGE_HEIGHT			= 5;
-const int	PAGE_COUNT			= 2;
-
-// Drawing constants.
-const float	PADDING				= 25.0f;
-
-// Main application variable.
-ItemManager* itemManager		= 0;
+const int	PAGE_COUNT			= 6;
 
 LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
@@ -34,18 +28,6 @@ LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 	case WM_DESTROY:
 		PostQuitMessage( 0 );
 		break;
-	case WM_MOUSEMOVE:
-		if (itemManager)
-			itemManager->triggerMouse( MOUSE_EVENT_MOVE );
-		break;
-	case WM_LBUTTONDOWN:
-		if (itemManager)
-			itemManager->triggerMouse( MOUSE_EVENT_CLICK );
-		break;
-	case WM_LBUTTONUP:
-		if (itemManager)
-			itemManager->triggerMouse( MOUSE_EVENT_RELEASE );
-		break;
 	}
 
 	return DefWindowProc( hWnd, message, wParam, lParam );
@@ -53,6 +35,8 @@ LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
+	ItemManager* itemManager = 0;
+
 	try {
 		itemManager = new ItemManager(hInstance);
 		itemManager->openInterfaces();
@@ -70,8 +54,8 @@ int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			if (msg.message == WM_QUIT)
 				isDone = true;
 
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
 		}
 
 		itemManager->run();
@@ -95,9 +79,9 @@ ItemManager::ItemManager( HINSTANCE hInstance ): DirectX( APPLICATION_TITLE, hIn
 
 	// Create mouse.
 	mouse_ = new Mouse( getWindow() );
-
-	// Add mouse listener.
-	addMouseListener( this );
+	leftPressed_ = rightPressed_ 
+		= enterPressed_ 
+		= false;
 }
 
 ItemManager::~ItemManager()
@@ -117,6 +101,7 @@ void ItemManager::openInterfaces()
 	deleteButton_	= createButton( "delete",	650.0f,	355.0f );
 	craftButton_	= createButton( "craft",	520.0f,	355.0f );
 	sortButton_		= createButton( "sort",		25.0f,	355.0f );
+	exitButton_		= createButton( "exit",		650.0f,	425.0f );
 
 	// Show dialog.
 	loadDialog_ = createDialog( "Initializing..." );
@@ -124,10 +109,11 @@ void ItemManager::openInterfaces()
 	try {
 		// Create inventory.
 		backpack_ = new Backpack(
-			PADDING, PADDING, 
+			0.0f, 0.0f, 
 			PAGE_WIDTH, PAGE_HEIGHT, 
 			PAGE_COUNT,
-			this );		
+			this );
+		add( backpack_ );
 
 		// Define and load items.
 		loadDefinitions();
@@ -137,10 +123,11 @@ void ItemManager::openInterfaces()
 		backpack_->setLoaded();
 
 		// Hide the loading dialog.
-		hidePopup( loadDialog_ );
+		removePopup( loadDialog_ );
 		alert_ = createAlert( "Everything loaded successfully!" );
 	}
 	catch (Exception& loadException) {
+		removePopup( loadDialog_ );
 		error_ = createAlert( *loadException.getMessage() );
 	}
 }
@@ -158,65 +145,21 @@ void ItemManager::closeInterfaces()
 		delete Item::informationTable;
 		Item::informationTable = 0;
 	}
-
-	// Delete inventory.
-	if (backpack_) {
-		delete backpack_;
-		backpack_ = 0;
-	}
-
-	// Delete dialog boxes.
-	vector<Popup*>::iterator popupIter = popupList_.begin();
-	while (popupIter != popupList_.end()) {
-		Popup* popup = *popupIter;
-
-		// Delete object.
-		if (popup) {
-			if (popup == error_) {
-				const string* msg = error_->getMessage();
-				const char* msg2 = error_->getMessage()->c_str();
-				delete popup;
-				int stop = 5;
-			} else {
-				delete popup;
-			}
-			popup = 0;
-		}
-
-		// Remove from vector.
-		popupList_.erase( popupIter );
-		popupIter = popupList_.begin();
-	}
-
-	// Delete buttons.
-	vector<Button*>::iterator buttonIter = buttonList_.begin();
-	while (buttonIter != buttonList_.end()) {
-		Button* button = *buttonIter;
-
-		// Delete object.
-		if (button) {
-			delete button;
-			button = 0;
-		}
-
-		// Remove from vector.
-		buttonList_.erase( buttonIter );
-		buttonIter = buttonList_.begin();
-	}
 }
 
 // TODO: Set slot position only once, and modify with camera view (maybe use translate).
 void ItemManager::onRedraw()
 {
 	if (backpack_ && backpack_->isLoaded()) {
-		backpack_->draw( this );
-
 		// Draw buttons.
 		vector<Button*>::iterator buttonIter;
 		for (buttonIter = buttonList_.begin(); buttonIter != buttonList_.end(); buttonIter++) {
 			Button* button = *buttonIter;
 			button->draw( this );
 		}
+
+		// Draw backpack.
+		backpack_->draw( this );
 	}
 
 	// Draw dialog boxes.
@@ -225,16 +168,89 @@ void ItemManager::onRedraw()
 		Popup* popup = *popupIter;
 		popup->draw( this );
 	}
+
+	// Draw mouse position.
+	stringstream mousePosition;
+	mousePosition << "(" << mouse_->getX() << ", " << mouse_->getY() << ")";
+	RECT screen;
+	screen.left = screen.top = 5;
+	screen.right = getWidth();
+	screen.bottom = getHeight();
+	drawText( mousePosition.str().c_str(), &screen, 0, D3DCOLOR_ARGB( 200, 255, 255, 255 ) );
 }
 
 void ItemManager::run()
 {
+	// Handle mouse and keyboard.
+	handleMouse();
+	handleKeyboard();
+
+	// Redraw screen.
 	redraw();
+}
+
+void ItemManager::handleMouse()
+{
+	// Move mouse every frame.
+	triggerMouse( MOUSE_EVENT_MOVE );
+
+	if (keyPressed( VK_LBUTTON ) && !mouse_->isLeftDown()) {
+		mouse_->leftMouseDown();
+		triggerMouse( MOUSE_EVENT_CLICK );
+	}
+	else if (!keyPressed( VK_LBUTTON ) && mouse_->isLeftDown()) {
+		mouse_->leftMouseUp();
+		triggerMouse( MOUSE_EVENT_RELEASE );
+	}
+}
+
+void ItemManager::handleKeyboard()
+{
+	// Next page on right arrow.
+	if (keyPressed( VK_RIGHT )) {
+		if (!rightPressed_) {
+			backpack_->nextPage();
+			rightPressed_ = true;
+		}
+	}
+	else {
+		rightPressed_ = false;
+	}
+
+	// Previous page on left arrow.
+	if (keyPressed( VK_LEFT )) {
+		if (!leftPressed_) {
+			backpack_->prevPage();
+			leftPressed_ = true;
+		}
+	}
+	else {
+		leftPressed_ = false;
+	}
+
+	// Close dialogs on enter.
+	if (keyPressed( VK_RETURN )) {
+		if (!enterPressed_) {
+			if (!popupStack_.empty()) {
+				Popup* popup = popupStack_.back();
+				removePopup( popup );
+			}
+			enterPressed_ = true;
+		}
+	}
+	else {
+		enterPressed_ = false;
+	}
+
+	// Exit program on escape.
+	if (keyPressed( VK_ESCAPE )) {
+		exitApplication();
+	}
 }
 
 void ItemManager::triggerMouse( EMouseEvent eventType )
 {
-	// Poll if moved.
+	// Update position.
 	if (eventType == MOUSE_EVENT_MOVE) {
 		mouse_->pollPosition();
 	}
@@ -249,20 +265,38 @@ void ItemManager::mouseClicked( Mouse *mouse, Component *component )
 	if (!popupStack_.empty()) {
 		Popup* top = popupStack_.back();
 		if (top == component) {
+			// Starting dragging top components.
+			top->onDrag( mouse, this );
+		}
+	}
+}
+
+void ItemManager::mouseReleased( Mouse *mouse, Component *component )
+{
+	// Mouse released.
+	if (!popupStack_.empty()) {
+		Popup* top = popupStack_.back();
+		if (top == component) {
 			// Handle button if this is an alert.
 			if (top == alert_) {
 				const Button *alertButton = alert_->getButton();
 
 				if (mouse->isTouching( alertButton )) {
-					hidePopup( alert_ );
+					removePopup( alert_ );
+				}
+				else {
+					alert_->onRelease();
 				}
 			}
 			else if (top == error_) {
 				const Button *errorButton = error_->getButton();
 
 				if (mouse->isTouching( errorButton )) {
-					hidePopup( error_ );
+					removePopup( error_ );
 					exitApplication();
+				}
+				else {
+					error_->onRelease();
 				}
 			}
 		}
@@ -270,15 +304,16 @@ void ItemManager::mouseClicked( Mouse *mouse, Component *component )
 	}
 }
 
-void ItemManager::mouseReleased( Mouse *mouse, Component *component )
-{
-	// Mouse released.
-}
-
 void ItemManager::mouseMoved( Mouse *mouse, Component *component )
 {
-	// First, poll position.
+	// Get new position.
 	mouse_->pollPosition();
+
+	// Update popup position.
+	if (popupStack_.size()) {
+		Popup* top = popupStack_.back();
+		top->updatePosition();
+	}
 }
 
 void ItemManager::buttonPressed( Button* button )
@@ -546,8 +581,7 @@ void ItemManager::handleCallbacks() {
 								craftedItem->position);
 
 							// Add this item to excluded.
-							newItem->setGroup(GROUP_EXCLUDED);
-							backpack_->add(newItem);
+							backpack_->addItem( newItem );
 
 							//TODO: Update excluded scrolling.
 
@@ -578,6 +612,7 @@ void ItemManager::handleCallbacks() {
 Button* ItemManager::createButton( const string& caption, float x, float y )
 {
 	Button* newButton = new Button( caption, x, y );
+	add( newButton );
 
 	// Add and return.
 	buttonList_.push_back( newButton );
@@ -587,7 +622,8 @@ Button* ItemManager::createButton( const string& caption, float x, float y )
 Dialog* ItemManager::createDialog( const string& message )
 {
 	Dialog* newDialog = new Dialog( message );
-	newDialog->addMouseListener( this );
+	newDialog->setMouseListener( this );
+	add( newDialog );
 
 	// Set position.
 	float x = (float)(getWidth() / 2) - (float)(newDialog->getWidth() / 2);
@@ -605,7 +641,8 @@ Dialog* ItemManager::createDialog( const string& message )
 Alert* ItemManager::createAlert( const string& message )
 {
 	Alert* newAlert = new Alert( message );
-	newAlert->addMouseListener( this );
+	newAlert->setMouseListener( this );
+	add( newAlert );
 
 	const string* str = &message;
 	const char* msg = message.c_str();
@@ -628,7 +665,7 @@ void ItemManager::showPopup( Popup* whichPopup )
 	popupStack_.push_back( whichPopup );
 }
 
-void ItemManager::hidePopup( Popup* whichPopup )
+void ItemManager::removePopup( Popup* whichPopup )
 {
 	// Hide and remove the notification.
 	deque<Popup*>::iterator popupIter;
@@ -638,4 +675,8 @@ void ItemManager::hidePopup( Popup* whichPopup )
 			break;
 		}
 	}
+
+	// Now remove from container.
+	remove( whichPopup );
+	delete whichPopup;
 }

@@ -2,8 +2,9 @@
 
 Component::Component( float x, float y )
 {
-	// Set position.
+	// Set defaults.
 	setPosition( x, y );
+	setMouseListener( 0 );
 }
 
 Component::~Component()
@@ -11,30 +12,54 @@ Component::~Component()
 	// Component is destroyed.
 }
 
-void Component::addMouseListener( MouseListener* mouseListener )
+void Component::setMouseListener( MouseListener* mouseListener )
 {
-	mouseListeners_.push_back( mouseListener );
+	mouseListener_ = mouseListener;
 }
 
-void Component::callMouseListener( Mouse* mouse, EMouseEvent eventType ) {
-	vector<MouseListener*>::iterator i;
-	for (i = mouseListeners_.begin(); i != mouseListeners_.end(); i++) {
-		MouseListener* mouseListener = *i;
-		if (eventType == MOUSE_EVENT_MOVE) {
-			mouseListener->mouseMoved( mouse, this );
+bool Component::mouseEvent( Mouse *mouse, EMouseEvent eventType ) {
+	// Generate mouse event function.
+	if (mouse->isTouching( this )) {
+		if (mouseListener_) {
+			void (MouseListener::*mouseAction)( Mouse* mouse, Component* component );
+			if (eventType == MOUSE_EVENT_MOVE) {
+				mouseAction = &MouseListener::mouseMoved;
+			}
+			else if (eventType == MOUSE_EVENT_CLICK) {
+				mouseAction = &MouseListener::mouseClicked;
+			}
+			else if (eventType == MOUSE_EVENT_RELEASE) {
+				mouseAction = &MouseListener::mouseReleased;
+			}
+			else {
+				throw Exception( "Unhandled mouse event." );
+			}
+
+			(mouseListener_->*mouseAction)( mouse, this );
 		}
-		else if (eventType == MOUSE_EVENT_CLICK) {
-			mouseListener->mouseClicked( mouse, this );
-		}
-		else if (eventType == MOUSE_EVENT_RELEASE) {
-			mouseListener->mouseReleased( mouse, this );
-		}
+
+		return true;
 	}
+
+	return false;
 }
 
 void Component::setPosition( float x, float y ) {
 	x_ = x;
 	y_ = y;
+}
+
+int Component::getWidth() const {
+	return width_;
+}
+
+int Component::getHeight() const {
+	return height_;
+}
+
+void Component::setSize( int width, int height ) {
+	width_ = width;
+	height_ = height;
 }
 
 float Component::getX() const {

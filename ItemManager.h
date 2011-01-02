@@ -45,8 +45,10 @@ public:
 	// Steam handling.
 	void handleCallbacks();
 
-	// Input message transmitting.
+	// Input message handling.
 	void triggerMouse( EMouseEvent eventType );
+	void handleMouse();
+	void handleKeyboard();
 
 	// Mouse handling virtuals.
 	virtual void mouseClicked( Mouse *mouse, Component *component );
@@ -62,7 +64,7 @@ public:
 	Alert*	createAlert( const string& message );
 	Button*	createButton( const string& caption, float x = 0.0f, float y = 0.0f );
 	void	showPopup(Popup* popup);
-	void	hidePopup(Popup* popup);
+	void	removePopup(Popup* popup);
 
 private:
 	// Application interfaces.
@@ -76,9 +78,15 @@ private:
 	// Input handling.
 	Mouse*			mouse_;
 
+	// Keyboard booleans.
+	bool			leftPressed_;
+	bool			rightPressed_;
+	bool			enterPressed_;
+
 	// Interface variables.
 	Dialog			*loadDialog_;
 	Alert			*alert_;
 	Alert			*error_;
 	Button			*deleteButton_, *craftButton_, *sortButton_;
+	Button			*exitButton_;
 };

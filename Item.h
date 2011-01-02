@@ -16,12 +16,6 @@
 
 using namespace std;
 
-// Item type for manager handling.
-enum EItemGroup {
-	GROUP_INVENTORY,
-	GROUP_EXCLUDED
-};
-
 class Item: public Image
 {
 public:
@@ -45,7 +39,6 @@ public:
 	void				draw( DirectX* directX );
 	int					getWidth() const;
 	int					getHeight() const;
-	void				onMouseEvent( MouseListener* mouseListener, EMouseEvent mEvent );
 
 	// Item attribute getters.
 	uint64				getUniqueId() const;
@@ -60,15 +53,11 @@ public:
 	bool				isHat() const;
 	bool				isEquipped() const;
 	string				getSlot() const;
-	EItemGroup			getGroup() const;
-	uint8				getPosition() const;
-
-	// Secondary attribute setters.
-	void				setGroup( EItemGroup group );
+	uint16				getIndex() const;
 
 	// Modify item attributes.
 	void				setEquip( int classIndex, bool equip );
-	void				move( uint8 position );
+	void				move( uint16 position );
 
 	// Drawing and interaction.
 	Texture*			getTexture();
@@ -87,8 +76,7 @@ private:
 	uint32				flags_;
 
 	// Secondary information.
-	uint8				position_;
-	EItemGroup			group_;
+	uint16				position_;
 
 	// Item definition information.
 	const Hashtable*	information_;

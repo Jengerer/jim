@@ -16,19 +16,21 @@ public:
 	virtual ~Component();
 
 	// Mouse handling functions.
-	void addMouseListener( MouseListener* mouseListener );
-	void callMouseListener( Mouse* mouse, EMouseEvent eventType );
+	void setMouseListener( MouseListener* mouseListener );
+	virtual bool mouseEvent( Mouse* mouse, EMouseEvent eventType );
 
 	// Position functions.
 	virtual void	setPosition( float x, float y );
 	virtual float	getX() const;
 	virtual float	getY() const;
 
-	// Virtual size getters.
-	virtual int		getWidth() const = 0;
-	virtual int		getHeight() const = 0;
+	// Size functions.
+	virtual int		getWidth() const;
+	virtual int		getHeight() const;
+	void			setSize( int width, int height );
 
 private:
 	float x_, y_;
-	vector<MouseListener*> mouseListeners_;
+	int width_, height_;
+	MouseListener* mouseListener_;
 };

@@ -8,75 +8,56 @@ Container::Container( float x, float y ) : Component( x, y )
 Container::~Container()
 {
 	// Container destroyed.
+	deque<Component*>::iterator i;
+	while (!componentStack_.empty()) {
+		Component* component = componentStack_.back();
+		remove( component );
+		delete component;
+	}
+}
+
+bool Container::mouseEvent( Mouse *mouse, EMouseEvent eventType)
+{
+	// Replicate parent handling.
+	if (Component::mouseEvent( mouse, eventType )) {
+		// Now notify top-most children of the events.
+		for (int i = componentStack_.size() - 1; i >= 0; i--) {
+			Component* child = componentStack_[i];
+			if (child->mouseEvent( mouse, eventType )) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void Container::setPosition( float x, float y )
+{
+	Component::setPosition( x, y );
+	updatePosition();
 }
 
 void Container::updatePosition()
 {
-	// Position updated.
+	// To be implemented.
 }
 
 void Container::add( Component* component )
 {
-	size_t mid = 0;
-	size_t min = 0, max = components_.size() - 1;
-
-	// Loop through if not empty.
-	if (!components_.empty()) {
-		while (min <= max) {
-			mid = (min + max) >> 1;
-
-			Component* current = components_[mid];
-			if (component < current) {
-				max = mid - 1;
-			}
-			else if (component > current) {
-				min = mid + 1;
-			}
-			else {
-				return;
-			}
-		}
-
-		vector<Component*>::iterator position = components_.begin() + mid;
-		if (component < *position) {
-			components_.insert( position, component );
-		}
-		else {
-			components_.insert( position+1, component );
-		}
-	}
-	else {
-		components_.push_back( component );
-	}
+	componentStack_.push_back( component );
 }
 
 void Container::remove( Component* component )
 {
-	// Don't loop over empty set.
-	if (components_.empty())
-		return;
-
-	size_t mid = 0;
-	size_t min = 0, max = components_.size() - 1;
-	while (min <= max) {
-		mid = (min + max) >> 1;
-
-		Component* current = components_[mid];
-		if (component < current) {
-			max = mid - 1;
-		}
-		else if (component > current) {
-			min = mid + 1;
-		} 
-		else {
+	deque<Component*>::iterator i = componentStack_.begin();
+	while (i != componentStack_.end()) {
+		Component* current = *i;
+		if (current == component) {
+			componentStack_.erase( i );
 			break;
 		}
-	}
 
-	if (components_[mid] == component) {
-		components_.erase( components_.begin() + mid );
-	}
-	else {
-		throw Exception( "Failed to find component within list." );
+		i++;
 	}
 }

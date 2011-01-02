@@ -24,26 +24,29 @@ public:
 	const slotVector*	getExcluded();
 
 	// Slot handling.
-	void			createSlots();
-	void			clearSlots();
-	void			move( Slot* slot1, Slot* slot2 );
+	void			generateSlots();
+	void			move( Slot *source, Slot *destination );
 	bool			isValidSlot( uint8 index );
 	Slot*			getSlot( uint8 index );
 
 	// Item handling.
-	void			addItem( Item* item );
-	bool			insert( Item* item );
+	Slot*			addItem( Item* item );
+	Slot*			insert( Item* item );
 	void			removeItem( Item* item );
+	void			emptySlots();
 	void			clearItems();
+	void			clearSlots();
+	void			updateExcluded();
 
 protected:
 	// Inventory attributes.
-	int				width_, height_;
+	int				invWidth_, invHeight_;
 	int				pages_;
 
 private:
 	// Slot vectors.
 	itemVector	items_;
+	itemVector	excludedItems_;
 	slotVector	inventory_;
-	slotVector	excluded_;
+	slotVector	excludedSlots_;
 };

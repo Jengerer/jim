@@ -9,10 +9,10 @@ const D3DCOLOR HOVER_COLOUR		= D3DCOLOR_ARGB( 255, 200, 200, 200 );
 const D3DCOLOR NORMAL_COLOUR	= D3DCOLOR_ARGB( 255, 100, 100, 100 );
 const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 175, 255, 255, 255 );
 
-Slot::Slot( Item* item, int index )
+Slot::Slot( int index, Item* item )
 {
 	setItem( item );
-	index_ = index;
+	setIndex( index );
 
 	// Inactive and deselected by default.
 	isActive_ = false;
@@ -26,6 +26,9 @@ Slot::~Slot()
 
 void Slot::draw( DirectX* directX )
 {
+	// Update slot position.
+	updatePosition();
+
 	// Check for collision.
 	D3DCOLOR drawColour;
 	switch (selectType_) {
@@ -50,6 +53,16 @@ void Slot::draw( DirectX* directX )
 	}
 }
 
+ESlotGroup Slot::getGroup() const
+{
+	return group_;
+}
+
+void Slot::setGroup( ESlotGroup group )
+{
+	group_ = group;
+}
+
 Item* Slot::getItem()
 {
 	return item_;
@@ -58,14 +71,20 @@ Item* Slot::getItem()
 void Slot::setItem( Item* item )
 {
 	item_ = item;
-
-	// Shift item to center.
-	updatePosition();
+	if (item) {
+		item->move( getIndex() + 1 );
+		updatePosition();
+	}
 }
 
 int Slot::getIndex() const
 {
 	return index_;
+}
+
+void Slot::setIndex( int index )
+{
+	index_ = index;
 }
 
 void Slot::setPosition( float x, float y )
@@ -101,4 +120,12 @@ int Slot::getWidth() const
 int Slot::getHeight() const
 {
 	return texture->getHeight();
+}
+
+bool Slot::mouseEvent( Mouse* mouse, EMouseEvent eventType ) {
+	if (Component::mouseEvent( mouse, eventType )) {
+		return true;
+	}
+
+	return false;
 }

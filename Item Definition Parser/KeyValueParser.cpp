@@ -64,8 +64,6 @@ Hashtable* KeyValueParser::getHashtable()
 			{
 				// Get the word.
 				thisWord = m_strParse.substr(nStart, (nIndex - nStart));
-				if (thisWord == "TF_TTG_SamRevolver")
-					thisWord = thisWord;
 				writingNow = false;
 			
 				// Check if this is a key..
