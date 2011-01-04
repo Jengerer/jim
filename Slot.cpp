@@ -44,7 +44,8 @@ void Slot::draw( DirectX* directX )
 	}
 
 	// Draw slot texture.
-	directX->drawTexture( texture, getX(), getY(), drawColour );
+	directX->drawRoundedRect( getX(), getY(), texture->getWidth(), texture->getHeight(), 10, 0xFF345678 );
+	//directX->drawTexture( texture, getX(), getY(), drawColour );
 
 	Item* item = getItem();
 	if (item) {
