@@ -22,6 +22,9 @@
     <Filter Include="Header Files\GUI Elements">
       <UniqueIdentifier>{8f6c6d41-e4fc-4c12-899a-dae4758aab66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HLSL">
+      <UniqueIdentifier>{e088dc8d-bbd2-4a58-9702-a8828e0b456e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
@@ -842,6 +845,9 @@
     </None>
     <None Include="jimIcon.ico">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="SampleShader.fx">
+      <Filter>HLSL</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

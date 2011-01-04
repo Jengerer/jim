@@ -12,6 +12,19 @@
 
 using namespace std;
 
+struct TextureVertex {
+	float x, y, z, rhw;
+	float tu, tv;
+};
+
+struct ColourVertex {
+	float x, y, z, rhw;
+	DWORD colour;
+};
+
+#define D3D9T_TEXTUREVERTEX (D3DFVF_XYZRHW | D3DFVF_TEX1)
+#define D3D9T_COLOURVERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
+
 class DirectX: public Main, public Curl
 {
 public:
@@ -31,6 +44,12 @@ public:
 	void releaseTextures();
 	Texture* getTexture( const string& filename );
 	Texture* loadTexture( const string& filename );
+
+	// Vertex buffer.
+	void createTexturedQuad( TextureVertex *vertices, float x, float y, int width, int height );
+	void createColouredQuad( ColourVertex *vertices, float x, float y, int width, int height, DWORD colour );
+	void drawQuad( void* vertices, size_t verticesSize );
+	void drawRoundedRect( float x, float y, int width, int height, float radius, DWORD colour );
 
 	// Running functions.
 	virtual void onRedraw() = 0;
@@ -53,15 +72,24 @@ public:
 
 private:
 	// Direct3D interfaces.
-	LPDIRECT3D9					d3d_;
-	LPDIRECT3DDEVICE9			d3dDevice_;
-	LPD3DXSPRITE				sprite_;
+	IDirect3D9					*d3d_;
+	IDirect3DDevice9			*d3dDevice_;
+	ID3DXSprite					*sprite_;
+
+	// Vertex drawing.
+	TextureVertex				texVertices_[4];
+	ColourVertex				clrVertices_[4];
+	IDirect3DVertexBuffer9		*vertexBuffer_;
+	IDirect3DVertexBuffer9		*colourBuffer_;
 
 	// Text drawing.
-	LPD3DXFONT					bodyFont_;
+	ID3DXFont					*bodyFont_;
 
 	// Present parameters.
 	D3DPRESENT_PARAMETERS		params_;
+
+	// Effect handling.
+	ID3DXEffect					*d3dEffect_;
 
 	// Texture handling.
 	Hashtable*					textureMap_;

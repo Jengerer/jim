@@ -370,6 +370,7 @@
     <Library Include="steam\steam_api.lib" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="SampleShader.fx" />
     <None Include="steam\steamworks.vcproj" />
     <None Include="jimIcon.ico" />
   </ItemGroup>
