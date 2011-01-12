@@ -53,6 +53,7 @@ private:
 	Item*		item_;
 	int			index_;
 	ESlotGroup	group_;
+	D3DCOLOR	colour_;
 
 	bool		isActive_;
 	ESelectType	selectType_;

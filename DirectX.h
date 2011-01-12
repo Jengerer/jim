@@ -14,6 +14,7 @@ using namespace std;
 
 struct TextureVertex {
 	float x, y, z, rhw;
+	DWORD colour;
 	float tu, tv;
 };
 
@@ -22,7 +23,7 @@ struct ColourVertex {
 	DWORD colour;
 };
 
-#define D3D9T_TEXTUREVERTEX (D3DFVF_XYZRHW | D3DFVF_TEX1)
+#define D3D9T_TEXTUREVERTEX (D3DFVF_XYZRHW | D3DFVF_TEX1 | D3DFVF_DIFFUSE)
 #define D3D9T_COLOURVERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
 
 class DirectX: public Main, public Curl
@@ -46,10 +47,11 @@ public:
 	Texture* loadTexture( const string& filename );
 
 	// Vertex buffer.
-	void createTexturedQuad( TextureVertex *vertices, float x, float y, int width, int height );
-	void createColouredQuad( ColourVertex *vertices, float x, float y, int width, int height, DWORD colour );
-	void drawQuad( void* vertices, size_t verticesSize );
-	void drawRoundedRect( float x, float y, int width, int height, float radius, DWORD colour );
+	void createTexturedQuad( TextureVertex *vertices, float x, float y, int width, int height, D3DCOLOR colour = 0xFFFFFFFF );
+	void createColouredQuad( ColourVertex *vertices, float x, float y, int width, int height, D3DCOLOR colour );
+	void drawColouredQuad( void* vertices, size_t verticesSize );
+	void drawTexturedQuad( TextureVertex *vertices, Texture* texture );
+	void drawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR colour );
 
 	// Running functions.
 	virtual void onRedraw() = 0;
@@ -81,15 +83,13 @@ private:
 	ColourVertex				clrVertices_[4];
 	IDirect3DVertexBuffer9		*vertexBuffer_;
 	IDirect3DVertexBuffer9		*colourBuffer_;
+	Texture						*roundedCorner_;
 
 	// Text drawing.
 	ID3DXFont					*bodyFont_;
 
 	// Present parameters.
 	D3DPRESENT_PARAMETERS		params_;
-
-	// Effect handling.
-	ID3DXEffect					*d3dEffect_;
 
 	// Texture handling.
 	Hashtable*					textureMap_;

@@ -17,8 +17,7 @@ public:
 
 	// Drawable functions.
 	void			draw( DirectX* directX );
-	virtual int		getWidth() const;
-	virtual int		getHeight() const;
+	virtual void	resize();
 
 	// Message handling.
 	const string* getMessage() const { return &message_; }

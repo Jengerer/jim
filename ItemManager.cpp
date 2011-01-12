@@ -3,6 +3,7 @@
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
+#include <Windows.h>
 
 using namespace std;
 
@@ -147,6 +148,8 @@ void ItemManager::closeInterfaces()
 	}
 }
 
+DWORD lastTick = 0;
+
 // TODO: Set slot position only once, and modify with camera view (maybe use translate).
 void ItemManager::onRedraw()
 {
@@ -169,9 +172,14 @@ void ItemManager::onRedraw()
 		popup->draw( this );
 	}
 
+	DWORD cur = GetTickCount();
+	DWORD diff = cur - lastTick;
+	lastTick = cur;
+	float fps = 1000 / (float)diff;
+
 	// Draw mouse position.
 	stringstream mousePosition;
-	mousePosition << "(" << mouse_->getX() << ", " << mouse_->getY() << ")";
+	mousePosition << "(" << mouse_->getX() << ", " << mouse_->getY() << ") at " << (int)fps << "FPS";
 	RECT screen;
 	screen.left = screen.top = 5;
 	screen.right = getWidth();
