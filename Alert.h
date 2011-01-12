@@ -12,6 +12,8 @@ public:
 
 	void draw( DirectX* directX );
 	virtual void updatePosition();
+	virtual void resize();
+	virtual void setMessage( const string& message );
 	const Button* getButton() const;
 
 private:

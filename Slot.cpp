@@ -4,10 +4,15 @@
 Texture* Slot::texture = 0;
 
 // Colours for slot.
-const D3DCOLOR SELECTED_COLOUR	= D3DCOLOR_ARGB( 255, 255, 255, 255 );
-const D3DCOLOR HOVER_COLOUR		= D3DCOLOR_ARGB( 255, 200, 200, 200 );
-const D3DCOLOR NORMAL_COLOUR	= D3DCOLOR_ARGB( 255, 100, 100, 100 );
-const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 175, 255, 255, 255 );
+const D3DCOLOR SELECTED_COLOUR	= D3DCOLOR_ARGB( 255,	153,	142,	121 );
+const D3DCOLOR HOVER_COLOUR		= D3DCOLOR_ARGB( 255,	200,	200,	200 );
+const D3DCOLOR NORMAL_COLOUR	= D3DCOLOR_ARGB( 255,	60,		53,		46 );
+const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 175,	131,	119,	104 );
+
+// Constants for slot size.
+const int SLOT_WIDTH	= 70;
+const int SLOT_HEIGHT	= 60;
+const int SLOT_RADIUS	= 5;
 
 Slot::Slot( int index, Item* item )
 {
@@ -16,6 +21,7 @@ Slot::Slot( int index, Item* item )
 
 	// Inactive and deselected by default.
 	isActive_ = false;
+	colour_ = NORMAL_COLOUR;
 	setSelectType( SELECT_TYPE_NONE );
 }
 
@@ -29,24 +35,8 @@ void Slot::draw( DirectX* directX )
 	// Update slot position.
 	updatePosition();
 
-	// Check for collision.
-	D3DCOLOR drawColour;
-	switch (selectType_) {
-	case SELECT_TYPE_NONE:
-		drawColour = (isActive_ ? HOVER_COLOUR : NORMAL_COLOUR );
-		break;
-	case SELECT_TYPE_NORMAL:
-		drawColour = SELECTED_COLOUR;
-		break;
-	case SELECT_TYPE_DRAG:
-		drawColour = DRAG_COLOUR;
-		break;
-	}
-
 	// Draw slot texture.
-	directX->drawRoundedRect( getX(), getY(), texture->getWidth(), texture->getHeight(), 10, 0xFF345678 );
-	//directX->drawTexture( texture, getX(), getY(), drawColour );
-
+	directX->drawRoundedRect( getX(), getY(), SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, colour_ );
 	Item* item = getItem();
 	if (item) {
 		// Draw it.
@@ -111,6 +101,18 @@ ESelectType Slot::getSelectType() const {
 
 void Slot::setSelectType( ESelectType selectType ) {
 	selectType_ = selectType;
+
+	switch (selectType) {
+	case SELECT_TYPE_DRAG:
+		colour_ = DRAG_COLOUR;
+		break;
+	case SELECT_TYPE_NORMAL:
+		colour_ = SELECTED_COLOUR;
+		break;
+	default:
+		colour_ = NORMAL_COLOUR;
+		break;
+	}
 }
 
 int Slot::getWidth() const
