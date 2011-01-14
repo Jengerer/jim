@@ -16,6 +16,8 @@ const uint32 EQUIP_FLAGS[] = {
 /* Create definitions Hashtable. */
 Hashtable* Item::informationTable = NULL;
 
+const int ITEM_SIZE		= 60;
+
 Item::Item(
 	uint64 uniqueId,
 	uint32 defIndex,
@@ -74,7 +76,7 @@ void Item::loadInformation()
 
 void Item::draw( DirectX* directX )
 {
-	directX->drawTexture( texture_, getX(), getY() );
+	directX->drawTexture( texture_, getX(), getY(), ITEM_SIZE, ITEM_SIZE );
 }
 
 uint64 Item::getUniqueId() const
@@ -185,10 +187,10 @@ Texture* Item::getTexture()
 
 int Item::getWidth() const
 {
-	return texture_->getWidth();
+	return ITEM_SIZE;
 }
 
 int Item::getHeight() const
 {
-	return texture_->getHeight();
+	return ITEM_SIZE;
 }

@@ -125,7 +125,7 @@ void ItemManager::openInterfaces()
 
 		// Hide the loading dialog.
 		removePopup( loadDialog_ );
-		alert_ = createAlert( "Everything loaded successfully!" );
+		alert_ = createAlert( "Everything was loaded successfully!" );
 	}
 	catch (Exception& loadException) {
 		removePopup( loadDialog_ );
@@ -181,10 +181,11 @@ void ItemManager::onRedraw()
 	stringstream mousePosition;
 	mousePosition << "(" << mouse_->getX() << ", " << mouse_->getY() << ") at " << (int)fps << "FPS";
 	RECT screen;
-	screen.left = screen.top = 5;
-	screen.right = getWidth();
-	screen.bottom = getHeight();
-	drawText( mousePosition.str().c_str(), &screen, 0, D3DCOLOR_ARGB( 200, 255, 255, 255 ) );
+	screen.top = 0;
+	screen.left = 5;
+	screen.right = getWidth() - 5;
+	screen.bottom = 25;
+	drawText( mousePosition.str(), &screen, DT_SINGLELINE | DT_VCENTER, D3DCOLOR_ARGB( 200, 255, 255, 255 ) );
 }
 
 void ItemManager::run()
@@ -215,25 +216,27 @@ void ItemManager::handleMouse()
 void ItemManager::handleKeyboard()
 {
 	// Next page on right arrow.
-	if (keyPressed( VK_RIGHT )) {
-		if (!rightPressed_) {
-			backpack_->nextPage();
-			rightPressed_ = true;
+	if (backpack_ && backpack_->isLoaded()) {
+		if (keyPressed( VK_RIGHT )) {
+			if (!rightPressed_) {
+				backpack_->nextPage();
+				rightPressed_ = true;
+			}
 		}
-	}
-	else {
-		rightPressed_ = false;
-	}
+		else {
+			rightPressed_ = false;
+		}
 
-	// Previous page on left arrow.
-	if (keyPressed( VK_LEFT )) {
-		if (!leftPressed_) {
-			backpack_->prevPage();
-			leftPressed_ = true;
+		// Previous page on left arrow.
+		if (keyPressed( VK_LEFT )) {
+			if (!leftPressed_) {
+				backpack_->prevPage();
+				leftPressed_ = true;
+			}
 		}
-	}
-	else {
-		leftPressed_ = false;
+		else {
+			leftPressed_ = false;
+		}
 	}
 
 	// Close dialogs on enter.
@@ -241,6 +244,12 @@ void ItemManager::handleKeyboard()
 		if (!enterPressed_) {
 			if (!popupStack_.empty()) {
 				Popup* popup = popupStack_.back();
+
+				// Exit if error.
+				if (popup == error_) {
+					exitApplication();
+				}
+
 				removePopup( popup );
 			}
 			enterPressed_ = true;
@@ -349,6 +358,8 @@ void ItemManager::loadDefinitions()
 	if (!reader.parse( itemDefinitions, root, false ))
 		throw Exception( "Failed to parse item definitions." );
 
+	unsigned int texturesLoaded = 0;
+	unsigned int textureCount = root.size();
 	Item::informationTable = new Hashtable();
 	for (Json::ValueIterator i = root.begin(); i != root.end(); i++) {
 		Json::Value thisItem = *i;
@@ -373,9 +384,9 @@ void ItemManager::loadDefinitions()
 
 		// Add strings to new table.
 		Hashtable* itemTable = new Hashtable();
-		itemTable->put("name",	new string(name));
+		itemTable->put("name", new string(name));
 		itemTable->put("image", new string(image));
-		itemTable->put("slot",	new string(slot));
+		itemTable->put("slot", new string(slot));
 
 		try {
 			// Get the texture, add to table.
@@ -402,7 +413,7 @@ void ItemManager::loadDefinitions()
 void ItemManager::loadItems()
 {
 	// Append the message.
-	loadDialog_->appendMessage( "\nLoading items from Steam Web API..." );
+	loadDialog_->appendMessage( "\n\nLoading items..." );
 	redraw();
 
 	// First clear items.

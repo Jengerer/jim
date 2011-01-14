@@ -3,6 +3,11 @@
 #include "Drawable.h"
 #include "Popup.h"
 
+#define DIALOG_WIDTH			300
+#define DIALOG_RADIUS			10
+#define DIALOG_PADDING			20
+#define DIALOG_STROKE_WIDTH		5
+
 enum EPopupType {
 	POPUP_TYPE_DIALOG,
 	POPUP_TYPE_ALERT,
@@ -26,6 +31,7 @@ public:
 
 	// Class-wide texture.
 	static Texture* texture;
+	static Font *font;
 
 private:
 	string message_;

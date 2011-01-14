@@ -4,6 +4,7 @@
 
 #include "Panel.h"
 #include "ButtonListener.h"
+#include "Font.h"
 
 using namespace std;
 
@@ -22,6 +23,7 @@ public:
 
 	// Class-wide texture.
 	static Texture*	texture;
+	static Font*	font;
 
 private:
 	bool			isActive_;

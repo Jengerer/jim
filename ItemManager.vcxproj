@@ -106,6 +106,7 @@
     <ClCompile Include="Draggable.cpp" />
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="Hashtable.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Inventory.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="Draggable.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="Hashtable.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Inventory.h" />

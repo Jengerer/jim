@@ -1,6 +1,7 @@
 #include "Button.h"
 
-Texture* Button::texture = 0;
+Texture*	Button::texture = 0;
+Font*		Button::font = 0;
 
 Button::Button( const string& caption, float x, float y ): Panel( x, y )
 {
@@ -20,7 +21,7 @@ void Button::draw( DirectX* directX )
 		D3DCOLOR_ARGB( 255, 180, 80, 15 ) : D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
 
 	// Draw button base.
-	directX->drawTexture( texture, getX(), getY(), colour );
+	directX->drawTexture( texture, getX(), getY(), getWidth(), getHeight(), colour );
 	
 	// Draw text in center.
 	RECT rect;
@@ -30,7 +31,7 @@ void Button::draw( DirectX* directX )
 	rect.bottom = rect.top + getHeight();
 
 	// Write it.
-	directX->drawText( 
+	font->drawText( 
 		caption_, 
 		&rect, 
 		DT_CENTER | DT_SINGLELINE | DT_VCENTER, 

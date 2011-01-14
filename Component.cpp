@@ -44,9 +44,17 @@ bool Component::mouseEvent( Mouse *mouse, EMouseEvent eventType ) {
 	return false;
 }
 
-void Component::setPosition( float x, float y ) {
+void Component::setX( float x ) {
 	x_ = x;
+}
+
+void Component::setY( float y ) {
 	y_ = y;
+}
+
+void Component::setPosition( float x, float y ) {
+	setX( x );
+	setY( y );
 }
 
 int Component::getWidth() const {

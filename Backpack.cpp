@@ -28,19 +28,20 @@ Backpack::Backpack(
 	setSize( parent->getWidth(), parent->getHeight() );
 
 	// Add all slots to the container.
-	slotVector::const_iterator i;
-	const slotVector* inventory = getInventory();
-	for (i = inventory->begin(); i != inventory->end(); i++) {
-		Slot* slot = *i;
+	const slotArray inventory = getInventory();
+	int i, length = getCapacity();
+	for (i = 0; i < length; i++) {
+		Slot* slot = inventory[i];
 		add( slot );
 		slot->setMouseListener( this );
 	}
 
 	// Position and add excluded.
-	const slotVector* excluded = getExcluded();
-	for (int k = 0; k < excluded->size(); k++) {
-		Slot* slot = excluded->at( k );
-		slot->setPosition( PADDING + getX() + k * (Slot::texture->getWidth() + SLOT_SPACING), EXCLUDED_Y );
+	const slotArray excluded = getExcluded();
+	length = EXCLUDED_WIDTH;
+	for (i = 0; i < length; i++) {
+		Slot* slot = excluded[i];
+		slot->setPosition( PADDING + getX() + i * (Slot::texture->getWidth() + SLOT_SPACING), EXCLUDED_Y );
 
 		add( slot );
 		slot->setMouseListener( this );
@@ -57,28 +58,38 @@ void Backpack::draw( DirectX* directX )
 {
 	updatePosition();
 
-	slotVector::const_iterator i;
-	const slotVector* inventory = getInventory();
-	for (i = inventory->begin(); i != inventory->end(); i++) {
-		Slot* slot = *i;
+	const slotArray inventory = getInventory();
+	// Draw visible slots.
+	int i, x, y;
+	for (i = 0; i < pages_; i++) {
+		for (x = 0; x < invWidth_; x++) {
+			for (y = 0; y < invHeight_; y++) {
+				int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
+				Slot* slot = inventory[index];
 
-		// Only draw if visible.
-		int slotWidth = slot->getWidth();
-		if ((slot->getX() > -slotWidth) && (slot->getX() < getWidth())) {
-			slot->draw( directX );
+				// Only draw column if visible.
+				int slotWidth = slot->getWidth();
+				if ((slot->getX() <= -slotWidth) || (slot->getX() >= getWidth())) {
+					break;
+				}
+
+				slot->draw( directX );
+			}
 		}
 	}
 
 	// Draw excluded.
-	const slotVector* excluded = getExcluded();
-	for (i = excluded->begin(); i != excluded->end(); i++) {
-		Slot* slot = *i;
+	const slotArray excluded = getExcluded();
+	int length = EXCLUDED_WIDTH;
+	for (i = 0; i < length; i++) {
+		Slot* slot = excluded[i];
 		slot->draw( directX );
 	}
 
 	// Draw selected last.
-	for (i = selected_.begin(); i != selected_.end(); i++) {
-		Slot* slot = *i;
+	slotVector::iterator j;
+	for (j = selected_.begin(); j != selected_.end(); j++) {
+		Slot* slot = *j;
 		slot->draw( directX );
 	}
 }
@@ -88,25 +99,36 @@ void Backpack::updatePosition()
 	moveCamera();
 
 	// Position all slots.
-	const slotVector* inventory = getInventory();
-	slotVector::const_iterator i;
-	for (i = inventory->begin(); i != inventory->end(); i++) {
-		Slot* slot = *i;
+	const slotArray inventory = getInventory();
+	int i, x, y;
+	for (i = 0; i < pages_; i++) {
+		for (x = 0; x < invWidth_; x++) {
+			for (y = 0; y < invHeight_; y++) {
+				int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
+				Slot* slot = inventory[index];
 
-		int index = slot->getIndex();
-		int x = index % invWidth_;
-		int y = index / invWidth_;
+				int x = index % invWidth_;
+				int y = index / invWidth_;
 
-		float pageOffset = 0;
-		if (y >= invHeight_) {
-			pageOffset = getWidth() * (y / invHeight_);
-			y %= invHeight_;
-		}
+				float pageOffset = 0;
+				if (y >= invHeight_) {
+					pageOffset = getWidth() * (y / invHeight_);
+					y %= invHeight_;
+				}
 		
-		// Set position.
-		float slotX = PADDING + pageOffset + getX() + x * (Slot::texture->getWidth() + SLOT_SPACING) - cameraX_;
-		float slotY = PADDING + getY() + y*(Slot::texture->getHeight() + SLOT_SPACING);
-		slot->setPosition( slotX, slotY );
+				// Set position.
+				float slotX = PADDING + pageOffset + getX() + x * (Slot::texture->getWidth() + SLOT_SPACING) - cameraX_;
+
+				// Skip column if not visible.
+				if (slotX <= -slot->getWidth() || slotX >= getWidth()) {
+					slot->setX( slotX );
+					break;
+				}
+
+				float slotY = PADDING + getY() + y*(Slot::texture->getHeight() + SLOT_SPACING);
+				slot->setPosition( slotX, slotY );
+			}
+		}
 	}
 }
 
@@ -183,10 +205,10 @@ void Backpack::mouseReleased( Mouse *mouse, Component *component )
 		Slot* newSlot = 0;
 
 		// Check for slot collision.
-		const slotVector* inventory = getInventory();
-		slotVector::const_iterator i;
-		for (i = inventory->begin(); i != inventory->end(); i++) {
-			Slot *slot = *i;
+		const slotArray inventory = getInventory();
+		int i, length = getCapacity();
+		for (i = 0; i < length; i++) {
+			Slot *slot = inventory[i];
 			if (mouse->isTouching( slot )) {
 				if (slot->getItem() == 0) {
 					newSlot = slot;
@@ -250,18 +272,20 @@ void Backpack::mouseMoved( Mouse *mouse, Component *component )
 }
 
 void Backpack::removeSlots() {
-	slotVector::const_iterator i;
-
 	// Remove inventory.
-	const slotVector* slots = getInventory();
-	for (i = slots->begin(); i != slots->end(); i++) {
-		remove( *i );
+	const slotArray inventory = getInventory();
+	int i, length = getCapacity();
+	for (i = 0; i < length; i++) {
+		Slot* slot = inventory[i];
+		remove( slot );
 	}
 
 	// Remove excluded.
-	slots = getExcluded();
-	for (i = slots->begin(); i != slots->end(); i++) {
-		remove( *i );
+	const slotArray excluded = getExcluded();
+	length = EXCLUDED_WIDTH;
+	for (i = 0; i < length; i++) {
+		Slot* slot = excluded[i];
+		remove( slot );
 	}
 }
 

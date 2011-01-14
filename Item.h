@@ -37,8 +37,8 @@ public:
 
 	// Drawable functions.
 	void				draw( DirectX* directX );
-	int					getWidth() const;
-	int					getHeight() const;
+	virtual int			getWidth() const;
+	virtual int			getHeight() const;
 
 	// Item attribute getters.
 	uint64				getUniqueId() const;

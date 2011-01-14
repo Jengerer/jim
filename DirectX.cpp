@@ -1,5 +1,9 @@
 #include "DirectX.h"
 
+// Includes for font changing.
+#include "Dialog.h"
+#include "Button.h"
+
 const D3DCOLOR WHITE_COLOUR = D3DCOLOR_ARGB( 255, 255, 255, 255 );
 const D3DCOLOR BACKGROUND_COLOUR = D3DCOLOR_ARGB( 255, 43, 39, 37 );
 
@@ -59,22 +63,18 @@ void DirectX::openInterfaces()
 	if (hResult != D3D_OK)
 		throw Exception( "Failed to create sprite handler." );
 
-	// Get font for body text.
-	hResult = D3DXCreateFont(
-		d3dDevice_,
-		14, 0,
-		FW_NORMAL,
-		0,
-		FALSE,
-		DEFAULT_CHARSET,
-		OUT_DEFAULT_PRECIS,
-		DEFAULT_QUALITY,
-		DEFAULT_PITCH | FF_DONTCARE,
-		"Arial",
-		&bodyFont_ );
+	// Load font as resource.
+	if (!AddFontResourceEx("ttfFiles/tf2Build.ttf", FR_PRIVATE, 0)) {
+		if (!download("www.jengerer.com/itemManager/ttfFiles/tf2Build.ttf", "ttfFiles/tf2Build.ttf") || !AddFontResource("ttfFiles/tf2Build.ttf")) {
+			throw Exception( "Failed to load font." );
+		}
+	}
 
-	if (hResult != D3D_OK)
-		throw Exception( "Failed to create font device." );
+	// Get font for body text.
+	labelFont_ = createFont( "Arial", 14, false );
+	bodyFont_ = createFont( "TF2 Build", 20, false );
+	Dialog::font = bodyFont_;
+	Button::font = bodyFont_;
 
 	// Create vertex buffer.
 	hResult = d3dDevice_->CreateVertexBuffer(
@@ -93,6 +93,9 @@ void DirectX::openInterfaces()
 	d3dDevice_->SetRenderState( D3DRS_BLENDOP, D3DBLENDOP_ADD );
 	d3dDevice_->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
 	d3dDevice_->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA );
+
+	// Set small scaling.
+	d3dDevice_->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_GAUSSIANQUAD );
 
 	// First argument for diffuse quads.
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_DIFFUSE );
@@ -124,9 +127,17 @@ void DirectX::closeInterfaces()
 
 	// Delete fonts.
 	if (bodyFont_) {
-		bodyFont_->Release();
+		delete bodyFont_;
 		bodyFont_ = 0;
 	}
+
+	if (labelFont_) {
+		delete labelFont_;
+		labelFont_ = 0;
+	}
+
+	// Remove font resource.
+	RemoveFontResourceEx( "ttfFiles/tf2Build.ttf", FR_PRIVATE, 0 );
 
 	// Delete sprite handler.
 	if (sprite_) {
@@ -282,6 +293,31 @@ Texture* DirectX::loadTexture( const string& filename )
 	// Return new texture.
 	// TODO: Investigate whether there's a need for filling in texture.
 	return new Texture( texture, filename, info );
+}
+
+Font* DirectX::createFont( const string& name, int height, bool isBolded )
+{
+	// Generate D3D font.
+	ID3DXFont *d3dFont;
+	HRESULT hr = D3DXCreateFont(
+		d3dDevice_,
+		height,
+		0, 
+		isBolded ? FW_BOLD : FW_NORMAL,
+		0,
+		false,
+		DEFAULT_CHARSET,
+		OUT_TT_PRECIS,
+		CLEARTYPE_NATURAL_QUALITY,
+		FF_DECORATIVE,
+		name.c_str(),
+		&d3dFont );
+
+	if (hr != D3D_OK) {
+		throw Exception( "Failed to create font." );
+	}
+
+	return new Font( d3dFont );
 }
 
 void DirectX::createTexturedQuad( TextureVertex* vertices, float x, float y, int width, int height, D3DCOLOR colour ) {
@@ -472,13 +508,7 @@ void DirectX::redraw()
 
 void DirectX::drawText( const string& text, RECT *rect, const DWORD& format, const D3DCOLOR& colour )
 {
-	bodyFont_->DrawTextA( 0, text.c_str(), -1, rect, format, colour );
-}
-
-void DirectX::drawTexture( Texture* texture, float x, float y )
-{
-	// Call other function with white colour.
-	drawTexture( texture, x, y, WHITE_COLOUR );
+	labelFont_->drawText( text, rect, format, colour );
 }
 
 void DirectX::drawTexturedQuad( TextureVertex *texVertices, Texture* texture ) {
@@ -495,10 +525,10 @@ void DirectX::drawTexturedQuad( TextureVertex *texVertices, Texture* texture ) {
 	d3dDevice_->DrawPrimitive( D3DPT_TRIANGLESTRIP, 0, 2 );
 }
 
-void DirectX::drawTexture( Texture* texture, const float x, const float y, const D3DCOLOR& colour)
+void DirectX::drawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour)
 {
 	// Create quad.
-	createTexturedQuad( texVertices_, x, y, texture->getWidth(), texture->getHeight() );
+	createTexturedQuad( texVertices_, x, y, width, height );
 
 	// Use modulation for colour and alpha.
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_MODULATE );
