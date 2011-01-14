@@ -13,13 +13,13 @@ using namespace std;
 class Texture
 {
 public:
-	Texture( LPDIRECT3DTEXTURE9 texture, 
+	Texture( IDirect3DTexture9 *texture, 
 		const string& filename,
 		D3DXIMAGE_INFO info );
 	~Texture();
 
 	// Handling resources.
-	void setTexture( LPDIRECT3DTEXTURE9 texture, const string& filename );
+	void setTexture( IDirect3DTexture9 *texture, const string& filename );
 	void releaseTexture();
 	bool isLoaded() const;
 
@@ -31,7 +31,7 @@ public:
 
 private:
 	// Texture and filename.
-	LPDIRECT3DTEXTURE9	texture_;
+	IDirect3DTexture9	*texture_;
 	string				filename_;
 
 	// Imagine information.

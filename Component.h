@@ -21,6 +21,8 @@ public:
 
 	// Position functions.
 	virtual void	setPosition( float x, float y );
+	virtual void	setX( float x );
+	virtual void	setY( float y );
 	virtual float	getX() const;
 	virtual float	getY() const;
 

@@ -1,9 +1,12 @@
 #include "Dialog.h"
 
-Texture*	Dialog::texture	= 0;
-const int	DIALOG_PADDING	= 20;
-const int	DIALOG_WIDTH	= 250;
-const D3DCOLOR DIALOG_COLOUR	= D3DCOLOR_XRGB( 10, 9, 7 );
+// Static members.
+Texture*	Dialog::texture			= 0;
+Font*		Dialog::font			= 0;
+
+// Colours.
+const D3DCOLOR DIALOG_STROKE_COLOUR	= D3DCOLOR_RGBA( 153, 142, 121, 100 );
+const D3DCOLOR DIALOG_COLOUR		= D3DCOLOR_XRGB( 42, 39, 37 );
 
 Dialog::Dialog( const string& message )
 {
@@ -17,40 +20,53 @@ Dialog::~Dialog()
 
 void Dialog::draw( DirectX* directX )
 {
-	// Draw the background texture.
-	directX->drawRoundedRect( getX(), getY(), getWidth(), getHeight(), 10, DIALOG_COLOUR );
+	// Draw the stroke.
+	directX->drawRoundedRect( 
+		getX(), 
+		getY(), 
+		getWidth(), 
+		getHeight(), 
+		DIALOG_RADIUS, 
+		DIALOG_STROKE_COLOUR ) ;
+
+	// Draw inner rectangle.
+	directX->drawRoundedRect(
+		getX() + DIALOG_STROKE_WIDTH, 
+		getY() + DIALOG_STROKE_WIDTH, 
+		getWidth() - DIALOG_STROKE_WIDTH*2, 
+		getHeight() - DIALOG_STROKE_WIDTH*2, 
+		DIALOG_RADIUS - DIALOG_STROKE_WIDTH, 
+		DIALOG_COLOUR );
+
+	long x = (long)getX();
+	long y = (long)getY();
 
 	// Center the text.
 	RECT rect;
-	rect.left	= (long)getX() + DIALOG_PADDING;
-	rect.top	= (long)getY() + DIALOG_PADDING;
-	rect.right	= (long)getX() + getWidth()		- DIALOG_PADDING;
-	rect.bottom	= (long)getY() + getHeight()	- DIALOG_PADDING;
+	rect.left	= x + DIALOG_PADDING + DIALOG_STROKE_WIDTH;
+	rect.top	= y + DIALOG_PADDING + DIALOG_STROKE_WIDTH;
+	rect.right	= x + DIALOG_WIDTH	- DIALOG_PADDING - DIALOG_STROKE_WIDTH;
+	rect.bottom	= y + getHeight()	- DIALOG_PADDING - DIALOG_STROKE_WIDTH;
 
 	// Draw it.
-	directX->drawText(message_, &rect, DT_CENTER | DT_WORDBREAK, D3DCOLOR_ARGB( 255, 255, 255, 255 ));
+	font->drawText(message_, &rect, DT_WORDBREAK | DT_CENTER, D3DCOLOR_ARGB( 255, 255, 255, 255 ));
 }
 
 void Dialog::resize()
 {
-	// Get screen device context.
-	HDC hdc = GetDC( NULL );
-
 	// Calculate size of text.
-	RECT size = {0, 0, DIALOG_WIDTH, 0};
-	DrawText( hdc, message_.c_str(), -1, &size, DT_CALCRECT | DT_WORDBREAK );
+	RECT rect = {DIALOG_PADDING + DIALOG_STROKE_WIDTH, 0, DIALOG_WIDTH - DIALOG_PADDING - DIALOG_STROKE_WIDTH, 0};
+	font->getTextRect( message_, &rect, DT_WORDBREAK | DT_CENTER );
 
 	// Store old, and set new.
-	int oldWidth = getWidth();
 	int oldHeight = getHeight();
-	setSize( size.right - size.left + DIALOG_PADDING*2, size.bottom - size.top + DIALOG_PADDING*2);
+	int newHeight = (rect.bottom - rect.top) + DIALOG_PADDING*2 + DIALOG_STROKE_WIDTH*2;
+	setSize( DIALOG_WIDTH, newHeight );
 
 	// Keep alignment.
-	float diffWidth = getWidth() - oldWidth;
-	float diffHeight = getHeight() - oldHeight;
-	float newX = getX() - diffWidth/2;
-	float newY = getY() - diffHeight/2;
-	setPosition( (int)newX, (int)newY );
+	float diffHeight = newHeight - oldHeight;
+	int newY = getY() - diffHeight/2;
+	setPosition( getX(), newY );
 }
 
 void Dialog::setMessage( const string& message )

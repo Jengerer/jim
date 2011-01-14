@@ -5,6 +5,9 @@
 #include "Item.h"
 #include "Slot.h"
 
+#define EXCLUDED_WIDTH 5
+
+typedef Slot**	slotArray;
 typedef vector<Slot*> slotVector;
 typedef vector<Item*> itemVector;
 
@@ -20,8 +23,8 @@ public:
 	int					getCapacity() const;
 
 	// Get slot vector.
-	const slotVector*	getInventory();
-	const slotVector*	getExcluded();
+	const slotArray	getInventory();
+	const slotArray	getExcluded();
 
 	// Slot handling.
 	void			generateSlots();
@@ -44,9 +47,11 @@ protected:
 	int				pages_;
 
 private:
-	// Slot vectors.
+	// Item vectors.
 	itemVector	items_;
 	itemVector	excludedItems_;
-	slotVector	inventory_;
-	slotVector	excludedSlots_;
+
+	// Slot arrays.
+	slotArray	inventory_;
+	slotArray	excludedSlots_;
 };

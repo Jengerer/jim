@@ -32,7 +32,7 @@ void Texture::releaseTexture()
 
 bool Texture::isLoaded() const
 {
-	return texture_;
+	return (texture_ != 0);
 }
 
 int Texture::getWidth() const

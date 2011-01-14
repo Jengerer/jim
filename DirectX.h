@@ -6,6 +6,7 @@
 #include "Hashtable.h"
 #include "Exception.h"
 #include "MouseListener.h"
+#include "Font.h"
 
 #include <string>
 #include <sstream>
@@ -26,6 +27,9 @@ struct ColourVertex {
 #define D3D9T_TEXTUREVERTEX (D3DFVF_XYZRHW | D3DFVF_TEX1 | D3DFVF_DIFFUSE)
 #define D3D9T_COLOURVERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
 
+// Prototypes.
+class Font;
+
 class DirectX: public Main, public Curl
 {
 public:
@@ -38,6 +42,9 @@ public:
 	// Initializing and closing.
 	void openInterfaces();
 	void closeInterfaces();
+
+	// Font handling.
+	Font* createFont( const string& name, int height, bool isBolded );
 
 	// Resource handling.
 	void loadTextures();
@@ -61,8 +68,7 @@ public:
 	void endDraw();
 
 	// Drawing functions.
-	void drawTexture( Texture* texture, float x, float y );
-	void drawTexture( Texture* texture, float x, float y, const D3DCOLOR& colour);
+	void drawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour = D3DCOLOR_XRGB( 255, 255, 255 ));
 	void drawText( const string& text, RECT* rect, const DWORD& format, const D3DCOLOR& colour );	
 	void setTransform( const D3DXMATRIX* d3dMatrix );
 	void setTransform( float x, float y, float rotation, float xScale, float yScale );
@@ -86,7 +92,8 @@ private:
 	Texture						*roundedCorner_;
 
 	// Text drawing.
-	ID3DXFont					*bodyFont_;
+	Font						*bodyFont_;
+	Font						*labelFont_;
 
 	// Present parameters.
 	D3DPRESENT_PARAMETERS		params_;

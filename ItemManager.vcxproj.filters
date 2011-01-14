@@ -108,6 +108,9 @@
     <ClCompile Include="Image.cpp">
       <Filter>Source Files\GUI Elements</Filter>
     </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectX.h">
@@ -832,6 +835,9 @@
     </ClInclude>
     <ClInclude Include="Image.h">
       <Filter>Header Files\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,8 +1,5 @@
 #include "Inventory.h"
 
-// Excluded capacity.
-const int	EXCLUDED_WIDTH		= 5;
-
 Inventory::Inventory( 
 	int width, int height, 
 	int pages )
@@ -11,6 +8,10 @@ Inventory::Inventory(
 	invWidth_ = width;
 	invHeight_ = height;
 	pages_ = pages;
+
+	// Null array until generation.
+	inventory_ = 0;
+	excludedSlots_ = 0;
 
 	generateSlots();
 }
@@ -25,15 +26,21 @@ Inventory::~Inventory()
 void Inventory::emptySlots()
 {
 	// First remove items from slots.
-	slotVector::iterator i;
-	for (i = inventory_.begin(); i != inventory_.end(); i++) {
-		Slot* slot = *i;
-		slot->setItem( 0 );
+	int i, length;
+	if ( inventory_ ) {
+		length = getCapacity();
+		for (i = 0; i < length; i++) {
+			Slot* slot = inventory_[i];
+			slot->setItem( 0 );
+		}
 	}
 
-	for (i = excludedSlots_.begin(); i != excludedSlots_.end(); i++) {
-		Slot* slot = *i;
-		slot->setItem( 0 );
+	if ( excludedSlots_ ) {
+		length = EXCLUDED_WIDTH;
+		for (i = 0; i < length; i++) {
+			Slot* slot = excludedSlots_[i];
+			slot->setItem( 0 );
+		}
 	}
 }
 
@@ -61,38 +68,58 @@ void Inventory::clearItems()
 }
 
 void Inventory::clearSlots() {
-	while (!inventory_.empty()) {
-		Slot* slot = inventory_.back();
+	// Delete inventory.
+	if ( inventory_ ) {
+		int i, length = getCapacity();
+		for (i = 0; i < length; i++) {
+			Slot* slot = inventory_[i];
 
-		// Delete it.
-		delete slot;
-		inventory_.pop_back();
+			// Delete it
+			if (slot) {
+				delete slot;
+			}
+		}
+
+		free( inventory_ );
+		inventory_ = 0;
 	}
 
-	while (!excludedSlots_.empty()) {
-		Slot* slot = excludedSlots_.back();
+	// Delete excluded.
+	if ( excludedSlots_ ) {
+		int i, length = EXCLUDED_WIDTH;
+		for (i = 0; i < length; i++) {
+			Slot* slot = excludedSlots_[i];
 
-		// Delete it.
-		delete slot;
-		excludedSlots_.pop_back();
+			// Delete it.
+			if (slot) {
+				delete slot;
+			}
+		}
+
+		free( excludedSlots_ );
+		excludedSlots_ = 0;
 	}
 }
 
 void Inventory::generateSlots()
 {
+	// Generate slot arrays.
+	inventory_ = (Slot**)malloc( sizeof( Slot* ) * getCapacity() );
+	excludedSlots_ = (Slot**)malloc( sizeof( Slot* ) * EXCLUDED_WIDTH );
+
 	// Create slots.
 	for (int i = 0; i < getCapacity(); i++) {
 		Slot *slot = new Slot( i );
 		slot->setGroup( GROUP_INVENTORY );
 		slot->setIndex( i );
-		inventory_.push_back( slot );
+		inventory_[i] = slot;
 	}
 
 	// Create excluded slots.
 	for (int i = 0; i < EXCLUDED_WIDTH; i++) {
 		Slot *slot = new Slot();
 		slot->setGroup( GROUP_EXCLUDED );
-		excludedSlots_.push_back( slot );
+		excludedSlots_[i] = slot;
 	}
 }
 
@@ -120,9 +147,9 @@ Slot* Inventory::insert( Item* item ) {
 		// Should not allow overlap.
 		if (destination->getItem() != 0) {
 			// Check if slot free in excluded.
-			slotVector::const_iterator i;
-			for (i = excludedSlots_.begin(); i != excludedSlots_.end(); i++) {
-				Slot *slot = *i;
+			int i, length = EXCLUDED_WIDTH;
+			for (i = 0; i < length; i++) {
+				Slot *slot = excludedSlots_[i];
 				if (slot->getItem() == 0) {
 					slot->setItem( item );
 					return slot;
@@ -138,9 +165,9 @@ Slot* Inventory::insert( Item* item ) {
 	}
 	else {
 		// Check if slot free in excluded.
-		slotVector::const_iterator i;
-		for (i = excludedSlots_.begin(); i != excludedSlots_.end(); i++) {
-			Slot *slot = *i;
+		int i, length = EXCLUDED_WIDTH;
+		for (i = 0; i < length; i++) {
+			Slot *slot = excludedSlots_[i];
 			if (slot->getItem() == 0) {
 				slot->setItem( item );
 				return slot;
@@ -183,10 +210,10 @@ void Inventory::move( Slot *source, Slot *destination )
 }
 
 void Inventory::updateExcluded() {
-	slotVector::iterator i;
+	int i, length = EXCLUDED_WIDTH;
 	itemVector::iterator k = excludedItems_.begin();;
-	for (i = excludedSlots_.begin(); i != excludedSlots_.end(); i++) {
-		Slot* slot = *i;
+	for (i = 0; i < length; i++) {
+		Slot* slot = excludedSlots_[i];
 		if (k != excludedItems_.end()) {
 			slot->setItem( *k );
 			k++;
@@ -206,14 +233,14 @@ Slot* Inventory::getSlot( uint8 index )
 	return inventory_[index];
 }
 
-const slotVector* Inventory::getInventory()
+const slotArray Inventory::getInventory()
 {
-	return &inventory_;
+	return inventory_;
 }
 
-const slotVector* Inventory::getExcluded()
+const slotArray Inventory::getExcluded()
 {
-	return &excludedSlots_;
+	return excludedSlots_;
 }
 
 int Inventory::getCapacity() const
