@@ -6,6 +6,11 @@
 #include "MouseListener.h"
 #include "SerializedBuffer.h"
 
+#define BACKPACK_PADDING_X	25
+#define BACKPACK_PADDING_Y	50
+
+#define EXCLUDED_Y			415
+
 class Backpack: public Inventory, public MouseListener, public Container, public Steam
 {
 public:

@@ -10,7 +10,7 @@ using namespace std;
 // Window properties.
 const char*	APPLICATION_TITLE	= "Jengerer's Item Manager";
 const int	APPLICATION_WIDTH	= 795;
-const int	APPLICATION_HEIGHT	= 500;
+const int	APPLICATION_HEIGHT	= 525;
 
 // Application attributes.
 const float	APPLICATION_FRAMERATE	= 30.0f;
@@ -93,14 +93,8 @@ ItemManager::~ItemManager()
 
 void ItemManager::openInterfaces()
 {
-	// Load the UI textures.
-	Slot::texture		= getTexture( "manager/item_slot" );
-	Button::texture		= getTexture( "manager/button" );
-	Dialog::texture		= getTexture( "manager/dialog_box" );
-
 	// Create buttons.
-	deleteButton_	= createButton( "delete",	650.0f,	355.0f );
-	craftButton_	= createButton( "craft",	520.0f,	355.0f );
+	craftButton_	= createButton( "craft",	getWidth() - BACKPACK_PADDING_X,	getHeight() - BACKPACK_PADDING_Y );
 	sortButton_		= createButton( "sort",		25.0f,	355.0f );
 	exitButton_		= createButton( "exit",		650.0f,	425.0f );
 
@@ -182,9 +176,9 @@ void ItemManager::onRedraw()
 	mousePosition << "(" << mouse_->getX() << ", " << mouse_->getY() << ") at " << (int)fps << "FPS";
 	RECT screen;
 	screen.top = 0;
-	screen.left = 5;
-	screen.right = getWidth() - 5;
-	screen.bottom = 25;
+	screen.left = BACKPACK_PADDING_X;
+	screen.right = getWidth() - BACKPACK_PADDING_X;
+	screen.bottom = BACKPACK_PADDING_Y;
 	drawText( mousePosition.str(), &screen, DT_SINGLELINE | DT_VCENTER, D3DCOLOR_ARGB( 200, 255, 255, 255 ) );
 }
 

@@ -7,12 +7,19 @@
 
 using namespace std;
 
+enum EAlignment {
+	ALIGN_TOP_LEFT,
+	ALIGN_TOP_RIGHT,
+	ALIGN_BOTTOM_LEFT,
+	ALIGN_BOTTOM_RIGHT
+};
+
 enum EMouseEvent;
 class MouseListener;
 class Mouse;
 class Component {
 public:
-	Component( float x = 0.0f, float y = 0.0f );
+	Component( float x = 0.0f, float y = 0.0f, EAlignment align = ALIGN_TOP_LEFT );
 	virtual ~Component();
 
 	// Mouse handling functions.
@@ -20,7 +27,7 @@ public:
 	virtual bool mouseEvent( Mouse* mouse, EMouseEvent eventType );
 
 	// Position functions.
-	virtual void	setPosition( float x, float y );
+	virtual void	setPosition( float x, float y, EAlignment align = ALIGN_TOP_LEFT );
 	virtual void	setX( float x );
 	virtual void	setY( float y );
 	virtual float	getX() const;

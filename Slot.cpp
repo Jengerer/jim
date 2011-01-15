@@ -1,8 +1,5 @@
 #include "Slot.h"
 
-// Initialize the texture.
-Texture* Slot::texture = 0;
-
 // Colours for slot.
 const D3DCOLOR SELECTED_COLOUR	= D3DCOLOR_ARGB( 255,	153,	142,	121 );
 const D3DCOLOR HOVER_COLOUR		= D3DCOLOR_ARGB( 255,	200,	200,	200 );
@@ -10,14 +7,13 @@ const D3DCOLOR NORMAL_COLOUR	= D3DCOLOR_ARGB( 255,	60,		53,		46 );
 const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 175,	131,	119,	104 );
 
 // Constants for slot size.
-const int SLOT_WIDTH	= 70;
-const int SLOT_HEIGHT	= 60;
 const int SLOT_RADIUS	= 5;
 
 Slot::Slot( int index, Item* item )
 {
 	setItem( item );
 	setIndex( index );
+	setSize( SLOT_WIDTH, SLOT_HEIGHT );
 
 	// Inactive and deselected by default.
 	isActive_ = false;
@@ -113,16 +109,6 @@ void Slot::setSelectType( ESelectType selectType ) {
 		colour_ = NORMAL_COLOUR;
 		break;
 	}
-}
-
-int Slot::getWidth() const
-{
-	return texture->getWidth();
-}
-
-int Slot::getHeight() const
-{
-	return texture->getHeight();
 }
 
 bool Slot::mouseEvent( Mouse* mouse, EMouseEvent eventType ) {
