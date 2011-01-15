@@ -211,7 +211,7 @@ void Inventory::move( Slot *source, Slot *destination )
 
 void Inventory::updateExcluded() {
 	int i, length = EXCLUDED_WIDTH;
-	itemVector::iterator k = excludedItems_.begin();;
+	itemVector::iterator k = excludedItems_.begin();
 	for (i = 0; i < length; i++) {
 		Slot* slot = excludedSlots_[i];
 		if (k != excludedItems_.end()) {

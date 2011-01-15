@@ -18,6 +18,9 @@ enum ESlotGroup {
 	GROUP_EXCLUDED
 };
 
+#define SLOT_WIDTH	70
+#define SLOT_HEIGHT	60
+
 class Slot: public Draggable
 {
 public:
@@ -28,8 +31,6 @@ public:
 	virtual void	draw( DirectX* directX );
 	virtual void	setPosition( float x, float y );
 	virtual void	updatePosition();
-	virtual int		getWidth() const;
-	virtual int		getHeight() const;
 
 	// Slot attribute functions.
 	Item*		getItem();
@@ -42,9 +43,6 @@ public:
 	// Selection handling.
 	ESelectType	getSelectType() const;
 	void		setSelectType( ESelectType selectType );
-
-	// Class-wide texture.
-	static Texture* texture;
 
 	// Input handling.
 	virtual bool Slot::mouseEvent( Mouse* mouse, EMouseEvent eventType );

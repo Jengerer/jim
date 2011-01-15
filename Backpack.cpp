@@ -2,8 +2,6 @@
 
 // Drawing constants.
 const float	SLOT_SPACING 		= 5.0f;
-const float	PADDING				= 25.0f;
-const float EXCLUDED_Y			= 415.0f;
 
 // Navigation constants.
 const int	PAGE_CHANGE_DELAY	= 500;
@@ -41,7 +39,7 @@ Backpack::Backpack(
 	length = EXCLUDED_WIDTH;
 	for (i = 0; i < length; i++) {
 		Slot* slot = excluded[i];
-		slot->setPosition( PADDING + getX() + i * (Slot::texture->getWidth() + SLOT_SPACING), EXCLUDED_Y );
+		slot->setPosition( BACKPACK_PADDING_X + getX() + i * (slot->getWidth() + SLOT_SPACING), EXCLUDED_Y );
 
 		add( slot );
 		slot->setMouseListener( this );
@@ -100,35 +98,25 @@ void Backpack::updatePosition()
 
 	// Position all slots.
 	const slotArray inventory = getInventory();
-	int i, x, y;
-	for (i = 0; i < pages_; i++) {
-		for (x = 0; x < invWidth_; x++) {
-			for (y = 0; y < invHeight_; y++) {
-				int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
-				Slot* slot = inventory[index];
+	int i, length = getCapacity();
+	for (i = 0; i < length; i++) {
+		Slot* slot = inventory[i];
 
-				int x = index % invWidth_;
-				int y = index / invWidth_;
+		int x = i % invWidth_;
+		int y = i / invWidth_;
 
-				float pageOffset = 0;
-				if (y >= invHeight_) {
-					pageOffset = getWidth() * (y / invHeight_);
-					y %= invHeight_;
-				}
-		
-				// Set position.
-				float slotX = PADDING + pageOffset + getX() + x * (Slot::texture->getWidth() + SLOT_SPACING) - cameraX_;
-
-				// Skip column if not visible.
-				if (slotX <= -slot->getWidth() || slotX >= getWidth()) {
-					slot->setX( slotX );
-					break;
-				}
-
-				float slotY = PADDING + getY() + y*(Slot::texture->getHeight() + SLOT_SPACING);
-				slot->setPosition( slotX, slotY );
-			}
+		float pageOffset = 0;
+		if (y >= invHeight_) {
+			pageOffset = getWidth() * (y / invHeight_);
+			y %= invHeight_;
 		}
+		
+		// Set position.
+		int slotWidth = slot->getWidth();
+		int slotHeight = slot->getHeight();
+		float slotX = BACKPACK_PADDING_X + pageOffset + getX() + x * (slotWidth + SLOT_SPACING) - cameraX_;
+		float slotY = BACKPACK_PADDING_Y + getY() + y * (slotHeight + SLOT_SPACING);
+		slot->setPosition( slotX, slotY );
 	}
 }
 
