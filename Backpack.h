@@ -6,8 +6,8 @@
 #include "MouseListener.h"
 #include "SerializedBuffer.h"
 
-#define BACKPACK_PADDING_X	25
-#define BACKPACK_PADDING_Y	50
+#define BACKPACK_PADDING		25
+#define BACKPACK_PADDING_TOP	50
 
 #define EXCLUDED_Y			415
 

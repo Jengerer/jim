@@ -94,9 +94,9 @@ ItemManager::~ItemManager()
 void ItemManager::openInterfaces()
 {
 	// Create buttons.
-	craftButton_	= createButton( "craft",	getWidth() - BACKPACK_PADDING_X,	getHeight() - BACKPACK_PADDING_Y );
-	sortButton_		= createButton( "sort",		25.0f,	355.0f );
-	exitButton_		= createButton( "exit",		650.0f,	425.0f );
+	craftButton_	= createButton( "craft", BACKPACK_PADDING, BUTTON_Y );
+	sortButton_		= createButton( "equip", craftButton_->getX() + craftButton_->getWidth() + BUTTON_SPACING, BUTTON_Y );
+	exitButton_		= createButton( "exit",	650.0f,	425.0f );
 
 	// Show dialog.
 	loadDialog_ = createDialog( "Initializing..." );
@@ -176,9 +176,9 @@ void ItemManager::onRedraw()
 	mousePosition << "(" << mouse_->getX() << ", " << mouse_->getY() << ") at " << (int)fps << "FPS";
 	RECT screen;
 	screen.top = 0;
-	screen.left = BACKPACK_PADDING_X;
-	screen.right = getWidth() - BACKPACK_PADDING_X;
-	screen.bottom = BACKPACK_PADDING_Y;
+	screen.left = BACKPACK_PADDING;
+	screen.right = getWidth() - BACKPACK_PADDING;
+	screen.bottom = BACKPACK_PADDING_TOP;
 	drawText( mousePosition.str(), &screen, DT_SINGLELINE | DT_VCENTER, D3DCOLOR_ARGB( 200, 255, 255, 255 ) );
 }
 
@@ -194,6 +194,11 @@ void ItemManager::run()
 
 void ItemManager::handleMouse()
 {
+	// Skip if not in focus.
+	if (GetFocus() != getWindow()->getHandle()) {
+		return;
+	}
+
 	// Move mouse every frame.
 	triggerMouse( MOUSE_EVENT_MOVE );
 
@@ -209,6 +214,11 @@ void ItemManager::handleMouse()
 
 void ItemManager::handleKeyboard()
 {
+	// Skip if not in focus.
+	if (GetFocus() != getWindow()->getHandle()) {
+		return;
+	}
+
 	// Next page on right arrow.
 	if (backpack_ && backpack_->isLoaded()) {
 		if (keyPressed( VK_RIGHT )) {
@@ -289,25 +299,18 @@ void ItemManager::mouseReleased( Mouse *mouse, Component *component )
 		Popup* top = popupStack_.back();
 		if (top == component) {
 			// Handle button if this is an alert.
-			if (top == alert_) {
+			if (top == alert_ || top == error_) {
 				const Button *alertButton = alert_->getButton();
 
 				if (mouse->isTouching( alertButton )) {
-					removePopup( alert_ );
+					removePopup( top );
+
+					if (top == error_) {
+						exitApplication();
+					}
 				}
 				else {
 					alert_->onRelease();
-				}
-			}
-			else if (top == error_) {
-				const Button *errorButton = error_->getButton();
-
-				if (mouse->isTouching( errorButton )) {
-					removePopup( error_ );
-					exitApplication();
-				}
-				else {
-					error_->onRelease();
 				}
 			}
 		}
@@ -622,9 +625,9 @@ void ItemManager::handleCallbacks() {
 	backpack_->releaseCallback();
 }
 
-Button* ItemManager::createButton( const string& caption, float x, float y )
+Button* ItemManager::createButton( const string& caption, float x, float y, EAlignment align )
 {
-	Button* newButton = new Button( caption, x, y );
+	Button* newButton = new Button( caption, x, y, align );
 	add( newButton );
 
 	// Add and return.

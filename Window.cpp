@@ -60,7 +60,8 @@ void Window::createWindow(HINSTANCE hInstance)
 	windowRect.bottom	= getHeight();
 
 	// Create window.
-	hWnd_ = CreateWindow(
+	hWnd_ = CreateWindowEx(
+		WS_EX_APPWINDOW,
 		title_, title_,
 		WS_VISIBLE | WS_POPUP | WS_OVERLAPPED,
 		x, y,
@@ -82,7 +83,7 @@ void Window::createWindow(HINSTANCE hInstance)
 	if (!hWnd_)
 		throw Exception( "Failed to create window." );
 
-	ShowWindow( hWnd_, SW_SHOWDEFAULT );
+	ShowWindow( hWnd_, SW_NORMAL );
 	UpdateWindow( hWnd_ );
 }
 

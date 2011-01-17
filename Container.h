@@ -6,7 +6,8 @@
 class Container: public Component
 {
 public:
-	Container( float x = 0.0f, float y = 0.0f );
+	Container();
+	Container( float x, float y );
 	virtual ~Container();
 
 	// Mouse handling event.

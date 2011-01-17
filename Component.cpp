@@ -1,9 +1,15 @@
 #include "Component.h"
 
-Component::Component( float x, float y, EAlignment align )
+Component::Component()
+{
+	// Set default.
+	setMouseListener( 0 );
+}
+
+Component::Component( float x, float y )
 {
 	// Set defaults.
-	setPosition( x, y, align );
+	setPosition( x, y );
 	setMouseListener( 0 );
 }
 
@@ -52,9 +58,9 @@ void Component::setY( float y ) {
 	y_ = y;
 }
 
-void Component::setPosition( float x, float y, EAlignment align ) {
-	setX( (align == ALIGN_TOP_LEFT || align == ALIGN_BOTTOM_LEFT ) ? x : x - getWidth() );
-	setY( (align == ALIGN_TOP_LEFT || align == ALIGN_TOP_RIGHT ) ? y : y - getHeight() );
+void Component::setPosition( float x, float y ) {
+	setX( x );
+	setY( y );
 }
 
 int Component::getWidth() const {

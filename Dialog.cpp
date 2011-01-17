@@ -8,7 +8,7 @@ Font*		Dialog::font			= 0;
 const D3DCOLOR DIALOG_STROKE_COLOUR	= D3DCOLOR_RGBA( 153, 142, 121, 100 );
 const D3DCOLOR DIALOG_COLOUR		= D3DCOLOR_XRGB( 42, 39, 37 );
 
-Dialog::Dialog( const string& message )
+Dialog::Dialog( const string& message ): Popup( 0.0f, 0.0f )
 {
 	setMessage( message );
 }
