@@ -2,7 +2,7 @@
 
 Font*		Button::font = 0;
 
-Button::Button( const string& caption, float x, float y ): Panel( x, y )
+Button::Button( const string& caption, float x, float y, EAlignment align )
 {
 	isActive_ = false;
 	caption_ = caption;
@@ -10,7 +10,11 @@ Button::Button( const string& caption, float x, float y ): Panel( x, y )
 	// Get size.
 	RECT rect;
 	font->getTextRect( caption, &rect, DT_SINGLELINE );
-	setSize( rect.right - rect.left + BUTTON_PADDING * 2, rect.bottom - rect.top + BUTTON_PADDING*2 );
+	setSize( rect.right - rect.left + BUTTON_PADDING_X * 2, rect.bottom - rect.top + BUTTON_PADDING_Y*2 );
+
+	// Position based on alignment.
+	setX( (align == ALIGN_TOP_LEFT || align == ALIGN_BOTTOM_LEFT) ? x : x - getWidth() );
+	setY( (align == ALIGN_TOP_LEFT || align == ALIGN_TOP_RIGHT) ? y : y - getHeight() );
 }
 
 Button::~Button()
@@ -26,10 +30,10 @@ void Button::draw( DirectX* directX )
 	
 	// Draw text in center.
 	RECT rect;
-	rect.left = (long)x + BUTTON_PADDING;
-	rect.top = (long)y + BUTTON_PADDING;
-	rect.right = (long)x + getWidth() - BUTTON_PADDING;
-	rect.bottom = (long)y + getHeight() - BUTTON_PADDING;
+	rect.left = (long)x + BUTTON_PADDING_X;
+	rect.top = (long)y + BUTTON_PADDING_Y;
+	rect.right = (long)x + getWidth() - BUTTON_PADDING_X;
+	rect.bottom = (long)y + getHeight() - BUTTON_PADDING_Y;
 
 	// Write it.
 	font->drawText(

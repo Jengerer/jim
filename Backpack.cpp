@@ -39,7 +39,7 @@ Backpack::Backpack(
 	length = EXCLUDED_WIDTH;
 	for (i = 0; i < length; i++) {
 		Slot* slot = excluded[i];
-		slot->setPosition( BACKPACK_PADDING_X + getX() + i * (slot->getWidth() + SLOT_SPACING), EXCLUDED_Y );
+		slot->setPosition( BACKPACK_PADDING + getX() + i * (SLOT_WIDTH + SLOT_SPACING), getHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
 
 		add( slot );
 		slot->setMouseListener( this );
@@ -114,8 +114,8 @@ void Backpack::updatePosition()
 		// Set position.
 		int slotWidth = slot->getWidth();
 		int slotHeight = slot->getHeight();
-		float slotX = BACKPACK_PADDING_X + pageOffset + getX() + x * (slotWidth + SLOT_SPACING) - cameraX_;
-		float slotY = BACKPACK_PADDING_Y + getY() + y * (slotHeight + SLOT_SPACING);
+		float slotX = BACKPACK_PADDING + pageOffset + getX() + x * (slotWidth + SLOT_SPACING) - cameraX_;
+		float slotY = BACKPACK_PADDING_TOP + getY() + y * (slotHeight + SLOT_SPACING);
 		slot->setPosition( slotX, slotY );
 	}
 }

@@ -6,6 +6,7 @@
 class Panel: public Container, public Drawable
 {
 public:
-	Panel( float x = 0.0f, float y = 0.0f );
+	Panel();
+	Panel( float x, float y );
 	virtual ~Panel();
 };

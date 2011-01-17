@@ -4,7 +4,7 @@
 Main::Main(
 	const char* title,
 	HINSTANCE hInstance,
-	int width, int height )
+	int width, int height ) : Container( 0.0f, 0.0f )
 {
 	// Create and initialize a window.
 	window_ = new Window(

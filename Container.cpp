@@ -1,5 +1,10 @@
 #include "Container.h"
 
+Container::Container()
+{
+	// Container created.
+}
+
 Container::Container( float x, float y ) : Component( x, y )
 {
 	// Container created.

@@ -24,6 +24,9 @@
 #include "Backpack.h"
 #include "SerializedBuffer.h"
 
+#define BUTTON_SPACING	10
+#define BUTTON_Y		380
+
 class ItemManager: public DirectX, public ButtonListener
 {
 public:
@@ -62,7 +65,7 @@ public:
 	// Interface handling.
 	Dialog*	createDialog( const string& message );
 	Alert*	createAlert( const string& message );
-	Button*	createButton( const string& caption, float x = 0.0f, float y = 0.0f );
+	Button*	createButton( const string& caption, float x = 0.0f, float y = 0.0f, EAlignment align = ALIGN_TOP_LEFT );
 	void	showPopup(Popup* popup);
 	void	removePopup(Popup* popup);
 
