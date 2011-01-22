@@ -4,16 +4,14 @@ Alert::Alert( const string& message ) : Dialog( message )
 {
 	// Make OK button.
 	okButton = new Button( "okay" );
+	add( okButton );
+
 	resize();
 }
 
 Alert::~Alert()
 {
-	if (okButton != 0)
-	{
-		delete okButton;
-		okButton = 0;
-	}
+	// Button removed as component.
 }
 
 void Alert::draw( DirectX *directX )

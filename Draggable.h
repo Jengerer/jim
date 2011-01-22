@@ -8,6 +8,9 @@ public:
 	Draggable( float x = 0.0f, float y = 0.0f );
 	virtual ~Draggable();
 
+	// Mouse handling.
+	virtual bool mouseMoved( Mouse *mouse );
+
 	virtual void onDrag( Mouse* mouse, Container* parent );
 	virtual void onMove();
 	virtual void onRelease();

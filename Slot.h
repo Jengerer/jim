@@ -44,9 +44,6 @@ public:
 	ESelectType	getSelectType() const;
 	void		setSelectType( ESelectType selectType );
 
-	// Input handling.
-	virtual bool Slot::mouseEvent( Mouse* mouse, EMouseEvent eventType );
-
 private:
 	Item*		item_;
 	int			index_;

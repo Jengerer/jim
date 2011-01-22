@@ -141,7 +141,8 @@ Slot* Inventory::insert( Item* item ) {
 	// Add item to correct slot.
 	uint32 flags = item->getFlags();
 	uint16 position = item->getIndex() - 1;
-	if ((flags & 0xfff) && isValidSlot( position )) {
+	uint32 validFlags = flags & 0xf0000000;
+	if ((validFlags == 0x80000000) && (flags & 0xfff) && isValidSlot( position )) {
 		Slot* destination = inventory_[position];
 
 		// Should not allow overlap.
@@ -178,9 +179,54 @@ Slot* Inventory::insert( Item* item ) {
 	}
 }
 
-void Inventory::removeItem( Item* whichItem )
+void Inventory::removeItem( uint64 uniqueId )
 {
-	// TODO: Find the item in inventory.
+	Item *target = 0;
+
+	// Check inventory.
+	itemVector::iterator i;
+	for (i = items_.begin(); i != items_.end(); i++) {
+		Item *item = *i;
+		if (item->getUniqueId() == uniqueId) {
+			target = item;
+			items_.erase( i );
+			break;
+		}
+	}
+
+	// If hasn't been found yet, check excluded.
+	if (target == 0) {
+		for (i = excludedItems_.begin(); i != excludedItems_.end(); i++) {
+			Item *item = *i;
+			if (item->getUniqueId() == uniqueId) {
+				target = item;
+				excludedItems_.erase( i );
+				break;
+			}
+		}
+	}
+
+	// Now remove from slots.
+	if (target != 0) {
+		int j, length = getCapacity();
+		for (j = 0; j < length; j++) {
+			Slot *slot = inventory_[j];
+			if (target == slot->getItem()) {
+				slot->setItem( 0 );
+			}
+		}
+
+		// Remove from excluded.
+		for (j = 0; j < EXCLUDED_WIDTH; j++) {
+			Slot *slot = excludedSlots_[j];
+			if (target == slot->getItem()) {
+				slot->setItem( 0 );
+			}
+		}
+
+		// Remove item.
+		delete target;
+	}
 }
 
 void Inventory::move( Slot *source, Slot *destination )
@@ -188,7 +234,6 @@ void Inventory::move( Slot *source, Slot *destination )
 	// Check if needs transfer.
 	Item* target = source->getItem();
 	if (source->getGroup() == GROUP_EXCLUDED) {
-
 		// Remove item from excluded.
 		itemVector::iterator i;
 		for (i = excludedItems_.begin(); i != excludedItems_.end(); i++) {
@@ -203,23 +248,26 @@ void Inventory::move( Slot *source, Slot *destination )
 		items_.push_back( target );
 		updateExcluded();
 	}
+	else {
+		source->setItem( destination->getItem() );
+	}
 
 	// Move items.
-	source->setItem( destination->getItem() );
 	destination->setItem( target );
 }
 
 void Inventory::updateExcluded() {
-	int i, length = EXCLUDED_WIDTH;
-	itemVector::iterator k = excludedItems_.begin();
-	for (i = 0; i < length; i++) {
-		Slot* slot = excludedSlots_[i];
-		if (k != excludedItems_.end()) {
-			slot->setItem( *k );
-			k++;
+	int i, j = 0, length = excludedItems_.size();
+	for (i = 0; i < EXCLUDED_WIDTH; i++) {
+		Slot *slot = excludedSlots_[i];
+
+		if (j >= length) {
+			slot->setItem( 0 );
 		}
 		else {
-			slot->setItem( 0 );
+			Item *item = excludedItems_[j];
+			slot->setItem( item );
+			j++;
 		}
 	}
 }

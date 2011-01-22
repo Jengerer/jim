@@ -1,18 +1,17 @@
 #include "SerializedBuffer.h"
 
-SerializedBuffer::SerializedBuffer(void* buffer)
+SerializedBuffer::SerializedBuffer( void* buffer )
 {
 	buffer_ = buffer;
 }
 
-template<class T>
 void SerializedBuffer::push( unsigned int steps )
 {
-	unsigned int numBytes = steps*sizeof(T);
-	buffer_ = ((char*)buffer_ + numBytes);
+	buffer_ = (char*)buffer_ + steps;
 }
 
-void SerializedBuffer::push( unsigned int bytes )
+void SerializedBuffer::write( void *data, unsigned int size )
 {
-	push<char>( bytes );
+	memcpy( buffer_, data, size );
+	buffer_ = (char*)buffer_ + size;
 }

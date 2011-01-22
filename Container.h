@@ -10,16 +10,16 @@ public:
 	Container( float x, float y );
 	virtual ~Container();
 
-	// Mouse handling event.
-	virtual bool mouseEvent( Mouse *mouse, EMouseEvent eventType );
-
 	// Relative position modifiers.
 	virtual void setPosition( float x, float y );
 	virtual void updatePosition();
 
 	void add( Component *component );
 	void remove( Component *component );
+	void trash( Component *component );
+	void emptyTrash();
 
 protected:
 	deque<Component*> componentStack_;
+	deque<Component*> componentTrash_;
 };

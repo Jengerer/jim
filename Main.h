@@ -6,7 +6,7 @@
 
 #include "Container.h"
 #include "Window.h"
-#include "MouseListener.h"
+#include "Mouse.h"
 
 using namespace std;
 
@@ -14,7 +14,7 @@ using namespace std;
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 // Main class that's the base of all applications.
-class Main: public Container, public MouseListener
+class Main: public Container
 {
 public:
 	Main(const char* title,

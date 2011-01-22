@@ -111,7 +111,6 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Mouse.cpp" />
-    <ClCompile Include="MouseListener.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="ItemManager.cpp" />

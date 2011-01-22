@@ -52,8 +52,8 @@ void Steam::openInterfaces()
 	}
 
 	//Load the library.
-	HMODULE clientDll = LoadLibrary( "steamclient.dll" );
-	if ( !clientDll )
+	clientDll_ = LoadLibrary( "steamclient.dll" );
+	if ( !clientDll_ )
 		throw Exception( "Failed to load steamclient.dll from Steam install path." );
 
 	//Now define the functions.
@@ -119,20 +119,19 @@ void Steam::closeInterfaces()
 		}
 	}
 
-	if (clientDll_)
+	if (clientDll_) {
 		FreeLibrary( clientDll_ );
+		clientDll_ = 0;
+	}
 
-	//Finally, shut down API.
+	// Finally, shut down API.
 	SteamAPI_Shutdown();
 }
 
 bool Steam::getCallback( CallbackMsg_t* tCallback )
 {
-	HSteamCall hSteamCall;
-	if (Steam_BGetCallback( hPipe_, tCallback, &hSteamCall ))
-		return true;
-	else
-		return false;
+	HSteamCall steamCall;
+	return Steam_BGetCallback( hPipe_, tCallback, &steamCall );
 }
 
 void Steam::releaseCallback()
@@ -142,7 +141,7 @@ void Steam::releaseCallback()
 
 bool Steam::hasMessage( uint32* messageSize )
 {
-	return gameCoordinator_->IsMessageAvailable(messageSize);
+	return gameCoordinator_->IsMessageAvailable( messageSize );
 }
 
 void Steam::getMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize )
@@ -150,20 +149,10 @@ void Steam::getMessage( unsigned int* id, void* buffer, uint32 size, unsigned in
 	gameCoordinator_->RetrieveMessage( id, buffer, size, realSize );
 }
 
-void Steam::updateItem( Item* item )
+void Steam::sendMessage( uint32 id, void* buffer, uint32 size )
 {
-	// Generate message with new flags.
-	SOMsgUpdate_t message;
-	memset( &message, 0xFF, sizeof( SOMsgUpdate_t ) );
-
-	message.itemID = item->getUniqueId();
-	message.position = item->getFlags();
-
-	// Send it.
-	gameCoordinator_->SendMessage(
-		SOMsgUpdate_t::k_iMessage, 
-		&message, 
-		sizeof( SOMsgUpdate_t ));
+	// Send message.
+	gameCoordinator_->SendMessage( id, buffer, size );
 }
 
 void Steam::deleteItem( uint64 itemId )

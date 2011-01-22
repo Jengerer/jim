@@ -11,6 +11,17 @@ Draggable::~Draggable()
 	// Draggable destroyed.
 }
 
+bool Draggable::mouseMoved( Mouse *mouse )
+{
+	// Just update dragging.
+	if (isDragging_) {
+		updatePosition();
+		return true;
+	}
+
+	return false;
+}
+
 float Draggable::getX() const
 {
 	if (isDragging_) {
