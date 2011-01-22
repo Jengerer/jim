@@ -20,6 +20,7 @@ Backpack::Backpack(
 	isLoaded_ = false;
 	cameraX_ = cameraSpeed_ = cameraDest_ = 0;
 	page_ = excludedPage_ = 1;
+	dragged_ = 0;
 
 	// Move to start.
 	setPosition( x, y );
@@ -31,7 +32,6 @@ Backpack::Backpack(
 	for (i = 0; i < length; i++) {
 		Slot* slot = inventory[i];
 		add( slot );
-		slot->setMouseListener( this );
 	}
 
 	// Position and add excluded.
@@ -42,7 +42,6 @@ Backpack::Backpack(
 		slot->setPosition( BACKPACK_PADDING + getX() + i * (SLOT_WIDTH + SLOT_SPACING), getHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
 
 		add( slot );
-		slot->setMouseListener( this );
 	}
 }
 
@@ -120,124 +119,100 @@ void Backpack::updatePosition()
 	}
 }
 
-void Backpack::select( Slot* slot )
+bool Backpack::mouseClicked( Mouse *mouse )
 {
-	// Deselect all selected.
-	vector<Slot*>::iterator i;
-	for (i = selected_.begin(); i != selected_.end(); i++) {
-		Slot* thisSlot = *i;
-		thisSlot->setSelectType( SELECT_TYPE_NONE );
-	}
+	// Check visible slots.
+	int i, x, y;
+	const slotArray inventory = getInventory();
+	for (i = 0; i < pages_; i++) {
+		for (x = 0; x < invWidth_; x++) {
+			for (y = 0; y < invHeight_; y++) {
+				int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
+				Slot* slot = inventory[index];
 
-	selected_.clear();
+				// Only draw column if visible.
+				int slotWidth = slot->getWidth();
+				if ((slot->getX() <= -slotWidth) || (slot->getX() >= getWidth())) {
+					break;
+				}
 
-	// Add this one.
-	slot->setSelectType( SELECT_TYPE_NORMAL );
-	selected_.push_back( slot );
-}
-
-bool Backpack::mouseEvent( Mouse *mouse, EMouseEvent eventType )
-{
-	if (Container::mouseEvent( mouse, eventType )) {
-		// Item has been hit.
-		return true;
-	}
-	else if (eventType == MOUSE_EVENT_CLICK) {
-		// Nothing hit, deselect everything.
-		for (int i = selected_.size() - 1; i >= 0; i--) {
-			selected_[0]->setSelectType( SELECT_TYPE_NONE );
-			selected_.pop_back();
+				if (mouse->isTouching( slot )) {
+					slotClicked( mouse, slot );
+					return true;
+				}
+			}
 		}
+	}
+
+	// Check excluded.
+	const slotArray excluded = getExcluded();
+	for (i = 0; i < EXCLUDED_WIDTH; i++) {
+		Slot *slot = excluded[i];
+
+		if (mouse->isTouching( slot )) {
+			slotClicked( mouse, slot );
+			return true;
+		}
+	}
+
+	// Nothing hit, deselect all.
+	if (selectMode_ != SELECT_MODE_MULTIPLE) {
+		deselectAll();
 	}
 
 	return false;
 }
 
-void Backpack::mouseClicked( Mouse *mouse, Component *component )
+bool Backpack::mouseReleased( Mouse *mouse )
 {
-	// Mouse clicked.
-	Slot* slot = (Slot*)component;
-
-	// Clear selected.
-	// TODO: Only clear if not CTRL.
-	for (int i = selected_.size() - 1; i >= 0; i--) {
-		selected_[0]->setSelectType( SELECT_TYPE_NONE );
-		selected_.pop_back();
-	}
-
-	if (slot->getItem()) {
-		// Create a new slot.
-		Slot* dragging = new Slot( *slot );
-		dragging->setIndex( slot->getIndex() );
-		dragging->setGroup( slot->getGroup() );
-		dragging->setItem( slot->getItem() );
-
-		// Drag and add.
-		dragging->setSelectType( SELECT_TYPE_DRAG );
-		add( dragging );
-		
-		// Remove item from slot.
-		slot->setItem( 0 );
-
-		// Start dragging.
-		dragging->onDrag( mouse, this );
-		selected_.push_back( dragging );
-	}
-}
-
-void Backpack::mouseReleased( Mouse *mouse, Component *component )
-{
-	if ((selected_.size() == 1) && (selected_[0] == component)) {
-		// Which slot to move to.
+	// Return item if dragging.
+	if (selected_.size() == 1 && dragged_ != 0) {
+		// Move item back to slot.
 		Slot* selectedSlot = selected_[0];
-		Slot* newSlot = 0;
+		dragged_->setItem( selectedSlot->getItem() );
 
-		// Check for slot collision.
+		// Remove dummy slot.
+		selectedSlot->onRelease();
+		delete selectedSlot;
+		selected_.clear();
+
+		// Check visible slots.
+		int i, x, y;
 		const slotArray inventory = getInventory();
-		int i, length = getCapacity();
-		for (i = 0; i < length; i++) {
-			Slot *slot = inventory[i];
-			if (mouse->isTouching( slot )) {
-				if (slot->getItem() == 0) {
-					newSlot = slot;
-					move( selectedSlot, slot );
-				}
-				else if (selectedSlot->getGroup() == GROUP_INVENTORY) {
-					// Move item to new position.
-					newSlot = slot;
-					Item* oldItem = slot->getItem();
-					Item* newItem = selectedSlot->getItem();
+		for (i = 0; i < pages_; i++) {
+			for (x = 0; x < invWidth_; x++) {
+				for (y = 0; y < invHeight_; y++) {
+					int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
+					Slot* slot = inventory[index];
 
-					// Now set new slot and re-insert old.
-					selectedSlot->setItem( oldItem );
-					newSlot->setItem( newItem );
-					insert( oldItem );
+					// Only draw column if visible.
+					int slotWidth = slot->getWidth();
+					if ((slot->getX() <= -slotWidth) || (slot->getX() >= getWidth())) {
+						break;
+					}
+
+					if (mouse->isTouching( slot )) {
+						slotReleased( slot );
+						dragged_ = 0;
+						return true;
+					}
 				}
 			}
 		}
 
-		// If not touching slot, move back.
-		if (!newSlot) {
-			newSlot = insert( selectedSlot->getItem() );
-		}
+		// Dragged was not moved.
+		dragged_->setSelectType( SELECT_TYPE_NORMAL );
+		selected_.push_back( dragged_ );
 
-		// Deselect item and remove dragged.
-		Slot* dragging = selected_[0];
-		dragging->onRelease();
-		remove( dragging );
-		delete dragging;
-		selected_.clear();
-
-		// Set to regular select.
-		selected_.push_back( newSlot );
-		newSlot->setSelectType( SELECT_TYPE_NORMAL );
-
-		// Move item back.
-		newSlot->updatePosition();
+		// Reset dragged.
+		dragged_ = 0;
+		return true;
 	}
+
+	return false;
 }
 
-void Backpack::mouseMoved( Mouse *mouse, Component *component )
+bool Backpack::mouseMoved( Mouse *mouse )
 {
 	// Mouse moved.
 	if (selected_.size() == 1) {
@@ -256,6 +231,80 @@ void Backpack::mouseMoved( Mouse *mouse, Component *component )
 				pageDelay = time + PAGE_CHANGE_DELAY;
 			}
 		}
+
+		return true;
+	}
+
+	return false;
+}
+
+void Backpack::slotClicked( Mouse *mouse, Slot *slot )
+{
+	// Clear selected.
+	if (selectMode_ == SELECT_MODE_SINGLE) {
+		// First deselect all.
+		deselectAll();
+
+		// Now drag slot.
+		if (slot->getItem() != 0) {
+			// Create a new slot.
+			dragged_ = slot;
+
+			// Create a dummy slot to drag the item.
+			Slot* dragging = new Slot( *slot );
+			dragging->setIndex( slot->getIndex() );
+			dragging->setGroup( slot->getGroup() );
+			dragging->setItem( slot->getItem() );
+		
+			// Remove item from slot.
+			slot->setItem( 0 );
+
+			// Start dragging.
+			dragging->onDrag( mouse, this );
+			switch (slot->getSelectType()) {
+			case SELECT_TYPE_NONE:
+				select( dragging, SELECT_TYPE_DRAG );
+				break;
+			default:
+				dragging->setSelectType( SELECT_TYPE_DRAG );
+				break;
+			}
+		}
+	}
+	else {
+		if (slot->getItem() != 0) {
+			switch (slot->getSelectType()) {
+			case SELECT_TYPE_NONE:
+				select( slot, SELECT_TYPE_NORMAL );
+				break;
+			default:
+				deselect( slot );
+				break;
+			}
+		}
+	}
+}
+
+void Backpack::slotReleased( Slot *slot )
+{
+	// Skip if returning or excluded.
+	if (slot != dragged_ && slot->getGroup() == GROUP_INVENTORY) {
+		if (slot->getItem() == 0 || dragged_->getGroup() == GROUP_INVENTORY) {
+			// Move to slot if able.
+			move( dragged_, slot );
+
+			// Set to regular select.
+			selected_.push_back( slot );
+			slot->setSelectType( SELECT_TYPE_NORMAL );
+
+			// Update position.
+			slot->updatePosition();
+		}
+	}
+	else {
+		// Set to regular select.
+		selected_.push_back( dragged_ );
+		dragged_->setSelectType( SELECT_TYPE_NORMAL );
 	}
 }
 
@@ -275,6 +324,132 @@ void Backpack::removeSlots() {
 		Slot* slot = excluded[i];
 		remove( slot );
 	}
+}
+
+void Backpack::move( Slot *source, Slot *destination ) {
+	Item* sourceItem = source->getItem();
+	Item* destItem = destination->getItem();
+
+	// Perform standard move.
+	Inventory::move( source, destination );
+
+	// Update items.
+	updateItem( sourceItem ); // Definitely not null.
+	if (destItem != 0) {
+		updateItem( destItem );
+	}
+}
+
+Slot* Backpack::insert( Item *item )
+{
+	Slot* newSlot = Inventory::insert( item );
+	updateItem( item );
+	return newSlot;
+}
+
+void Backpack::select( Slot* slot, ESelectType selectType )
+{
+	slot->setSelectType( selectType );
+	selected_.push_back( slot );
+}
+
+void Backpack::deselect( Slot* slot )
+{
+	slot->setSelectType( SELECT_TYPE_NONE );
+
+	// Remove from selected.
+	slotVector::iterator i;
+	for (i = selected_.begin(); i != selected_.end(); i++) {
+		Slot *current = *i;
+		if (current == slot) {
+			selected_.erase( i );
+			break;
+		}
+	}
+}
+
+void Backpack::deselectAll()
+{
+	// Deselect all.
+	while (!selected_.empty()) {
+		Slot *slot = selected_.back();
+		deselect( slot );
+	}
+}
+
+void Backpack::craftSelected()
+{
+	// Number of items to craft.
+	uint16 itemCount = selected_.size();
+
+	if (itemCount > 0) {
+		// Allocate and set.
+		unsigned int messageSize = sizeof( struct GCCraft_t ) + sizeof( uint64 ) * itemCount;
+		void* message = malloc( messageSize );
+		memset( message, 0xff, messageSize );
+
+		// Values to fill in.
+		uint16 id = 1;
+
+		// TODO: Warn user about untradable items.
+		SerializedBuffer serialBuffer( message );
+		serialBuffer.write( &id, sizeof( id ) );
+		serialBuffer.push( 16 * sizeof( char ) );
+		serialBuffer.push( sizeof( uint16 ) );
+		serialBuffer.write( &itemCount, sizeof( itemCount ) );
+	
+		// Write all item IDs.
+		for (int i = 0; i < itemCount; i++) {
+			Slot *slot = selected_[i];
+			Item *item = slot->getItem();
+
+			// Get ID and write.
+			uint64 itemId = item->getUniqueId();
+			serialBuffer.write( &itemId, sizeof( itemId ) );
+		}
+
+		// Deselect everything.
+		deselectAll();
+
+		// Send message.
+		sendMessage( GCCraft_t::k_iMessage, message, messageSize );
+		free( message );
+	}
+}
+
+void Backpack::updateItem( Item* item )
+{
+	// Generate message with new flags.
+	GCSetItemPosition_t message;
+	memset( &message, 0xff, sizeof( message ) );
+
+	message.itemID = item->getUniqueId();
+	message.position = item->getFlags();
+
+	// Send it.
+	sendMessage( GCSetItemPosition_t::k_iMessage, &message, sizeof( message ) );
+}
+
+void Backpack::removeItem( uint64 uniqueId )
+{
+	// Remove item from selection.
+	slotVector::iterator i;
+	for (i = selected_.begin(); i != selected_.end(); i++) {
+		Slot *slot = *i;
+		Item *item = slot->getItem();
+
+		if (item && (item->getUniqueId() == uniqueId)) {
+			deselect( slot );
+		}
+	}
+
+	// Run default action.
+	Inventory::removeItem( uniqueId );
+}
+
+void Backpack::setSelectMode( ESelectMode selectMode)
+{
+	selectMode_ = selectMode;
 }
 
 void Backpack::setLoaded()

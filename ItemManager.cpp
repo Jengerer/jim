@@ -93,15 +93,15 @@ ItemManager::~ItemManager()
 
 void ItemManager::openInterfaces()
 {
-	// Create buttons.
-	craftButton_	= createButton( "craft", BACKPACK_PADDING, BUTTON_Y );
-	sortButton_		= createButton( "equip", craftButton_->getX() + craftButton_->getWidth() + BUTTON_SPACING, BUTTON_Y );
-	exitButton_		= createButton( "exit",	650.0f,	425.0f );
-
 	// Show dialog.
 	loadDialog_ = createDialog( "Initializing..." );
 
 	try {
+		// Load button textures.
+		Texture *craftTexture	= getTexture( "manager/gear" );
+		Texture *equipTexture	= getTexture( "manager/equip" );
+		Texture *sortTexture	= getTexture( "manager/sort" );
+
 		// Create inventory.
 		backpack_ = new Backpack(
 			0.0f, 0.0f, 
@@ -110,19 +110,22 @@ void ItemManager::openInterfaces()
 			this );
 		add( backpack_ );
 
+		// Create buttons.
+		craftButton_	= createButton( "craft", craftTexture, BACKPACK_PADDING, BUTTON_Y );
+		equipButton_	= createButton( "equip", equipTexture, craftButton_->getX() + craftButton_->getWidth() + BUTTON_SPACING, BUTTON_Y );
+		sortButton_		= createButton( "sort", sortTexture, equipButton_->getX() + equipButton_->getWidth() + BUTTON_SPACING, BUTTON_Y );
+		exitButton_		= createButton( "exit",	0, getWidth() - BACKPACK_PADDING, getHeight() - BACKPACK_PADDING, ALIGN_BOTTOM_RIGHT );
+
 		// Define and load items.
 		loadDefinitions();
-		loadItems();
-
-		// Set backpack to loaded.
-		backpack_->setLoaded();
 
 		// Hide the loading dialog.
 		removePopup( loadDialog_ );
-		alert_ = createAlert( "Everything was loaded successfully!" );
+		emptyTrash();
 	}
 	catch (Exception& loadException) {
 		removePopup( loadDialog_ );
+		emptyTrash();
 		error_ = createAlert( *loadException.getMessage() );
 	}
 }
@@ -141,8 +144,6 @@ void ItemManager::closeInterfaces()
 		Item::informationTable = 0;
 	}
 }
-
-DWORD lastTick = 0;
 
 // TODO: Set slot position only once, and modify with camera view (maybe use translate).
 void ItemManager::onRedraw()
@@ -166,14 +167,9 @@ void ItemManager::onRedraw()
 		popup->draw( this );
 	}
 
-	DWORD cur = GetTickCount();
-	DWORD diff = cur - lastTick;
-	lastTick = cur;
-	float fps = 1000 / (float)diff;
-
 	// Draw mouse position.
 	stringstream mousePosition;
-	mousePosition << "(" << mouse_->getX() << ", " << mouse_->getY() << ") at " << (int)fps << "FPS";
+	mousePosition << "(" << mouse_->getX() << ", " << mouse_->getY() << ")";
 	RECT screen;
 	screen.top = 0;
 	screen.left = BACKPACK_PADDING;
@@ -188,6 +184,10 @@ void ItemManager::run()
 	handleMouse();
 	handleKeyboard();
 
+	if (backpack_) {
+		handleCallbacks();
+	}
+
 	// Redraw screen.
 	redraw();
 }
@@ -195,149 +195,193 @@ void ItemManager::run()
 void ItemManager::handleMouse()
 {
 	// Skip if not in focus.
-	if (GetFocus() != getWindow()->getHandle()) {
-		return;
-	}
+	if (GetFocus() == getWindow()->getHandle()) {
+		// Move mouse every frame.
+		mouse_->triggerEvent( this, MOUSE_EVENT_MOVE );
 
-	// Move mouse every frame.
-	triggerMouse( MOUSE_EVENT_MOVE );
-
-	if (keyPressed( VK_LBUTTON ) && !mouse_->isLeftDown()) {
-		mouse_->leftMouseDown();
-		triggerMouse( MOUSE_EVENT_CLICK );
-	}
-	else if (!keyPressed( VK_LBUTTON ) && mouse_->isLeftDown()) {
-		mouse_->leftMouseUp();
-		triggerMouse( MOUSE_EVENT_RELEASE );
+		if (keyPressed( VK_LBUTTON ) && !mouse_->isLeftDown()) {
+			mouse_->leftMouseDown();
+			mouse_->triggerEvent( this, MOUSE_EVENT_CLICK );
+		}
+		else if (!keyPressed( VK_LBUTTON ) && mouse_->isLeftDown()) {
+			mouse_->leftMouseUp();
+			mouse_->triggerEvent( this, MOUSE_EVENT_RELEASE );
+		}
 	}
 }
 
 void ItemManager::handleKeyboard()
 {
 	// Skip if not in focus.
-	if (GetFocus() != getWindow()->getHandle()) {
-		return;
-	}
+	if (GetFocus() == getWindow()->getHandle()) {
+		// Multiple item selection.
+		backpack_->setSelectMode( keyPressed( VK_CONTROL ) ? SELECT_MODE_MULTIPLE : SELECT_MODE_SINGLE );
 
-	// Next page on right arrow.
-	if (backpack_ && backpack_->isLoaded()) {
-		if (keyPressed( VK_RIGHT )) {
-			if (!rightPressed_) {
-				backpack_->nextPage();
-				rightPressed_ = true;
-			}
-		}
-		else {
-			rightPressed_ = false;
-		}
-
-		// Previous page on left arrow.
-		if (keyPressed( VK_LEFT )) {
-			if (!leftPressed_) {
-				backpack_->prevPage();
-				leftPressed_ = true;
-			}
-		}
-		else {
-			leftPressed_ = false;
-		}
-	}
-
-	// Close dialogs on enter.
-	if (keyPressed( VK_RETURN )) {
-		if (!enterPressed_) {
-			if (!popupStack_.empty()) {
-				Popup* popup = popupStack_.back();
-
-				// Exit if error.
-				if (popup == error_) {
-					exitApplication();
+		// Next page on right arrow.
+		if (backpack_ && backpack_->isLoaded()) {
+			if (keyPressed( VK_RIGHT )) {
+				if (!rightPressed_) {
+					backpack_->nextPage();
+					rightPressed_ = true;
 				}
-
-				removePopup( popup );
 			}
-			enterPressed_ = true;
+			else {
+				rightPressed_ = false;
+			}
+
+			// Previous page on left arrow.
+			if (keyPressed( VK_LEFT )) {
+				if (!leftPressed_) {
+					backpack_->prevPage();
+					leftPressed_ = true;
+				}
+			}
+			else {
+				leftPressed_ = false;
+			}
+		}
+
+		// Close dialogs on enter.
+		if (keyPressed( VK_RETURN )) {
+			if (!enterPressed_) {
+				if (!popupStack_.empty()) {
+					Popup* popup = popupStack_.back();
+
+					// Exit if error.
+					if (popup == error_) {
+						exitApplication();
+					}
+
+					removePopup( popup );
+				}
+				enterPressed_ = true;
+			}
+		}
+		else {
+			enterPressed_ = false;
+		}
+
+		// Exit program on escape.
+		if (keyPressed( VK_ESCAPE )) {
+			exitApplication();
 		}
 	}
-	else {
-		enterPressed_ = false;
-	}
-
-	// Exit program on escape.
-	if (keyPressed( VK_ESCAPE )) {
-		exitApplication();
-	}
 }
 
-void ItemManager::triggerMouse( EMouseEvent eventType )
-{
-	// Update position.
-	if (eventType == MOUSE_EVENT_MOVE) {
-		mouse_->pollPosition();
-	}
-
-	// Send message.
-	mouse_->triggerEvent( this, eventType );
-}
-
-void ItemManager::mouseClicked( Mouse *mouse, Component *component )
+bool ItemManager::mouseClicked( Mouse *mouse )
 {
 	// Mouse clicked.
 	if (!popupStack_.empty()) {
 		Popup* top = popupStack_.back();
-		if (top == component) {
+		if (mouse->isTouching( top )) {
 			// Starting dragging top components.
 			top->onDrag( mouse, this );
+			return true;
 		}
 	}
-}
-
-void ItemManager::mouseReleased( Mouse *mouse, Component *component )
-{
-	// Mouse released.
-	if (!popupStack_.empty()) {
-		Popup* top = popupStack_.back();
-		if (top == component) {
-			// Handle button if this is an alert.
-			if (top == alert_ || top == error_) {
-				const Button *alertButton = alert_->getButton();
-
-				if (mouse->isTouching( alertButton )) {
-					removePopup( top );
-
-					if (top == error_) {
-						exitApplication();
-					}
-				}
-				else {
-					alert_->onRelease();
-				}
+	else {
+		// Check, but don't register buttons.
+		vector<Button*>::iterator i;
+		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
+			if (mouse->isTouching( *i )) {
+				return true;
 			}
 		}
-		return;
+
+		// Check backpack.
+		if (backpack_->mouseClicked( mouse )) {
+			return true;
+		}
 	}
+
+	return false;
 }
 
-void ItemManager::mouseMoved( Mouse *mouse, Component *component )
+bool ItemManager::mouseReleased( Mouse *mouse )
+{
+	// Mouse released.
+	if (alert_ && mouse->isTouching( alert_ )) {
+		alert_->onRelease();
+
+		// Remove popup if button clicked.
+		const Button *alertButton = alert_->getButton();
+		if (mouse->isTouching( alertButton )) {
+			removePopup( alert_ );
+			alert_ = 0;
+		}
+
+		return true;
+	}
+	else if (error_ && mouse->isTouching( error_ )) {
+		error_->onRelease();
+
+		// Remove popup and exit if button clicked.
+		const Button *errorButton = error_->getButton();
+		if (mouse->isTouching( errorButton )) {
+			removePopup( error_ );
+			exitApplication();
+			error_ = 0;
+		}
+		else {
+			error_->onRelease();
+		}
+
+		return true;
+	}
+	else {
+		// Check backpack.
+		if (backpack_->mouseReleased( mouse )) {
+			return true;
+		}
+
+		// Now run buttons.
+		if (mouse->isTouching(craftButton_)) {
+			try {
+				backpack_->craftSelected();
+			} 
+			catch (Exception exception) {
+				alert_ = createAlert( *exception.getMessage() );
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ItemManager::mouseMoved( Mouse *mouse )
 {
 	// Get new position.
 	mouse_->pollPosition();
 
-	// Update popup position.
-	if (popupStack_.size()) {
+	// Pass message to highest popup.
+	if (!popupStack_.empty()) {
 		Popup* top = popupStack_.back();
-		top->updatePosition();
+		top->mouseMoved( mouse );
 	}
-}
+	else {
+		// Check backpack.
+		if (backpack_->mouseMoved( mouse )) {
+			return true;
+		}
 
-void ItemManager::buttonPressed( Button* button )
-{
-	// Button pressed.
-}
+		// Check all buttons.
+		vector<Button*>::iterator i;
+		bool hitButton = false;
+		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
+			Button *button = *i;
+			if (button->mouseMoved( mouse )) {
+				hitButton = true;
+			}
+		}
 
-void ItemManager::buttonReleased( Button* button )
-{
-	// Button released.
+		if (hitButton) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void ItemManager::loadDefinitions()
@@ -527,45 +571,69 @@ void ItemManager::handleCallbacks() {
 				{
 					unsigned int id, realSize = 0;
 
-					// Allocate memory.
-					void* buffer = malloc( size );
-
 					// Retrieve the message.
+					void* buffer = malloc( size );
 					backpack_->getMessage( &id, buffer, size, &realSize );
 
-					switch (id)
-					{
+					switch (id) {
 					case SOMsgCacheSubscribed_t::k_iMessage:
 						// Item information has been received.
 						{
 							// Start loading items.
 							SerializedBuffer serializedBuffer(buffer);
-							SOMsgCacheSubscribed_t *iList = serializedBuffer.get<SOMsgCacheSubscribed_t>();
-							for (int I = 0; I < iList->itemcount; I++)
+							SOMsgCacheSubscribed_t *list = serializedBuffer.get<SOMsgCacheSubscribed_t>();
+
+							// Don't load if we've already loaded.
+							if (backpack_->isLoaded() && (list->steamid == backpack_->getSteamId())) {
+								break;
+							}
+
+							for (int i = 0; i < list->itemcount; i++)
 							{
-								SOMsgCacheSubscribed_Item_t *pItem = serializedBuffer.get<SOMsgCacheSubscribed_Item_t>();
+								SOMsgCacheSubscribed_Item_t *item = serializedBuffer.get<SOMsgCacheSubscribed_Item_t>();
 
-								// Skip past the name.
-								serializedBuffer.push( pItem->namelength );
+								// Get custom item name.
+								char* customName	= 0;
+								if (item->namelength > 0) {
+									customName = (char*)serializedBuffer.here();
+									serializedBuffer.push( item->namelength );
+								}
 
-								// Get attribute count, and skip past.
-								uint16* attribCount = serializedBuffer.get<uint16>();
-								serializedBuffer.push<SOMsgCacheSubscribed_Item_Attrib_t>( *attribCount );
+								serializedBuffer.push( sizeof( uint8 ) ); // Skip first unknown.
+								uint8* origin		= serializedBuffer.get<uint8>();
+								uint16* descLength	= serializedBuffer.get<uint16>();
+
+								// Get custom description.
+								char* customDesc	= 0;
+								if (*descLength > 0) {
+									customDesc = (char*)serializedBuffer.here();
+									serializedBuffer.push( *descLength );
+								}
+
+								serializedBuffer.push( sizeof( uint8 ) ); // Skip second unknown.
+								uint16* attribCount	= serializedBuffer.get<uint16>();
+
+								// Skip past attributes.
+								serializedBuffer.push( sizeof(SOMsgCacheSubscribed_Item_Attrib_t) * (*attribCount) );
+
+								// Push two 32-bit ints.
+								serializedBuffer.push( sizeof(uint64) );
 
 								//Create a new item from the information.
 								Item *newItem = new Item(
-									pItem->itemid,
-									pItem->itemdefindex,
-									pItem->itemlevel,
-									(EItemQuality)pItem->itemquality,
-									pItem->itemcount,
-									pItem->position );
+									item->itemid,
+									item->itemdefindex,
+									item->itemlevel,
+									(EItemQuality)item->itemquality,
+									item->itemcount,
+									item->position );
 
 								// Add the item.
-								backpack_->add( newItem );
+								backpack_->addItem( newItem );
 							}
 
 							//TODO: Update scrolling of excluded items
+							backpack_->setLoaded();
 							break;
 						}
 
@@ -598,16 +666,15 @@ void ItemManager::handleCallbacks() {
 
 							// Add this item to excluded.
 							backpack_->addItem( newItem );
-
-							//TODO: Update excluded scrolling.
+							backpack_->updateExcluded();
 
 							break;
 						}
 					case SOMsgDeleted_t::k_iMessage:
 						{
 							SOMsgDeleted_t *pDeleted = (SOMsgDeleted_t*)buffer;
-
-							// TODO: Iterate through both vectors and remove it.
+							backpack_->removeItem( pDeleted->itemid );
+							backpack_->updateExcluded();
 
 							break;
 						}
@@ -620,14 +687,15 @@ void ItemManager::handleCallbacks() {
 				
 			}
 		}
-	}
 
-	backpack_->releaseCallback();
+		backpack_->releaseCallback();
+	}
 }
 
-Button* ItemManager::createButton( const string& caption, float x, float y, EAlignment align )
+Button* ItemManager::createButton( const string& caption, Texture *texture, float x, float y, EAlignment align )
 {
-	Button* newButton = new Button( caption, x, y, align );
+	// Create and add.
+	Button* newButton = new Button( caption, texture, x, y, align );
 	add( newButton );
 
 	// Add and return.
@@ -638,7 +706,6 @@ Button* ItemManager::createButton( const string& caption, float x, float y, EAli
 Dialog* ItemManager::createDialog( const string& message )
 {
 	Dialog* newDialog = new Dialog( message );
-	newDialog->setMouseListener( this );
 	add( newDialog );
 
 	// Set position.
@@ -657,7 +724,6 @@ Dialog* ItemManager::createDialog( const string& message )
 Alert* ItemManager::createAlert( const string& message )
 {
 	Alert* newAlert = new Alert( message );
-	newAlert->setMouseListener( this );
 	add( newAlert );
 
 	const string* str = &message;
@@ -693,6 +759,5 @@ void ItemManager::removePopup( Popup* whichPopup )
 	}
 
 	// Now remove from container.
-	remove( whichPopup );
-	delete whichPopup;
+	trash( whichPopup );
 }

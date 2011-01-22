@@ -3,12 +3,16 @@
 #include <vector>
 
 #include "Window.h"
-#include "MouseListener.h"
 #include "Component.h"
 
 using namespace std;
 
-enum EMouseEvent;
+enum EMouseEvent {
+	MOUSE_EVENT_CLICK,
+	MOUSE_EVENT_RELEASE,
+	MOUSE_EVENT_MOVE
+};
+
 class Component;
 class Mouse
 {

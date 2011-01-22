@@ -3,13 +3,13 @@
 #include <vector>
 
 #include "Mouse.h"
-#include "MouseListener.h"
 
 using namespace std;
 
+// Prototypes.
 enum EMouseEvent;
-class MouseListener;
 class Mouse;
+
 class Component {
 public:
 	Component();
@@ -17,8 +17,10 @@ public:
 	virtual ~Component();
 
 	// Mouse handling functions.
-	void setMouseListener( MouseListener* mouseListener );
-	virtual bool mouseEvent( Mouse* mouse, EMouseEvent eventType );
+	virtual bool mouseEvent( Mouse *mouse, EMouseEvent eventType );
+	virtual bool mouseClicked( Mouse *mouse );
+	virtual bool mouseReleased( Mouse *mouse );
+	virtual bool mouseMoved( Mouse *mouse );
 
 	// Position functions.
 	virtual void	setPosition( float x, float y );
@@ -35,5 +37,4 @@ public:
 private:
 	float x_, y_;
 	int width_, height_;
-	MouseListener* mouseListener_;
 };

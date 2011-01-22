@@ -12,6 +12,9 @@ Container::Container( float x, float y ) : Component( x, y )
 
 Container::~Container()
 {
+	// Empty retained trash items.
+	emptyTrash();
+
 	// Container destroyed.
 	deque<Component*>::iterator i;
 	while (!componentStack_.empty()) {
@@ -19,22 +22,6 @@ Container::~Container()
 		remove( component );
 		delete component;
 	}
-}
-
-bool Container::mouseEvent( Mouse *mouse, EMouseEvent eventType)
-{
-	// Replicate parent handling.
-	if (Component::mouseEvent( mouse, eventType )) {
-		// Now notify top-most children of the events.
-		for (int i = componentStack_.size() - 1; i >= 0; i--) {
-			Component* child = componentStack_[i];
-			if (child->mouseEvent( mouse, eventType )) {
-				return true;
-			}
-		}
-	}
-
-	return false;
 }
 
 void Container::setPosition( float x, float y )
@@ -51,6 +38,22 @@ void Container::updatePosition()
 void Container::add( Component* component )
 {
 	componentStack_.push_back( component );
+}
+
+void Container::trash( Component *component )
+{
+	remove( component );
+	componentTrash_.push_back( component );
+}
+
+void Container::emptyTrash()
+{
+	// Delete all elements.
+	while (!componentTrash_.empty()) {
+		Component *component = componentTrash_.back();
+		componentTrash_.pop_back();
+		delete component;
+	}
 }
 
 void Container::remove( Component* component )

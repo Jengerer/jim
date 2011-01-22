@@ -3,7 +3,6 @@
 #include "Inventory.h"
 #include "Container.h"
 #include "Steam.h"
-#include "MouseListener.h"
 #include "SerializedBuffer.h"
 
 #define BACKPACK_PADDING		25
@@ -11,7 +10,12 @@
 
 #define EXCLUDED_Y			415
 
-class Backpack: public Inventory, public MouseListener, public Container, public Steam
+enum ESelectMode {
+	SELECT_MODE_SINGLE,
+	SELECT_MODE_MULTIPLE,
+};
+
+class Backpack: public Inventory, public Container, public Steam
 {
 public:
 	Backpack( float x, float y,
@@ -29,11 +33,14 @@ public:
 	// Position handling.
 	virtual void updatePosition();
 
-	// Mouse input handling.
-	virtual bool mouseEvent( Mouse *mouse, EMouseEvent eventType );
-	virtual void mouseClicked( Mouse *mouse, Component *component );
-	virtual void mouseReleased( Mouse *mouse, Component *component );
-	virtual void mouseMoved( Mouse *mouse, Component *component );
+	// Mouse handling.
+	virtual bool mouseMoved( Mouse *mouse );
+	virtual bool mouseClicked( Mouse *mouse );
+	virtual bool mouseReleased( Mouse *mouse );
+
+	// Slot interface handling functions.
+	void slotClicked( Mouse *mouse, Slot *slot );
+	void slotReleased( Slot *slot );
 
 	// Page viewing functions.
 	void nextPage();
@@ -43,10 +50,25 @@ public:
 	// Inventory handling.
 	bool			isLoaded() const;
 	void			setLoaded();
-	void			select( Slot *slot );
+	Slot*			insert( Item* item );
+	virtual void	move( Slot *source, Slot *destination );
+	virtual void	removeItem( uint64 uniqueId );
+	void			updateItem( Item *item );
+	void			craftSelected();
+
+	// Selection handling.
+	void			select( Slot *slot, ESelectType selectType );
+	void			deselect( Slot *slot );
+	void			deselectAll();
+	void			setSelectMode( ESelectMode selectMode );
 
 private:
+	// Selection variables.
+	Slot *dragged_;
 	slotVector selected_;
+	ESelectMode selectMode_;
+
+	// Is backpack loaded yet?
 	bool isLoaded_;
 
 	// Backpack navigation.

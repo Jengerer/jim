@@ -20,8 +20,8 @@ const int ITEM_SIZE		= 60;
 
 Item::Item(
 	uint64 uniqueId,
-	uint32 defIndex,
-	uint32 level,
+	uint16 defIndex,
+	uint8 level,
 	EItemQuality quality,
 	uint32 count,
 	uint32 flags )
@@ -84,12 +84,12 @@ uint64 Item::getUniqueId() const
 	return uniqueId_;
 }
 
-uint32 Item::getDefIndex() const
+uint16 Item::getDefIndex() const
 {
 	return defIndex_;
 }
 
-uint32 Item::getLevel() const
+uint8 Item::getLevel() const
 {
 	return level_;
 }

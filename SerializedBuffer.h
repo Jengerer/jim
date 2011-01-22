@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory.h>
+
 class SerializedBuffer
 {
 public:
@@ -13,15 +15,13 @@ public:
 		return value;
 	}
 
+	void write( void *data, unsigned int size );
+
 	void* here() {
 		return buffer_;
 	}
 
-	template<class T>
-	void push( unsigned int steps );
-
-	// For byte specification.
-	void push( unsigned int bytes );
+	void push( unsigned int steps = 1 );
 
 private:
 	void* buffer_;

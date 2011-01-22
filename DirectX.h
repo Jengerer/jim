@@ -5,7 +5,6 @@
 #include "Texture.h"
 #include "Hashtable.h"
 #include "Exception.h"
-#include "MouseListener.h"
 #include "Font.h"
 
 #include <string>

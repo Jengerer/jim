@@ -25,8 +25,8 @@ public:
 	// Constructor.
 	Item(
 		uint64 uniqueId,
-		uint32 defIndex,
-		uint32 level,
+		uint16 defIndex,
+		uint8 level,
 		EItemQuality quality,
 		uint32 count,
 		uint32 flags );
@@ -42,8 +42,8 @@ public:
 
 	// Item attribute getters.
 	uint64				getUniqueId() const;
-	uint32				getDefIndex() const;
-	uint32				getLevel() const;
+	uint16				getDefIndex() const;
+	uint8				getLevel() const;
 	EItemQuality		getQuality() const;
 	uint32				getFlags() const;
 	uint32				getCount() const;
@@ -69,8 +69,8 @@ public:
 private:
 	// Item information.
 	uint64				uniqueId_;
-	uint32				defIndex_;
-	uint32				level_;
+	uint16				defIndex_;
+	uint8				level_;
 	EItemQuality		quality_;
 	uint32				count_;
 	uint32				flags_;

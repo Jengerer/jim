@@ -110,11 +110,3 @@ void Slot::setSelectType( ESelectType selectType ) {
 		break;
 	}
 }
-
-bool Slot::mouseEvent( Mouse* mouse, EMouseEvent eventType ) {
-	if (Component::mouseEvent( mouse, eventType )) {
-		return true;
-	}
-
-	return false;
-}

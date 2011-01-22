@@ -14,10 +14,10 @@
 
 // User interface.
 #include "Button.h"
-#include "ButtonListener.h"
 #include "Popup.h"
 #include "Dialog.h"
 #include "Alert.h"
+#include "Mouse.h"
 
 // Items and definitions.
 #include "Hashtable.h"
@@ -27,7 +27,7 @@
 #define BUTTON_SPACING	10
 #define BUTTON_Y		380
 
-class ItemManager: public DirectX, public ButtonListener
+class ItemManager: public DirectX
 {
 public:
 	ItemManager( HINSTANCE hInstance );
@@ -49,23 +49,18 @@ public:
 	void handleCallbacks();
 
 	// Input message handling.
-	void triggerMouse( EMouseEvent eventType );
 	void handleMouse();
 	void handleKeyboard();
 
 	// Mouse handling virtuals.
-	virtual void mouseClicked( Mouse *mouse, Component *component );
-	virtual void mouseReleased( Mouse *mouse, Component *component );
-	virtual void mouseMoved( Mouse *mouse, Component *component );
-
-	// Handling button input.
-	virtual void buttonPressed( Button *button );
-	virtual void buttonReleased( Button *button );
+	virtual bool mouseClicked( Mouse *mouse );
+	virtual bool mouseReleased( Mouse *mouse );
+	virtual bool mouseMoved( Mouse *mouse );
 
 	// Interface handling.
 	Dialog*	createDialog( const string& message );
 	Alert*	createAlert( const string& message );
-	Button*	createButton( const string& caption, float x = 0.0f, float y = 0.0f, EAlignment align = ALIGN_TOP_LEFT );
+	Button*	createButton( const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f, EAlignment align = ALIGN_TOP_LEFT );
 	void	showPopup(Popup* popup);
 	void	removePopup(Popup* popup);
 
@@ -90,6 +85,6 @@ private:
 	Dialog			*loadDialog_;
 	Alert			*alert_;
 	Alert			*error_;
-	Button			*deleteButton_, *craftButton_, *sortButton_;
+	Button			*equipButton_, *craftButton_, *sortButton_;
 	Button			*exitButton_;
 };

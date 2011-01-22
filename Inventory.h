@@ -28,14 +28,14 @@ public:
 
 	// Slot handling.
 	void			generateSlots();
-	void			move( Slot *source, Slot *destination );
+	virtual void	move( Slot *source, Slot *destination );
 	bool			isValidSlot( uint8 index );
 	Slot*			getSlot( uint8 index );
 
 	// Item handling.
 	Slot*			addItem( Item* item );
 	Slot*			insert( Item* item );
-	void			removeItem( Item* item );
+	virtual void	removeItem( uint64 uniqueId );
 	void			emptySlots();
 	void			clearItems();
 	void			clearSlots();
