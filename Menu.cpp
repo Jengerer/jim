@@ -1,0 +1,133 @@
+#include "Menu.h"
+
+// Menu created.
+Menu::Menu()
+{
+	selected_	= 0;
+	widest_		= 0;
+	setState( POPUP_STATE_INACTIVE );
+}
+
+Menu::~Menu()
+{
+	// Menu destroyed.
+}
+
+void Menu::draw( DirectX *directX )
+{
+	// Draw stroked rounded rectangle.
+	directX->drawRoundedRect( getX(), getY(), getWidth(), getHeight(), MENU_RADIUS + MENU_STROKE, MENU_STROKE_COLOUR );
+	directX->drawRoundedRect( getX() + MENU_STROKE, getY() + MENU_STROKE, getWidth() - MENU_STROKE * 2, getHeight() - MENU_STROKE * 2, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
+
+	// Draw buttons.
+	for (int i = 0; i < options_.size(); i++) {
+		MenuOption *button = options_[i];
+		button->draw( directX );
+	}
+}
+
+MenuOption* Menu::addOption( const string& caption )
+{
+	MenuOption *button = new MenuOption( caption );
+	options_.push_back( button );
+	add( button );
+
+	// Update widest button.
+	if ((widest_ == 0) || (button->getWidth() > widest_)) {
+		widest_ = button->getWidth();
+	}
+
+	return button;
+}
+
+MenuOption* Menu::getSelected()
+{
+	return selected_;
+}
+
+void Menu::pack()
+{
+	int width = widest_ + MENU_PADDING * 2 + MENU_STROKE * 2;
+	int height = MENU_PADDING * 2 + MENU_STROKE * 2;
+
+	// Pack buttons.
+	for (int i = 0; i < options_.size(); i++) {
+		MenuOption *button = options_[i];
+
+		// Pack this button.
+		button->setSize( widest_, button->getHeight() );
+		height += button->getHeight();
+	}
+
+	// Add spacing heights.
+	if (options_.size() >= 2) {
+		height += (options_.size() - 1) * MENU_SPACING;
+	}
+
+	// Set new size.
+	setSize( width, height );
+}
+
+void Menu::updatePosition()
+{
+	// Position all buttons.
+	int y = getY() + MENU_PADDING + MENU_STROKE;
+	for (int i = 0; i < options_.size(); i++) {
+		MenuOption *button = options_[i];
+		button->setX( getX() + MENU_PADDING + MENU_STROKE );
+		button->setY( y );
+
+		y += button->getHeight() + MENU_SPACING;
+	}
+}
+
+bool Menu::leftClicked( Mouse *mouse )
+{
+	// Close popup if no buttons clicked.
+	selected_ = 0;
+	if (!mouse->isTouching( this )) {
+		setState( POPUP_STATE_INACTIVE );
+		return false;
+	}
+
+	return true;
+}
+
+bool Menu::rightClicked( Mouse *mouse )
+{
+	// Close popup if not clicked.
+	selected_ = 0;
+	if (!mouse->isTouching( this )) {
+		setState( POPUP_STATE_INACTIVE );
+		return false;
+	}
+
+	return true;
+}
+
+bool Menu::leftReleased( Mouse *mouse )
+{
+	// Select button if released on.
+	if (mouse->isTouching( this )) {
+		for (int i = 0; i < options_.size(); i++) {
+			MenuOption *button = options_[i];
+			if (mouse->isTouching( button )) {
+				selected_ = button;
+				break;
+			}
+		}
+
+		return true;
+	}
+}
+
+bool Menu::mouseMoved( Mouse *mouse )
+{
+	// Pass message to buttons.
+	for (int i = 0; i < options_.size(); i++) {
+		MenuOption *button = options_[i];
+		button->mouseMoved( mouse );
+	}
+
+	return true;
+}

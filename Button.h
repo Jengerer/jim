@@ -31,14 +31,15 @@ class ButtonListener;
 class Button: public Panel
 {
 public:
+	Button( const string& caption );
 	Button( const string& caption,
-		Texture *texture = 0,
+		Texture *texture,
 		float x = 0.0f, float y = 0.0f,
 		EAlignment align = ALIGN_TOP_LEFT );
 	virtual ~Button();
 	
 	// Drawable functions.
-	void			draw( DirectX* directX );
+	void draw( DirectX* directX );
 
 	// MouseListener functions.
 	virtual bool mouseMoved( Mouse *mouse );
@@ -46,8 +47,10 @@ public:
 	// Class-wide texture.
 	static Font*	font;
 
+protected:
+	string			caption_;
+	bool			isHovering_;
+
 private:
 	Texture			*texture_;
-	bool			isHovering_;
-	string			caption_;
 };

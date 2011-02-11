@@ -16,33 +16,25 @@ Component::~Component()
 	// Component is destroyed.
 }
 
-bool Component::mouseEvent( Mouse *mouse, EMouseEvent eventType )
-{
-	// Generate mouse event function.
-	if (mouse->isTouching( this )) {
-		// Call the appropriate function.
-		if (eventType == MOUSE_EVENT_CLICK) {
-			return mouseClicked( mouse );
-		}
-		else if (eventType == MOUSE_EVENT_RELEASE) {
-			return mouseReleased( mouse );
-		}
-		else if (eventType == MOUSE_EVENT_MOVE) {
-			return mouseMoved( mouse );
-		}
-		else {
-			throw Exception( "Unhandled mouse event." );
-		}
-	}
-}
-
-bool Component::mouseClicked( Mouse *mouse )
+bool Component::leftClicked( Mouse *mouse )
 {
 	// Default handling.
 	return false;
 }
 
-bool Component::mouseReleased( Mouse *mouse )
+bool Component::leftReleased( Mouse *mouse )
+{
+	// Default handling.
+	return false;
+}
+
+bool Component::rightClicked( Mouse *mouse )
+{
+	// Default handling.
+	return false;
+}
+
+bool Component::rightReleased( Mouse *mouse )
 {
 	// Default handling.
 	return false;

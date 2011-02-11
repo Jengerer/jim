@@ -10,8 +10,8 @@ public:
 
 	// Mouse handling.
 	virtual bool mouseMoved( Mouse *mouse );
-	virtual bool mouseClicked( Mouse *mouse );
-	virtual bool mouseReleased( Mouse *mouse );
+	virtual bool leftClicked( Mouse *mouse );
+	virtual bool leftReleased( Mouse *mouse );
 
 	virtual void onDrag( Mouse* mouse );
 	virtual void onRelease();

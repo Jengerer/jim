@@ -36,8 +36,8 @@ public:
 
 	// Mouse handling.
 	virtual bool mouseMoved( Mouse *mouse );
-	virtual bool mouseClicked( Mouse *mouse );
-	virtual bool mouseReleased( Mouse *mouse );
+	virtual bool leftClicked( Mouse *mouse );
+	virtual bool leftReleased( Mouse *mouse );
 
 	// Slot interface handling functions.
 	void slotClicked( Mouse *mouse, Slot *slot );

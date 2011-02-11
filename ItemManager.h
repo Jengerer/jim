@@ -17,6 +17,7 @@
 #include "Popup.h"
 #include "Dialog.h"
 #include "Alert.h"
+#include "Menu.h"
 #include "Mouse.h"
 
 // Items and definitions.
@@ -53,16 +54,21 @@ public:
 	void handleKeyboard();
 
 	// Mouse handling virtuals.
-	virtual bool mouseClicked( Mouse *mouse );
-	virtual bool mouseReleased( Mouse *mouse );
+	virtual bool leftClicked( Mouse *mouse );
+	virtual bool leftReleased( Mouse *mouse );
+	virtual bool rightClicked( Mouse *mouse );
+	virtual bool rightReleased( Mouse *mouse );
 	virtual bool mouseMoved( Mouse *mouse );
 
 	// Interface handling.
 	Dialog*	createDialog( const string& message );
 	Alert*	createAlert( const string& message );
 	Button*	createButton( const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f, EAlignment align = ALIGN_TOP_LEFT );
-	void	showPopup(Popup* popup);
-	void	removePopup(Popup* popup);
+	void	showMenu( Menu *menu, int x, int y );
+	void	showPopup( Popup *popup );
+	void	hidePopup( Popup *popup );
+	void	handlePopup( Popup *popup );
+	void	removePopup( Popup* popup );
 
 private:
 	// Application interfaces.
@@ -72,6 +78,9 @@ private:
 	deque<Popup*>	popupStack_;
 	vector<Popup*>	popupList_;
 	vector<Button*>	buttonList_;
+
+	// Menus and options.
+	Menu*			itemMenu_;
 
 	// Input handling.
 	Mouse*			mouse_;

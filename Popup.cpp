@@ -19,10 +19,3 @@ EPopupState Popup::getState() const
 {
 	return state_;
 }
-
-bool Popup::mouseEvent( Mouse *mouse, EMouseEvent mouseEvent )
-{
-	// Popup always take precedence.
-	Component::mouseEvent( mouse, mouseEvent );
-	return true;
-}

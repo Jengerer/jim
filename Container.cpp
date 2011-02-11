@@ -32,7 +32,7 @@ void Container::setPosition( float x, float y )
 
 void Container::updatePosition()
 {
-	// To be implemented.
+	// Optionally implemented.
 }
 
 void Container::add( Component* component )

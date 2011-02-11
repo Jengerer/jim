@@ -3,7 +3,7 @@
 Alert::Alert( const string& message ) : Dialog( message )
 {
 	// Make OK button.
-	okButton = new Button( "okay" );
+	okButton = new Button( "okay", 0 );
 	add( okButton );
 
 	resize();
@@ -46,26 +46,34 @@ bool Alert::mouseMoved( Mouse *mouse )
 	return true;
 }
 
-bool Alert::mouseClicked( Mouse *mouse )
+bool Alert::leftClicked( Mouse *mouse )
 {
-	if (!mouse->isTouching( okButton )) {
-		Draggable::mouseClicked( mouse );
+	if (mouse->isTouching( this )) {
+		if (!mouse->isTouching( okButton )) {
+			Draggable::leftClicked( mouse );
+		}
+
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
-bool Alert::mouseReleased( Mouse *mouse )
+bool Alert::leftReleased( Mouse *mouse )
 {
-	// Draggable behaviour.
-	Draggable::mouseReleased( mouse );
+	if (mouse->isTouching( this )) {
+		// Now set state if we're terminated.
+		if (mouse->isTouching( okButton )) {
+			setState( POPUP_STATE_KILLED );
+		}
+		else {
+			Draggable::leftReleased( mouse );
+		}
 
-	// Now set state if we're terminated.
-	if (mouse->isTouching( okButton )) {
-		setState( POPUP_STATE_INACTIVE );
+		return true;
 	}
 
-	return true;
+	return false;
 }		
 
 void Alert::setMessage( const string& message )
