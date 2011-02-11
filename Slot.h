@@ -21,6 +21,10 @@ enum ESlotGroup {
 #define SLOT_WIDTH	70
 #define SLOT_HEIGHT	60
 
+#define SLOT_STROKE_VINTAGE	D3DCOLOR_RGBA( 69, 97, 141, 200 )
+#define SLOT_STROKE_NORMAL	D3DCOLOR_RGBA( 193, 165, 0, 150 )
+#define SLOT_STROKE_WIDTH	2
+
 class Slot: public Draggable
 {
 public:

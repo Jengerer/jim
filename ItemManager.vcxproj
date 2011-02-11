@@ -110,6 +110,7 @@
     <ClCompile Include="Hashtable.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Inventory.cpp" />
+    <ClCompile Include="ItemDisplay.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="Item.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="DirectX.h" />
     <ClInclude Include="Item.h" />
+    <ClInclude Include="ItemDisplay.h" />
     <ClInclude Include="ItemManager.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Mouse.h" />

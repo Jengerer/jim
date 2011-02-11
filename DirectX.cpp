@@ -3,6 +3,7 @@
 // Includes for font changing.
 #include "Dialog.h"
 #include "Button.h"
+#include "ItemDisplay.h"
 
 const D3DCOLOR WHITE_COLOUR = D3DCOLOR_ARGB( 255, 255, 255, 255 );
 const D3DCOLOR BACKGROUND_COLOUR = D3DCOLOR_ARGB( 255, 43, 39, 37 );
@@ -70,11 +71,24 @@ void DirectX::openInterfaces()
 		}
 	}
 
+	// Load font as resource.
+	if (!AddFontResourceEx("ttfFiles/tf2Secondary.ttf", FR_PRIVATE, 0)) {
+		if (!download("www.jengerer.com/itemManager/ttfFiles/tf2Secondary.ttf", "ttfFiles/tf2Secondary.ttf") || !AddFontResource("ttfFiles/tf2Secondary.ttf")) {
+			throw Exception( "Failed to load font." );
+		}
+	}
+
 	// Get font for body text.
 	labelFont_ = createFont( "Arial", 14, false );
-	bodyFont_ = createFont( "TF2 Build", 20, false );
+	titleFont_ = createFont( "TF2 Build", 18, false );
+	bodyFont_ = createFont( "TF2 Build", 20, false );	
+	infoFont_ = createFont( "TF2 Secondary", 18, false );
+
+	// Set static fonts.
 	Dialog::font = bodyFont_;
 	Button::font = bodyFont_;
+	ItemDisplay::nameFont = titleFont_;
+	ItemDisplay::infoFont = infoFont_;
 
 	// Create vertex buffer.
 	hResult = d3dDevice_->CreateVertexBuffer(

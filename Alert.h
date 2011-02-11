@@ -16,6 +16,11 @@ public:
 	virtual void setMessage( const string& message );
 	const Button* getButton() const;
 
+	// Mouse handling.
+	virtual bool mouseMoved( Mouse *mouse );
+	virtual bool mouseClicked( Mouse *mouse );
+	virtual bool mouseReleased( Mouse *mouse );
+
 private:
 	Button* okButton;
 };

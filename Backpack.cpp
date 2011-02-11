@@ -19,6 +19,7 @@ Backpack::Backpack(
 	// Backpack was created.
 	isLoaded_ = false;
 	cameraX_ = cameraSpeed_ = cameraDest_ = 0;
+	itemDisplay_ = 0;
 	page_ = excludedPage_ = 1;
 	dragged_ = 0;
 
@@ -43,12 +44,21 @@ Backpack::Backpack(
 
 		add( slot );
 	}
+
+	// Create item display.
+	itemDisplay_ = new ItemDisplay();
 }
 
 Backpack::~Backpack()
 {
 	// Backpack has been destroyed.
 	removeSlots();
+
+	// Remove item display.
+	if (itemDisplay_ != 0) {
+		delete itemDisplay_;
+		itemDisplay_ = 0;
+	}
 }
 
 void Backpack::draw( DirectX* directX )
@@ -89,6 +99,9 @@ void Backpack::draw( DirectX* directX )
 		Slot* slot = *j;
 		slot->draw( directX );
 	}
+
+	// Draw item information.
+	itemDisplay_->draw( directX );
 }
 
 void Backpack::updatePosition()
@@ -214,8 +227,11 @@ bool Backpack::mouseReleased( Mouse *mouse )
 
 bool Backpack::mouseMoved( Mouse *mouse )
 {
+	// Reset item display.
+	itemDisplay_->setActive( false );
+
 	// Mouse moved.
-	if (selected_.size() == 1) {
+	if (selected_.size() == 1 && dragged_ != 0) {
 		Slot* slot = selected_[0];
 		slot->updatePosition();
 
@@ -233,6 +249,45 @@ bool Backpack::mouseMoved( Mouse *mouse )
 		}
 
 		return true;
+	}
+
+	// Check for collision with visible slots.
+	int i, x, y;
+	const slotArray inventory = getInventory();
+	for (i = 0; i < pages_; i++) {
+		for (x = 0; x < invWidth_; x++) {
+			for (y = 0; y < invHeight_; y++) {
+				int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
+				Slot* slot = inventory[index];
+
+				// Only draw column if visible.
+				int slotWidth = slot->getWidth();
+				if ((slot->getX() <= -slotWidth) || (slot->getX() >= getWidth())) {
+					break;
+				}
+
+				if (mouse->isTouching( slot ) && (slot->getItem() != 0)) {
+					// Update display if not dragging.
+					if (slot->getSelectType() != SELECT_TYPE_DRAG) {
+						itemDisplay_->setItem( slot->getItem() );
+						itemDisplay_->setPosition( slot->getX() + slot->getWidth()/2 - itemDisplay_->getWidth() / 2, slot->getY() + slot->getHeight() + 10 );
+
+						// Bound position.
+						int rightBound = getWidth() - itemDisplay_->getWidth() - DISPLAY_SPACING;
+						if (itemDisplay_->getX() > rightBound) {
+							itemDisplay_->setX( rightBound );
+						}
+						else if (itemDisplay_->getX() < DISPLAY_SPACING) {
+							itemDisplay_->setX( DISPLAY_SPACING );
+						}
+
+						itemDisplay_->setActive( true );
+					}
+
+					return true;
+				}
+			}
+		}
 	}
 
 	return false;
@@ -255,12 +310,13 @@ void Backpack::slotClicked( Mouse *mouse, Slot *slot )
 			dragging->setIndex( slot->getIndex() );
 			dragging->setGroup( slot->getGroup() );
 			dragging->setItem( slot->getItem() );
+			dragging->setParent( this );
 		
 			// Remove item from slot.
 			slot->setItem( 0 );
 
 			// Start dragging.
-			dragging->onDrag( mouse, this );
+			dragging->onDrag( mouse );
 			switch (slot->getSelectType()) {
 			case SELECT_TYPE_NONE:
 				select( dragging, SELECT_TYPE_DRAG );
@@ -483,8 +539,15 @@ void Backpack::prevPage()
 void Backpack::moveCamera()
 {
 	// Add elastic speed.
-	cameraSpeed_ += (cameraDest_ - cameraX_)*SPRING_STRENGTH;
+	float cameraDistance = (cameraDest_ - cameraX_);
+	cameraSpeed_ += cameraDistance*SPRING_STRENGTH;
 	cameraSpeed_ *= SPRING_DAMPING;
+
+	// Stop if slowing.
+	if (abs(cameraSpeed_) < 2 && abs(cameraDistance) < 1) {
+		cameraSpeed_ = 0;
+		cameraX_ = cameraDest_;
+	}
 
 	// Now propel.
 	cameraX_ += cameraSpeed_;

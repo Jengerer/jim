@@ -36,6 +36,38 @@ void Alert::resize()
 	updatePosition();
 }
 
+bool Alert::mouseMoved( Mouse *mouse )
+{
+	// Parent behaviour.
+	Dialog::mouseMoved( mouse );
+
+	// Pass state to button.
+	okButton->mouseMoved( mouse );
+	return true;
+}
+
+bool Alert::mouseClicked( Mouse *mouse )
+{
+	if (!mouse->isTouching( okButton )) {
+		Draggable::mouseClicked( mouse );
+	}
+
+	return true;
+}
+
+bool Alert::mouseReleased( Mouse *mouse )
+{
+	// Draggable behaviour.
+	Draggable::mouseReleased( mouse );
+
+	// Now set state if we're terminated.
+	if (mouse->isTouching( okButton )) {
+		setState( POPUP_STATE_INACTIVE );
+	}
+
+	return true;
+}		
+
 void Alert::setMessage( const string& message )
 {
 	Dialog::setMessage( message );

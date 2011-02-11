@@ -10,10 +10,12 @@ public:
 
 	// Mouse handling.
 	virtual bool mouseMoved( Mouse *mouse );
+	virtual bool mouseClicked( Mouse *mouse );
+	virtual bool mouseReleased( Mouse *mouse );
 
-	virtual void onDrag( Mouse* mouse, Container* parent );
-	virtual void onMove();
+	virtual void onDrag( Mouse* mouse );
 	virtual void onRelease();
+	void setParent( Container *container );
 	bool isDragging() const;
 
 	virtual float getX() const;

@@ -3,6 +3,7 @@
 Draggable::Draggable( float x, float y ) : Panel( x, y )
 {
 	isDragging_ = false;
+	setParent( 0 );
 	offsetX_ = offsetY_ = 0.0f;
 }
 
@@ -20,6 +21,20 @@ bool Draggable::mouseMoved( Mouse *mouse )
 	}
 
 	return false;
+}
+
+bool Draggable::mouseClicked( Mouse *mouse )
+{
+	// Start dragging.
+	onDrag( mouse );
+	return true;
+}
+
+bool Draggable::mouseReleased( Mouse *mouse )
+{
+	// End dragging.
+	onRelease();
+	return true;
 }
 
 float Draggable::getX() const
@@ -56,7 +71,11 @@ float Draggable::getY() const
 	return Component::getY();
 }
 
-void Draggable::onDrag( Mouse* mouse, Container* parent )
+/*
+ * Purpose: Starts dragging the object.
+ * Precondition: parent is set before dragging.
+ */
+void Draggable::onDrag( Mouse* mouse )
 {
 	// Set the offset.
 	offsetX_ = mouse->getX() - getX();
@@ -64,14 +83,11 @@ void Draggable::onDrag( Mouse* mouse, Container* parent )
 
 	// Get movement control.
 	mouse_ = mouse;
-	parent_ = parent;
 	isDragging_ = true;
 }
 
-void Draggable::onMove()
-{
-	// Update position of children.
-	updatePosition();
+void Draggable::setParent( Container *container ) {
+	parent_ = container;
 }
 
 void Draggable::onRelease()

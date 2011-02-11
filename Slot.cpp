@@ -1,10 +1,11 @@
 #include "Slot.h"
 
 // Colours for slot.
-const D3DCOLOR SELECTED_COLOUR	= D3DCOLOR_ARGB( 255,	153,	142,	121 );
+const D3DCOLOR SELECTED_COLOUR	= D3DCOLOR_ARGB( 125,	60,		53,		46 );
 const D3DCOLOR HOVER_COLOUR		= D3DCOLOR_ARGB( 255,	200,	200,	200 );
+const D3DCOLOR EMPTY_COLOUR		= D3DCOLOR_ARGB( 255,	60,		53,		46 );
 const D3DCOLOR NORMAL_COLOUR	= D3DCOLOR_ARGB( 255,	60,		53,		46 );
-const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 175,	131,	119,	104 );
+const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 100,	60,		53,		46 );
 
 // Constants for slot size.
 const int SLOT_RADIUS	= 5;
@@ -31,12 +32,28 @@ void Slot::draw( DirectX* directX )
 	// Update slot position.
 	updatePosition();
 
-	// Draw slot texture.
-	directX->drawRoundedRect( getX(), getY(), SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, colour_ );
-	Item* item = getItem();
-	if (item) {
-		// Draw it.
+	// Draw stroke based on quality.
+	Item *item = getItem();
+	if (item != 0) {
+		// Draw stroke based on quality.
+		D3DCOLOR strokeColour;
+		switch (item->getQuality()) {
+		case EItemQuality::k_EItemQuality_Unique:
+			strokeColour = SLOT_STROKE_VINTAGE;
+			break;
+		default:
+			strokeColour = SLOT_STROKE_NORMAL;
+			break;
+		}
+
+		// Draw stroked slot.
+		directX->drawRoundedRect( getX(), getY(), SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, strokeColour );
+		directX->drawRoundedRect( getX() + SLOT_STROKE_WIDTH, getY() + SLOT_STROKE_WIDTH, SLOT_WIDTH - SLOT_STROKE_WIDTH*2, SLOT_HEIGHT - SLOT_STROKE_WIDTH*2, SLOT_RADIUS - SLOT_STROKE_WIDTH, colour_ );
 		item->draw( directX );
+	}
+	else {
+		// Draw slot texture.
+		directX->drawRoundedRect( getX(), getY(), SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, EMPTY_COLOUR );
 	}
 }
 

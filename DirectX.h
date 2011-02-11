@@ -93,6 +93,8 @@ private:
 	// Text drawing.
 	Font						*bodyFont_;
 	Font						*labelFont_;
+	Font						*titleFont_;
+	Font						*infoFont_;
 
 	// Present parameters.
 	D3DPRESENT_PARAMETERS		params_;
