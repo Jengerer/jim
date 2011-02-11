@@ -4,6 +4,7 @@
 #include "Container.h"
 #include "Steam.h"
 #include "SerializedBuffer.h"
+#include "ItemDisplay.h"
 
 #define BACKPACK_PADDING		25
 #define BACKPACK_PADDING_TOP	50
@@ -70,6 +71,9 @@ private:
 
 	// Is backpack loaded yet?
 	bool isLoaded_;
+
+	// Display for item information.
+	ItemDisplay *itemDisplay_;
 
 	// Backpack navigation.
 	int page_, excludedPage_;

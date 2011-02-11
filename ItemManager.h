@@ -86,5 +86,4 @@ private:
 	Alert			*alert_;
 	Alert			*error_;
 	Button			*equipButton_, *craftButton_, *sortButton_;
-	Button			*exitButton_;
 };

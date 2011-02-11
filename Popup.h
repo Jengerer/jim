@@ -19,8 +19,9 @@ public:
 	virtual bool mouseEvent( Mouse *mouse, EMouseEvent mouseEvent );
 
 	// Get activity state.
+	void			setState( EPopupState state );
 	EPopupState		getState() const;
 
-protected:
-	EPopupState		state;
+private:
+	EPopupState		state_;
 };

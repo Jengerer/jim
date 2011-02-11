@@ -8,12 +8,6 @@
 #define DIALOG_PADDING			20
 #define DIALOG_STROKE_WIDTH		5
 
-enum EPopupType {
-	POPUP_TYPE_DIALOG,
-	POPUP_TYPE_ALERT,
-	POPUP_TYPE_CONFIRM
-};
-
 class Dialog: public Popup
 {
 public:

@@ -94,7 +94,7 @@ ItemManager::~ItemManager()
 void ItemManager::openInterfaces()
 {
 	// Show dialog.
-	loadDialog_ = createDialog( "Initializing..." );
+	loadDialog_ = createDialog( "Initializing item manager..." );
 
 	try {
 		// Load button textures.
@@ -114,10 +114,10 @@ void ItemManager::openInterfaces()
 		craftButton_	= createButton( "craft", craftTexture, BACKPACK_PADDING, BUTTON_Y );
 		equipButton_	= createButton( "equip", equipTexture, craftButton_->getX() + craftButton_->getWidth() + BUTTON_SPACING, BUTTON_Y );
 		sortButton_		= createButton( "sort", sortTexture, equipButton_->getX() + equipButton_->getWidth() + BUTTON_SPACING, BUTTON_Y );
-		exitButton_		= createButton( "exit",	0, getWidth() - BACKPACK_PADDING, getHeight() - BACKPACK_PADDING, ALIGN_BOTTOM_RIGHT );
 
 		// Define and load items.
 		loadDefinitions();
+		loadItems();
 
 		// Hide the loading dialog.
 		removePopup( loadDialog_ );
@@ -214,11 +214,11 @@ void ItemManager::handleKeyboard()
 {
 	// Skip if not in focus.
 	if (GetFocus() == getWindow()->getHandle()) {
-		// Multiple item selection.
-		backpack_->setSelectMode( keyPressed( VK_CONTROL ) ? SELECT_MODE_MULTIPLE : SELECT_MODE_SINGLE );
-
 		// Next page on right arrow.
 		if (backpack_ && backpack_->isLoaded()) {
+			// Multiple item selection.
+			backpack_->setSelectMode( keyPressed( VK_CONTROL ) ? SELECT_MODE_MULTIPLE : SELECT_MODE_SINGLE );
+
 			if (keyPressed( VK_RIGHT )) {
 				if (!rightPressed_) {
 					backpack_->nextPage();
@@ -274,9 +274,8 @@ bool ItemManager::mouseClicked( Mouse *mouse )
 	if (!popupStack_.empty()) {
 		Popup* top = popupStack_.back();
 		if (mouse->isTouching( top )) {
-			// Starting dragging top components.
-			top->onDrag( mouse, this );
-			return true;
+			// Set top component to drag appropriately.
+			top->mouseClicked( mouse );
 		}
 	}
 	else {
@@ -299,34 +298,23 @@ bool ItemManager::mouseClicked( Mouse *mouse )
 
 bool ItemManager::mouseReleased( Mouse *mouse )
 {
-	// Mouse released.
-	if (alert_ && mouse->isTouching( alert_ )) {
-		alert_->onRelease();
-
-		// Remove popup if button clicked.
-		const Button *alertButton = alert_->getButton();
-		if (mouse->isTouching( alertButton )) {
-			removePopup( alert_ );
-			alert_ = 0;
+	// Check top popup.
+	if (!popupStack_.empty()) {
+		Popup *top = popupStack_.back();
+		if (mouse->isTouching( top )) {
+			top->mouseReleased( mouse );
 		}
 
-		return true;
-	}
-	else if (error_ && mouse->isTouching( error_ )) {
-		error_->onRelease();
+		// Check if the popup has been closed.
+		if (top->getState() == POPUP_STATE_INACTIVE ) {
+			// Check for error handling.
+			if (top == error_) {
+				exitApplication();
+			}
 
-		// Remove popup and exit if button clicked.
-		const Button *errorButton = error_->getButton();
-		if (mouse->isTouching( errorButton )) {
-			removePopup( error_ );
-			exitApplication();
-			error_ = 0;
+			removePopup( top );
+			emptyTrash();
 		}
-		else {
-			error_->onRelease();
-		}
-
-		return true;
 	}
 	else {
 		// Check backpack.
@@ -335,7 +323,7 @@ bool ItemManager::mouseReleased( Mouse *mouse )
 		}
 
 		// Now run buttons.
-		if (mouse->isTouching(craftButton_)) {
+		if (mouse->isTouching( craftButton_ )) {
 			try {
 				backpack_->craftSelected();
 			} 
@@ -362,7 +350,7 @@ bool ItemManager::mouseMoved( Mouse *mouse )
 	}
 	else {
 		// Check backpack.
-		if (backpack_->mouseMoved( mouse )) {
+		if (backpack_ && backpack_->mouseMoved( mouse )) {
 			return true;
 		}
 
@@ -552,7 +540,7 @@ void ItemManager::loadItems()
 	loadDialog_->setMessage( "Items successfully loaded!" );
 	redraw();
 
-	//TODO: Update excluded scrolling.
+	backpack_->setLoaded();
 }
 
 void ItemManager::handleCallbacks() {
@@ -584,56 +572,54 @@ void ItemManager::handleCallbacks() {
 							SOMsgCacheSubscribed_t *list = serializedBuffer.get<SOMsgCacheSubscribed_t>();
 
 							// Don't load if we've already loaded.
-							if (backpack_->isLoaded() && (list->steamid == backpack_->getSteamId())) {
-								break;
+							if (!backpack_->isLoaded() || (list->steamid != backpack_->getSteamId())) {
+								for (int i = 0; i < list->itemcount; i++)
+								{
+									SOMsgCacheSubscribed_Item_t *item = serializedBuffer.get<SOMsgCacheSubscribed_Item_t>();
+
+									// Get custom item name.
+									char* customName	= 0;
+									if (item->namelength > 0) {
+										customName = (char*)serializedBuffer.here();
+										serializedBuffer.push( item->namelength );
+									}
+
+									serializedBuffer.push( sizeof( uint8 ) ); // Skip first unknown.
+									uint8* origin		= serializedBuffer.get<uint8>();
+									uint16* descLength	= serializedBuffer.get<uint16>();
+
+									// Get custom description.
+									char* customDesc	= 0;
+									if (*descLength > 0) {
+										customDesc = (char*)serializedBuffer.here();
+										serializedBuffer.push( *descLength );
+									}
+
+									serializedBuffer.push( sizeof( uint8 ) ); // Skip second unknown.
+									uint16* attribCount	= serializedBuffer.get<uint16>();
+
+									// Skip past attributes.
+									serializedBuffer.push( sizeof(SOMsgCacheSubscribed_Item_Attrib_t) * (*attribCount) );
+
+									// Push two 32-bit ints.
+									serializedBuffer.push( sizeof(uint64) );
+
+									//Create a new item from the information.
+									Item *newItem = new Item(
+										item->itemid,
+										item->itemdefindex,
+										item->itemlevel,
+										(EItemQuality)item->itemquality,
+										item->itemcount,
+										item->position );
+
+									// Add the item.
+									backpack_->addItem( newItem );
+								}
 							}
 
-							for (int i = 0; i < list->itemcount; i++)
-							{
-								SOMsgCacheSubscribed_Item_t *item = serializedBuffer.get<SOMsgCacheSubscribed_Item_t>();
-
-								// Get custom item name.
-								char* customName	= 0;
-								if (item->namelength > 0) {
-									customName = (char*)serializedBuffer.here();
-									serializedBuffer.push( item->namelength );
-								}
-
-								serializedBuffer.push( sizeof( uint8 ) ); // Skip first unknown.
-								uint8* origin		= serializedBuffer.get<uint8>();
-								uint16* descLength	= serializedBuffer.get<uint16>();
-
-								// Get custom description.
-								char* customDesc	= 0;
-								if (*descLength > 0) {
-									customDesc = (char*)serializedBuffer.here();
-									serializedBuffer.push( *descLength );
-								}
-
-								serializedBuffer.push( sizeof( uint8 ) ); // Skip second unknown.
-								uint16* attribCount	= serializedBuffer.get<uint16>();
-
-								// Skip past attributes.
-								serializedBuffer.push( sizeof(SOMsgCacheSubscribed_Item_Attrib_t) * (*attribCount) );
-
-								// Push two 32-bit ints.
-								serializedBuffer.push( sizeof(uint64) );
-
-								//Create a new item from the information.
-								Item *newItem = new Item(
-									item->itemid,
-									item->itemdefindex,
-									item->itemlevel,
-									(EItemQuality)item->itemquality,
-									item->itemcount,
-									item->position );
-
-								// Add the item.
-								backpack_->addItem( newItem );
-							}
-
-							//TODO: Update scrolling of excluded items
 							backpack_->setLoaded();
+							backpack_->updateExcluded();
 							break;
 						}
 
@@ -641,8 +627,11 @@ void ItemManager::handleCallbacks() {
 						{
 							GCCraftResponse_t *pResponse = (GCCraftResponse_t*)buffer;
 
-							if (pResponse->blueprint == 0xFFFF) {
-								//TODO: Display the dialog for crafting failed.
+							if (pResponse->blueprint == 0xffff) {
+								createAlert( "Not sure what you were trying to do there, but crafting failed. No such blueprint exists!" );
+							}
+							else {
+								createAlert( "Congratulations! Item crafting succeeded!" );
 							}
 
 							break;
@@ -653,8 +642,9 @@ void ItemManager::handleCallbacks() {
 							SOMsgCacheSubscribed_Item_t* craftedItem = &msgCreate->item;
 
 							//Make sure it's a valid item.
-							if (msgCreate->unknown == 5)
+							if (msgCreate->unknown == 5) {
 								break;
+							}
 
 							Item* newItem = new Item(
 								craftedItem->itemid,
@@ -712,6 +702,7 @@ Dialog* ItemManager::createDialog( const string& message )
 	float x = (float)(getWidth() / 2) - (float)(newDialog->getWidth() / 2);
 	float y = (float)(getHeight() / 2) - (float)(newDialog->getHeight() / 2);
 	newDialog->setPosition( x, y );
+	newDialog->setParent( this );
 
 	// Show popup.
 	showPopup( newDialog );
@@ -733,6 +724,7 @@ Alert* ItemManager::createAlert( const string& message )
 	float alertX = (float)(getWidth() / 2) - (newAlert->getWidth() / 2);
 	float alertY = (float)(getHeight() / 2) - (newAlert->getHeight() / 2);
 	newAlert->setPosition( alertX, alertY );
+	newAlert->setParent( this );
 
 	// Show popup.
 	showPopup( newAlert );
@@ -742,22 +734,22 @@ Alert* ItemManager::createAlert( const string& message )
 	return newAlert;
 }
 
-void ItemManager::showPopup( Popup* whichPopup )
+void ItemManager::showPopup( Popup* popup )
 {
-	popupStack_.push_back( whichPopup );
+	popupStack_.push_back( popup );
 }
 
-void ItemManager::removePopup( Popup* whichPopup )
+void ItemManager::removePopup( Popup* popup )
 {
 	// Hide and remove the notification.
 	deque<Popup*>::iterator popupIter;
 	for (popupIter = popupStack_.begin(); popupIter != popupStack_.end(); popupIter++) {
-		if (*popupIter == whichPopup) {
+		if (*popupIter == popup) {
 			popupStack_.erase( popupIter );
 			break;
 		}
 	}
 
 	// Now remove from container.
-	trash( whichPopup );
+	trash( popup );
 }
