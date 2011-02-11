@@ -8,8 +8,10 @@
 using namespace std;
 
 enum EMouseEvent {
-	MOUSE_EVENT_CLICK,
-	MOUSE_EVENT_RELEASE,
+	MOUSE_EVENT_LEFT_CLICK,
+	MOUSE_EVENT_LEFT_RELEASE,
+	MOUSE_EVENT_RIGHT_CLICK,
+	MOUSE_EVENT_RIGHT_RELEASE,
 	MOUSE_EVENT_MOVE
 };
 
@@ -28,17 +30,18 @@ public:
 	int getY() const;
 
 	// Mouse state functions.
-	void leftMouseDown();
-	void leftMouseUp();
+	void setLeftMouse( bool isClicked );
+	void setRightMouse( bool isClicked );
 	bool isLeftDown();
+	bool isRightDown();
 
 	// Call to components.
-	void triggerEvent( Component* component, EMouseEvent eventType );
 	bool isTouching( const Component* component );
 
 private:
 	Window*	window_;
 	POINT	position_;
 	bool	leftClicked_;
+	bool	rightClicked_;
 };
 

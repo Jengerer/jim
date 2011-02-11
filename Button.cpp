@@ -2,6 +2,14 @@
 
 Font*		Button::font = 0;
 
+Button::Button( const string& caption )
+{
+	// Default behaviour.
+	isHovering_ = false;
+	caption_ = caption;
+	texture_ = 0;
+}
+
 Button::Button( const string& caption, Texture* texture, float x, float y, EAlignment align )
 {
 	isHovering_ = false;

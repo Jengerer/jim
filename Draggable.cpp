@@ -23,14 +23,14 @@ bool Draggable::mouseMoved( Mouse *mouse )
 	return false;
 }
 
-bool Draggable::mouseClicked( Mouse *mouse )
+bool Draggable::leftClicked( Mouse *mouse )
 {
 	// Start dragging.
 	onDrag( mouse );
 	return true;
 }
 
-bool Draggable::mouseReleased( Mouse *mouse )
+bool Draggable::leftReleased( Mouse *mouse )
 {
 	// End dragging.
 	onRelease();

@@ -17,9 +17,10 @@ public:
 	virtual ~Component();
 
 	// Mouse handling functions.
-	virtual bool mouseEvent( Mouse *mouse, EMouseEvent eventType );
-	virtual bool mouseClicked( Mouse *mouse );
-	virtual bool mouseReleased( Mouse *mouse );
+	virtual bool leftClicked( Mouse *mouse );
+	virtual bool leftReleased( Mouse *mouse );
+	virtual bool rightClicked( Mouse *mouse );
+	virtual bool rightReleased( Mouse *mouse );
 	virtual bool mouseMoved( Mouse *mouse );
 
 	// Position functions.

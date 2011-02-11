@@ -137,14 +137,24 @@ void DirectX::closeInterfaces()
 	}
 
 	// Delete fonts.
-	if (bodyFont_) {
+	if (bodyFont_ != 0) {
 		delete bodyFont_;
 		bodyFont_ = 0;
 	}
 
-	if (labelFont_) {
+	if (labelFont_ != 0) {
 		delete labelFont_;
 		labelFont_ = 0;
+	}
+
+	if (titleFont_ != 0) {
+		delete titleFont_;
+		titleFont_ = 0;
+	}
+
+	if (infoFont_ != 0) {
+		delete infoFont_;
+		infoFont_ = 0;
 	}
 
 	// Remove font resource.

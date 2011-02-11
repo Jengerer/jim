@@ -2,7 +2,7 @@
 
 Mouse::Mouse( Window* window )
 {
-	leftClicked_ = false;
+	leftClicked_ = rightClicked_ = false;
 	setWindow( window );
 
 	// Zero position.
@@ -44,11 +44,6 @@ int Mouse::getY() const
 	return (int)position_.y;
 }
 
-void Mouse::triggerEvent( Component* component, EMouseEvent eventType )
-{
-	component->mouseEvent( this, eventType );
-}
-
 bool Mouse::isTouching( const Component* component )
 {
 	int x = getX();
@@ -61,14 +56,18 @@ bool Mouse::isTouching( const Component* component )
 	return ((x >= left) && (x <= right) && (y >= top) && (y <= bottom));
 }
 
-void Mouse::leftMouseDown() {
-	leftClicked_ = true;
+void Mouse::setLeftMouse( bool isClicked ) {
+	leftClicked_ = isClicked;
 }
 
-void Mouse::leftMouseUp() {
-	leftClicked_ = false;
+void Mouse::setRightMouse( bool isClicked ) {
+	rightClicked_ = isClicked;
 }
 
 bool Mouse::isLeftDown() {
 	return leftClicked_;
+}
+
+bool Mouse::isRightDown() {
+	return rightClicked_;
 }

@@ -111,6 +111,8 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="ItemDisplay.cpp" />
+    <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="MenuOption.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="Item.cpp" />
@@ -145,8 +147,9 @@
     <ClInclude Include="ItemDisplay.h" />
     <ClInclude Include="ItemManager.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="Menu.h" />
+    <ClInclude Include="MenuOption.h" />
     <ClInclude Include="Mouse.h" />
-    <ClInclude Include="MouseListener.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="Popup.h" />
     <ClInclude Include="SerializedBuffer.h" />

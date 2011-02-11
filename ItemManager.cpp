@@ -77,6 +77,15 @@ ItemManager::ItemManager( HINSTANCE hInstance ): DirectX( APPLICATION_TITLE, hIn
 	// Zero all pointers.
 	backpack_ = 0;
 	alert_ = error_ = 0;
+	
+	// Create menu.
+	itemMenu_ = new Menu();
+	itemMenu_->addOption( "Equip" );
+	itemMenu_->addOption( "Craft" );
+	itemMenu_->addOption( "Move" );
+	itemMenu_->addOption( "Delete" );
+	itemMenu_->pack();
+	add( itemMenu_ );
 
 	// Create mouse.
 	mouse_ = new Mouse( getWindow() );
@@ -197,15 +206,24 @@ void ItemManager::handleMouse()
 	// Skip if not in focus.
 	if (GetFocus() == getWindow()->getHandle()) {
 		// Move mouse every frame.
-		mouse_->triggerEvent( this, MOUSE_EVENT_MOVE );
+		mouseMoved( mouse_ );
 
+		// Handle mouse events.
 		if (keyPressed( VK_LBUTTON ) && !mouse_->isLeftDown()) {
-			mouse_->leftMouseDown();
-			mouse_->triggerEvent( this, MOUSE_EVENT_CLICK );
+			mouse_->setLeftMouse( true );
+			leftClicked( mouse_ );
 		}
 		else if (!keyPressed( VK_LBUTTON ) && mouse_->isLeftDown()) {
-			mouse_->leftMouseUp();
-			mouse_->triggerEvent( this, MOUSE_EVENT_RELEASE );
+			mouse_->setLeftMouse( false );
+			leftReleased( mouse_ );
+		}
+		else if (keyPressed( VK_RBUTTON ) && !mouse_->isRightDown()) {
+			mouse_->setRightMouse( true );
+			rightClicked( mouse_ );
+		}
+		else if (!keyPressed( VK_RBUTTON ) && mouse_->isRightDown()) {
+			mouse_->setRightMouse( false );
+			rightReleased( mouse_ );
 		}
 	}
 }
@@ -268,15 +286,13 @@ void ItemManager::handleKeyboard()
 	}
 }
 
-bool ItemManager::mouseClicked( Mouse *mouse )
+bool ItemManager::leftClicked( Mouse *mouse )
 {
 	// Mouse clicked.
 	if (!popupStack_.empty()) {
 		Popup* top = popupStack_.back();
-		if (mouse->isTouching( top )) {
-			// Set top component to drag appropriately.
-			top->mouseClicked( mouse );
-		}
+		top->leftClicked( mouse );
+		handlePopup( top );
 	}
 	else {
 		// Check, but don't register buttons.
@@ -288,7 +304,7 @@ bool ItemManager::mouseClicked( Mouse *mouse )
 		}
 
 		// Check backpack.
-		if (backpack_->mouseClicked( mouse )) {
+		if (backpack_->leftClicked( mouse )) {
 			return true;
 		}
 	}
@@ -296,46 +312,57 @@ bool ItemManager::mouseClicked( Mouse *mouse )
 	return false;
 }
 
-bool ItemManager::mouseReleased( Mouse *mouse )
+bool ItemManager::leftReleased( Mouse *mouse )
 {
 	// Check top popup.
 	if (!popupStack_.empty()) {
 		Popup *top = popupStack_.back();
 		if (mouse->isTouching( top )) {
-			top->mouseReleased( mouse );
+			top->leftReleased( mouse );
 		}
 
 		// Check if the popup has been closed.
-		if (top->getState() == POPUP_STATE_INACTIVE ) {
-			// Check for error handling.
-			if (top == error_) {
-				exitApplication();
-			}
-
-			removePopup( top );
-			emptyTrash();
+		if (top == error_ && top->getState() == POPUP_STATE_KILLED) {
+			exitApplication();
 		}
+
+		// Handle removing and hiding.
+		handlePopup( top );
 	}
 	else {
 		// Check backpack.
-		if (backpack_->mouseReleased( mouse )) {
+		if (backpack_->leftReleased( mouse )) {
 			return true;
 		}
 
 		// Now run buttons.
 		if (mouse->isTouching( craftButton_ )) {
-			try {
-				backpack_->craftSelected();
-			} 
-			catch (Exception exception) {
-				alert_ = createAlert( *exception.getMessage() );
-			}
-
+			backpack_->craftSelected();
 			return true;
 		}
 	}
 
 	return false;
+}
+
+bool ItemManager::rightClicked( Mouse *mouse )
+{
+	if (!popupStack_.empty()) {
+		Popup *top = popupStack_.back();
+		top->rightClicked( mouse_ );
+		handlePopup( top );
+	}
+
+	return true;
+}
+
+bool ItemManager::rightReleased( Mouse *mouse )
+{
+	if (itemMenu_->getState() != POPUP_STATE_ACTIVE) {
+		showMenu( itemMenu_, mouse->getX(), mouse->getY() );
+	}
+
+	return true;
 }
 
 bool ItemManager::mouseMoved( Mouse *mouse )
@@ -734,14 +761,44 @@ Alert* ItemManager::createAlert( const string& message )
 	return newAlert;
 }
 
+void ItemManager::showMenu( Menu *menu, int x, int y )
+{
+	// Position so that menus don't exceed bounds.
+	if (x + menu->getWidth() > getWidth()) {
+		x -= menu->getWidth();
+	}
+
+	if (y + menu->getHeight() > getHeight()) {
+		y -= menu->getHeight();
+	}
+
+	menu->setPosition( x, y );
+	showPopup( menu );
+}
+
+
+
+void ItemManager::handlePopup( Popup *popup )
+{
+	switch (popup->getState()) {
+		case POPUP_STATE_INACTIVE:
+			hidePopup( popup );
+			break;
+		case POPUP_STATE_KILLED:
+			removePopup( popup );
+			break;
+	}
+}
+
 void ItemManager::showPopup( Popup* popup )
 {
+	popup->setState( POPUP_STATE_ACTIVE );
 	popupStack_.push_back( popup );
 }
 
-void ItemManager::removePopup( Popup* popup )
+void ItemManager::hidePopup( Popup *popup )
 {
-	// Hide and remove the notification.
+	// Remove popup from stack.
 	deque<Popup*>::iterator popupIter;
 	for (popupIter = popupStack_.begin(); popupIter != popupStack_.end(); popupIter++) {
 		if (*popupIter == popup) {
@@ -749,7 +806,11 @@ void ItemManager::removePopup( Popup* popup )
 			break;
 		}
 	}
+}
 
-	// Now remove from container.
+void ItemManager::removePopup( Popup* popup )
+{
+	// Hide and remove.
+	hidePopup( popup );
 	trash( popup );
 }

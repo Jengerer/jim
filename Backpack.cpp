@@ -132,7 +132,7 @@ void Backpack::updatePosition()
 	}
 }
 
-bool Backpack::mouseClicked( Mouse *mouse )
+bool Backpack::leftClicked( Mouse *mouse )
 {
 	// Check visible slots.
 	int i, x, y;
@@ -176,7 +176,7 @@ bool Backpack::mouseClicked( Mouse *mouse )
 	return false;
 }
 
-bool Backpack::mouseReleased( Mouse *mouse )
+bool Backpack::leftReleased( Mouse *mouse )
 {
 	// Return item if dragging.
 	if (selected_.size() == 1 && dragged_ != 0) {
