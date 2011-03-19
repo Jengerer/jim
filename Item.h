@@ -16,6 +16,20 @@
 
 using namespace std;
 
+enum EClassEquip {
+	CLASS_NONE = 0x00000000,
+	CLASS_SCOUT = 0x00010000,
+	CLASS_SOLDIER = 0x00040000,
+	CLASS_PYRO = 0x00400000,
+	CLASS_DEMOMAN = 0x00080000,
+	CLASS_HEAVY = 0x00200000,
+	CLASS_ENGINEER = 0x01000000,
+	CLASS_MEDIC = 0x00100000,
+	CLASS_SNIPER = 0x00020000,
+	CLASS_SPY = 0x00800000,
+	CLASS_ALL = 0x01FB4000
+};
+
 class Item: public Image
 {
 public:
@@ -51,12 +65,13 @@ public:
 	// Secondary attribute getters.
 	string				getName();
 	bool				isHat() const;
-	bool				isEquipped() const;
+	bool				isEquipped( EClassEquip equipClass = CLASS_ALL ) const;
 	string				getSlot() const;
 	uint16				getIndex() const;
+	Hashtable*			getClasses() const;
 
 	// Modify item attributes.
-	void				setEquip( int classIndex, bool equip );
+	void				setEquip( EClassEquip equipClass, bool equip );
 	void				move( uint16 position );
 
 	// Drawing and interaction.

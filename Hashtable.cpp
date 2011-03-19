@@ -44,6 +44,11 @@ Hashtable::~Hashtable()
 	}
 }
 
+bool Hashtable::contains( const string& key ) const
+{
+	return hashMap_->find( key ) != hashMap_->end();
+}
+
 void Hashtable::put( const string& key, boost::any value )
 {
 	// See if we need to replace it.
@@ -64,12 +69,7 @@ void Hashtable::remove( stringMap::iterator& iter )
 	{
 		// Check if it's a string.
 		string* stringValue = boost::any_cast<string*>( iter->second );
-
-		// Delete value.
 		delete stringValue;
-		stringValue = 0;
-
-		// It worked, remove this and exit.
 		hashMap_->erase( iter );
 		return;
 	} catch (const boost::bad_any_cast &)
@@ -81,8 +81,6 @@ void Hashtable::remove( stringMap::iterator& iter )
 	{
 		// Check if it's a texture.
 		Texture* textureValue = boost::any_cast<Texture*>( iter->second );
-		
-		// Textures will be automatically released at the end, just remove.
 		hashMap_->erase( iter );
 		return;
 	} catch (const boost::bad_any_cast &)

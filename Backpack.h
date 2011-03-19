@@ -1,13 +1,19 @@
 #pragma once
 
+#include "Menu.h"
+#include "Steam.h"
 #include "Inventory.h"
 #include "Container.h"
-#include "Steam.h"
-#include "SerializedBuffer.h"
 #include "ItemDisplay.h"
+#include "VerticalLayout.h"
+#include "HorizontalLayout.h"
+#include "SerializedBuffer.h"
 
 #define BACKPACK_PADDING		25
 #define BACKPACK_PADDING_TOP	50
+
+#define SLOT_SPACING			5
+#define PAGE_SPACING			BACKPACK_PADDING * 2
 
 #define EXCLUDED_Y			415
 
@@ -28,9 +34,6 @@ public:
 	// Removing.
 	void removeSlots();
 
-	// Drawing functions.
-	void	draw( DirectX* directX );
-
 	// Position handling.
 	virtual void updatePosition();
 
@@ -47,25 +50,35 @@ public:
 	void nextPage();
 	void prevPage();
 	void moveCamera();
+	void handleCamera();
+	void updateTarget();
 
 	// Inventory handling.
 	bool			isLoaded() const;
 	void			setLoaded();
 	Slot*			insert( Item* item );
 	virtual void	move( Slot *source, Slot *destination );
+
 	virtual void	removeItem( uint64 uniqueId );
 	void			updateItem( Item *item );
+	void			equipItem( Item *item, const string& className );
+	void			unequipItems( EClassEquip equipClass, const string& slotName );
 	void			craftSelected();
 
 	// Selection handling.
 	void			select( Slot *slot, ESelectType selectType );
+	slotVector*		getSelected();
+	Slot*			getHovered();
 	void			deselect( Slot *slot );
 	void			deselectAll();
 	void			setSelectMode( ESelectMode selectMode );
 
 private:
+	HorizontalLayout *columns_;
+
 	// Selection variables.
 	Slot *dragged_;
+	Slot *hovered_;
 	slotVector selected_;
 	ESelectMode selectMode_;
 
@@ -77,6 +90,6 @@ private:
 
 	// Backpack navigation.
 	int page_, excludedPage_;
-	int pageDelay;
-	float cameraX_, cameraDest_, cameraSpeed_;
+	int pageDelay_;
+	float cameraX_, cameraSpeed_, cameraDest_;
 };

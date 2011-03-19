@@ -16,14 +16,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Source Files\GUI Elements">
-      <UniqueIdentifier>{22d41e19-ad81-4eb8-b7cc-97a77123162d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\GUI Elements">
-      <UniqueIdentifier>{8f6c6d41-e4fc-4c12-899a-dae4758aab66}</UniqueIdentifier>
-    </Filter>
     <Filter Include="HLSL">
       <UniqueIdentifier>{e088dc8d-bbd2-4a58-9702-a8828e0b456e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI Elements">
+      <UniqueIdentifier>{8f6c6d41-e4fc-4c12-899a-dae4758aab66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI Elements">
+      <UniqueIdentifier>{22d41e19-ad81-4eb8-b7cc-97a77123162d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -34,9 +34,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ItemManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Slot.cpp">
@@ -67,40 +64,37 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Button.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Dialog.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Alert.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Drawable.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Popup.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Backpack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Draggable.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Component.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Container.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="Panel.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Font.cpp">
       <Filter>Source Files</Filter>
@@ -109,10 +103,25 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Menu.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="MenuOption.cpp">
-      <Filter>Source Files\GUI Elements</Filter>
+    <ClCompile Include="Option.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyboardHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Layout.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="HorizontalLayout.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="VerticalLayout.cpp">
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,9 +132,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ItemManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Slot.h">
@@ -798,43 +804,37 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dialog.h">
-      <Filter>Header Files\GUI Elements</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
-      <Filter>Header Files\GUI Elements</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Popup.h">
-      <Filter>Header Files\GUI Elements</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Alert.h">
-      <Filter>Header Files\GUI Elements</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Drawable.h">
-      <Filter>Header Files\GUI Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="ButtonListener.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Backpack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Draggable.h">
-      <Filter>Header Files\GUI Elements</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Component.h">
-      <Filter>Header Files\GUI Elements</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Mouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Container.h">
-      <Filter>Header Files\GUI Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="Panel.h">
-      <Filter>Header Files\GUI Elements</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Image.h">
-      <Filter>Header Files\GUI Elements</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Font.h">
       <Filter>Header Files</Filter>
@@ -843,10 +843,25 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Menu.h">
-      <Filter>Header Files\GUI Elements</Filter>
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
-    <ClInclude Include="MenuOption.h">
-      <Filter>Header Files\GUI Elements</Filter>
+    <ClInclude Include="Option.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyboardHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Layout.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="HorizontalLayout.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="VerticalLayout.h">
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2,47 +2,30 @@
 
 Font*		Button::font = 0;
 
-Button::Button( const string& caption )
-{
-	// Default behaviour.
-	isHovering_ = false;
-	caption_ = caption;
-	texture_ = 0;
-}
-
 Button::Button( const string& caption, Texture* texture, float x, float y, EAlignment align )
 {
 	isHovering_ = false;
 	caption_ = caption;
 
 	// Set texture.
-	texture_ = texture;
+	setTexture( texture );
+	pack();
 
-	// Get size.
-	RECT rect;
-	font->getTextRect( caption, &rect, DT_SINGLELINE );
-	int width = (rect.right - rect.left) + BUTTON_PADDING_X * 2;
-	int contentHeight = rect.bottom - rect.top;
-
-	// Check if expansion for texture needed.
-	if (texture != 0) {
-		width += BUTTON_ICON_SIZE + BUTTON_ICON_SPACING;
-
-		// Get maximum of content and texture height.
-		if (BUTTON_ICON_SIZE > contentHeight) {
-			contentHeight = BUTTON_ICON_SIZE;
-		}
+	if (align == ALIGN_TOP_LEFT || align == ALIGN_BOTTOM_LEFT) {
+		setX( x );
+	}
+	else {
+		setX( x - getWidth() );
 	}
 
-	// Now add padding.
-	int height = contentHeight + BUTTON_PADDING_Y * 2;
+	if (align == ALIGN_TOP_LEFT || align == ALIGN_TOP_RIGHT) {
+		setY( y );
+	}
+	else {
+		setY( y - getHeight() );
+	}
 
-	// Set size.
-	setSize( width, height );
-
-	// Position based on alignment.
-	setX( (align == ALIGN_TOP_LEFT || align == ALIGN_BOTTOM_LEFT) ? x : x - getWidth() );
-	setY( (align == ALIGN_TOP_LEFT || align == ALIGN_TOP_RIGHT) ? y : y - getHeight() );
+	enable();
 }
 
 Button::~Button()
@@ -53,8 +36,15 @@ Button::~Button()
 void Button::draw( DirectX* directX )
 {
 	// Set colour.
-	D3DCOLOR buttonColour	= (isHovering_ ? BUTTON_COLOUR_HOVER : BUTTON_COLOUR );
-	D3DCOLOR fontColour		= (isHovering_ ? BUTTON_FONT_HOVER : BUTTON_FONT_NORMAL );
+	D3DCOLOR buttonColour, fontColour;
+	if (enabled_) {
+		buttonColour = (isHovering_ ? BUTTON_COLOUR_HOVER : BUTTON_COLOUR );
+		fontColour = (isHovering_ ? BUTTON_FONT_HOVER : BUTTON_FONT_NORMAL );
+	}
+	else {
+		buttonColour = BUTTON_COLOUR_DISABLED;
+		fontColour = BUTTON_FONT_DISABLED;
+	}
 
 	// Draw button base.
 	float x = getX(), y = getY();
@@ -79,8 +69,51 @@ void Button::draw( DirectX* directX )
 		fontColour );
 }
 
-bool Button::mouseMoved( Mouse *mouse ) {
+bool Button::mouseMoved( Mouse *mouse )
+{
 	// Mouse moved.
 	isHovering_ = mouse->isTouching( this );
 	return isHovering_;
+}
+
+void Button::enable()
+{
+	enabled_ = true;
+}
+
+void Button::disable()
+{
+	enabled_ = false;
+}
+
+bool Button::isEnabled() const {
+	return enabled_;
+}
+
+void Button::setTexture( Texture *texture )
+{
+	texture_ = texture;
+}
+
+void Button::pack()
+{
+	// Get caption size.
+	RECT rect;
+	font->getTextRect( caption_, &rect, DT_SINGLELINE );
+	int width = (rect.right - rect.left) + BUTTON_PADDING_X * 2;
+	int contentHeight = rect.bottom - rect.top;
+
+	// Check if expansion for texture needed.
+	if (texture_ != 0) {
+		width += BUTTON_ICON_SIZE + BUTTON_ICON_SPACING;
+
+		// Get maximum of content and texture height.
+		if (BUTTON_ICON_SIZE > contentHeight) {
+			contentHeight = BUTTON_ICON_SIZE;
+		}
+	}
+
+	// Pad and size.
+	int height = contentHeight + BUTTON_PADDING_Y * 2;
+	setSize( width, height );
 }

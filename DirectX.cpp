@@ -8,10 +8,9 @@
 const D3DCOLOR WHITE_COLOUR = D3DCOLOR_ARGB( 255, 255, 255, 255 );
 const D3DCOLOR BACKGROUND_COLOUR = D3DCOLOR_ARGB( 255, 43, 39, 37 );
 
-DirectX::DirectX(const char* title,
-		HINSTANCE hInstance,
-		int width,
-		int height) : Main( title, hInstance, width, height )
+DirectX::DirectX( HINSTANCE hInstance,
+	const char *title,
+	int width, int height ) : Window( hInstance, title, width, height )
 {
 	// Set as null.
 	textureMap_ = 0;
@@ -51,7 +50,7 @@ void DirectX::openInterfaces()
 	d3d_->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
-		window_->getHandle(),
+		getHandle(),
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
 		&params_,
 		&d3dDevice_);
@@ -473,21 +472,6 @@ void DirectX::drawColouredQuad( void *vertices, size_t verticesSize )
 	d3dDevice_->DrawPrimitive( D3DPT_TRIANGLESTRIP, 0, 2 );
 }
 
-Window* DirectX::getWindow()
-{
-	return window_;
-}
-
-int DirectX::getWidth() const
-{
-	return window_->getWidth();
-}
-
-int DirectX::getHeight() const
-{
-	return window_->getHeight();
-}
-
 bool DirectX::beginDraw()
 {
 	// Ensure we have all interfaces functional.
@@ -513,18 +497,6 @@ void DirectX::endDraw()
 
 	/* Present scene. */
 	d3dDevice_->Present(NULL, NULL, NULL, NULL);
-}
-
-void DirectX::redraw()
-{
-	// Start redraw.
-	if (beginDraw()) {
-		onRedraw();
-		endDraw();
-	}
-	else {
-		throw Exception( "Failed to begin drawing." );
-	}
 }
 
 void DirectX::drawText( const string& text, RECT *rect, const DWORD& format, const D3DCOLOR& colour )
@@ -580,7 +552,7 @@ bool DirectX::checkDevice()
 			if (hResult != D3D_OK)
 			{
 				throw Exception( "Failed to reset Direct3D device." );
-				PostMessage( window_->getHandle(), WM_DESTROY, 0, 0 );
+				PostMessage( getHandle(), WM_DESTROY, 0, 0 );
 			}
 
 			// Reload all textures.

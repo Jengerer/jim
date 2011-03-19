@@ -20,7 +20,7 @@ public:
 	virtual ~Inventory();
 
 	// Dimension getters.
-	int					getCapacity() const;
+	int				getCapacity() const;
 
 	// Get slot vector.
 	const slotArray	getInventory();
@@ -34,16 +34,17 @@ public:
 
 	// Item handling.
 	Slot*			addItem( Item* item );
+	itemVector*		getItems();
 	Slot*			insert( Item* item );
 	virtual void	removeItem( uint64 uniqueId );
 	void			emptySlots();
-	void			clearItems();
-	void			clearSlots();
+	virtual void	clearItems();
+	virtual void	clearSlots();
 	void			updateExcluded();
 
 protected:
 	// Inventory attributes.
-	int				invWidth_, invHeight_;
+	int				pageWidth_, pageHeight_;
 	int				pages_;
 
 private:

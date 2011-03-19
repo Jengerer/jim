@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Main.h"
 #include "Curl.h"
 #include "Texture.h"
 #include "Hashtable.h"
 #include "Exception.h"
+#include "Window.h"
 #include "Font.h"
 
 #include <string>
@@ -28,14 +28,12 @@ struct ColourVertex {
 
 // Prototypes.
 class Font;
-
-class DirectX: public Main, public Curl
+class DirectX: public Window, public Curl
 {
 public:
-	DirectX( const char* title,
-		HINSTANCE hInstance,
-		int width,
-		int height );
+	DirectX( HINSTANCE instance,
+		const char *title,
+		int width, int height );
 	virtual ~DirectX();
 
 	// Initializing and closing.
@@ -60,8 +58,6 @@ public:
 	void drawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR colour );
 
 	// Running functions.
-	virtual void onRedraw() = 0;
-	void redraw();
 	bool checkDevice();
 	bool beginDraw();
 	void endDraw();
@@ -74,8 +70,6 @@ public:
 
 	// Window handling.
 	Window* getWindow();
-	int		getWidth() const;
-	int		getHeight() const;
 
 private:
 	// Direct3D interfaces.
