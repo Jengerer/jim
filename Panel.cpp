@@ -14,3 +14,11 @@ Panel::~Panel()
 {
 	// Panel deconstructed.
 }
+
+void Panel::draw( DirectX *directX )
+{
+	for (int i = 0; i < componentStack_.size(); i++) {
+		Component *component = componentStack_.at( i );
+		component->draw( directX );
+	}
+}

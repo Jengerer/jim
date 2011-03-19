@@ -1,18 +1,5 @@
 #include "Item.h"
 
-const uint32 EQUIP_FLAGS[] = {
-	0x00000000, //None
-	0x00010000, //Scout
-	0x00040000,
-	0x00400000,
-	0x00080000,
-	0x00200000,
-	0x01000000,
-	0x00100000,
-	0x00020000,
-	0x00800000 //Spy
-};
-
 /* Create definitions Hashtable. */
 Hashtable* Item::informationTable = NULL;
 
@@ -150,24 +137,24 @@ void Item::move( uint16 position )
 	flags_ += position_;
 }
 
-bool Item::isEquipped() const
+bool Item::isEquipped( EClassEquip equipClass ) const
 {
-	int equipFlags = flags_ & 0x0FFFF000;
-	int validFlags = flags_ & 0xF0000000;
-	return ((validFlags == 0x80000000) && (equipFlags != 0x00000000));
+	int equipFlags = flags_ & equipClass;
+	int validFlags = flags_ & 0x80000000;
+	return ((validFlags != 0) && (equipFlags != 0x00000000));
 }
 
-void Item::setEquip( int classIndex, bool equip )
+void Item::setEquip( EClassEquip equipClass, bool equip )
 {
-	if (flags_ & EQUIP_FLAGS[classIndex]) {
+	if (flags_ & equipClass) {
 		if (!equip)
 			// Item is equipped to this class; remove flag.
-			flags_ -= EQUIP_FLAGS[classIndex];
+			flags_ &= (0xffffffff - equipClass);
 	}
 	else {
 		if (equip)
 			// This item is not equipped to the class; add flag.
-			flags_ += EQUIP_FLAGS[classIndex];
+			flags_ |= equipClass;
 	}
 }
 
@@ -183,6 +170,15 @@ Texture* Item::getTexture()
 	}
 	
 	return texture_;
+}
+
+Hashtable* Item::getClasses() const
+{
+	if (information_->contains( "classes" )) {
+		return information_->getTable( "classes" );
+	}
+
+	return 0;
 }
 
 int Item::getWidth() const

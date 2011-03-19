@@ -1,6 +1,6 @@
 #include "Draggable.h"
 
-Draggable::Draggable( float x, float y ) : Panel( x, y )
+Draggable::Draggable( float x, float y ) : Container( x, y )
 {
 	isDragging_ = false;
 	setParent( 0 );

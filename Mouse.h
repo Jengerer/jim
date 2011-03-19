@@ -15,6 +15,12 @@ enum EMouseEvent {
 	MOUSE_EVENT_MOVE
 };
 
+enum EMouseCursor {
+	MOUSE_CURSOR_ARROW,
+	MOUSE_CURSOR_FINGER,
+	MOUSE_CURSOR_HAND
+};
+
 class Component;
 class Mouse
 {

@@ -13,18 +13,17 @@ void exitApplication();
 
 int main()
 {
-	try
-	{
+	try {
 		loadDefinitions();
-	} catch (Exception defineException)
-	{
-		cout << "Exception: " << defineException.getMessage() << endl;
+	}
+	catch (Exception defineException) {
+		cout << "Exception: " << *defineException.getMessage() << endl;
 	}
 
 	exitApplication();
 
 	// Pause for confirmation.
-	system("PAUSE");
+	system( "PAUSE" );
 
 	return 0;
 }
@@ -209,8 +208,7 @@ void loadDefinitions()
 				throw Exception("Unexpected definition format. " + *realName + " has class usage, but no classes defined.");
 			}
 
-			if (!classTable->empty())
-			{
+			if (!classTable->empty()) {
 				if (classTable->size() == 1) {
 					stringMap::iterator iter = classTable->begin();
 					string* name = boost::any_cast<string*>(iter->second);

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Panel.h"
+#include "Container.h"
 
-class Draggable: public Panel
+class Draggable: public Container
 {
 public:
 	Draggable( float x = 0.0f, float y = 0.0f );

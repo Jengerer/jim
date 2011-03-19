@@ -4,6 +4,7 @@ Alert::Alert( const string& message ) : Dialog( message )
 {
 	// Make OK button.
 	okButton = new Button( "okay", 0 );
+	okButton->pack();
 	add( okButton );
 
 	resize();

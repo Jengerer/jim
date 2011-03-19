@@ -1,18 +1,21 @@
 #include "Window.h"
 
-Window::Window(HINSTANCE hInstance,
-			   WNDPROC wndProc,
+// Prototype for window handling.
+LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+Window::Window( HINSTANCE hInstance,
 			   const char* title,
-			   int width, int height)
+			   int width, int height )
 {
 	title_ = title;
 	width_ = width;
 	height_ = height;
 
-	if (!registerClass( hInstance, wndProc )) 
+	if (!registerClass( hInstance )) {
 		throw Exception( "Failed to register class." );
+	}
 
-	createWindow(hInstance);
+	createWindow( hInstance );
 }
 
 Window::~Window()
@@ -20,24 +23,23 @@ Window::~Window()
 	//Window has been destroyed.
 }
 
-bool Window::registerClass(HINSTANCE hInstance, WNDPROC wndProc)
+bool Window::registerClass( HINSTANCE hInstance )
 {
 	WNDCLASSEX wndCls;
 
 	wndCls.hInstance		= hInstance;
 	wndCls.hIcon			= NULL;
 	wndCls.hIconSm			= NULL;
-	wndCls.hCursor			= LoadCursor(NULL, IDC_ARROW);
-	wndCls.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
+	wndCls.hCursor			= LoadCursor( NULL, IDC_ARROW );
+	wndCls.hbrBackground	= (HBRUSH)GetStockObject( BLACK_BRUSH );
 
-	wndCls.cbSize			= sizeof(WNDCLASSEX);
+	wndCls.cbSize			= sizeof( WNDCLASSEX );
 	wndCls.cbWndExtra		= 0;
 	wndCls.cbClsExtra		= 0;
 
 	wndCls.lpfnWndProc		= wndProc;
 	wndCls.lpszClassName	= title_;
 	wndCls.lpszMenuName		= NULL;
-
 	wndCls.style			= NULL;
 
 	return RegisterClassEx( &wndCls );
@@ -55,9 +57,9 @@ void Window::createWindow(HINSTANCE hInstance)
 	// Adjust bounds based on style.
 	RECT windowRect;
 	windowRect.left	= 0;
-	windowRect.top	= 0;
-	windowRect.right	= getWidth();
-	windowRect.bottom	= getHeight();
+	windowRect.top = 0;
+	windowRect.right = getWidth();
+	windowRect.bottom = getHeight();
 
 	// Create window.
 	hWnd_ = CreateWindowEx(
@@ -85,6 +87,11 @@ void Window::createWindow(HINSTANCE hInstance)
 
 	ShowWindow( hWnd_, SW_NORMAL );
 	UpdateWindow( hWnd_ );
+}
+
+bool Window::isActive()
+{
+	return (GetFocus() == hWnd_);
 }
 
 int Window::getWidth() const

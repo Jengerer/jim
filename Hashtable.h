@@ -54,7 +54,8 @@ public:
 	void				remove( stringMap::iterator& iter );
 
 	// Member getter.
-	boost::any&			get ( const string& key ) const;
+	boost::any&			get( const string& key ) const;
+	bool				contains( const string& key ) const;
 	string*				getString( const string& key ) const;
 	Hashtable*			getTable( const string& key ) const;
 	

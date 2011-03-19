@@ -8,20 +8,22 @@ class Window
 public:
 	//Class constructor.
 	Window( HINSTANCE hInstance,
-		WNDPROC wndProc, 
 		const char* title,
 		int width, int height );
 	~Window();
 
-	bool	registerClass( HINSTANCE hInstance, WNDPROC wndProc );
+	bool	registerClass( HINSTANCE hInstance );
 	void	createWindow( HINSTANCE hInstance );
+
+	bool	isActive();
 	
 	int		getWidth() const;
 	int		getHeight() const;
 	HWND	getHandle() const;
+
+
 private:
 	HWND		hWnd_;
-
 	const char*	title_;
 	int			width_, height_;
 };

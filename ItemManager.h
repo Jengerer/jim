@@ -10,7 +10,7 @@
 #include <boost/regex.hpp>
 
 // Drawing API.
-#include "DirectX.h"
+#include "Application.h"
 
 // User interface.
 #include "Button.h"
@@ -28,10 +28,10 @@
 #define BUTTON_SPACING	10
 #define BUTTON_Y		380
 
-class ItemManager: public DirectX
+class ItemManager: public Application
 {
 public:
-	ItemManager( HINSTANCE hInstance );
+	ItemManager( HINSTANCE instance );
 	virtual ~ItemManager();
 
 	// Initializing and closing.
@@ -44,13 +44,11 @@ public:
 
 	// Drawing functions.
 	void run();
-	void onRedraw();
 
 	// Steam handling.
 	void handleCallbacks();
 
-	// Input message handling.
-	void handleMouse();
+	// Input handling.
 	void handleKeyboard();
 
 	// Mouse handling virtuals.
@@ -64,7 +62,6 @@ public:
 	Dialog*	createDialog( const string& message );
 	Alert*	createAlert( const string& message );
 	Button*	createButton( const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f, EAlignment align = ALIGN_TOP_LEFT );
-	void	showMenu( Menu *menu, int x, int y );
 	void	showPopup( Popup *popup );
 	void	hidePopup( Popup *popup );
 	void	handlePopup( Popup *popup );
@@ -78,12 +75,6 @@ private:
 	deque<Popup*>	popupStack_;
 	vector<Popup*>	popupList_;
 	vector<Button*>	buttonList_;
-
-	// Menus and options.
-	Menu*			itemMenu_;
-
-	// Input handling.
-	Mouse*			mouse_;
 
 	// Keyboard booleans.
 	bool			leftPressed_;

@@ -3,14 +3,13 @@
 #include <vector>
 
 #include "Mouse.h"
+#include "Drawable.h"
 
 using namespace std;
 
 // Prototypes.
-enum EMouseEvent;
 class Mouse;
-
-class Component {
+class Component: public Drawable {
 public:
 	Component();
 	Component( float x, float y );

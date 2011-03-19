@@ -1,23 +1,16 @@
-#include "MenuOption.h"
+#include "Option.h"
 
-MenuOption::MenuOption( const string& caption ) : Button( caption )
+Option::Option( const string& caption, Texture *texture ) : Button( caption, texture ) 
 {
-	// Get size.
-	RECT rect;
-	font->getTextRect( caption, &rect, DT_SINGLELINE );
-	int width = (rect.right - rect.left) + MENU_BUTTON_PADDING_X * 2;
-	int height = (rect.bottom - rect.top) + MENU_BUTTON_PADDING_Y * 2;
-
-	// Set size.
-	setSize( width, height );
+	pack();
 }
 
-MenuOption::~MenuOption()
+Option::~Option()
 {
-	// MenuOption destroyed.
+	// Option destroyed.
 }
 
-void MenuOption::draw( DirectX *directX )
+void Option::draw( DirectX *directX )
 {
 	// Set colour.
 	D3DCOLOR buttonColour	= (isHovering_ ? BUTTON_COLOUR_HOVER : BUTTON_COLOUR );
@@ -40,4 +33,16 @@ void MenuOption::draw( DirectX *directX )
 		&rect,
 		DT_SINGLELINE | DT_VCENTER, 
 		fontColour );
+}
+
+void Option::pack()
+{
+	// Get size.
+	RECT rect;
+	font->getTextRect( caption_, &rect, DT_SINGLELINE );
+	int width = (rect.right - rect.left) + MENU_BUTTON_PADDING_X * 2;
+	int height = (rect.bottom - rect.top) + MENU_BUTTON_PADDING_Y * 2;
+
+	// Set size.
+	setSize( width, height );
 }

@@ -5,8 +5,8 @@ Inventory::Inventory(
 	int pages )
 {
 	// Set dimensions.
-	invWidth_ = width;
-	invHeight_ = height;
+	pageWidth_ = width;
+	pageHeight_ = height;
 	pages_ = pages;
 
 	// Null array until generation.
@@ -27,7 +27,7 @@ void Inventory::emptySlots()
 {
 	// First remove items from slots.
 	int i, length;
-	if ( inventory_ ) {
+	if (inventory_ != 0) {
 		length = getCapacity();
 		for (i = 0; i < length; i++) {
 			Slot* slot = inventory_[i];
@@ -35,7 +35,7 @@ void Inventory::emptySlots()
 		}
 	}
 
-	if ( excludedSlots_ ) {
+	if (excludedSlots_ != 0) {
 		length = EXCLUDED_WIDTH;
 		for (i = 0; i < length; i++) {
 			Slot* slot = excludedSlots_[i];
@@ -70,32 +70,13 @@ void Inventory::clearItems()
 void Inventory::clearSlots() {
 	// Delete inventory.
 	if ( inventory_ ) {
-		int i, length = getCapacity();
-		for (i = 0; i < length; i++) {
-			Slot* slot = inventory_[i];
-
-			// Delete it
-			if (slot) {
-				delete slot;
-			}
-		}
-
+		// TODO: Make sure slots get removed if backpack doesn't. May use virtual.
 		free( inventory_ );
 		inventory_ = 0;
 	}
 
 	// Delete excluded.
 	if ( excludedSlots_ ) {
-		int i, length = EXCLUDED_WIDTH;
-		for (i = 0; i < length; i++) {
-			Slot* slot = excludedSlots_[i];
-
-			// Delete it.
-			if (slot) {
-				delete slot;
-			}
-		}
-
 		free( excludedSlots_ );
 		excludedSlots_ = 0;
 	}
@@ -135,6 +116,11 @@ Slot* Inventory::addItem( Item* item )
 	}
 
 	return slot;
+}
+
+itemVector* Inventory::getItems()
+{
+	return &items_;
 }
 
 Slot* Inventory::insert( Item* item ) {
@@ -293,7 +279,7 @@ const slotArray Inventory::getExcluded()
 
 int Inventory::getCapacity() const
 {
-	return (invWidth_ * invHeight_ * pages_);
+	return (pageWidth_ * pageHeight_ * pages_);
 }
 
 bool Inventory::isValidSlot ( uint8 index )

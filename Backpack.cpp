@@ -1,8 +1,5 @@
 #include "Backpack.h"
 
-// Drawing constants.
-const float	SLOT_SPACING 		= 5.0f;
-
 // Navigation constants.
 const int	PAGE_CHANGE_DELAY	= 500;
 
@@ -18,141 +15,98 @@ Backpack::Backpack(
 {
 	// Backpack was created.
 	isLoaded_ = false;
-	cameraX_ = cameraSpeed_ = cameraDest_ = 0;
+	cameraSpeed_ = 0;
 	itemDisplay_ = 0;
 	page_ = excludedPage_ = 1;
-	dragged_ = 0;
+	dragged_ = hovered_ = 0;
+
+	// Layout for slot columns.
+	columns_ = new HorizontalLayout();
 
 	// Move to start.
 	setPosition( x, y );
 	setSize( parent->getWidth(), parent->getHeight() );
 
-	// Add all slots to the container.
+	// Add slots to layout.
+	columns_->setParent( this );
+	columns_->setPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
+	columns_->setSpacing( PAGE_SPACING );
+
 	const slotArray inventory = getInventory();
-	int i, length = getCapacity();
-	for (i = 0; i < length; i++) {
-		Slot* slot = inventory[i];
-		add( slot );
+	for (int i = 0; i < pages_; i++) {
+		// Add a column per page.
+		HorizontalLayout *pageColumns = new HorizontalLayout();
+		pageColumns->setParent( this );
+		pageColumns->setSpacing( SLOT_SPACING );
+		for (int x = 0; x < pageWidth_; x++) {
+			// Add a row of slots per column.
+			VerticalLayout *rows = new VerticalLayout();
+			rows->setSpacing( SLOT_SPACING );
+
+			for (int y = 0; y < pageHeight_; y++) {
+				// Simplified formula for index.
+				int index = x + pageWidth_ * (y + i * pageHeight_);
+				Slot* slot = inventory[ index ];
+				rows->add( slot );
+			}
+
+			rows->pack();
+			pageColumns->add( rows );
+		}
+
+		pageColumns->pack();
+		columns_->add( pageColumns );
 	}
+
+	columns_->pack();
+	add( columns_ );
 
 	// Position and add excluded.
+	HorizontalLayout *excludedSlots_ = new HorizontalLayout();
+	excludedSlots_->setPosition( getX() + BACKPACK_PADDING, getHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
+	excludedSlots_->setSpacing( SLOT_SPACING );
 	const slotArray excluded = getExcluded();
-	length = EXCLUDED_WIDTH;
+	int i, length = EXCLUDED_WIDTH;
 	for (i = 0; i < length; i++) {
 		Slot* slot = excluded[i];
-		slot->setPosition( BACKPACK_PADDING + getX() + i * (SLOT_WIDTH + SLOT_SPACING), getHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
-
-		add( slot );
+		excludedSlots_->add( slot );
 	}
+	excludedSlots_->pack();
+	add( excludedSlots_ );
+
+	// Set primary camera target.
+	updateTarget();
+	cameraX_ = cameraDest_;
 
 	// Create item display.
 	itemDisplay_ = new ItemDisplay();
+	add( itemDisplay_ );
 }
 
 Backpack::~Backpack()
 {
 	// Backpack has been destroyed.
 	removeSlots();
-
-	// Remove item display.
-	if (itemDisplay_ != 0) {
-		delete itemDisplay_;
-		itemDisplay_ = 0;
-	}
-}
-
-void Backpack::draw( DirectX* directX )
-{
-	updatePosition();
-
-	const slotArray inventory = getInventory();
-	// Draw visible slots.
-	int i, x, y;
-	for (i = 0; i < pages_; i++) {
-		for (x = 0; x < invWidth_; x++) {
-			for (y = 0; y < invHeight_; y++) {
-				int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
-				Slot* slot = inventory[index];
-
-				// Only draw column if visible.
-				int slotWidth = slot->getWidth();
-				if ((slot->getX() <= -slotWidth) || (slot->getX() >= getWidth())) {
-					break;
-				}
-
-				slot->draw( directX );
-			}
-		}
-	}
-
-	// Draw excluded.
-	const slotArray excluded = getExcluded();
-	int length = EXCLUDED_WIDTH;
-	for (i = 0; i < length; i++) {
-		Slot* slot = excluded[i];
-		slot->draw( directX );
-	}
-
-	// Draw selected last.
-	slotVector::iterator j;
-	for (j = selected_.begin(); j != selected_.end(); j++) {
-		Slot* slot = *j;
-		slot->draw( directX );
-	}
-
-	// Draw item information.
-	itemDisplay_->draw( directX );
 }
 
 void Backpack::updatePosition()
 {
-	moveCamera();
-
 	// Position all slots.
-	const slotArray inventory = getInventory();
-	int i, length = getCapacity();
-	for (i = 0; i < length; i++) {
-		Slot* slot = inventory[i];
-
-		int x = i % invWidth_;
-		int y = i / invWidth_;
-
-		float pageOffset = 0;
-		if (y >= invHeight_) {
-			pageOffset = getWidth() * (y / invHeight_);
-			y %= invHeight_;
-		}
-		
-		// Set position.
-		int slotWidth = slot->getWidth();
-		int slotHeight = slot->getHeight();
-		float slotX = BACKPACK_PADDING + pageOffset + getX() + x * (slotWidth + SLOT_SPACING) - cameraX_;
-		float slotY = BACKPACK_PADDING_TOP + getY() + y * (slotHeight + SLOT_SPACING);
-		slot->setPosition( slotX, slotY );
-	}
+	columns_->setX( getX() - cameraX_ );
+	columns_->updatePosition();
 }
 
 bool Backpack::leftClicked( Mouse *mouse )
 {
 	// Check visible slots.
-	int i, x, y;
 	const slotArray inventory = getInventory();
-	for (i = 0; i < pages_; i++) {
-		for (x = 0; x < invWidth_; x++) {
-			for (y = 0; y < invHeight_; y++) {
-				int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
-				Slot* slot = inventory[index];
-
-				// Only draw column if visible.
-				int slotWidth = slot->getWidth();
-				if ((slot->getX() <= -slotWidth) || (slot->getX() >= getWidth())) {
-					break;
-				}
-
-				if (mouse->isTouching( slot )) {
-					slotClicked( mouse, slot );
-					return true;
-				}
+	int i, length = getCapacity();
+	for (i = 0; i < length; i++) {
+		Slot* slot = inventory[ i ];
+		if (slot->getX() < getWidth() && slot->getX() + slot->getWidth() > 0) {
+			if (mouse->isTouching( slot )) {
+				slotClicked( mouse, slot );
+				return true;
 			}
 		}
 	}
@@ -186,30 +140,19 @@ bool Backpack::leftReleased( Mouse *mouse )
 
 		// Remove dummy slot.
 		selectedSlot->onRelease();
+		remove( selectedSlot );
 		delete selectedSlot;
 		selected_.clear();
 
 		// Check visible slots.
-		int i, x, y;
 		const slotArray inventory = getInventory();
-		for (i = 0; i < pages_; i++) {
-			for (x = 0; x < invWidth_; x++) {
-				for (y = 0; y < invHeight_; y++) {
-					int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
-					Slot* slot = inventory[index];
-
-					// Only draw column if visible.
-					int slotWidth = slot->getWidth();
-					if ((slot->getX() <= -slotWidth) || (slot->getX() >= getWidth())) {
-						break;
-					}
-
-					if (mouse->isTouching( slot )) {
-						slotReleased( slot );
-						dragged_ = 0;
-						return true;
-					}
-				}
+		int i, length = getCapacity();
+		for (i = 0; i < length; i++) {
+			Slot* slot = inventory[ i ];
+			if (mouse->isTouching( slot )) {
+				slotReleased( slot );
+				dragged_ = 0;
+				return true;
 			}
 		}
 
@@ -229,6 +172,7 @@ bool Backpack::mouseMoved( Mouse *mouse )
 {
 	// Reset item display.
 	itemDisplay_->setActive( false );
+	hovered_ = 0;
 
 	// Mouse moved.
 	if (selected_.size() == 1 && dragged_ != 0) {
@@ -237,14 +181,14 @@ bool Backpack::mouseMoved( Mouse *mouse )
 
 		// Change page if at edges.
 		int time = GetTickCount();
-		if (time > pageDelay) {
+		if (time > pageDelay_) {
 			if (slot->getX() == (getWidth() - slot->getWidth())) {
 				nextPage();
-				pageDelay = time + PAGE_CHANGE_DELAY;
+				pageDelay_ = time + PAGE_CHANGE_DELAY;
 			}
 			else if (slot->getX() == 0) {
 				prevPage();
-				pageDelay = time + PAGE_CHANGE_DELAY;
+				pageDelay_ = time + PAGE_CHANGE_DELAY;
 			}
 		}
 
@@ -252,41 +196,59 @@ bool Backpack::mouseMoved( Mouse *mouse )
 	}
 
 	// Check for collision with visible slots.
-	int i, x, y;
 	const slotArray inventory = getInventory();
-	for (i = 0; i < pages_; i++) {
-		for (x = 0; x < invWidth_; x++) {
-			for (y = 0; y < invHeight_; y++) {
-				int index = i * (invWidth_ * invHeight_) + y * invWidth_ + x;
-				Slot* slot = inventory[index];
+	int i, length = getCapacity();
+	for (i = 0; i < length; i++) {
+		Slot* slot = inventory[ i ];
+		if (slot->getX() < getWidth() && slot->getX() + slot->getWidth() > 0) {
+			if (mouse->isTouching( slot ) && (slot->getItem() != 0)) {
+				// Update display if not dragging.
+				if (slot->getSelectType() != SELECT_TYPE_DRAG) {
+					hovered_ = slot;
 
-				// Only draw column if visible.
-				int slotWidth = slot->getWidth();
-				if ((slot->getX() <= -slotWidth) || (slot->getX() >= getWidth())) {
-					break;
+					itemDisplay_->setItem( slot->getItem() );
+					itemDisplay_->setPosition( slot->getX() + slot->getWidth()/2 - itemDisplay_->getWidth() / 2, slot->getY() + slot->getHeight() + DISPLAY_SPACING );
+					clampChild( itemDisplay_, DISPLAY_SPACING );
+					itemDisplay_->setActive( true );
 				}
 
-				if (mouse->isTouching( slot ) && (slot->getItem() != 0)) {
-					// Update display if not dragging.
-					if (slot->getSelectType() != SELECT_TYPE_DRAG) {
-						itemDisplay_->setItem( slot->getItem() );
-						itemDisplay_->setPosition( slot->getX() + slot->getWidth()/2 - itemDisplay_->getWidth() / 2, slot->getY() + slot->getHeight() + 10 );
-
-						// Bound position.
-						int rightBound = getWidth() - itemDisplay_->getWidth() - DISPLAY_SPACING;
-						if (itemDisplay_->getX() > rightBound) {
-							itemDisplay_->setX( rightBound );
-						}
-						else if (itemDisplay_->getX() < DISPLAY_SPACING) {
-							itemDisplay_->setX( DISPLAY_SPACING );
-						}
-
-						itemDisplay_->setActive( true );
-					}
-
-					return true;
-				}
+				return true;
 			}
+		}
+	}
+
+	// Check excluded.
+	const slotArray excluded = getExcluded();
+	for (i = 0; i < EXCLUDED_WIDTH; i++) {
+		Slot *slot = excluded[i];
+
+		if (mouse->isTouching( slot ) && (slot->getItem() != 0)) {
+			// Update display if not dragging.
+			if (slot->getSelectType() != SELECT_TYPE_DRAG) {
+				dragged_ = slot;
+
+				itemDisplay_->setItem( slot->getItem() );
+				itemDisplay_->setPosition( slot->getX() + slot->getWidth()/2 - itemDisplay_->getWidth() / 2, slot->getY() + slot->getHeight() + DISPLAY_SPACING );
+
+				// Bound position.
+				int rightBound = getWidth() - itemDisplay_->getWidth() - DISPLAY_SPACING;
+				if (itemDisplay_->getX() > rightBound) {
+					itemDisplay_->setX( rightBound );
+				}
+				else if (itemDisplay_->getX() < DISPLAY_SPACING) {
+					itemDisplay_->setX( DISPLAY_SPACING );
+				}
+
+				// Bound vertical.
+				int bottomBound = getHeight() - itemDisplay_->getHeight() - DISPLAY_SPACING;
+				if (itemDisplay_->getY() > bottomBound) {
+					itemDisplay_->setY( slot->getY() - itemDisplay_->getHeight() - DISPLAY_SPACING );
+				}
+
+				itemDisplay_->setActive( true );
+			}
+
+			return true;
 		}
 	}
 
@@ -311,6 +273,7 @@ void Backpack::slotClicked( Mouse *mouse, Slot *slot )
 			dragging->setGroup( slot->getGroup() );
 			dragging->setItem( slot->getItem() );
 			dragging->setParent( this );
+			add( dragging );
 		
 			// Remove item from slot.
 			slot->setItem( 0 );
@@ -359,8 +322,7 @@ void Backpack::slotReleased( Slot *slot )
 	}
 	else {
 		// Set to regular select.
-		selected_.push_back( dragged_ );
-		dragged_->setSelectType( SELECT_TYPE_NORMAL );
+		select( dragged_, SELECT_TYPE_NORMAL );
 	}
 }
 
@@ -393,6 +355,64 @@ void Backpack::move( Slot *source, Slot *destination ) {
 	updateItem( sourceItem ); // Definitely not null.
 	if (destItem != 0) {
 		updateItem( destItem );
+	}
+}
+
+void Backpack::equipItem( Item *item, const string& className ) {
+	EClassEquip equipClass;
+	if (className == "scout") {
+		equipClass = CLASS_SCOUT;
+	}
+	else if (className == "soldier") {
+		equipClass = CLASS_SOLDIER;
+	}
+	else if (className == "pyro") {
+		equipClass = CLASS_PYRO;
+	}
+	else if (className == "demoman") {
+		equipClass = CLASS_DEMOMAN;
+	}
+	else if (className == "heavy") {
+		equipClass = CLASS_HEAVY;
+	}
+	else if (className == "engineer") {
+		equipClass = CLASS_ENGINEER;
+	}
+	else if (className == "medic") {
+		equipClass = CLASS_MEDIC;
+	}
+	else if (className == "sniper") {
+		equipClass = CLASS_SNIPER;
+	}
+	else if (className == "spy") {
+		equipClass = CLASS_SPY;
+	}
+	else {
+		throw Exception( "Attempting to equip to unknown class." );
+	}
+
+	if (item->isEquipped( equipClass )) {
+		item->setEquip( equipClass, false );
+	}
+	else {
+		unequipItems( equipClass, item->getSlot() );
+		item->setEquip( equipClass, true );
+	}
+
+	updateItem( item );
+}
+
+void Backpack::unequipItems( EClassEquip equipClass, const string& slot ) {
+	itemVector* items = getItems();
+	for (int i = 0; i < items->size(); i++) {
+		Item *item = items->at( i );
+		if (item->isEquipped( equipClass )) {
+			if (item->getSlot() == slot) {
+				item->setEquip( equipClass , false );
+				updateItem( item );
+				break;
+			}
+		}
 	}
 }
 
@@ -479,6 +499,7 @@ void Backpack::updateItem( Item* item )
 	GCSetItemPosition_t message;
 	memset( &message, 0xff, sizeof( message ) );
 
+	message.id = 1;
 	message.itemID = item->getUniqueId();
 	message.position = item->getFlags();
 
@@ -503,6 +524,11 @@ void Backpack::removeItem( uint64 uniqueId )
 	Inventory::removeItem( uniqueId );
 }
 
+slotVector* Backpack::getSelected()
+{
+	return &selected_;
+}
+
 void Backpack::setSelectMode( ESelectMode selectMode)
 {
 	selectMode_ = selectMode;
@@ -518,13 +544,20 @@ bool Backpack::isLoaded() const
 	return isLoaded_;
 }
 
+void Backpack::updateTarget()
+{
+	const slotArray inventory = getInventory();
+	Component *cameraTarget = inventory[ (page_ - 1) * (pageWidth_ * pageHeight_) ];
+	cameraDest_ = cameraTarget->getX() - columns_->getX() - BACKPACK_PADDING;
+}
+
 void Backpack::nextPage()
 {
 	if (page_ < pages_) {
 		page_++;
 	}
-	
-	cameraDest_ = (page_ - 1) * getWidth();
+
+	updateTarget();
 }
 
 void Backpack::prevPage()
@@ -533,13 +566,19 @@ void Backpack::prevPage()
 		page_--;
 	}
 
-	cameraDest_ = (page_ - 1) * getWidth();
+	updateTarget();
+}
+
+void Backpack::handleCamera()
+{
+	moveCamera();
+	updatePosition();
 }
 
 void Backpack::moveCamera()
 {
 	// Add elastic speed.
-	float cameraDistance = (cameraDest_ - cameraX_);
+	float cameraDistance = cameraDest_ - cameraX_;
 	cameraSpeed_ += cameraDistance*SPRING_STRENGTH;
 	cameraSpeed_ *= SPRING_DAMPING;
 
@@ -551,4 +590,9 @@ void Backpack::moveCamera()
 
 	// Now propel.
 	cameraX_ += cameraSpeed_;
+}
+
+Slot* Backpack::getHovered()
+{
+	return hovered_;
 }
