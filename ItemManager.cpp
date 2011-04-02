@@ -114,12 +114,23 @@ void ItemManager::openInterfaces()
 			PAGE_WIDTH, PAGE_HEIGHT,
 			PAGE_COUNT,
 			this );
+		backpack_->openInterfaces();
+		addBottom( backpack_ );
 		loadDefinitions();
 		loadItems();
 
+		// Add all buttons to a layout.
+		HorizontalLayout *buttonLayout = new HorizontalLayout();
+		buttonLayout->setSpacing( BUTTON_SPACING );
+		buttonLayout->setPosition( BACKPACK_PADDING, BUTTON_Y );
 		craftButton_	= createButton( "craft", craftTexture, BACKPACK_PADDING, BUTTON_Y );
 		equipButton_	= createButton( "equip", equipTexture, craftButton_->getX() + craftButton_->getWidth() + BUTTON_SPACING, BUTTON_Y );
 		sortButton_		= createButton( "sort", sortTexture, equipButton_->getX() + equipButton_->getWidth() + BUTTON_SPACING, BUTTON_Y );
+		buttonLayout->add( craftButton_ );
+		buttonLayout->add( equipButton_ );
+		buttonLayout->add( sortButton_ );
+		buttonLayout->pack();
+		addBottom( buttonLayout );
 
 		// Set default state.
 		equipButton_->disable();
@@ -134,13 +145,11 @@ void ItemManager::openInterfaces()
 
 		// Set application ready to run.
 		setState( APPLICATION_STATE_RUN );
-
-		// Add backpack on top of everything.
-		add( backpack_ );
 	}
 	catch (Exception& loadException) {
 		removePopup( loadDialog_ );
 		error_ = createAlert( *loadException.getMessage() );
+		setState( APPLICATION_STATE_EXIT );
 	}
 }
 
@@ -161,16 +170,13 @@ void ItemManager::closeInterfaces()
 
 void ItemManager::run()
 {
+	updateKeys();
+	if (GetFocus() == getWindow()->getHandle()) {
+		handleMouse();
+		handleKeyboard();
+	}
+
 	if (getState() == APPLICATION_STATE_RUN) {
-		// Run key handler and then check input.
-		updateKeys();
-
-		// Only handle input on focus.
-		if (GetFocus() == directX_->getHandle()) {
-			handleMouse();
-			handleKeyboard();
-		}
-
 		handleCallbacks();
 		backpack_->handleCamera();
 	}
@@ -556,6 +562,9 @@ void ItemManager::loadItems()
 	backpack_->setLoaded();
 }
 
+#include <fstream>
+#include <iomanip>
+
 void ItemManager::handleCallbacks() {
 	CallbackMsg_t callback;
 	if (backpack_->getCallback( &callback ))
@@ -574,6 +583,16 @@ void ItemManager::handleCallbacks() {
 					// Retrieve the message.
 					void* buffer = malloc( size );
 					backpack_->getMessage( &id, buffer, size, &realSize );
+
+#ifdef _DEBUG
+					ofstream file("output.txt", ios_base::app);
+					file << dec << "type: " << id << endl;
+					for (int i = 0; i < size; i++) {
+						file << hex << setw(2) << setfill('0') << (unsigned int)((unsigned char*)buffer)[i] << " ";
+					}
+					file << endl << endl;
+					file.close();
+#endif
 
 					switch (id) {
 					case SOMsgCacheSubscribed_t::k_iMessage:
@@ -698,7 +717,6 @@ Button* ItemManager::createButton( const string& caption, Texture *texture, floa
 {
 	// Create and add.
 	Button* newButton = new Button( caption, texture, x, y, align );
-	addBottom( newButton );
 
 	// Add and return.
 	buttonList_.push_back( newButton );

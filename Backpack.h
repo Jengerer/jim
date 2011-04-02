@@ -31,6 +31,9 @@ public:
 		Container* parent );
 	virtual ~Backpack();
 
+	virtual void openInterfaces();
+	virtual void closeInterfaces();
+
 	// Removing.
 	void removeSlots();
 

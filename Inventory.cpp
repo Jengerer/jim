@@ -12,7 +12,6 @@ Inventory::Inventory(
 	// Null array until generation.
 	inventory_ = 0;
 	excludedSlots_ = 0;
-
 	generateSlots();
 }
 
@@ -70,7 +69,6 @@ void Inventory::clearItems()
 void Inventory::clearSlots() {
 	// Delete inventory.
 	if ( inventory_ ) {
-		// TODO: Make sure slots get removed if backpack doesn't. May use virtual.
 		free( inventory_ );
 		inventory_ = 0;
 	}

@@ -10,15 +10,6 @@ Steam::Steam()
 	steamClient_	= 0;
 	hPipe_ = 0;
 	hUser_ = 0;
-
-	// Steam has been created.
-	try {
-		openInterfaces();
-	} catch (Exception steamException) {
-		// Shut down Steam, and pass exception.
-		closeInterfaces();
-		throw steamException;
-	}
 }
 
 Steam::~Steam()

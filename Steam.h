@@ -16,8 +16,8 @@ public:
 	virtual ~Steam();
 
 	// Initializing and closing.
-	void openInterfaces();
-	void closeInterfaces();
+	virtual void openInterfaces();
+	virtual void closeInterfaces();
 
 	// Callback and message handling.
 	bool getCallback( CallbackMsg_t* callback );

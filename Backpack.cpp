@@ -83,10 +83,18 @@ Backpack::Backpack(
 	add( itemDisplay_ );
 }
 
+void Backpack::openInterfaces()
+{
+	Steam::openInterfaces();
+}
+
+void Backpack::closeInterfaces()
+{
+	Steam::closeInterfaces();
+}
+
 Backpack::~Backpack()
 {
-	// Backpack has been destroyed.
-	removeSlots();
 }
 
 void Backpack::updatePosition()
