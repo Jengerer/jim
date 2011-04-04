@@ -1,10 +1,5 @@
 #include "Component.h"
 
-Component::Component()
-{
-	// Component created.
-}
-
 Component::Component( float x, float y )
 {
 	// Set defaults.

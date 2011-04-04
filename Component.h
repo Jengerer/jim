@@ -11,8 +11,7 @@ using namespace std;
 class Mouse;
 class Component: public Drawable {
 public:
-	Component();
-	Component( float x, float y );
+	Component( float x = 0.0f, float y = 0.0f );
 	virtual ~Component();
 
 	// Mouse handling functions.

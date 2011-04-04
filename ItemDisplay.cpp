@@ -50,6 +50,11 @@ void ItemDisplay::draw( DirectX *directX )
 	}
 }
 
+Item *ItemDisplay::getItem()
+{
+	return item_;
+}
+
 void ItemDisplay::setItem( Item *item )
 {
 	// Basic set.

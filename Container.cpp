@@ -1,10 +1,5 @@
 #include "Container.h"
 
-Container::Container()
-{
-	// Container created.
-}
-
 Container::Container( float x, float y ) : Component( x, y )
 {
 	// Container created.
@@ -50,7 +45,7 @@ void Container::clampChild( Component *component, int padding )
 	int leftBound = getX() + padding;
 	int rightBound = getX() + getWidth() - component->getWidth() - padding;
 	int topBound = getY() + padding;
-	int bottomBound = getY() + getWidth() - component->getHeight() - padding;
+	int bottomBound = getY() + getHeight() - component->getHeight() - padding;
 
 	// Clamp X position.
 	if (component->getX() < leftBound) {
@@ -91,6 +86,16 @@ void Container::remove( Component* component )
 
 		i++;
 	}
+}
+
+void Container::removeAll()
+{
+	componentStack_.clear();
+}
+
+deque<Component*>* Container::getChildren()
+{
+	return &componentStack_;
 }
 
 void Container::draw( DirectX *directX )

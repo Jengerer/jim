@@ -21,6 +21,7 @@ public:
 	virtual void draw( DirectX* directX );
 
 	// Item functions.
+	Item *getItem();
 	void setItem( Item *item );
 	void setActive( bool isActive );
 
