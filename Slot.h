@@ -23,12 +23,12 @@ enum ESlotGroup {
 
 #define SLOT_STROKE_VINTAGE	D3DCOLOR_RGBA( 69, 97, 141, 200 )
 #define SLOT_STROKE_NORMAL	D3DCOLOR_RGBA( 193, 165, 0, 150 )
-#define SLOT_STROKE_WIDTH	2
+#define SLOT_STROKE_WIDTH	1
 
 class Slot: public Draggable
 {
 public:
-	Slot( int index = -1, Item* item = NULL );
+	Slot( int index = -1, Item* item = nullptr );
 	virtual ~Slot();
 
 	// Drawing function.

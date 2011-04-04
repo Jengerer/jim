@@ -1,5 +1,8 @@
 #pragma once
 
+#include <json/json.h>
+#include <string>
+
 #include "Menu.h"
 #include "Steam.h"
 #include "Inventory.h"
@@ -15,54 +18,39 @@
 #define SLOT_SPACING			5
 #define PAGE_SPACING			BACKPACK_PADDING * 2
 
-#define EXCLUDED_Y			415
+#define EXCLUDED_Y				415
 
 enum ESelectMode {
 	SELECT_MODE_SINGLE,
 	SELECT_MODE_MULTIPLE,
 };
 
-class Backpack: public Inventory, public Container, public Steam
+class Backpack: public Container, public Steam
 {
 public:
 	Backpack( float x, float y,
-		int width, int height,
-		int pages,
 		Container* parent );
 	virtual ~Backpack();
 
-	virtual void openInterfaces();
-	virtual void closeInterfaces();
+	// Interface handling.
+	void openInterfaces();
+	void closeInterfaces();
 
-	// Removing.
-	void removeSlots();
+	// Steam message handling.
+	void handleCallback( int id, void *callback );
+	void handleMessage( int id, void *message );
 
-	// Position handling.
-	virtual void updatePosition();
+	// Inventory resource handling.
+	void createInventory( int width, int height, int pages, int excludedSize );
+	void loadInventory( const string& jsonInventory );
+	void formatInventory();
 
-	// Mouse handling.
-	virtual bool mouseMoved( Mouse *mouse );
-	virtual bool leftClicked( Mouse *mouse );
-	virtual bool leftReleased( Mouse *mouse );
-
-	// Slot interface handling functions.
-	void slotClicked( Mouse *mouse, Slot *slot );
-	void slotReleased( Slot *slot );
-
-	// Page viewing functions.
-	void nextPage();
-	void prevPage();
-	void moveCamera();
-	void handleCamera();
-	void updateTarget();
-
-	// Inventory handling.
+	// Inventory attribute handling.
 	bool			isLoaded() const;
-	void			setLoaded();
-	Slot*			insert( Item* item );
-	virtual void	move( Slot *source, Slot *destination );
+	void			setLoaded( bool isLoaded );
 
-	virtual void	removeItem( uint64 uniqueId );
+	// Item handling.
+	virtual void	moveItem( Slot *source, Slot *destination );
 	void			updateItem( Item *item );
 	void			equipItem( Item *item, const string& className );
 	void			unequipItems( EClassEquip equipClass, const string& slotName );
@@ -76,8 +64,30 @@ public:
 	void			deselectAll();
 	void			setSelectMode( ESelectMode selectMode );
 
+	// Position handling.
+	virtual void updatePosition();
+
+	// Mouse handling.
+	virtual bool mouseMoved( Mouse *mouse );
+	virtual bool leftClicked( Mouse *mouse );
+	virtual bool leftReleased( Mouse *mouse );
+
+	// Slot handling functions.
+	void removeSlots();
+	void slotGrabbed( Mouse *mouse, Slot *slot );
+	void slotReleased( Slot *slot );
+
+	// Page viewing functions.
+	void nextPage();
+	void prevPage();
+	void moveCamera();
+	void handleCamera();
+	void updateTarget();
+
 private:
-	HorizontalLayout *columns_;
+	Inventory *inventory_;
+	HorizontalLayout *pages_;
+	HorizontalLayout *excluded_;
 
 	// Selection variables.
 	Slot *dragged_;

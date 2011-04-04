@@ -101,7 +101,7 @@ void Slot::updatePosition()
 {
 	// Move the item.
 	Item* item = getItem();
-	if (item) {
+	if (item != nullptr) {
 		float itemX = getX() + (getWidth() / 2) - (item->getWidth() / 2);
 		float itemY = getY() + (getHeight() / 2) - (item->getHeight() / 2);
 		item->setPosition( itemX, itemY );

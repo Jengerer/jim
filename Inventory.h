@@ -5,8 +5,6 @@
 #include "Item.h"
 #include "Slot.h"
 
-#define EXCLUDED_WIDTH 5
-
 typedef Slot**	slotArray;
 typedef vector<Slot*> slotVector;
 typedef vector<Item*> itemVector;
@@ -16,43 +14,56 @@ class Inventory
 public:
 	Inventory(
 		int width, int height, 
-		int pages );
+		int pages, int excludedWidth );
 	virtual ~Inventory();
 
 	// Dimension getters.
-	int				getCapacity() const;
+	int		getWidth() const;
+	int		getHeight() const;
+	int		getPages() const;
+	int		inventorySize() const;
+	int		excludedSize() const;
 
-	// Get slot vector.
-	const slotArray	getInventory();
-	const slotArray	getExcluded();
+	// Slot/item getters.
+	Slot*		getInventorySlot( int index );
+	Slot*		getExcludedSlot( int index );
+	Item*		getItem( uint64 id );
+	itemVector*	getInventoryItems();
+	itemVector* getExcludedItems();
 
-	// Slot handling.
-	void			generateSlots();
-	virtual void	move( Slot *source, Slot *destination );
-	bool			isValidSlot( uint8 index );
-	Slot*			getSlot( uint8 index );
+	// Slot resource functions.
+	void	createSlots();
+	void	removeSlots();
+	void	emptySlots();
 
-	// Item handling.
-	Slot*			addItem( Item* item );
-	itemVector*		getItems();
-	Slot*			insert( Item* item );
-	virtual void	removeItem( uint64 uniqueId );
-	void			emptySlots();
-	virtual void	clearItems();
-	virtual void	clearSlots();
-	void			updateExcluded();
+	// Get excluded page.
+	int		getExcludedPage() const;
+	void	setExcludedPage( int page );
+	void	updateExcluded();
 
-protected:
-	// Inventory attributes.
-	int				pageWidth_, pageHeight_;
-	int				pages_;
+	// Item resource functions.
+	Slot*	addItem( Item *item );
+	Slot*	insertItem( Item *item );
+	void	removeItem( Item *item );
+	void	clearItems();
+
+	// Item slot handling.
+	void	moveItem( Slot *source, Slot *destination );
+	bool	canMove( uint8 index );
 
 private:
+	// Inventory attributes.
+	int		width_, height_, pages_;
+	int		excludedWidth_;
+
+	// Excluded page view.
+	int		excludedPage_;
+
 	// Item vectors.
-	itemVector	items_;
+	itemVector	inventoryItems_;
 	itemVector	excludedItems_;
 
 	// Slot arrays.
-	slotArray	inventory_;
+	slotArray	inventorySlots_;
 	slotArray	excludedSlots_;
 };

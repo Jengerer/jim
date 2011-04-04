@@ -47,7 +47,7 @@ class Hashtable
 {
 public:
 	Hashtable();
-	~Hashtable();
+	virtual ~Hashtable();
 
 	// Adding and removing member.
 	void				put( const string& key, boost::any obj );
