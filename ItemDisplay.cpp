@@ -38,8 +38,8 @@ void ItemDisplay::draw( DirectX *directX )
 
 			// Now draw name centered.
 			RECT titleRect = { getX() + DISPLAY_PADDING, getY() + DISPLAY_PADDING, getX() + DISPLAY_WIDTH - DISPLAY_PADDING, getY() + getHeight() - DISPLAY_PADDING };
-			nameFont->getTextRect( item_->getName(), &titleRect, DT_CENTER | DT_WORDBREAK );
-			nameFont->drawText( item_->getName(), &titleRect, DT_CENTER | DT_WORDBREAK, D3DCOLOR_RGBA( 255, 255, 0, alpha_ ) );
+			nameFont->getTextRect( itemName, &titleRect, DT_CENTER );
+			nameFont->drawText( itemName, &titleRect, DT_CENTER, D3DCOLOR_RGBA( 255, 255, 0, alpha_ ) );
 
 			// Draw level below it.
 			RECT levelRect = { getX() + DISPLAY_PADDING, titleRect.bottom + DISPLAY_SPACING, getX() + DISPLAY_WIDTH - DISPLAY_PADDING, getY() + getHeight() - DISPLAY_PADDING };
@@ -63,7 +63,8 @@ void ItemDisplay::setItem( Item *item )
 	// Now resize for information.
 	if (item != 0) {
 		RECT titleRect = { 0, 0, DISPLAY_WIDTH - DISPLAY_PADDING*2, 0 };
-		nameFont->getTextRect( item->getName(), &titleRect, DT_WORDBREAK );
+		itemName = item->getName();
+		nameFont->wrapText( itemName, &titleRect, DT_CENTER );
 
 		RECT levelRect = { 0, 0, DISPLAY_WIDTH - DISPLAY_PADDING*2, 0 };
 		stringstream levelText;

@@ -49,14 +49,14 @@ void Dialog::draw( DirectX* directX )
 	rect.bottom	= y + getHeight()	- DIALOG_PADDING - DIALOG_STROKE_WIDTH;
 
 	// Draw it.
-	font->drawText(message_, &rect, DT_WORDBREAK | DT_CENTER, D3DCOLOR_ARGB( 255, 255, 255, 255 ));
+	font->drawText(message_, &rect, DT_CENTER, D3DCOLOR_ARGB( 255, 255, 255, 255 ));
 }
 
 void Dialog::resize()
 {
 	// Calculate size of text.
 	RECT rect = {DIALOG_PADDING + DIALOG_STROKE_WIDTH, 0, DIALOG_WIDTH - DIALOG_PADDING - DIALOG_STROKE_WIDTH, 0};
-	font->getTextRect( message_, &rect, DT_WORDBREAK | DT_CENTER );
+	font->wrapText( message_, &rect, DT_CENTER );
 
 	// Store old, and set new.
 	int oldHeight = getHeight();

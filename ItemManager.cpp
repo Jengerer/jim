@@ -39,7 +39,7 @@ LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
-	ItemManager* itemManager = 0;
+	ItemManager* itemManager = nullptr;
 
 	try {
 		itemManager = new ItemManager( hInstance );
@@ -109,14 +109,13 @@ void ItemManager::openInterfaces()
 		Texture *equipTexture = directX_->getTexture( "manager/equip" );
 		Texture *sortTexture = directX_->getTexture( "manager/sort" );
 
-		// Create inventory.
 		backpack_ = new Backpack(
 			0.0f, 0.0f,
 			this );
-		backpack_->openInterfaces();
 		backpack_->createInventory( PAGE_WIDTH, PAGE_HEIGHT,
 			PAGE_COUNT, EXCLUDED_SIZE );
 		addBottom( backpack_ );
+		backpack_->openInterfaces();
 		loadDefinitions();
 		loadItems();
 
