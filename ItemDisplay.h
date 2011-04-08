@@ -31,6 +31,7 @@ public:
 
 private:
 	Item *item_;
+	string itemName;
 	bool isActive_;
 	int alpha_;
 };

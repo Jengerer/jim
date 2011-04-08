@@ -14,6 +14,7 @@ public:
 	virtual ~Font();
 
 	void getTextRect( const string& text, LPRECT rect, DWORD format );
+	void wrapText( string& text, LPRECT rect, DWORD format );
 	void drawText( const string& text, LPRECT rect, DWORD format, const D3DCOLOR& colour );
 
 private:
