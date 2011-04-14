@@ -7,9 +7,6 @@ const D3DCOLOR EMPTY_COLOUR		= D3DCOLOR_ARGB( 255,	60,		53,		46 );
 const D3DCOLOR NORMAL_COLOUR	= D3DCOLOR_ARGB( 255,	60,		53,		46 );
 const D3DCOLOR DRAG_COLOUR		= D3DCOLOR_ARGB( 100,	60,		53,		46 );
 
-// Constants for slot size.
-const int SLOT_RADIUS	= 5;
-
 Slot::Slot( int index, Item* item )
 {
 	setItem( item );

@@ -48,7 +48,7 @@ void Button::draw( DirectX* directX )
 
 	// Draw button base.
 	float x = getX(), y = getY();
-	directX->drawRoundedRect( getX(), getY(), getWidth(), getHeight(), BUTTON_RADIUS, buttonColour );
+	directX->drawRoundedRect( getX(), getY(), getWidth(), getHeight(), BUTTON_RADIUS, 0, BUTTON_RADIUS, 0, buttonColour );
 
 	if (texture_) {
 		directX->drawTexture( texture_, getX() + BUTTON_PADDING_X, getY() + BUTTON_PADDING_Y, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );

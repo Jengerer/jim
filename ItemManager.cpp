@@ -13,7 +13,7 @@ using namespace std;
 // Window properties.
 const char*	APPLICATION_TITLE	= "Jengerer's Item Manager";
 const int	APPLICATION_WIDTH	= 795;
-const int	APPLICATION_HEIGHT	= 525;
+const int	APPLICATION_HEIGHT	= 540;
 
 // Application attributes.
 const float	APPLICATION_FRAMERATE	= 30.0f;

@@ -56,6 +56,7 @@ public:
 	void drawColouredQuad( void* vertices, size_t verticesSize );
 	void drawTexturedQuad( TextureVertex *vertices, Texture* texture );
 	void drawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR colour );
+	void drawRoundedRect( float x, float y, int width, int height, float radiusTl, float radiusTr, float radiusBr, float radiusBl, D3DCOLOR colour );
 
 	// Running functions.
 	bool checkDevice();

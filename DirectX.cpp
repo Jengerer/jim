@@ -416,38 +416,39 @@ void DirectX::createColouredQuad( ColourVertex* vertices, float x, float y, int 
 	bottomLeft->y = y + (float)height;
 }
 
-void DirectX::drawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR colour ) {
-	// Store setting and set diffuse colour.
-	d3dDevice_->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_SELECTARG1 );
-	d3dDevice_->SetTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE );
-
-	// Create and draw top-left.
-	createTexturedQuad( texVertices_, x, y, radius, radius, colour );
+void DirectX::drawRoundedRect( float x, float y, int width, int height, float radiusTl, float radiusTr, float radiusBr, float radiusBl, D3DCOLOR colour ) {
+	// Draw top-left and top.
+	createTexturedQuad( texVertices_, x, y, radiusTl, radiusTl, colour );
 	drawTexturedQuad( texVertices_, roundedCorner_ );
+	createColouredQuad( clrVertices_, x + radiusTl, y, width - radiusTl - radiusTr, radiusTl, colour );
+	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
 
-	// Create and draw top-right.
-	createTexturedQuad( texVertices_, x + width, y, -radius, radius, colour );
+	// Draw top-right and right.
+	createTexturedQuad( texVertices_, x + width, y, -radiusTr, radiusTr, colour );
 	drawTexturedQuad( texVertices_, roundedCorner_ );
+	createColouredQuad( clrVertices_, x + width, y + radiusTr, -radiusTr, height - radiusTr - radiusBr, colour );
+	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
 
-	// Create and draw bottom-left.
-	createTexturedQuad( texVertices_, x, y + height, radius, -radius, colour );
+	// Draw bottom-right and bottom.
+	createTexturedQuad( texVertices_, x + width, y + height, -radiusBr, -radiusBr, colour );
 	drawTexturedQuad( texVertices_, roundedCorner_ );
+	createColouredQuad( clrVertices_, x + radiusBl, y + height, width - radiusBl - radiusBr, -radiusBr, colour );
+	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
 
-	// Create and draw bottom-right.
-	createTexturedQuad( texVertices_, x + width, y + height, -radius, -radius, colour );
+	// Draw bottom-left and left.
+	createTexturedQuad( texVertices_, x, y + height, radiusBl, -radiusBl, colour );
 	drawTexturedQuad( texVertices_, roundedCorner_ );
+	createColouredQuad( clrVertices_, x, y + radiusTl, radiusBl, height - radiusTl - radiusBl, colour );
+	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
 
 	// Fill in center.
-	createColouredQuad( clrVertices_, x, y + radius, width, height - 2*radius, colour );
+	createColouredQuad( clrVertices_, x + radiusBl, y + radiusTl, width - radiusBl - radiusTr, height - radiusTl - radiusBr, colour );
 	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+}
 
-	// Fill in top.
-	createColouredQuad( clrVertices_, x + radius, y, width - 2*radius, radius, colour );
-	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
-
-	// Fill in bottom.
-	createColouredQuad( clrVertices_, x + radius, y + height - radius, width - 2*radius, radius, colour );
-	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+void DirectX::drawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR color )
+{
+	drawRoundedRect( x, y, width, height, radius, radius, radius, radius, color );
 }
 
 void DirectX::drawColouredQuad( void *vertices, size_t verticesSize )
@@ -511,6 +512,9 @@ void DirectX::drawTexturedQuad( TextureVertex *texVertices, Texture* texture ) {
 	memcpy( vertices, texVertices_, sizeof( texVertices_ ) );
 	vertexBuffer_->Unlock();
 
+	d3dDevice_->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_MODULATE );
+	d3dDevice_->SetTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE );
+
 	// Draw quad.
 	d3dDevice_->SetFVF( D3D9T_TEXTUREVERTEX );
 	d3dDevice_->SetStreamSource( 0, vertexBuffer_, 0, sizeof( TextureVertex ) );
@@ -520,14 +524,7 @@ void DirectX::drawTexturedQuad( TextureVertex *texVertices, Texture* texture ) {
 
 void DirectX::drawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour)
 {
-	// Create quad.
 	createTexturedQuad( texVertices_, x, y, width, height );
-
-	// Use modulation for colour and alpha.
-	d3dDevice_->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_MODULATE );
-	d3dDevice_->SetTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE );
-
-	// Draw quad.
 	drawTexturedQuad( texVertices_, texture );
 }
 
