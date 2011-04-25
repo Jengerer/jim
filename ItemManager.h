@@ -21,17 +21,20 @@
 #include "Mouse.h"
 
 // Items and definitions.
+#include "protobuf/base_gcmessages.pb.h"
+#include "protobuf/steammessages.pb.h"
+
 #include "Hashtable.h"
 #include "Backpack.h"
 #include "SerializedBuffer.h"
 
-#define BUTTON_SPACING	10
+#define BUTTON_SPACING	2
 #define BUTTON_Y		380
 
 class ItemManager: public Application
 {
 public:
-	ItemManager( HINSTANCE instance );
+	ItemManager(HINSTANCE instance);
 	virtual ~ItemManager();
 
 	// Initializing and closing.
@@ -52,20 +55,18 @@ public:
 	void handleKeyboard();
 
 	// Mouse handling virtuals.
-	virtual bool leftClicked( Mouse *mouse );
-	virtual bool leftReleased( Mouse *mouse );
-	virtual bool rightClicked( Mouse *mouse );
-	virtual bool rightReleased( Mouse *mouse );
-	virtual bool mouseMoved( Mouse *mouse );
+	virtual bool leftClicked(Mouse *mouse);
+	virtual bool leftReleased(Mouse *mouse);
+	virtual bool mouseMoved(Mouse *mouse);
 
 	// Interface handling.
-	Dialog*	createDialog( const string& message );
-	Alert*	createAlert( const string& message );
-	Button*	createButton( const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f, EAlignment align = ALIGN_TOP_LEFT );
-	void	showPopup( Popup *popup );
-	void	hidePopup( Popup *popup );
-	void	handlePopup( Popup *popup );
-	void	removePopup( Popup* popup );
+	Dialog*	createDialog(const string& message);
+	Alert*	createAlert(const string& message);
+	Button*	createButton(const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f, EAlignment align = ALIGN_TOP_LEFT);
+	void	showPopup(Popup *popup);
+	void	hidePopup(Popup *popup);
+	void	handlePopup(Popup *popup);
+	void	removePopup(Popup* popup);
 
 private:
 	// Application interfaces.

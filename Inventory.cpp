@@ -293,7 +293,7 @@ void Inventory::moveItem( Slot *source, Slot *destination )
 	destination->setItem( target );
 }
 
-bool Inventory::canMove ( uint8 index )
+bool Inventory::canMove ( uint16 index )
 {
 	int maxSlot = inventorySize();
 	if ((index >= 0) && (index < maxSlot)) {

@@ -2,6 +2,7 @@
 
 SerializedBuffer::SerializedBuffer( void* buffer )
 {
+	start_ = buffer;
 	buffer_ = buffer;
 }
 

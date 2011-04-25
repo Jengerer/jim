@@ -49,7 +49,7 @@ public:
 
 	// Item slot handling.
 	void	moveItem( Slot *source, Slot *destination );
-	bool	canMove( uint8 index );
+	bool	canMove( uint16 index );
 
 private:
 	// Inventory attributes.
