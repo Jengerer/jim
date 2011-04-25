@@ -8,7 +8,7 @@
 using namespace std;
 
 #define BUTTON_RADIUS		5
-#define BUTTON_PADDING_X	20
+#define BUTTON_PADDING_X	15
 #define BUTTON_PADDING_Y	15
 #define BUTTON_ICON_SPACING	10
 #define BUTTON_ICON_SIZE	20

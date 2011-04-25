@@ -17,6 +17,10 @@ public:
 
 	void write( void *data, unsigned int size );
 
+	void* start() {
+		return start_;
+	}
+
 	void* here() {
 		return buffer_;
 	}
@@ -25,4 +29,5 @@ public:
 
 private:
 	void* buffer_;
+	void* start_;
 };

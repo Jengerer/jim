@@ -63,13 +63,14 @@ void Backpack::handleCallback( int id, void *callback )
 {
 }
 
-void Backpack::handleMessage( int id, void *message )
+void Backpack::handleMessage( int id, void *message, uint32 size )
 {
 	switch (id)
 	{
 	case SOMsgCacheSubscribed_t::k_iMessage:
 		{
 			// Start loading items.
+			// CMsgSOCacheSubscribed cacheSubscribedMsg;
 			SerializedBuffer serializedBuffer( message );
 			SOMsgCacheSubscribed_t *list = serializedBuffer.get<SOMsgCacheSubscribed_t>();
 			SOMsgCacheSubscribed_Items_t *items = serializedBuffer.get<SOMsgCacheSubscribed_Items_t>();

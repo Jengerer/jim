@@ -3,6 +3,9 @@
 #include <json/json.h>
 #include <string>
 
+#include "protobuf/steammessages.pb.h"
+#include "protobuf/base_gcmessages.pb.h"
+
 #include "Menu.h"
 #include "Steam.h"
 #include "Inventory.h"
@@ -28,8 +31,7 @@ enum ESelectMode {
 class Backpack: public Container, public Steam
 {
 public:
-	Backpack( float x, float y,
-		Container* parent );
+	Backpack( float x, float y, Container* parent );
 	virtual ~Backpack();
 
 	// Interface handling.
@@ -38,7 +40,7 @@ public:
 
 	// Steam message handling.
 	void handleCallback( int id, void *callback );
-	void handleMessage( int id, void *message );
+	void handleMessage( int id, void *message, uint32 size );
 
 	// Inventory resource handling.
 	void createInventory( int width, int height, int pages, int excludedSize );
@@ -46,8 +48,8 @@ public:
 	void formatInventory();
 
 	// Inventory attribute handling.
-	bool			isLoaded() const;
-	void			setLoaded( bool isLoaded );
+	bool isLoaded() const;
+	void setLoaded( bool isLoaded );
 
 	// Item handling.
 	virtual void	moveItem( Slot *source, Slot *destination );

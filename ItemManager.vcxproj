@@ -43,10 +43,10 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Program Files\protobuf-2.4.0a\src;$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProgramFiles)\JsonCpp\libs\Release\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Release\;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProgramFiles)\JsonCpp\libs\Debug\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Program Files\protobuf-2.4.0a\vsprojects\Debug;$(ProgramFiles)\JsonCpp\libs\Debug\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -54,16 +54,17 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>steam/steam_api.lib;d3d9.lib;d3dx9.lib;libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libprotobuf.lib;steam/steam_api.lib;d3d9.lib;d3dx9.lib;libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcmtd.lib;</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -122,6 +123,8 @@
     <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Popup.cpp" />
+    <ClCompile Include="protobuf\base_gcmessages.pb.cc" />
+    <ClCompile Include="protobuf\steammessages.pb.cc" />
     <ClCompile Include="SerializedBuffer.cpp" />
     <ClCompile Include="Slot.cpp" />
     <ClCompile Include="Steam.cpp" />
@@ -151,15 +154,19 @@
     <ClInclude Include="ItemManager.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="KeyboardHandler.h" />
+    <ClInclude Include="KeyValueParser.h" />
     <ClInclude Include="Layout.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Popup.h" />
+    <ClInclude Include="protobuf\base_gcmessages.pb.h" />
+    <ClInclude Include="protobuf\steammessages.pb.h" />
     <ClInclude Include="SerializedBuffer.h" />
     <ClInclude Include="Slot.h" />
     <ClInclude Include="Steam.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Title.h" />
     <ClInclude Include="VerticalLayout.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="steam\AppsCommon.h" />
