@@ -1,5 +1,9 @@
 #include "Backpack.h"
 
+#include "protobuf/base_gcmessages.pb.h"
+#include "protobuf/gcsdk_gcmessages.pb.h"
+#include "protobuf/steammessages.pb.h"
+
 // Navigation constants.
 const int	PAGE_CHANGE_DELAY	= 500;
 
@@ -65,60 +69,53 @@ void Backpack::handleCallback( int id, void *callback )
 
 void Backpack::handleMessage( int id, void *message, uint32 size )
 {
-	switch (id)
-	{
+	switch (id) {
 	case SOMsgCacheSubscribed_t::k_iMessage:
 		{
-			// Start loading items.
-			// CMsgSOCacheSubscribed cacheSubscribedMsg;
-			SerializedBuffer serializedBuffer( message );
-			SOMsgCacheSubscribed_t *list = serializedBuffer.get<SOMsgCacheSubscribed_t>();
-			SOMsgCacheSubscribed_Items_t *items = serializedBuffer.get<SOMsgCacheSubscribed_Items_t>();
+			if ( isLoaded() ) {
+				return;
+			}
 
-			// Don't load if we've already loaded.
-			if (!isLoaded()) {
-				for (int i = 0; i < items->itemcount; i++) {
-					SOMsgCacheSubscribed_Item_t *item = serializedBuffer.get<SOMsgCacheSubscribed_Item_t>();
+			CMsgSOCacheSubscribed subscribedMsg;
+			subscribedMsg.ParseFromArray( message, size );
+								
+			// TODO: Check for other users' backpack.
+			for (int i = 0; i < subscribedMsg.objects_size(); i++) {
+				CMsgSOCacheSubscribed_SubscribedType subscribedType = subscribedMsg.objects( i );
+				switch ( subscribedType.type_id() ) {
+				case 1:
+					{
+						if ( getSteamId() == subscribedMsg.owner() ) {
+							for (int i = 0; i < subscribedType.object_data_size(); i++) {
+								CSOEconItem econItem;
+								econItem.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
+								Item *item = new Item(
+									econItem.id(),
+									econItem.def_index(),
+									econItem.level(),
+									(EItemQuality)econItem.quality(),
+									econItem.quantity(),
+									econItem.inventory() );
+								inventory_->addItem( item );
+							}
+						}
 
-					// Get custom item name.
-					char* customName = 0;
-					if (item->namelength > 0) {
-						customName = (char*)serializedBuffer.here();
-						serializedBuffer.push( item->namelength );
+						break;
 					}
+				case 7:
+					{
+						if ( subscribedMsg.owner() == getSteamId() ) {
+							for (int i = 0; i < subscribedType.object_data_size(); i++) {
+								CSOEconGameAccountClient gameAccountClient;
+								gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
+								inventory_->AddSlots( gameAccountClient.additional_backpack_slots() );
+							}
+						}
 
-					uint8* flags = serializedBuffer.get<uint8>();
-					uint8* origin		= serializedBuffer.get<uint8>();
-					uint16* descLength	= serializedBuffer.get<uint16>();
-
-					// Get custom description.
-					char* customDesc	= 0;
-					if (*descLength > 0) {
-						customDesc = (char*)serializedBuffer.here();
-						serializedBuffer.push( *descLength );
+						break;
 					}
-
-					serializedBuffer.push( sizeof( uint8 ) ); // Skip unknown.
-					uint16* attribCount	= serializedBuffer.get<uint16>();
-
-					// Skip past attributes.
-					serializedBuffer.push( sizeof(SOMsgCacheSubscribed_Item_Attrib_t) * (*attribCount) );
-
-					// Push past 64-bit container.
-					serializedBuffer.push( sizeof(uint64) );
-
-					//Create a new item from the information.
-					Item *newItem = new Item(
-						item->itemid,
-						item->itemdefindex,
-						item->itemlevel,
-						(EItemQuality)item->itemquality,
-						item->quantity,
-						item->position );
-
-					// Add the item.
-					inventory_->addItem( newItem );
 				}
+
 			}
 
 			setLoaded( true );
@@ -153,7 +150,7 @@ void Backpack::handleMessage( int id, void *message, uint32 size )
 	case SOMsgDeleted_t::k_iMessage:
 		{
 			SOMsgDeleted_t *deleteMsg = (SOMsgDeleted_t*)message;
-			Item *target = inventory_->getItem( deleteMsg->itemid );
+			Item *target = inventory_->GetItem( deleteMsg->itemid );
 			if (target != nullptr) {
 				inventory_->removeItem( target );
 				inventory_->updateExcluded();
@@ -255,9 +252,9 @@ void Backpack::formatInventory()
 	pages_->setPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
 	pages_->setSpacing( PAGE_SPACING );
 
-	int pages = inventory_->getPages();
-	int pageWidth = inventory_->getWidth();
-	int pageHeight = inventory_->getHeight();
+	int pages = inventory_->GetPageCount();
+	int pageWidth = inventory_->GetWidth();
+	int pageHeight = inventory_->GetHeight();
 	for (int i = 0; i < pages; i++) {
 		// Add a column per page.
 		HorizontalLayout *pageColumns = new HorizontalLayout();
@@ -275,7 +272,7 @@ void Backpack::formatInventory()
 				for (int y = 0; y < pageHeight; y++) {
 					// Simplified formula for index.
 					int index = x + j * (pageWidth >> 1) + pageWidth * (i * pageHeight + y);
-					Slot* slot = inventory_->getInventorySlot( index );
+					Slot* slot = inventory_->GetInventorySlot( index );
 					rows->add( slot );
 				}
 
@@ -294,9 +291,9 @@ void Backpack::formatInventory()
 	excluded_->setPosition( getX() + BACKPACK_PADDING, getHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
 	excluded_->setSpacing( SLOT_SPACING );
 
-	int length = inventory_->excludedSize();
+	int length = inventory_->GetExcludedSize();
 	for (int i = 0; i < length; i++) {
-		Slot* slot = inventory_->getExcludedSlot( i );
+		Slot* slot = inventory_->GetExcludedSlot( i );
 		excluded_->add( slot );
 	}
 
@@ -368,9 +365,9 @@ bool Backpack::leftClicked( Mouse *mouse )
 	}
 
 	// Check excluded.
-	int length = inventory_->excludedSize();
+	int length = inventory_->GetExcludedSize();
 	for (int i = 0; i < length; i++) {
-		Slot *slot = inventory_->getExcludedSlot( i );
+		Slot *slot = inventory_->GetExcludedSlot( i );
 		if (mouse->isTouching( slot )) {
 			if (dragged_ == nullptr) {
 				slotGrabbed( mouse, slot );
@@ -494,9 +491,9 @@ bool Backpack::mouseMoved( Mouse *mouse )
 	}
 
 	// Check excluded.
-	int length = inventory_->excludedSize();
+	int length = inventory_->GetExcludedSize();
 	for (int i = 0; i < length; i++) {
-		Slot *slot = inventory_->getExcludedSlot( i );
+		Slot *slot = inventory_->GetExcludedSlot( i );
 		if (mouse->isTouching( slot )) {
 			// Update display if not dragging and has item.
 			if ((slot->getSelectType() != SELECT_TYPE_DRAG) && (slot->getItem() != 0)) {
@@ -639,8 +636,7 @@ void Backpack::equipItem( Item *item, const string& className ) {
 }
 
 void Backpack::unequipItems( EClassEquip equipClass, const string& slot ) {
-	itemVector* inventoryItems = inventory_->getInventoryItems();
-	itemVector* excludedItems = inventory_->getExcludedItems();
+	const itemVector* inventoryItems = inventory_->GetInventoryItems();
 	for each(Item *item in *inventoryItems) {
 		if (item->isEquipped( equipClass )) {
 			if (item->getSlot() == slot) {
@@ -651,6 +647,7 @@ void Backpack::unequipItems( EClassEquip equipClass, const string& slot ) {
 		}
 	}
 
+	const itemVector* excludedItems = inventory_->GetExcludedItems();
 	for each (Item *item in *excludedItems) {
 		if (item->isEquipped( equipClass )) {
 			if (item->getSlot() == slot) {
@@ -764,7 +761,7 @@ void Backpack::updateTarget()
 
 void Backpack::nextPage()
 {
-	if (page_ < inventory_->getPages()) {
+	if (page_ < inventory_->GetPageCount()) {
 		page_++;
 	}
 

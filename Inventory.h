@@ -5,7 +5,7 @@
 #include "Item.h"
 #include "Slot.h"
 
-typedef Slot**	slotArray;
+typedef Slot*	slotArray;
 typedef vector<Slot*> slotVector;
 typedef vector<Item*> itemVector;
 
@@ -17,28 +17,30 @@ public:
 		int pages, int excludedWidth );
 	virtual ~Inventory();
 
-	// Dimension getters.
-	int		getWidth() const;
-	int		getHeight() const;
-	int		getPages() const;
-	int		inventorySize() const;
-	int		excludedSize() const;
+	int		GetWidth() const;
+	int		GetHeight() const;
+	int		GetPageCount() const;
+	int		GetPageCapacity() const;
+	int		GetInventorySize() const;
+	int		GetExcludedSize() const;
 
 	// Slot/item getters.
-	Slot*		getInventorySlot( int index );
-	Slot*		getExcludedSlot( int index );
-	Item*		getItem( uint64 id );
-	itemVector*	getInventoryItems();
-	itemVector* getExcludedItems();
+	Slot*		GetInventorySlot( int index );
+	Slot*		GetExcludedSlot( int index );
+	Item*		GetItem( uint64 id );
+
+	const itemVector*	GetInventoryItems() const;
+	const itemVector*	GetExcludedItems() const;
 
 	// Slot resource functions.
 	void	createSlots();
+	void	AddSlots( unsigned int numSlots );
 	void	removeSlots();
 	void	emptySlots();
 
 	// Get excluded page.
-	int		getExcludedPage() const;
-	void	setExcludedPage( int page );
+	int		GetExcludedPage() const;
+	void	SetExcludedPage( int page );
 	void	updateExcluded();
 
 	// Item resource functions.
@@ -50,6 +52,13 @@ public:
 	// Item slot handling.
 	void	moveItem( Slot *source, Slot *destination );
 	bool	canMove( uint16 index );
+
+private:
+
+	// Dimension changes, should only be done within member functions.
+	void	SetWidth( int width );
+	void	SetHeight( int height );
+	void	SetPageCount( int pageCount );
 
 private:
 	// Inventory attributes.

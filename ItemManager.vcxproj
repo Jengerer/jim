@@ -124,6 +124,7 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Popup.cpp" />
     <ClCompile Include="protobuf\base_gcmessages.pb.cc" />
+    <ClCompile Include="protobuf\gcsdk_gcmessages.pb.cc" />
     <ClCompile Include="protobuf\steammessages.pb.cc" />
     <ClCompile Include="SerializedBuffer.cpp" />
     <ClCompile Include="Slot.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Popup.h" />
     <ClInclude Include="protobuf\base_gcmessages.pb.h" />
+    <ClInclude Include="protobuf\gcsdk_gcmessages.pb.h" />
     <ClInclude Include="protobuf\steammessages.pb.h" />
     <ClInclude Include="SerializedBuffer.h" />
     <ClInclude Include="Slot.h" />
