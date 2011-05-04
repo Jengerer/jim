@@ -29,7 +29,7 @@ enum ESlotGroup {
 class Slot: public Draggable
 {
 public:
-	Slot( int index = -1, Item* item = nullptr );
+	Slot( int index = 0, Item* item = nullptr );
 	virtual ~Slot();
 
 	// Drawing function.

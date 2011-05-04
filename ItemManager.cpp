@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
+#include "protobuf/base_gcmessages.pb.h"
+#include "protobuf/steammessages.pb.h"
+#include "protobuf/gcsdk_gcmessages.pb.h"
+
 using namespace std;
 
 // Window properties.
@@ -27,6 +31,8 @@ const int	APPLICATION_VERSION		= 1000;
 
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	_crtBreakAlloc = 1421;
+
 	switch (message) {
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -126,7 +132,7 @@ void ItemManager::openInterfaces()
 		addBottom(buttonLayout);
 		backpack_->openInterfaces();
 		loadDefinitions();
-		loadItems();
+		// loadItems();
 
 		// Set default state.
 		equipButton_->disable();
@@ -162,6 +168,8 @@ void ItemManager::closeInterfaces()
 		delete Item::informationTable;
 		Item::informationTable = 0;
 	}
+
+	google::protobuf::ShutdownProtobufLibrary();
 }
 
 void ItemManager::run()
@@ -470,32 +478,26 @@ void ItemManager::loadItems()
 
 void ItemManager::handleCallbacks() {
 	CallbackMsg_t callback;
-	if (backpack_->getCallback(&callback)) {
+	if ( backpack_->getCallback(&callback) ) {
 		switch (callback.m_iCallback) {
 		case GCMessageAvailable_t::k_iCallback:
 			{
 				GCMessageAvailable_t *message = (GCMessageAvailable_t *)callback.m_pubParam;
 				
 				uint32 size;
-				if (backpack_->hasMessage(&size))
+				if ( backpack_->hasMessage( &size ) )
 				{
 					uint32 id, realSize = 0;
 
 					// Retrieve the message.
-					void* buffer = malloc(size);
-					backpack_->getMessage(&id, buffer, size, &realSize);
+					// WARNING: Do NOT use return before calling free on buffer.
+					void* buffer = malloc( size );
+					backpack_->getMessage( &id, buffer, size, &realSize );
 
-#ifdef _DEBUG
-					ofstream file("output.txt", ios_base::app);
-					file << "type: " << hex << id << endl;
-					for (int i = 0; i < size; i++) {
-						file << hex << setw(2) << setfill('0') << (unsigned int)((unsigned char*)buffer)[i] << " ";
-					}
-					file << endl << endl;
-					file.close();
-#endif
 					// Filter protobuf messages.
-					if (id & 0x80000000 != 0) {
+					bool isProtobuf = (id & 0x80000000) != 0;
+					uint32 realType = id & 0x0FFFFFFF;
+					if (isProtobuf) {
 						// First get the protobuf struct header.
 						SerializedBuffer headerBuffer(buffer);
 						GCProtobufHeader_t *headerStruct = headerBuffer.get<GCProtobufHeader_t>();
@@ -507,20 +509,26 @@ void ItemManager::handleCallbacks() {
 						headerMsg.ParseFromArray( headerBytes, headerSize );
 						headerBuffer.push( headerSize );
 
+						uint32 bodySize = size - sizeof( GCProtobufHeader_t ) - headerSize;
+
 						switch (id & 0x0FFFFFFF) {
 						case k_EMsgGCStartupCheck:
 							{
+								// Receive the startup check.
 								CMsgStartupCheck startupMsg;
-								startupMsg.ParseFromArray( headerBuffer.here(), size - sizeof( GCProtobufHeader_t ) - headerSize );
+								startupMsg.ParseFromArray( headerBuffer.here(), bodySize );
+
+								// Build a response.
 								CMsgStartupCheckResponse responseMsg;
-								responseMsg.set_item_schema_version(0);
+								responseMsg.set_item_schema_version( 0 );
 								string responseString = responseMsg.SerializeAsString();
 
 								// Create header for response.
 								CMsgProtoBufHeader responseHeader;
 								responseHeader.set_client_steam_id( headerMsg.client_steam_id() );
 								responseHeader.set_job_id_target( headerMsg.job_id_source() );
-								string headerData = responseHeader.SerializeAsString();
+								string headerData;
+								responseHeader.SerializeToString( &headerData );
 
 								// Fill in struct.
 								GCProtobufHeader_t *responseStruct = new GCProtobufHeader_t;
@@ -535,18 +543,14 @@ void ItemManager::handleCallbacks() {
 								responseBuffer.write( (void*)headerData.c_str(), headerData.length() );
 								responseBuffer.write( (void*)responseString.c_str(), responseString.length() );
 
-#ifdef _DEBUG
-								ofstream responseOut( "response.txt" );
-								unsigned char* responseChar = (unsigned char*)responseBuffer.start();
-								for (int i = 0; i < responseSize; i++) {
-									responseOut << hex << setw(2) << setfill('0') << (unsigned int)(responseChar[i]) << " ";
-								}
-								responseOut.close();
-#endif
+								// Send and free.
 								backpack_->sendMessage(responseStruct->m_EMsg, responseBuffer.start(), responseSize);
+
+								delete responseStruct;
 								free( response );
 							}
 							break;
+
 						case k_EMsgGCUpdateItemSchema:
 							{
 								// Not handling yet.
@@ -566,22 +570,23 @@ void ItemManager::handleCallbacks() {
 							}
 
 						default:
-							backpack_->handleMessage( id, buffer, size - sizeof( GCProtobufHeader_t ) - headerSize );
+							backpack_->handleMessage( id & 0x0FFFFFFF, headerBuffer.here(), bodySize );
 							break;
 						}
 
-						// Free up memory.
-						if (buffer != nullptr) {
-							free(buffer);
-							google::protobuf::ShutdownProtobufLibrary();
-						}
+						google::protobuf::ShutdownProtobufLibrary();
+					}
+
+					if (buffer != nullptr) {
+						free( buffer );
+						buffer = nullptr;
 					}
 				}
 			}
 		}
 
 		backpack_->releaseCallback();
-	}
+	} 
 }
 
 Button* ItemManager::createButton(const string& caption, Texture *texture, float x, float y, EAlignment align)

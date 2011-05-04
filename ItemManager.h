@@ -20,10 +20,6 @@
 #include "Menu.h"
 #include "Mouse.h"
 
-// Items and definitions.
-#include "protobuf/base_gcmessages.pb.h"
-#include "protobuf/steammessages.pb.h"
-
 #include "Hashtable.h"
 #include "Backpack.h"
 #include "SerializedBuffer.h"

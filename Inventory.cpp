@@ -9,7 +9,7 @@ Inventory::Inventory(
 	pages_ = pages;
 	excludedWidth_ = excludedWidth;
 
-	setExcludedPage( 0 );
+	SetExcludedPage( 0 );
 	createSlots();
 }
 
@@ -19,43 +19,48 @@ Inventory::~Inventory()
 	removeSlots();
 }
 
-int Inventory::getWidth() const
+int Inventory::GetWidth() const
 {
 	return width_;
 }
 
-int Inventory::getHeight() const
+int Inventory::GetHeight() const
 {
 	return height_;
 }
 
-int Inventory::getPages() const
+int Inventory::GetPageCount() const
 {
 	return pages_;
 }
 
-Slot* Inventory::getInventorySlot( int index )
+Slot* Inventory::GetInventorySlot( int index )
 {
-	return inventorySlots_[ index ];
+	return &inventorySlots_[ index ];
 }
 
-Slot* Inventory::getExcludedSlot( int index )
+Slot* Inventory::GetExcludedSlot( int index )
 {
-	return excludedSlots_[ index ];
+	return &excludedSlots_[ index ];
 }
 
-int Inventory::inventorySize() const
+int Inventory::GetInventorySize() const
 {
-	return getWidth() * getHeight() * getPages();
+	return GetPageCapacity() * GetPageCount();
 }
 
-int Inventory::excludedSize() const
+int Inventory::GetPageCapacity() const
+{
+	return GetWidth() * GetHeight();
+}
+
+int Inventory::GetExcludedSize() const
 {
 	return excludedWidth_;
 }
 
 // TODO: Sort the lists, use faster search.
-Item* Inventory::getItem( uint64 id )
+Item* Inventory::GetItem( uint64 id )
 {
 	itemVector::iterator i;
 
@@ -76,12 +81,12 @@ Item* Inventory::getItem( uint64 id )
 	return nullptr;
 }
 
-itemVector* Inventory::getInventoryItems()
+const itemVector*	Inventory::GetInventoryItems() const
 {
 	return &inventoryItems_;
 }
 
-itemVector* Inventory::getExcludedItems()
+const itemVector*	Inventory::GetExcludedItems() const
 {
 	return &excludedItems_;
 }
@@ -89,92 +94,81 @@ itemVector* Inventory::getExcludedItems()
 void Inventory::createSlots()
 {
 	// Generate slot arrays.
-	inventorySlots_ = (Slot**)malloc( sizeof( Slot* ) * inventorySize() );
-	excludedSlots_ = (Slot**)malloc( sizeof( Slot* ) * excludedSize() );
+	inventorySlots_ = new Slot[ GetInventorySize() ];
+	excludedSlots_ = new Slot[ GetExcludedSize() ];
 
 	// Create slots.
-	int length = inventorySize();
+	int length = GetInventorySize();
 	for (int i = 0; i < length; i++) {
-		Slot *slot = new Slot( i );
+		Slot *slot = &inventorySlots_[ i ];
 		slot->setGroup( GROUP_INVENTORY );
 		slot->setIndex( i );
-		inventorySlots_[i] = slot;
 	}
 
 	// Create excluded slots.
-	length = excludedSize();
+	length = GetExcludedSize();
 	for (int i = 0; i < length; i++) {
-		Slot *slot = new Slot();
+		Slot *slot = &excludedSlots_[ i ];
 		slot->setGroup( GROUP_EXCLUDED );
-		excludedSlots_[i] = slot;
 	}
+}
+
+void Inventory::AddSlots( unsigned int numSlots )
+{
+	int extraPages = numSlots / (GetPageCapacity());
+	SetPageCount( GetPageCount() + extraPages );
 }
 
 void Inventory::removeSlots()
 {
-	int length;
-
 	// Remove inventory.
 	if (inventorySlots_ != nullptr) {
-		length = inventorySize();
-		for (int i = 0; i < length; i++) {
-			Slot *slot = inventorySlots_[i];
-			delete slot;
-		}
+		delete[] inventorySlots_;
+		inventorySlots_ = nullptr;
 	}
-
-	free( inventorySlots_ );
-	inventorySlots_ = nullptr;
 
 	// Remove excluded.
 	if (excludedSlots_ != nullptr) {
-		length = excludedSize();
-		for (int i = 0; i < length; i++) {
-			Slot *slot = excludedSlots_[i];
-			delete slot;
-		}
+		delete[] excludedSlots_;
+		excludedSlots_ = nullptr;
 	}
-
-	free( excludedSlots_ );
-	excludedSlots_ = nullptr;
 }
 
 void Inventory::emptySlots()
 {
-	// First remove items from slots.
 	int i, length;
 	if (inventorySlots_ != 0) {
-		length = inventorySize();
+		length = GetInventorySize();
 		for (i = 0; i < length; i++) {
-			Slot* slot = inventorySlots_[i];
+			Slot* slot = &inventorySlots_[i];
 			slot->setItem( 0 );
 		}
 	}
 
 	if (excludedSlots_ != 0) {
-		length = excludedSize();
+		length = GetExcludedSize();
 		for (i = 0; i < length; i++) {
-			Slot* slot = excludedSlots_[i];
+			Slot* slot = &excludedSlots_[i];
 			slot->setItem( 0 );
 		}
 	}
 }
 
-int Inventory::getExcludedPage() const
+int Inventory::GetExcludedPage() const
 {
 	return excludedPage_;
 }
 
-void Inventory::setExcludedPage( int page )
+void Inventory::SetExcludedPage( int page )
 {
 	excludedPage_ = page;
 }
 
 void Inventory::updateExcluded() {
-	int start = getExcludedPage() * excludedSize();
+	int start = GetExcludedPage() * GetExcludedSize();
 	int itemCount = excludedItems_.size();
-	for (int i = 0; i < excludedSize(); i++) {
-		Slot *slot = excludedSlots_[i];
+	for (int i = 0; i < GetExcludedSize(); i++) {
+		Slot *slot = &excludedSlots_[i];
 
 		int index = start + i;
 		if (index >= itemCount) {
@@ -210,7 +204,7 @@ Slot* Inventory::insertItem( Item* item )
 	uint16 position = item->getIndex() - 1;
 	uint32 leftBytes = flags & 0xf0000000;
 	if ((leftBytes == 0x80000000) && (flags & 0xfff) && canMove( position )) {
-		Slot* destination = getInventorySlot( position );
+		Slot* destination = GetInventorySlot( position );
 		destination->setItem( item );
 		return destination;
 	}
@@ -226,7 +220,7 @@ void Inventory::removeItem( Item* item )
 		Item *current = *i;
 		if (item == current) {
 			int position = item->getIndex() - 1;
-			Slot *slot = getInventorySlot( position );
+			Slot *slot = GetInventorySlot( position );
 			slot->setItem( 0 );
 			inventoryItems_.erase( i );
 
@@ -295,10 +289,25 @@ void Inventory::moveItem( Slot *source, Slot *destination )
 
 bool Inventory::canMove ( uint16 index )
 {
-	int maxSlot = inventorySize();
+	int maxSlot = GetInventorySize();
 	if ((index >= 0) && (index < maxSlot)) {
-		return getInventorySlot( index )->getItem() == 0;
+		return GetInventorySlot( index )->getItem() == 0;
 	}
 	
 	return false;
+}
+
+void Inventory::SetWidth( int width )
+{
+	width_ = width;
+}
+
+void Inventory::SetHeight( int height )
+{
+	height_ = height;
+}
+
+void Inventory::SetPageCount( int pageCount )
+{
+	pages_ = pageCount;
 }
