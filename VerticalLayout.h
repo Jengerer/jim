@@ -3,15 +3,18 @@
 #include "Layout.h"
 #include "Component.h"
 
-class VerticalLayout: public Layout
+class VerticalLayout : public Layout
 {
+
 public:
-	VerticalLayout();
-	virtual ~VerticalLayout();
+
+	VerticalLayout( void );
+	virtual ~VerticalLayout( void );
 
 	// Packs elements into a horizontal layout.
-	virtual void pack();
+	virtual void Pack( void );
 
 	// Repositions all elements.
-	virtual void updatePosition();
+	virtual void UpdatePosition( void );
+
 };

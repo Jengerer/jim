@@ -18,7 +18,7 @@ public:
 	virtual ~ItemDisplay();
 
 	// Drawing functions.
-	virtual void draw( DirectX* directX );
+	virtual void OnDraw( DirectX* directX );
 
 	// Item functions.
 	Item *getItem();

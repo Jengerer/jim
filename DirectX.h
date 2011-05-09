@@ -48,7 +48,7 @@ public:
 	void freeTextures();
 	void releaseTextures();
 	Texture* getTexture( const string& filename );
-	Texture* loadTexture( const string& filename );
+	void LoadTexture( Texture* texture );
 
 	// Vertex buffer.
 	void createTexturedQuad( TextureVertex *vertices, float x, float y, int width, int height, D3DCOLOR colour = 0xFFFFFFFF );

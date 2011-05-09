@@ -27,7 +27,7 @@ public:
 	// Slot/item getters.
 	Slot*		GetInventorySlot( int index );
 	Slot*		GetExcludedSlot( int index );
-	Item*		GetItem( uint64 id );
+	Item*		GetItemByUniqueId( uint64 id );
 
 	const itemVector*	GetInventoryItems() const;
 	const itemVector*	GetExcludedItems() const;

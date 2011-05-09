@@ -1,101 +1,108 @@
 #include "Application.h"
 
 /* Application constructor. */
-Application::Application(
-	const char* title,
-	HINSTANCE instance,
-	int width, int height ) : Container( 0.0f, 0.0f )
+Application::Application( int width, int height )
 {
-	directX_ = new DirectX(	instance, title, width, height );
-	arrow_ = LoadCursor( 0, IDC_ARROW );
-	hand_ = LoadCursor( 0, IDC_HAND );
+	// Uncreated members null.
+	directX_ = nullptr;
+	mouse_ = nullptr;
+	arrow_ = nullptr;
+	hand_ = nullptr;
 
 	// Add mouse keys by default.
-	listenKey( VK_LBUTTON );
-	listenKey( VK_RBUTTON );
+	AddKey( VK_LBUTTON );
+	AddKey( VK_RBUTTON );
 
-	setState( APPLICATION_STATE_START );
+	// We're just beginning, so much to do!
+	SetState( APPLICATION_STATE_START );
+	SetSize( width, height );
 }
 
 Application::~Application()
 {
-	if (directX_ != 0)
-	{
+	CloseInterfaces();
+}
+
+void Application::LoadInterfaces( const char* title, HINSTANCE instance )
+{
+	directX_ = new DirectX(	instance, title, GetWidth(), GetHeight() );
+	mouse_ = new Mouse( directX_ );
+	arrow_ = LoadCursor( nullptr, IDC_ARROW );
+	hand_ = LoadCursor( nullptr, IDC_HAND );
+}
+
+void Application::CloseInterfaces( void )
+{
+	if (directX_ != nullptr) {
 		delete directX_;
 		directX_ = 0;
 	}
 }
 
-void Application::exitApplication()
+void Application::ExitApplication()
 {
-	PostMessage( getWindow()->getHandle(), WM_DESTROY, 0, 0 );
+	PostMessage( GetWindow()->getHandle(), WM_DESTROY, 0, 0 );
 }
 
-Window* Application::getWindow() const
+Window* Application::GetWindow() const
 {
 	return directX_;
 }
 
-int Application::getWidth() const
-{
-	return directX_->getWidth();
-}
-
-int Application::getHeight() const
-{
-	return directX_->getHeight();
-}
-
-void Application::setState( EApplicationState state )
+void Application::SetState( EApplicationState state )
 {
 	state_ = state;
 }
 
-EApplicationState Application::getState() const
+EApplicationState Application::GetState( void ) const
 {
 	return state_;
 }
 
-void Application::redraw()
+void Application::RunApplication( void )
+{
+	UpdateKeys();
+	if ( GetFocus() == GetWindow()->getHandle() ) {
+		UpdateMouse();
+		HandleKeyboard();
+	}
+}
+
+void Application::DrawFrame( void )
 {
 	// Start redraw.
-	if (directX_->beginDraw()) {
-		onRedraw();
+	if ( directX_->beginDraw() ) {
+		OnDraw( directX_ );
 		directX_->endDraw();
 	}
 	else {
-		throw Exception( "Failed to begin drawing." );
+		throw Exception( "Failed to call Direct3D BeginDraw." );
 	}
 }
 
-void Application::handleMouse()
+void Application::UpdateMouse( void )
 {
 	// Skip if not in focus.
-	if (GetFocus() == getWindow()->getHandle()) {
-		// Move mouse every frame.
-		mouseMoved( mouse_ );
+	if ( GetFocus() == GetWindow()->getHandle() ) {
+		// TODO: Only call on actual movement.
+		OnMouseMoved( mouse_ );
 
 		// Handle mouse events.
-		if (isClicked( VK_LBUTTON ))  {
+		if ( IsKeyClicked( VK_LBUTTON ) )  {
 			mouse_->setLeftMouse( true );
-			leftClicked( mouse_ );
+			OnLeftClicked( mouse_ );
 		}
-		else if (isReleased( VK_LBUTTON )) {
+		else if ( IsKeyReleased( VK_LBUTTON ) ) {
 			mouse_->setLeftMouse( false );
-			leftReleased( mouse_ );
+			OnLeftReleased( mouse_ );
 		}
-		else if (isClicked( VK_RBUTTON )) {
+		else if ( IsKeyClicked( VK_RBUTTON ) ) {
 			mouse_->setRightMouse( true );
-			rightClicked( mouse_ );
+			OnRightClicked( mouse_ );
 		}
-		else if (isReleased( VK_RBUTTON )) {
+		else if ( IsKeyReleased( VK_RBUTTON ) ) {
 			mouse_->setRightMouse( true );
-			rightReleased( mouse_ );
+			OnRightReleased( mouse_ );
 		}
 	}
-}
-
-void Application::onRedraw()
-{
-	draw( directX_ );
 }

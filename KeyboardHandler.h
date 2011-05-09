@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <windows.h>
 
 #define KEY_STATE_DOWN		0x1
 #define KEY_STATE_CHANGED	0x2
@@ -17,22 +16,22 @@ public:
 	virtual ~KeyboardHandler();
 
 	// Add a key to be handled.
-	void listenKey( key keyCode );
+	void AddKey( key keyCode );
 
 	// Updates the state of all keys.
-	void updateKeys();
+	void UpdateKeys();
 
 	// Returns true if the key is down.
-	bool isPressed( key keyCode );
+	bool IsKeyPressed( key keyCode );
 
 	// Returns true if the key state changed.
-	bool changedState( key keyCode );
+	bool HasChangedState( key keyCode );
 
 	// Returns true when the key was released and is pressed.
-	bool isClicked( key keyCode );
+	bool IsKeyClicked( key keyCode );
 
 	// Returns true when the key was pressed and is not pressed.
-	bool isReleased( key keyCode );
+	bool IsKeyReleased( key keyCode );
 
 private:
 	// Stores key states.

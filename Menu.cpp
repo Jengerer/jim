@@ -16,25 +16,26 @@ Menu::~Menu()
 void Menu::draw( DirectX *directX )
 {
 	// Draw stroked rounded rectangle.
-	directX->drawRoundedRect( getX(), getY(), getWidth(), getHeight(), MENU_RADIUS + MENU_STROKE, MENU_STROKE_COLOUR );
-	directX->drawRoundedRect( getX() + MENU_STROKE, getY() + MENU_STROKE, getWidth() - MENU_STROKE * 2, getHeight() - MENU_STROKE * 2, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
+	directX->drawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), MENU_RADIUS + MENU_STROKE, MENU_STROKE_COLOUR );
+	directX->drawRoundedRect( GetX() + MENU_STROKE, GetY() + MENU_STROKE, GetWidth() - MENU_STROKE * 2, GetHeight() - MENU_STROKE * 2, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
 
 	// Draw buttons.
 	for (int i = 0; i < options_.size(); i++) {
 		Option *button = options_[i];
-		button->draw( directX );
+		button->OnDraw( directX );
 	}
 }
 
 Option* Menu::addOption( const string& caption, Texture *texture = 0 )
 {
-	Option *button = new Option( caption, texture );
+	Option *button = new Option( caption );
+	button->SetIcon( texture );
 	options_.push_back( button );
-	add( button );
+	Add( button );
 
 	// Update widest button.
-	if ((widest_ == 0) || (button->getWidth() > widest_)) {
-		widest_ = button->getWidth();
+	if ((widest_ == 0) || (button->GetWidth() > widest_)) {
+		widest_ = button->GetWidth();
 	}
 
 	return button;
@@ -55,8 +56,8 @@ void Menu::pack()
 		Option *button = options_[i];
 
 		// Pack this button.
-		button->setSize( widest_, button->getHeight() );
-		height += button->getHeight();
+		button->SetSize( widest_, button->GetHeight() );
+		height += button->GetHeight();
 	}
 
 	// Add spacing heights.
@@ -65,7 +66,7 @@ void Menu::pack()
 	}
 
 	// Set new size.
-	setSize( width, height );
+	SetSize( width, height );
 }
 
 void Menu::display( int x, int y, Container *parent )
@@ -74,56 +75,54 @@ void Menu::display( int x, int y, Container *parent )
 
 	// Set new position, clamped to container.
 	int newX = x, newY = y;
-	if (newX + getWidth() > parent->getWidth()) {
-		newX -= getWidth();
+	if (newX + GetWidth() > parent->GetWidth()) {
+		newX -= GetWidth();
 	}
 
 	// Set new Y.
-	if (newY + getHeight() > parent->getHeight()) {
-		newY -= getHeight();
+	if (newY + GetHeight() > parent->GetHeight()) {
+		newY -= GetHeight();
 	}
 
-	setPosition( newX, newY );
+	SetPosition( newX, newY );
 }
 
 void Menu::updatePosition()
 {
 	// Position all buttons.
-	int y = getY() + MENU_PADDING + MENU_STROKE;
+	int y = GetY() + MENU_PADDING + MENU_STROKE;
 	for (int i = 0; i < options_.size(); i++) {
 		Option *button = options_[i];
-		button->setX( getX() + MENU_PADDING + MENU_STROKE );
-		button->setY( y );
+		button->SetX( GetX() + MENU_PADDING + MENU_STROKE );
+		button->SetY( y );
 
-		y += button->getHeight() + MENU_SPACING;
+		y += button->GetHeight() + MENU_SPACING;
 	}
 }
 
-bool Menu::leftClicked( Mouse *mouse )
+bool Menu::OnMouseMoved( Mouse *mouse )
 {
-	// Close popup if no buttons clicked.
-	selected_ = 0;
-	if (!mouse->isTouching( this )) {
-		setState( POPUP_STATE_INACTIVE );
-		return false;
+	// Pass message to buttons.
+	for (int i = 0; i < options_.size(); i++) {
+		Option *button = options_[i];
+		button->OnMouseMoved( mouse );
 	}
 
 	return true;
 }
 
-bool Menu::rightClicked( Mouse *mouse )
+bool Menu::OnLeftClicked( Mouse *mouse )
 {
-	// Close popup if not clicked.
-	selected_ = 0;
-	if (!mouse->isTouching( this )) {
+	selected_ = nullptr;
+	if ( !mouse->isTouching( this ) ) {
 		setState( POPUP_STATE_INACTIVE );
-		return false;
 	}
 
+	// Menu has priority over all under it.
 	return true;
 }
 
-bool Menu::leftReleased( Mouse *mouse )
+bool Menu::OnLeftReleased( Mouse *mouse )
 {
 	if (mouse->isTouching( this )) {
 		for (int i = 0; i < options_.size(); i++) {
@@ -141,13 +140,14 @@ bool Menu::leftReleased( Mouse *mouse )
 	}
 }
 
-bool Menu::mouseMoved( Mouse *mouse )
+bool Menu::OnRightClicked( Mouse *mouse )
 {
-	// Pass message to buttons.
-	for (int i = 0; i < options_.size(); i++) {
-		Option *button = options_[i];
-		button->mouseMoved( mouse );
-	}
+	// Same behaviour as left click.
+	return OnLeftClicked( mouse );
+}
 
-	return true;
+bool Menu::OnRightReleased( Mouse *mouse )
+{
+	// Same behaviour as left click.
+	return OnLeftClicked( mouse );
 }

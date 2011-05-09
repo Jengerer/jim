@@ -1,25 +1,32 @@
 #pragma once
 
 #include "Container.h"
-#include "Dialog.h"
+#include "Notification.h"
 #include "Button.h"
+#include "Mouse.h"
+#include "IMouseHandler.h"
 
-class Alert: public Dialog
+class Alert: public Notification, public IMouseHandler
 {
-public:
-	Alert( const string& message );
-	virtual ~Alert();
 
-	void draw( DirectX* directX );
-	virtual void updatePosition();
-	virtual void resize();
-	virtual void setMessage( const string& message );
-	const Button* getButton() const;
+public:
+
+	Alert( const string& message );
+	virtual ~Alert( void );
+
+	void			OnDraw( DirectX* directX );
+	virtual void	UpdatePosition( void );
+	virtual void	Pack( void );
+	virtual void	SetMessage( const string& message );
+	const Button*	GetButton( void ) const;
 
 	// Mouse handling.
-	virtual bool mouseMoved( Mouse *mouse );
-	virtual bool leftClicked( Mouse *mouse );
-	virtual bool leftReleased( Mouse *mouse );
+	virtual bool OnLeftClicked( Mouse *mouse );
+	virtual bool OnLeftReleased( Mouse *mouse );
+	virtual bool OnRightClicked( Mouse *mouse );
+	virtual bool OnRightReleased( Mouse *mouse );
+	virtual bool OnMouseMoved( Mouse *mouse );
+
 
 private:
 	Button* okButton;

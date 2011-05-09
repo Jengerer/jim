@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Component.h"
-#include "Drawable.h"
 
+// TODO: Convert to texture and simple draw. This is all this should be.
 class Image: public Component
 {
 public:

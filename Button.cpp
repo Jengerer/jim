@@ -2,30 +2,13 @@
 
 Font*		Button::font = 0;
 
-Button::Button( const string& caption, Texture* texture, float x, float y, EAlignment align )
+Button::Button( const string& caption, float x, float y )
 {
-	isHovering_ = false;
-	caption_ = caption;
-
-	// Set texture.
-	setTexture( texture );
-	pack();
-
-	if (align == ALIGN_TOP_LEFT || align == ALIGN_BOTTOM_LEFT) {
-		setX( x );
-	}
-	else {
-		setX( x - getWidth() );
-	}
-
-	if (align == ALIGN_TOP_LEFT || align == ALIGN_TOP_RIGHT) {
-		setY( y );
-	}
-	else {
-		setY( y - getHeight() );
-	}
-
-	enable();
+	SetHovering( false );
+	SetCaption( caption );
+	SetPosition( x, y );
+	SetEnabled( true );
+	Pack();
 }
 
 Button::~Button()
@@ -33,11 +16,11 @@ Button::~Button()
 	// Button has been destroyed.
 }
 
-void Button::draw( DirectX* directX )
+void Button::OnDraw( DirectX* directX )
 {
 	// Set colour.
 	D3DCOLOR buttonColour, fontColour;
-	if (enabled_) {
+	if ( IsEnabled() ) {
 		buttonColour = (isHovering_ ? BUTTON_COLOUR_HOVER : BUTTON_COLOUR );
 		fontColour = (isHovering_ ? BUTTON_FONT_HOVER : BUTTON_FONT_NORMAL );
 	}
@@ -47,19 +30,19 @@ void Button::draw( DirectX* directX )
 	}
 
 	// Draw button base.
-	float x = getX(), y = getY();
-	directX->drawRoundedRect( getX(), getY(), getWidth(), getHeight(), BUTTON_RADIUS, 0, BUTTON_RADIUS, 0, buttonColour );
+	float x = GetX(), y = GetY();
+	directX->drawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), BUTTON_RADIUS, 0, BUTTON_RADIUS, 0, buttonColour );
 
-	if (texture_) {
-		directX->drawTexture( texture_, getX() + BUTTON_PADDING_X, getY() + BUTTON_PADDING_Y, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
+	if ( GetIcon() != nullptr ) {
+		directX->drawTexture( GetIcon(), GetX() + BUTTON_PADDING_X, GetY() + BUTTON_PADDING_Y, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
 	}
 
 	// Draw text in center.
 	RECT rect;
-	rect.left = (long)x + ( texture_ != 0 ? BUTTON_ICON_SIZE + BUTTON_ICON_SPACING : 0 ) + BUTTON_PADDING_X;
+	rect.left = (long)x + ( GetIcon() != 0 ? BUTTON_ICON_SIZE + BUTTON_ICON_SPACING : 0 ) + BUTTON_PADDING_X;
 	rect.top = (long)y + BUTTON_PADDING_Y;
-	rect.right = (long)x + getWidth() - BUTTON_PADDING_X;
-	rect.bottom = (long)y + getHeight() - BUTTON_PADDING_Y;
+	rect.right = (long)x + GetWidth() - BUTTON_PADDING_X;
+	rect.bottom = (long)y + GetHeight() - BUTTON_PADDING_Y;
 
 	// Write it.
 	font->drawText(
@@ -69,33 +52,30 @@ void Button::draw( DirectX* directX )
 		fontColour );
 }
 
-bool Button::mouseMoved( Mouse *mouse )
+void Button::SetIcon( Texture *texture )
 {
-	// Mouse moved.
-	isHovering_ = mouse->isTouching( this );
-	return isHovering_;
+	icon_ = texture;
 }
 
-void Button::enable()
+Texture* Button::GetIcon( void )
 {
-	enabled_ = true;
+	return icon_;
 }
 
-void Button::disable()
+void Button::SetCaption( const string& caption )
 {
-	enabled_ = false;
+	caption_ = caption;
 }
 
-bool Button::isEnabled() const {
-	return enabled_;
-}
-
-void Button::setTexture( Texture *texture )
+const string& Button::GetCaption( void ) const
 {
-	texture_ = texture;
+	return caption_;
 }
 
-void Button::pack()
+//=============================================================
+// Purpose: Resizes the button to fit the button and icon.
+//=============================================================
+void Button::Pack( void )
 {
 	// Get caption size.
 	RECT rect;
@@ -103,11 +83,9 @@ void Button::pack()
 	int width = (rect.right - rect.left) + BUTTON_PADDING_X * 2;
 	int contentHeight = rect.bottom - rect.top;
 
-	// Check if expansion for texture needed.
-	if (texture_ != 0) {
+	// Check if expansion for icon needed.
+	if (icon_ != nullptr) {
 		width += BUTTON_ICON_SIZE + BUTTON_ICON_SPACING;
-
-		// Get maximum of content and texture height.
 		if (BUTTON_ICON_SIZE > contentHeight) {
 			contentHeight = BUTTON_ICON_SIZE;
 		}
@@ -115,5 +93,52 @@ void Button::pack()
 
 	// Pad and size.
 	int height = contentHeight + BUTTON_PADDING_Y * 2;
-	setSize( width, height );
+	SetSize( width, height );
+}
+
+void Button::SetEnabled( bool isEnabled )
+{
+	isEnabled_ = isEnabled;
+}
+
+bool Button::IsEnabled() const
+{
+	return isEnabled_;
+}
+
+bool Button::OnMouseMoved( Mouse *mouse )
+{
+	// Mouse moved.
+	isHovering_ = mouse->isTouching( this );
+	return isHovering_;
+}
+
+bool Button::OnLeftClicked( Mouse *mouse )
+{
+	return mouse->isTouching( this );
+}
+
+bool Button::OnLeftReleased( Mouse *mouse )
+{
+	return mouse->isTouching( this );
+}
+
+bool Button::OnRightClicked( Mouse *mouse )
+{
+	return mouse->isTouching( this );
+}
+
+bool Button::OnRightReleased( Mouse *mouse )
+{
+	return mouse->isTouching( this );
+}
+
+void Button::SetHovering( bool isHovering )
+{
+	isHovering_ = isHovering;
+}
+
+bool Button::IsHovering( void ) const
+{
+	return isHovering_;
 }

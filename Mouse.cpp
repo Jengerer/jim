@@ -22,37 +22,37 @@ void Mouse::pollPosition()
 	if (position_.x < 0) {
 		position_.x = 0;
 	}
-	else if (position_.x > window_->getWidth()) {
-		position_.x = window_->getWidth();
+	else if (position_.x > window_->GetWidth()) {
+		position_.x = window_->GetWidth();
 	}
 
 	if (position_.y < 0) {
 		position_.y = 0;
 	}
-	else if (position_.y > window_->getHeight()) {
-		position_.y = window_->getHeight();
+	else if (position_.y > window_->GetHeight()) {
+		position_.y = window_->GetHeight();
 	}
 }
 
-int Mouse::getX() const
+int Mouse::GetX() const
 {
 	return (int)position_.x;
 }
 
-int Mouse::getY() const
+int Mouse::GetY() const
 {
 	return (int)position_.y;
 }
 
 bool Mouse::isTouching( const Component* component )
 {
-	int x = getX();
-	int y = getY();
+	int x = GetX();
+	int y = GetY();
 
-	int left = component->getX();
-	int right = left + component->getWidth();
-	int top = component->getY();
-	int bottom = top + component->getHeight();
+	int left = component->GetX();
+	int right = left + component->GetWidth();
+	int top = component->GetY();
+	int bottom = top + component->GetHeight();
 	return ((x >= left) && (x <= right) && (y >= top) && (y <= bottom));
 }
 

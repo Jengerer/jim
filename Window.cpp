@@ -51,15 +51,15 @@ void Window::createWindow(HINSTANCE hInstance)
 	RECT screenRect;
 	GetWindowRect( GetDesktopWindow(), &screenRect );
 
-	int x = (screenRect.right / 2) - (getWidth() / 2);
-	int y = (screenRect.bottom / 2) - (getHeight() / 2);
+	int x = (screenRect.right / 2) - (GetWidth() / 2);
+	int y = (screenRect.bottom / 2) - (GetHeight() / 2);
 
 	// Adjust bounds based on style.
 	RECT windowRect;
 	windowRect.left	= 0;
 	windowRect.top = 0;
-	windowRect.right = getWidth();
-	windowRect.bottom = getHeight();
+	windowRect.right = GetWidth();
+	windowRect.bottom = GetHeight();
 
 	// Create window.
 	hWnd_ = CreateWindowEx(
@@ -94,12 +94,12 @@ bool Window::isActive()
 	return (GetFocus() == hWnd_);
 }
 
-int Window::getWidth() const
+int Window::GetWidth() const
 {
 	return width_;
 }
 
-int Window::getHeight() const
+int Window::GetHeight() const
 {
 	return height_;
 }

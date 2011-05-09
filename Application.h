@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "KeyboardHandler.h"
+#include "IMouseHandler.h"
 #include "Container.h"
 #include "DirectX.h"
 #include "Window.h"
@@ -21,50 +22,46 @@ enum EApplicationState {
 #define NUM_KEYCODES 255
 
 // Main class that's the base of all applications.
-class Application: public Container, public KeyboardHandler
+class Application: public Container, public KeyboardHandler, public IMouseHandler
 {
 public:
-	Application( const char* title,
-		HINSTANCE hInstance,
-		int width,
-		int height );
-	virtual ~Application();
+	Application( int width, int height );
+	virtual ~Application( void );
 
-	virtual void	openInterfaces() = 0;
-	virtual void	closeInterfaces() = 0;
-	void			exitApplication();
+	virtual void	LoadInterfaces( const char* title, HINSTANCE instance );
+	virtual void	CloseInterfaces( void );
+	void			ExitApplication( void );
 
 	// Drawing functions.
-	virtual void	onRedraw();
-	void			redraw();
-	Window*			getWindow() const;
+	void			DrawFrame( void );
+	Window*			GetWindow( void ) const;
 
 	// Sets the state of the application.
-	void			setState( EApplicationState state );
-
-	// Returns the state of the application.
-	EApplicationState		getState() const;
-
-	// Component size getters.
-	virtual int		getWidth() const;
-	virtual int		getHeight() const;
+	void				SetState( EApplicationState state );
+	EApplicationState	GetState( void ) const;
 
 	// Main running functions.
-	virtual void	run() = 0;
+	virtual void	RunApplication( void );
 
 	// Input handling.
-	void			handleMouse();
-	virtual void	handleKeyboard() = 0;
+	virtual void	HandleKeyboard() = 0;
+
+private:
+
+	// Only application should be able to update mouse.
+	void			UpdateMouse( void );
 
 protected:
+
 	DirectX		*directX_;
 	Mouse		*mouse_;
 
-	// Cursors.
 	HCURSOR		arrow_;
 	HCURSOR		hand_;
 	HCURSOR		drag_;
 
 private:
+
 	EApplicationState	state_;
+
 };

@@ -32,8 +32,8 @@ public:
 	void pollPosition();
 
 	// Position functions.
-	int getX() const;
-	int getY() const;
+	int GetX() const;
+	int GetY() const;
 
 	// Mouse state functions.
 	void setLeftMouse( bool isClicked );

@@ -12,7 +12,6 @@
 
 #include "Hashtable.h"
 #include "Image.h"
-#include "Drawable.h"
 
 using namespace std;
 
@@ -37,46 +36,52 @@ public:
 	bool operator!=(const Item &other) const; // TODO: { return (this->GetUniqueID() != rOther.GetUniqueID()); }
 
 	// Constructor.
-	Item(
-		uint64 uniqueId,
-		uint16 defIndex,
+	Item( uint64 uniqueId,
+		uint16 typeIndex,
 		uint8 level,
 		EItemQuality quality,
 		uint32 count,
 		uint32 flags );
-	virtual ~Item();
+	virtual ~Item( void );
 
-	/* Initializing item. */
-	void				loadInformation();
+	// Loading item definition by index.
+	void			GetItemInformation( void );
 
 	// Drawable functions.
-	void				draw( DirectX* directX );
-	virtual int			getWidth() const;
-	virtual int			getHeight() const;
+	virtual void	OnDraw( DirectX* directX );
 
 	// Item attribute getters.
-	uint64				getUniqueId() const;
-	uint16				getDefIndex() const;
-	uint8				getLevel() const;
-	EItemQuality		getQuality() const;
-	uint32				getFlags() const;
-	uint32				getCount() const;
+	uint64			GetUniqueId( void ) const;
+	uint16			GetTypeIndex( void ) const;
+	uint8			GetLevel( void ) const;
+	EItemQuality	GetQuality( void ) const;
+	uint32			GetFlags( void ) const;
+	uint32			GetCount( void ) const;
 
-	// Secondary attribute getters.
-	string				getName();
-	bool				isHat() const;
-	bool				isEquipped( EClassEquip equipClass = CLASS_ALL ) const;
-	string				getSlot() const;
-	uint16				getIndex() const;
-	Hashtable*			getClasses() const;
+	// Secondary attributes.
+	const string&	GetName( void ) const;
+	uint16			GetIndex( void ) const ;
+	void			SetIndex( uint16 position );
 
-	// Modify item attributes.
-	void				setEquip( EClassEquip equipClass, bool equip );
-	void				move( uint16 position );
+	// Equipment handling.
+	bool			IsEquipped( EClassEquip equipClass = CLASS_ALL ) const;
+	const string&	GetEquipSlot( void ) const;
+	Hashtable*		GetEquipClasses( void ) const;
+	void			SetEquip( EClassEquip equipClass, bool equip );
 
 	// Drawing and interaction.
-	Texture*			getTexture();
-	bool				isTouching() const;
+	Texture*		GetTexture( void );
+
+private:
+
+	void SetUniqueId( uint64 uniqueId );
+	void SetTypeIndex( uint16 typeIndex );
+	void SetLevel( uint8 level );
+	void SetQuality( EItemQuality quality );
+	void SetFlags( uint32 flags );
+	void SetCount( uint32 count );
+
+public:
 
 	// Item information table.
 	static Hashtable*	informationTable;
@@ -84,19 +89,15 @@ public:
 private:
 	// Item information.
 	uint64				uniqueId_;
-	uint16				defIndex_;
+	uint16				typeIndex_;
 	uint8				level_;
 	EItemQuality		quality_;
 	uint32				count_;
 	uint32				flags_;
 
-	// Secondary information.
-	uint16				position_;
-
 	// Item definition information.
 	const Hashtable*	information_;
 
 	// Pointers from the information.
-	string*				name_;
 	Texture*			texture_;
 };

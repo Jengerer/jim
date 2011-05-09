@@ -47,8 +47,8 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	ItemManager* itemManager = nullptr;
 
 	try {
-		itemManager = new ItemManager(hInstance);
-		itemManager->openInterfaces();
+		itemManager = new ItemManager();
+		itemManager->LoadInterfaces( hInstance );
 	}
 	catch (Exception mainException) {
 		MessageBox(NULL, mainException.getMessage()->c_str(), "Initialization failed!", MB_OK);
@@ -68,7 +68,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 			DispatchMessage(&msg);
 		}
 
-		itemManager->run();
+		itemManager->RunApplication();
 	}
 
 	if (itemManager) {
@@ -83,200 +83,182 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	return EXIT_SUCCESS;
 }
 
-ItemManager::ItemManager(HINSTANCE instance) : Application(APPLICATION_TITLE, instance, APPLICATION_WIDTH, APPLICATION_HEIGHT)
+ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_HEIGHT )
 {
 	alert_ = 0;
 	error_ = 0;
 	backpack_ = 0;
-	mouse_ = new Mouse(directX_);
 
-	listenKey(VK_LEFT);
-	listenKey(VK_RIGHT);
-	listenKey(VK_ESCAPE);
-	listenKey(VK_RETURN);
-	listenKey(VK_LCONTROL);
+	AddKey( VK_LEFT );
+	AddKey( VK_RIGHT );
+	AddKey( VK_ESCAPE );
+	AddKey( VK_RETURN );
+	AddKey( VK_LCONTROL );
 }
 
-ItemManager::~ItemManager()
+ItemManager::~ItemManager( void )
 {
 	// ItemManager has been destroyed.
-	closeInterfaces();
+	CloseInterfaces();
 }
 
-void ItemManager::openInterfaces()
+void ItemManager::LoadInterfaces( HINSTANCE instance )
 {
-	// Show dialog.
-	loadDialog_ = createDialog("Initializing item manager...");
+	Application::LoadInterfaces( APPLICATION_TITLE, instance );
+	loadProgress_ = CreateNotification( "Initializing item manager..." );
 
 	try {
 		// Create buttons.
-		Texture *craftTexture = directX_->getTexture("manager/gear");
-		Texture *equipTexture = directX_->getTexture("manager/equip");
-		Texture *sortTexture = directX_->getTexture("manager/sort");
+		Texture *craftTexture = directX_->getTexture( "manager/gear" );
+		Texture *equipTexture = directX_->getTexture( "manager/equip" );
+		Texture *sortTexture = directX_->getTexture( "manager/sort" );
 
 		// Add all buttons to a layout.
 		HorizontalLayout *buttonLayout = new HorizontalLayout();
-		buttonLayout->setSpacing(BUTTON_SPACING);
-		buttonLayout->setPosition(BACKPACK_PADDING, BUTTON_Y);
-		craftButton_	= createButton("craft", craftTexture, BACKPACK_PADDING, BUTTON_Y);
-		equipButton_	= createButton("equip", equipTexture, craftButton_->getX() + craftButton_->getWidth() + BUTTON_SPACING, BUTTON_Y);
-		sortButton_		= createButton("sort", sortTexture, equipButton_->getX() + equipButton_->getWidth() + BUTTON_SPACING, BUTTON_Y);
-		buttonLayout->add(craftButton_);
-		buttonLayout->add(equipButton_);
-		buttonLayout->add(sortButton_);
-		buttonLayout->pack();
+		buttonLayout->SetSpacing( BUTTON_SPACING );
+		buttonLayout->SetPosition( BACKPACK_PADDING, BUTTON_Y );
+		craftButton_ = CreateButton( "craft", craftTexture, BACKPACK_PADDING, BUTTON_Y );
+		equipButton_ = CreateButton( "equip", equipTexture, craftButton_->GetX() + craftButton_->GetWidth() + BUTTON_SPACING, BUTTON_Y );
+		sortButton_	 = CreateButton( "sort", sortTexture, equipButton_->GetX() + equipButton_->GetWidth() + BUTTON_SPACING, BUTTON_Y );
+		buttonLayout->Add( craftButton_ );
+		buttonLayout->Add( equipButton_ );
+		buttonLayout->Add( sortButton_ );
+		buttonLayout->Pack();
 
-		backpack_ = new Backpack(0.0f, 0.0f, this);
-		backpack_->createInventory(PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT, EXCLUDED_SIZE);
-		addBottom(backpack_);
-		addBottom(buttonLayout);
+		backpack_ = new Backpack( 0.0f, 0.0f, this );
+		backpack_->createInventory( PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT, EXCLUDED_SIZE );
 		backpack_->openInterfaces();
-		loadDefinitions();
+		AddBottom( backpack_ );
+		AddBottom( buttonLayout );
+		LoadDefinitions();
 		// loadItems();
 
-		// Set default state.
-		equipButton_->disable();
-		craftButton_->disable();
-		sortButton_->disable();
+		// Set default button state.
+		sortButton_->SetEnabled( false );
+		equipButton_->SetEnabled( false );
+		craftButton_->SetEnabled( false );
 
 		// Hide the loading dialog.
-		removePopup(loadDialog_);
-
-		// Enable sorting.
-		sortButton_->enable();
+		RemovePopup( loadProgress_ );
 
 		// Set application ready to run.
-		setState(APPLICATION_STATE_RUN);
+		SetState( APPLICATION_STATE_RUN );
 	}
 	catch (Exception& loadException) {
-		removePopup(loadDialog_);
-		error_ = createAlert(*loadException.getMessage());
-		setState(APPLICATION_STATE_EXIT);
+		RemovePopup( loadProgress_ );
+		error_ = CreateAlert( *loadException.getMessage() );
+		SetState( APPLICATION_STATE_EXIT );
 	}
 }
 
-void ItemManager::closeInterfaces()
+void ItemManager::CloseInterfaces( void )
 {
 	// Delete the mouse.
-	if (mouse_) {
+	if (mouse_ != nullptr) {
 		delete mouse_;
-		mouse_ = 0;
+		mouse_ = nullptr;
 	}
 
 	// Delete item information.
-	if (Item::informationTable) {
+	if (Item::informationTable != nullptr) {
 		delete Item::informationTable;
-		Item::informationTable = 0;
+		Item::informationTable = nullptr;
 	}
 
+	// Free all protobuf library resources.
 	google::protobuf::ShutdownProtobufLibrary();
 }
 
-void ItemManager::run()
+void ItemManager::RunApplication( void )
 {
-	updateKeys();
-	if (GetFocus() == getWindow()->getHandle()) {
-		handleMouse();
-		handleKeyboard();
-	}
-
-	if (getState() == APPLICATION_STATE_RUN) {
-		handleCallbacks();
+	Application::RunApplication();
+	if (GetState() == APPLICATION_STATE_RUN) {
+		HandleCallbacks();
 		backpack_->handleCamera();
 	}
 
 	// Redraw screen.
-	redraw();
+	DrawFrame();
 }
 
-bool ItemManager::leftClicked(Mouse *mouse)
+bool ItemManager::OnLeftClicked( Mouse *mouse )
 {
 	// Mouse clicked.
 	if (!popupStack_.empty()) {
 		Popup* top = popupStack_.back();
-		top->leftClicked(mouse);
-		handlePopup(top);
+		top->OnLeftClicked(mouse);
+		HandlePopup( top );
 		return true;
 	}
 	else {
 		// Check, but don't register buttons.
 		vector<Button*>::iterator i;
 		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
-			if (mouse->isTouching(*i)) {
+			if (mouse->isTouching( *i )) {
 				return true;
 			}
 		}
 
 		// Check backpack.
-		if (backpack_->leftClicked(mouse)) {
+		if (backpack_->OnLeftClicked(mouse)) {
 			slotVector* selected = backpack_->getSelected();
 
 			// Set equip button state.
 			if (selected->size() == 1) {
-				Slot *slot = selected->at(0);
-				Item *item = slot->getItem();
-				Hashtable *classes = item->getClasses();
-				if (classes != 0) {
-					equipButton_->enable();
-				}
-				else {
-					equipButton_->disable();
-				}
+				Slot *slot = selected->at( 0 );
+				Item *item = slot->GetItem();
+				Hashtable *classes = item->GetEquipClasses();
+				equipButton_->SetEnabled( classes != nullptr );
 			}
 			else {
-				equipButton_->disable();
+				equipButton_->SetEnabled( false );
 			}
 
 			// Set craft button state.
-			if (selected->size() != 0) {
-				craftButton_->enable();
-			}
-			else {
-				craftButton_->disable();
-			}
-
+			craftButton_->SetEnabled( selected->size() != 0 );
 			return true;
 		}
 
-		craftButton_->disable();
-		equipButton_->disable();
+		craftButton_->SetEnabled( false );
+		equipButton_->SetEnabled( false );
 	}
 	return false;
 }
 
-bool ItemManager::leftReleased(Mouse *mouse)
+bool ItemManager::OnLeftReleased( Mouse *mouse )
 {
+	// TODO: Make popup handler with return codes like exit, close popup, etc.
 	// Check top popup.
 	if (!popupStack_.empty()) {
 		Popup *top = popupStack_.back();
-		if (mouse->isTouching(top)) {
-			top->leftReleased(mouse);
+		if (mouse->isTouching( top )) {
+			top->OnLeftReleased( mouse );
 		}
 
 		// Check if the popup has been closed.
 		if (top == error_ && top->getState() == POPUP_STATE_KILLED) {
-			exitApplication();
+			ExitApplication();
 		}
 
 		// Handle removing and hiding.
-		handlePopup(top);
+		HandlePopup( top );
 	}
 	else {
 		// Check backpack.
-		if (backpack_->leftReleased(mouse)) {
+		if (backpack_->OnLeftReleased(mouse)) {
 			return true;
 		}
 
 		// Now run buttons.
-		if (craftButton_->isEnabled() && mouse->isTouching(craftButton_)) {
+		if (craftButton_->IsEnabled() && mouse->isTouching(craftButton_)) {
 			backpack_->craftSelected();
 			return true;
 		}
-		else if (equipButton_->isEnabled() && mouse->isTouching(equipButton_)) {
+		else if (equipButton_->IsEnabled() && mouse->isTouching(equipButton_)) {
 			slotVector* selected = backpack_->getSelected();
 			Slot* slot = selected->at(0);
-			Item* item = slot->getItem();
-			Hashtable* classes = item->getClasses();
+			Item* item = slot->GetItem();
+			Hashtable* classes = item->GetEquipClasses();
 			if (classes->size() > 1) {
 				// Show equip menu.
 				
@@ -293,21 +275,31 @@ bool ItemManager::leftReleased(Mouse *mouse)
 	return false;
 }
 
-bool ItemManager::mouseMoved(Mouse *mouse)
+bool ItemManager::OnRightClicked( Mouse *mouse )
+{
+	return true;
+}
+
+bool ItemManager::OnRightReleased( Mouse *mouse )
+{
+	return true;
+}
+
+bool ItemManager::OnMouseMoved( Mouse *mouse )
 {
 	// Get new position.
 	mouse_->pollPosition();
-	SetCursor(arrow_);
+	SetCursor( arrow_ );
 
 	// Pass message to highest popup.
 	if (!popupStack_.empty()) {
 		Popup* top = popupStack_.back();
-		top->mouseMoved(mouse);
+		top->OnMouseMoved( mouse );
 	}
 	else {
 		// Check backpack.
-		if (backpack_ && backpack_->mouseMoved(mouse)) {
-			if (backpack_->getHovered() != 0) {
+		if (backpack_ && backpack_->OnMouseMoved(mouse)) {
+			if (backpack_->getHovered() != nullptr) {
 				SetCursor(hand_);
 			}
 
@@ -319,44 +311,40 @@ bool ItemManager::mouseMoved(Mouse *mouse)
 		bool hitButton = false;
 		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
 			Button *button = *i;
-			if (button->isEnabled() && button->mouseMoved(mouse)) {
-				SetCursor(hand_);
-				hitButton = true;
+			if (button->IsEnabled() && button->OnMouseMoved( mouse )) {
+				SetCursor( hand_ );
+				return true;
 			}
-		}
-
-		if (hitButton) {
-			return true;
 		}
 	}
 
 	return false;
 }
 
-void ItemManager::handleKeyboard()
+void ItemManager::HandleKeyboard( void )
 {
 	if (!popupStack_.empty()) {
 		Popup *top = popupStack_.back();
-		if (isPressed(VK_RETURN)) {
+		if (IsKeyPressed( VK_RETURN )) {
 			if (top == error_) {
-				exitApplication();
+				ExitApplication();
 			}
-			removePopup(top);
+			RemovePopup( top );
 		}
 	}
 	else {
-		if (isPressed(VK_ESCAPE)) {
-			exitApplication();
+		if (IsKeyPressed( VK_ESCAPE )) {
+			ExitApplication();
 		}
 		else {
 			if (backpack_ && backpack_->isLoaded()) {
 				// Toggle between single and multiple selection.
-				backpack_->setSelectMode(isPressed(VK_LCONTROL) ? SELECT_MODE_MULTIPLE : SELECT_MODE_SINGLE);
+				backpack_->setSelectMode( IsKeyPressed( VK_LCONTROL ) ? SELECT_MODE_MULTIPLE : SELECT_MODE_SINGLE );
 
-				if (isClicked(VK_LEFT)) {
+				if (IsKeyClicked( VK_LEFT )) {
 					backpack_->prevPage();
 				}
-				else if (isClicked(VK_RIGHT)) {
+				else if (IsKeyClicked( VK_RIGHT )) {
 					backpack_->nextPage();
 				}
 			}
@@ -364,14 +352,14 @@ void ItemManager::handleKeyboard()
 	}
 }
 
-void ItemManager::loadDefinitions()
+void ItemManager::LoadDefinitions( void )
 {
 	// Set the message and redraw.
-	loadDialog_->setMessage("Loading item definitions...");
-	redraw();
+	loadProgress_->SetMessage("Loading item definitions...");
+	DrawFrame();
 
 	// Load the item definitions.
-	string itemDefinitions = directX_->read("http://www.jengerer.com/itemManager/itemDefinitions.json");
+	string itemDefinitions = directX_->read( "http://www.jengerer.com/itemManager/itemDefinitions.json" );
 
 	// Begin parsing.
 	Json::Reader	reader;
@@ -441,16 +429,16 @@ void ItemManager::loadDefinitions()
 	}
 
 	// Set the message and redraw.
-	loadDialog_->setMessage("Item definitions successfully loaded!");
-	redraw();
+	loadProgress_->SetMessage("Item definitions successfully loaded!");
+	DrawFrame();
 }
 
-void ItemManager::loadItems()
+void ItemManager::LoadItemsFromWeb( void )
 {
-	loadDialog_->appendMessage("\n\nLoading items...");
-	redraw();
-	uint64 userId = backpack_->getSteamId();
+	loadProgress_->AppendMessage("\n\nLoading items...");
+	DrawFrame();
 
+	uint64 userId = backpack_->getSteamId();
 	stringstream urlStream;
 	urlStream << "http://api.steampowered.com/ITFItems_440/GetPlayerItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&SteamID=" << userId << "&format=json";
 	string apiUrl = urlStream.str();
@@ -467,8 +455,8 @@ void ItemManager::loadItems()
 	backpack_->loadInventory(jsonInventory);	
 
 	// Show success.
-	loadDialog_->setMessage("Items successfully loaded!");
-	redraw();
+	loadProgress_->SetMessage("Items successfully loaded!");
+	DrawFrame();
 
 	backpack_->setLoaded(true);
 }
@@ -476,7 +464,7 @@ void ItemManager::loadItems()
 #include <fstream>
 #include <iomanip>
 
-void ItemManager::handleCallbacks() {
+void ItemManager::HandleCallbacks( void ) {
 	CallbackMsg_t callback;
 	if ( backpack_->getCallback(&callback) ) {
 		switch (callback.m_iCallback) {
@@ -560,10 +548,10 @@ void ItemManager::handleCallbacks() {
 							{
 								GCCraftResponse_t *craftMsg = (GCCraftResponse_t*)buffer;
 								if (craftMsg->blueprint == 0xffff) {
-									createAlert("Crafting failed. No such blueprint exists!");
+									CreateAlert( "Crafting failed. No such blueprint exists!" );
 								}
 								else {
-									createAlert("Congratulations! Item crafting succeeded!");
+									CreateAlert( "Congratulations! Item crafting succeeded!" );
 								}
 
 								break;
@@ -589,76 +577,79 @@ void ItemManager::handleCallbacks() {
 	} 
 }
 
-Button* ItemManager::createButton(const string& caption, Texture *texture, float x, float y, EAlignment align)
+Button* ItemManager::CreateButton(const string& caption, Texture *texture, float x, float y )
 {
 	// Create and add.
-	Button* newButton = new Button(caption, texture, x, y, align);
+	Button* newButton = new Button(caption, x, y);
+	if (texture != nullptr) {
+		newButton->SetIcon( texture );
+	}
 
 	// Add and return.
 	buttonList_.push_back(newButton);
 	return newButton;
 }
 
-Dialog* ItemManager::createDialog(const string& message)
+Notification* ItemManager::CreateNotification( const string& message )
 {
-	Dialog* newDialog = new Dialog(message);
-	add(newDialog);
+	Notification* newNotification = new Notification( message );
+	Add( newNotification );
 
 	// Set position.
-	float x = (float)(getWidth() / 2) - (float)(newDialog->getWidth() / 2);
-	float y = (float)(getHeight() / 2) - (float)(newDialog->getHeight() / 2);
-	newDialog->setPosition(x, y);
-	newDialog->setParent(this);
+	float x = (float)(GetWidth() / 2) - (float)(newNotification->GetWidth() / 2);
+	float y = (float)(GetHeight() / 2) - (float)(newNotification->GetHeight() / 2);
+	newNotification->SetPosition( x, y );
+	newNotification->SetParent( this );
 
 	// Show popup.
-	showPopup(newDialog);
+	ShowPopup( newNotification );
 
 	// Add and return.
-	popupList_.push_back(newDialog);
-	return newDialog;
+	popupList_.push_back( newNotification );
+	return newNotification;
 }
 
-Alert* ItemManager::createAlert(const string& message)
+Alert* ItemManager::CreateAlert( const string& message )
 {
-	Alert* newAlert = new Alert(message);
-	add(newAlert);
+	Alert* newAlert = new Alert( message );
+	Add( newAlert );
 
 	const string* str = &message;
 	const char* msg = message.c_str();
 
 	// Set position.
-	float alertX = (float)(getWidth() / 2) - (newAlert->getWidth() / 2);
-	float alertY = (float)(getHeight() / 2) - (newAlert->getHeight() / 2);
-	newAlert->setPosition(alertX, alertY);
-	newAlert->setParent(this);
+	float alertX = (float)(GetWidth() / 2) - (newAlert->GetWidth() / 2);
+	float alertY = (float)(GetHeight() / 2) - (newAlert->GetHeight() / 2);
+	newAlert->SetPosition( alertX, alertY );
+	newAlert->SetParent( this );
 
 	// Show popup.
-	showPopup(newAlert);
+	ShowPopup( newAlert );
 
 	// Add and return.
-	popupList_.push_back(newAlert);
+	popupList_.push_back( newAlert );
 	return newAlert;
 }
 
-void ItemManager::handlePopup(Popup *popup)
+void ItemManager::HandlePopup( Popup *popup )
 {
 	switch (popup->getState()) {
 		case POPUP_STATE_INACTIVE:
-			hidePopup(popup);
+			HidePopup(popup);
 			break;
 		case POPUP_STATE_KILLED:
-			removePopup(popup);
+			RemovePopup(popup);
 			break;
 	}
 }
 
-void ItemManager::showPopup(Popup* popup)
+void ItemManager::ShowPopup( Popup* popup )
 {
-	popup->setState(POPUP_STATE_ACTIVE);
-	popupStack_.push_back(popup);
+	popup->setState( POPUP_STATE_ACTIVE );
+	popupStack_.push_back( popup );
 }
 
-void ItemManager::hidePopup(Popup *popup)
+void ItemManager::HidePopup( Popup *popup )
 {
 	// Remove popup from stack.
 	deque<Popup*>::iterator popupIter;
@@ -670,10 +661,10 @@ void ItemManager::hidePopup(Popup *popup)
 	}
 }
 
-void ItemManager::removePopup(Popup* popup)
+void ItemManager::RemovePopup( Popup* popup )
 {
 	// Hide and remove.
-	hidePopup(popup);
-	remove(popup);
+	HidePopup( popup );
+	Remove( popup );
 	delete popup;
 }

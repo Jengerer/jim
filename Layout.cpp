@@ -1,45 +1,42 @@
 #include "Layout.h"
 
-Layout::Layout()
+Layout::Layout( void )
 {
 	// Layout created.
-	setParent( 0 );
-	setSpacing( 0 );
+	SetParent( nullptr );
+	SetSpacing( 0 );
 }
 
-Layout::~Layout()
+Layout::~Layout( void )
 {
 	// Layout destroyed.
 }
 
-bool Layout::withinBounds( Component *component )
+bool Layout::IsVisible( Component *component ) const
 {
-	if (getParent() != 0) {
-		return getParent()->withinBounds( component );
+	if ( GetParent() != nullptr ) {
+		return GetParent()->IsVisible( component );
 	}
 
-	return Container::withinBounds( component );
+	return Container::IsVisible( component );
 }
 
-void Layout::setSpacing( int spacing )
+void Layout::SetSpacing( int spacing )
 {
 	spacing_ = spacing;
 }
 
-int Layout::getSpacing() const
+int Layout::GetSpacing( void ) const
 {
 	return spacing_;
 }
 
-void Layout::setParent( Container *parent )
+void Layout::SetParent( Container *parent )
 {
 	parent_ = parent;
-	if (parent_ != 0) {
-		setSize( parent_->getWidth(), parent_->getHeight() );
-	}
 }
 
-Container* Layout::getParent()
+const Container* Layout::GetParent( void ) const
 {
 	return parent_;
 }

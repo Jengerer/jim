@@ -1,38 +1,39 @@
 #include "VerticalLayout.h"
 
-VerticalLayout::VerticalLayout()
+VerticalLayout::VerticalLayout( void )
 {
 	// VerticalLayout created.
 }
 
-VerticalLayout::~VerticalLayout()
+VerticalLayout::~VerticalLayout( void )
 {
 	// VerticalLayout destroyed.
 }
 
-void VerticalLayout::pack()
+void VerticalLayout::Pack( void )
 {
 	int width = 0, height = 0;
 	deque<Component*>::iterator i;
 	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
 		Component *component = *i;
-		component->setPosition( getX(), getY() + height );
+		component->SetPosition( GetX(), GetY() + height );
 
 		// Push height by component height and spacing (if not last).
-		height += component->getHeight();
+		height += component->GetHeight();
 		if (component != componentStack_.back()) {
-			height += getSpacing();
+			height += GetSpacing();
 		}
 
 		// Store maximum width.
-		if (component->getWidth() > width) {
-			width = component->getWidth();
+		if (component->GetWidth() > width) {
+			width = component->GetWidth();
 		}
 	}
 
-	setSize( width, height );
+	SetSize( width, height );
 }
 
-void VerticalLayout::updatePosition() {
-	pack();
+void VerticalLayout::UpdatePosition( void )
+{
+	Pack();
 }

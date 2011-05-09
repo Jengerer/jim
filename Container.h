@@ -4,30 +4,30 @@
 #include "Component.h"
 
 class Component;
-class Container: public Component
+class Container : public Component
 {
 public:
 	Container( float x = 0.0f, float y = 0.0f );
-	virtual ~Container();
+	virtual ~Container( void );
 
 	// Container resource handling.
-	void add( Component *component );
-	void addBottom( Component *component );
-	void remove( Component *component );
-	void removeAll();
+	void				Add( Component *component );
+	void				AddBottom( Component *component );
+	void				Remove( Component *component );
+	void				RemoveAll( void );
+	deque<Component*>*	GetChildren( void );
 
-	// Children function.
-	deque<Component*>* getChildren();
-
-	// Drawable functions.
-	virtual void draw( DirectX *directX );
+	virtual void		OnDraw( DirectX *directX );
 
 	// Relative position modifiers.
-	virtual void	setPosition( float x, float y );
-	virtual void	updatePosition();
-	virtual bool	withinBounds( Component *component );
-	void			clampChild( Component *component, int padding = 0 );
+	virtual void		SetPosition( float x, float y );
+	virtual void		UpdatePosition( void );
+	virtual bool		IsVisible( Component *component ) const;
+	virtual bool		WithinBounds( Component *component ) const;
+	void				ClampChild( Component *component, int padding = 0 ) const;
 
 protected:
-	deque<Component*> componentStack_;
+
+	deque<Component*>	componentStack_;
+
 };
