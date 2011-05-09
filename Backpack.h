@@ -28,7 +28,7 @@ enum ESelectMode {
 	SELECT_MODE_MULTIPLE,
 };
 
-class Backpack: public Container, public Steam
+class Backpack: public Container, public Steam, public IMouseHandler
 {
 public:
 	Backpack( float x, float y, Container* parent );
@@ -70,9 +70,11 @@ public:
 	virtual void updatePosition();
 
 	// Mouse handling.
-	virtual bool mouseMoved( Mouse *mouse );
-	virtual bool leftClicked( Mouse *mouse );
-	virtual bool leftReleased( Mouse *mouse );
+	virtual bool OnMouseMoved( Mouse *mouse );
+	virtual bool OnLeftClicked( Mouse *mouse );
+	virtual bool OnLeftReleased( Mouse *mouse );
+	virtual bool OnRightClicked( Mouse *mouse );
+	virtual bool OnRightReleased( Mouse *mouse );
 
 	// Slot handling functions.
 	void removeSlots();

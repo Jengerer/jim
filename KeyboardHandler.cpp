@@ -1,5 +1,7 @@
 #include "KeyboardHandler.h"
 
+#include <windows.h>
+
 KeyboardHandler::KeyboardHandler()
 {
 	// Keyboard handler created.
@@ -10,13 +12,13 @@ KeyboardHandler::~KeyboardHandler()
 	// Keyboard handler destroyed.
 }
 
-void KeyboardHandler::listenKey( key keyCode )
+void KeyboardHandler::AddKey( key keyCode )
 {
 	keys_.push_back( keyCode );
 	keyStates_[ keyCode ] = 0;
 }
 
-void KeyboardHandler::updateKeys()
+void KeyboardHandler::UpdateKeys()
 {
 	int length = keys_.size();
 	for (int i = 0; i < length; i++) {
@@ -38,22 +40,22 @@ void KeyboardHandler::updateKeys()
 	}
 }
 
-bool KeyboardHandler::changedState( key keyCode )
+bool KeyboardHandler::HasChangedState( key keyCode )
 {
 	return (keyStates_[ keyCode ] & KEY_STATE_CHANGED) != 0;
 }
 
-bool KeyboardHandler::isPressed( key keyCode )
+bool KeyboardHandler::IsKeyPressed( key keyCode )
 {
 	return (keyStates_[ keyCode ] & KEY_STATE_DOWN) != 0;
 }
 
-bool KeyboardHandler::isClicked( key keyCode )
+bool KeyboardHandler::IsKeyClicked( key keyCode )
 {
-	return isPressed( keyCode ) && changedState( keyCode );
+	return IsKeyPressed( keyCode ) && HasChangedState( keyCode );
 }
 
-bool KeyboardHandler::isReleased( key keyCode )
+bool KeyboardHandler::IsKeyReleased( key keyCode )
 {
-	return !isPressed( keyCode ) && changedState( keyCode );
+	return !IsKeyPressed( keyCode ) && HasChangedState( keyCode );
 }

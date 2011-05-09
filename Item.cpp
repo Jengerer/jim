@@ -7,101 +7,91 @@ const int ITEM_SIZE		= 60;
 
 Item::Item(
 	uint64 uniqueId,
-	uint16 defIndex,
+	uint16 typeIndex,
 	uint8 level,
 	EItemQuality quality,
 	uint32 count,
 	uint32 flags )
 {
 	// Set basic attributes.
-	uniqueId_ = uniqueId;
-	defIndex_ = defIndex;
-	level_ = level;
-	quality_ = quality;
-	count_ = count;
-	flags_ = flags;
+	SetUniqueId( uniqueId );
+	SetTypeIndex( typeIndex );
+	SetLevel( level );
+	SetQuality( quality );
+	SetCount( count );
+	SetFlags( flags );
+
+	// Set constant size.
+	SetSize( ITEM_SIZE, ITEM_SIZE );
 
 	// Set null pointers for things to be acquired.
-	texture_ = 0;
-	name_ = 0;
-	information_ = 0;
+	texture_ = nullptr;
+	information_ = nullptr;
 
 	// Load item's definition.
-	loadInformation();
-
-	// Reset selection and position.
-	position_ = flags_ & 0xfff;
+	GetItemInformation();
 }
 
-Item::~Item()
+Item::~Item( void )
 {
 	//Item has been destroyed.
 }
 
-void Item::loadInformation()
+void Item::GetItemInformation( void )
 {
 	// Convert item type to string.
-	string defIndex = boost::lexical_cast<string, int>( defIndex_ );
-
+	string defIndex = boost::lexical_cast<string, int>( GetTypeIndex() );
 	try {
 		information_ = informationTable->getTable( defIndex );
 	}
 	catch (Exception &) {
-		// Failed to load definition; fall back to unknown.
 		try {
 			information_ = informationTable->getTable( "-1" );
 		}
 		catch (Exception &) {
-			// Both failed.
 			throw Exception( "Failed to get item information. No definition or default definition found." );
 		}
 	}
 
-	// We've succesfully got information; set the texture.
-	getTexture();
+	GetTexture();
 }
 
-void Item::draw( DirectX* directX )
+void Item::OnDraw( DirectX* directX )
 {
-	directX->drawTexture( texture_, getX(), getY(), ITEM_SIZE, ITEM_SIZE );
+	directX->drawTexture( texture_, GetX(), GetY(), ITEM_SIZE, ITEM_SIZE );
 }
 
-uint64 Item::getUniqueId() const
+uint64 Item::GetUniqueId( void ) const
 {
 	return uniqueId_;
 }
 
-uint16 Item::getDefIndex() const
+uint16 Item::GetTypeIndex( void ) const
 {
-	return defIndex_;
+	return typeIndex_;
 }
 
-uint8 Item::getLevel() const
+uint8 Item::GetLevel( void ) const
 {
 	return level_;
 }
 
-EItemQuality Item::getQuality() const
+EItemQuality Item::GetQuality( void ) const
 {
 	return quality_;
 }
 
-uint32 Item::getFlags() const
+uint32 Item::GetFlags( void ) const
 {
 	return flags_;
 }
 
-uint32 Item::getCount() const
+uint32 Item::GetCount( void ) const
 {
 	return count_;
 }
 
-uint16 Item::getIndex() const
-{
-	return position_;
-}
-
-string Item::getName()
+const string& Item::GetName( void ) const
 {
 	try {
 		return *information_->getString( "name" );
@@ -111,56 +101,65 @@ string Item::getName()
 	}
 }
 
-bool Item::isHat() const
+uint16 Item::GetIndex( void ) const
 {
-	return getSlot() == "hat";
+	return (GetFlags() & 0xFFF) - 1;
 }
 
-string Item::getSlot() const
+void Item::SetIndex( uint16 position )
 {
-	return *information_->getString( "slot" );
+	// Strip position from flags.
+	uint32 tempFlags = GetFlags();
+	tempFlags &= 0xFFFFF000;
+
+	if ((tempFlags & 0x80000000) != 0) {
+		tempFlags = 0x80000000;
+	}
+
+	tempFlags += position + 1;
+	SetFlags( tempFlags );
 }
 
-void Item::move( uint16 position )
-{
-	// Set to new position.
-	position_ = position;
-
-	// Reset item position.
-	flags_ &= 0xfffff000;
-
-	// Fix improper flags.
-	if ((flags_ & 0xf0000000) != 0x80000000)
-		flags_ = 0x80000000;
-
-	// Put new position.
-	flags_ += position_;
-}
-
-bool Item::isEquipped( EClassEquip equipClass ) const
+bool Item::IsEquipped( EClassEquip equipClass ) const
 {
 	int equipFlags = flags_ & equipClass;
 	int validFlags = flags_ & 0x80000000;
 	return ((validFlags != 0) && (equipFlags != 0x00000000));
 }
 
-void Item::setEquip( EClassEquip equipClass, bool equip )
+const string& Item::GetEquipSlot( void ) const
 {
-	if (flags_ & equipClass) {
-		if (!equip)
+	return *information_->getString( "slot" );
+}
+
+Hashtable* Item::GetEquipClasses( void ) const
+{
+	if (information_->contains( "classes" )) {
+		return information_->getTable( "classes" );
+	}
+
+	return nullptr;
+}
+
+void Item::SetEquip( EClassEquip equipClass, bool equip )
+{
+	if ((GetFlags() & equipClass) != 0) {
+		if (!equip) {
 			// Item is equipped to this class; remove flag.
 			flags_ &= (0xffffffff - equipClass);
+		}
 	}
 	else {
-		if (equip)
+		if (equip) {
 			// This item is not equipped to the class; add flag.
 			flags_ |= equipClass;
+		}
 	}
 }
 
-Texture* Item::getTexture()
+Texture* Item::GetTexture( void )
 {
-	if (texture_ == 0) {
+	if (texture_ == nullptr) {
 		try	{
 			texture_ = boost::any_cast<Texture*>( information_->get( "texture" ) );
 		}
@@ -172,21 +171,32 @@ Texture* Item::getTexture()
 	return texture_;
 }
 
-Hashtable* Item::getClasses() const
+void Item::SetUniqueId( uint64 uniqueId )
 {
-	if (information_->contains( "classes" )) {
-		return information_->getTable( "classes" );
-	}
-
-	return 0;
+	uniqueId_ = uniqueId;
 }
 
-int Item::getWidth() const
+void Item::SetTypeIndex( uint16 typeIndex )
 {
-	return ITEM_SIZE;
+	typeIndex_ = typeIndex;
 }
 
-int Item::getHeight() const
+void Item::SetLevel( uint8 level )
 {
-	return ITEM_SIZE;
+	level_ = level;
+}
+
+void Item::SetQuality( EItemQuality quality )
+{
+	quality_ = quality;
+}
+
+void Item::SetFlags( uint32 flags )
+{
+	flags_ = flags;
+}
+
+void Item::SetCount( uint32 count )
+{
+	count_ = count;
 }

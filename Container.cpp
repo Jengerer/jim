@@ -1,83 +1,110 @@
 #include "Container.h"
 
+//=============================================================
+// Constructor
+//=============================================================
 Container::Container( float x, float y ) : Component( x, y )
 {
 	// Container created.
 }
 
+//=============================================================
+// Destructor: removes and destroys all children.
+//=============================================================
 Container::~Container()
 {
 	// Container destroyed.
 	deque<Component*>::iterator i;
 	while (!componentStack_.empty()) {
 		Component* component = componentStack_.back();
-		remove( component );
+		Remove( component );
 		delete component;
 	}
 }
 
-void Container::setPosition( float x, float y )
+void Container::SetPosition( float x, float y )
 {
-	Component::setPosition( x, y );
-	updatePosition();
+	Component::SetPosition( x, y );
+	UpdatePosition();
 }
 
-void Container::updatePosition()
+void Container::UpdatePosition()
 {
 	// Optionally implemented.
 }
 
-bool Container::withinBounds( Component *component )
+//=============================================================
+// Purpose: Checks whether a component is visibly contained
+//			by this container.
+//=============================================================
+bool Container::WithinBounds( Component *component ) const
 {
-	int top = getY() - component->getHeight();
-	int left = getX() - component->getWidth();
-	int right = getX() + getWidth();
-	int bottom = getY() + getHeight();
+	int top = GetY() - component->GetHeight();
+	int left = GetX() - component->GetWidth();
+	int right = GetX() + GetWidth();
+	int bottom = GetY() + GetHeight();
 
-	return (component->getX() >= left) &&
-		(component->getX() <= right) &&
-		(component->getY() >= top) &&
-		(component->getY() <= bottom);
+	return (component->GetX() >= left) &&
+		(component->GetX() <= right) &&
+		(component->GetY() >= top) &&
+		(component->GetY() <= bottom);
 }
 
-void Container::clampChild( Component *component, int padding )
+//=============================================================
+// Purpose: Returns true if the child is visible in the
+//			given context and if it should be drawn.
+//=============================================================
+bool Container::IsVisible( Component *component ) const
 {
-	int leftBound = getX() + padding;
-	int rightBound = getX() + getWidth() - component->getWidth() - padding;
-	int topBound = getY() + padding;
-	int bottomBound = getY() + getHeight() - component->getHeight() - padding;
+	return WithinBounds( component );
+}
+
+//=============================================================
+// Purpose: Constrains a component's position based on the
+//			size and position of this container.
+//=============================================================
+void Container::ClampChild( Component *component, int padding ) const
+{
+	int leftBound = GetX() + padding;
+	int rightBound = GetX() + GetWidth() - component->GetWidth() - padding;
+	int topBound = GetY() + padding;
+	int bottomBound = GetY() + GetHeight() - component->GetHeight() - padding;
 
 	// Clamp X position.
-	if (component->getX() < leftBound) {
-		component->setX( leftBound );
+	if ( component->GetX() < leftBound ) {
+		component->SetX( leftBound );
 	}
-	else if (component->getX() > rightBound) {
-		component->setX( rightBound );
+	else if ( component->GetX() > rightBound ) {
+		component->SetX( rightBound );
 	}
 
 	// Clamp Y position.
-	if (component->getY() < topBound) {
-		component->setY( topBound );
+	if ( component->GetY() < topBound ) {
+		component->SetY( topBound );
 	}
-	else if (component->getY() > bottomBound) {
-		component->setY( bottomBound );
+	else if ( component->GetY() > bottomBound ) {
+		component->SetY( bottomBound );
 	}
 }
 
-void Container::add( Component* component )
+void Container::Add( Component* component )
 {
 	componentStack_.push_back( component );
 }
 
-void Container::addBottom( Component* component )
+void Container::AddBottom( Component* component )
 {
 	componentStack_.push_front( component );
 }
 
-void Container::remove( Component* component )
+//=============================================================
+// Purpose: Removes a child from the container, but does
+//			NOT destroy it.
+//=============================================================
+void Container::Remove( Component* component )
 {
 	deque<Component*>::iterator i = componentStack_.begin();
-	while (i != componentStack_.end()) {
+	while ( i != componentStack_.end() ) {
 		Component* current = *i;
 		if (current == component) {
 			componentStack_.erase( i );
@@ -88,22 +115,27 @@ void Container::remove( Component* component )
 	}
 }
 
-void Container::removeAll()
+// TODO: Maybe make it recurse on child containers.
+void Container::RemoveAll()
 {
 	componentStack_.clear();
 }
 
-deque<Component*>* Container::getChildren()
+deque<Component*>* Container::GetChildren()
 {
 	return &componentStack_;
 }
 
-void Container::draw( DirectX *directX )
+//=============================================================
+// Purpose: Draws all children.
+//=============================================================
+void Container::OnDraw( DirectX *directX )
 {
+	// Draw all children.
 	for (int i = 0; i < componentStack_.size(); i++) {
 		Component *component = componentStack_.at( i );
-		if (withinBounds( component )) {
-			component->draw( directX );
+		if (WithinBounds( component )) {
+			component->OnDraw( directX );
 		}
 	}
 }

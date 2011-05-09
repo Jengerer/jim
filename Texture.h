@@ -6,34 +6,32 @@
 
 using namespace std;
 
-/*
- * Texture class that handles DirectX
- * textures to be drawn.
- */
 class Texture
 {
+
 public:
-	Texture( IDirect3DTexture9 *texture, 
-		const string& filename,
-		D3DXIMAGE_INFO info );
-	~Texture();
+
+	Texture( const string& filename );
+	~Texture( void );
 
 	// Handling resources.
-	void setTexture( IDirect3DTexture9 *texture, const string& filename );
-	void releaseTexture();
-	bool isLoaded() const;
+	void				SetTextureFilename( const string& filename );
+	const string&		GetTextureFilename( void ) const;
+	void				SetTexture( IDirect3DTexture9 *texture );
+	void				SetTexture( IDirect3DTexture9 *texture, const D3DXIMAGE_INFO& info );
+	IDirect3DTexture9*	GetTexture( void );
+	void				ReleaseTexture( void );
 
-	// Getter functions.
-	LPDIRECT3DTEXTURE9	getTexture();
-	const string&		getFilename() const;
-	int					getWidth() const;
-	int					getHeight() const;
+	bool				IsLoaded( void ) const;
+
+	// Texture attribute functions.
+	int					GetWidth( void ) const;
+	int					GetHeight( void ) const;
 
 private:
-	// Texture and filename.
+
 	IDirect3DTexture9	*texture_;
 	string				filename_;
-
-	// Imagine information.
 	D3DXIMAGE_INFO		info_;
+
 };

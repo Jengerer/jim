@@ -72,13 +72,7 @@
     <ClCompile Include="Button.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="Dialog.cpp">
-      <Filter>Source Files\UI Elements</Filter>
-    </ClCompile>
     <ClCompile Include="Alert.cpp">
-      <Filter>Source Files\UI Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="Drawable.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Popup.cpp">
@@ -137,6 +131,9 @@
     </ClCompile>
     <ClCompile Include="protobuf\steammessages.pb.cc">
       <Filter>Source Files\protobufs</Filter>
+    </ClCompile>
+    <ClCompile Include="Notification.cpp">
+      <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -818,9 +815,6 @@
     <ClInclude Include="SerializedBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dialog.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
@@ -828,9 +822,6 @@
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Alert.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="Drawable.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Backpack.h">
@@ -892,6 +883,15 @@
     </ClInclude>
     <ClInclude Include="protobuf\gcsdk_gcmessages.pb.h">
       <Filter>Header Files\protobufs</Filter>
+    </ClInclude>
+    <ClInclude Include="Notification.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="IDrawable.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="IMouseHandler.h">
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

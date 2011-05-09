@@ -12,7 +12,7 @@
 #define MENU_STROKE_COLOUR		D3DCOLOR_ARGB( 100, 153, 142, 121 )
 #define MENU_BACKGROUND_COLOUR	D3DCOLOR_XRGB( 42, 39, 37 )
 
-class Menu: public Popup {
+class Menu: public Popup, public IMouseHandler {
 public:
 	Menu();
 	virtual ~Menu();
@@ -28,10 +28,11 @@ public:
 	virtual void updatePosition();
 
 	// Mouse handling.
-	virtual bool leftClicked( Mouse *mouse );
-	virtual bool leftReleased( Mouse *mouse );
-	virtual bool rightClicked( Mouse *mouse );
-	virtual bool mouseMoved( Mouse *mouse );
+	virtual bool OnMouseMoved( Mouse *mouse );
+	virtual bool OnLeftClicked( Mouse *mouse );
+	virtual bool OnLeftReleased( Mouse *mouse );
+	virtual bool OnRightClicked( Mouse *mouse );
+	virtual bool OnRightReleased( Mouse *mouse );
 
 private:
 	Option*			selected_;

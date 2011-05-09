@@ -6,12 +6,12 @@
 class HorizontalLayout: public Layout
 {
 public:
-	HorizontalLayout();
-	virtual ~HorizontalLayout();
+	HorizontalLayout( void );
+	virtual ~HorizontalLayout( void );
 
 	// Packs elements into a horizontal layout.
-	virtual void pack();
+	virtual void Pack( void );
 
 	// Repositions all elements.
-	virtual void updatePosition();
+	virtual void UpdatePosition( void );
 };

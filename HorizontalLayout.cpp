@@ -1,38 +1,39 @@
 #include "HorizontalLayout.h"
 
-HorizontalLayout::HorizontalLayout()
+HorizontalLayout::HorizontalLayout( void )
 {
 	// HorizontalLayout created.
 }
 
-HorizontalLayout::~HorizontalLayout()
+HorizontalLayout::~HorizontalLayout( void )
 {
 	// HorizontalLayout destroyed.
 }
 
-void HorizontalLayout::pack()
+void HorizontalLayout::Pack( void )
 {
 	int width = 0, height = 0;
 	deque<Component*>::iterator i;
 	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
 		Component *component = *i;
-		component->setPosition( getX() + width, getY() );
+		component->SetPosition( GetX() + width, GetY() );
 
 		// Push width by component width and spacing (if not last).
-		width += component->getWidth();
-		if (component != componentStack_.back()) {
-			width += getSpacing();
+		width += component->GetWidth();
+		if ( component != componentStack_.back() ) {
+			width += GetSpacing();
 		}
 
 		// Store maximum height.
-		if (component->getHeight() > height) {
-			height = component->getHeight();
+		if (component->GetHeight() > height) {
+			height = component->GetHeight();
 		}
 	}
 
-	setSize( width, height );
+	SetSize( width, height );
 }
 
-void HorizontalLayout::updatePosition() {
-	pack();
+void HorizontalLayout::UpdatePosition( void )
+{
+	Pack();
 }

@@ -1,28 +1,12 @@
-#pragma once
+#ifndef ITEM_MANAGER_H
+#define ITEM_MANAGER_H
 
-#include <vector>
-#include <deque>
-#include <sstream>
-#include <string>
-
-// Parsing APIs.
-#include <json/json.h>
-#include <boost/regex.hpp>
-
-// Drawing API.
 #include "Application.h"
-
-// User interface.
-#include "Button.h"
-#include "Popup.h"
-#include "Dialog.h"
+#include "Notification.h"
 #include "Alert.h"
-#include "Menu.h"
-#include "Mouse.h"
+#include "Button.h"
 
-#include "Hashtable.h"
 #include "Backpack.h"
-#include "SerializedBuffer.h"
 
 #define BUTTON_SPACING	2
 #define BUTTON_Y		380
@@ -30,39 +14,41 @@
 class ItemManager: public Application
 {
 public:
-	ItemManager(HINSTANCE instance);
-	virtual ~ItemManager();
+	ItemManager( void );
+	virtual ~ItemManager( void );
 
 	// Initializing and closing.
-	void openInterfaces();
-	void closeInterfaces();
+	void LoadInterfaces( HINSTANCE instance );
+	void CloseInterfaces( void );
 
-	// Item defining and loading.
-	void loadDefinitions();
-	void loadItems();
+	void LoadDefinitions( void );
+	void LoadItemsFromWeb( void );
 
-	// Drawing functions.
-	void run();
+	void RunApplication( void );
 
 	// Steam handling.
-	void handleCallbacks();
+	void HandleCallbacks( void );
+	void HandleMessages( void );
 
 	// Input handling.
-	void handleKeyboard();
+	void HandleKeyboard( void );
 
-	// Mouse handling virtuals.
-	virtual bool leftClicked(Mouse *mouse);
-	virtual bool leftReleased(Mouse *mouse);
-	virtual bool mouseMoved(Mouse *mouse);
+	// Mouse input handling.
+	virtual bool OnLeftClicked( Mouse *mouse );
+	virtual bool OnLeftReleased( Mouse *mouse );
+	virtual bool OnRightClicked( Mouse *mouse );
+	virtual bool OnRightReleased( Mouse *mouse );
+	virtual bool OnMouseMoved( Mouse *mouse );
 
 	// Interface handling.
-	Dialog*	createDialog(const string& message);
-	Alert*	createAlert(const string& message);
-	Button*	createButton(const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f, EAlignment align = ALIGN_TOP_LEFT);
-	void	showPopup(Popup *popup);
-	void	hidePopup(Popup *popup);
-	void	handlePopup(Popup *popup);
-	void	removePopup(Popup* popup);
+	Notification*	CreateNotification( const string& message );
+	Alert*	CreateAlert( const string& message );
+	Button*	CreateButton( const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f );
+
+	void	ShowPopup( Popup *popup );
+	void	HidePopup( Popup *popup );
+	void	HandlePopup( Popup *popup );
+	void	RemovePopup( Popup* popup );
 
 private:
 	// Application interfaces.
@@ -79,8 +65,10 @@ private:
 	bool			enterPressed_;
 
 	// Interface variables.
-	Dialog			*loadDialog_;
+	Notification	*loadProgress_;
 	Alert			*alert_;
 	Alert			*error_;
 	Button			*equipButton_, *craftButton_, *sortButton_;
 };
+
+#endif // ITEM_MANAGER_H

@@ -1,7 +1,7 @@
 #include "DirectX.h"
 
 // Includes for font changing.
-#include "Dialog.h"
+#include "Notification.h"
 #include "Button.h"
 #include "ItemDisplay.h"
 
@@ -84,7 +84,7 @@ void DirectX::openInterfaces()
 	infoFont_ = createFont( "TF2 Secondary", 18, false );
 
 	// Set static fonts.
-	Dialog::font = bodyFont_;
+	Notification::font = bodyFont_;
 	Button::font = bodyFont_;
 	ItemDisplay::nameFont = titleFont_;
 	ItemDisplay::infoFont = infoFont_;
@@ -206,12 +206,8 @@ void DirectX::loadTextures()
 		boost::any& value = i->second;
 		try {
 			Texture* texture = boost::any_cast<Texture*>(value);
-			if (!texture->isLoaded()) {
-				const string& filePath = texture->getFilename();
-
-				// Load and set the texture.
-				Texture* tempTexture = loadTexture( filePath );
-				texture->setTexture( tempTexture->getTexture(), filePath );
+			if (!texture->IsLoaded()) {
+				LoadTexture( texture );
 			}
 		}
 		catch (const boost::bad_any_cast &) {
@@ -228,7 +224,7 @@ void DirectX::releaseTextures()
 		try {
 			// Just release it.
 			Texture* thisTexture = boost::any_cast<Texture*>(i->second);
-			thisTexture->releaseTexture();
+			thisTexture->ReleaseTexture();
 		}
 		catch (const boost::bad_any_cast &) {
 			throw Exception( "Failed to get texture from table, unexpected variable type received." );
@@ -250,40 +246,41 @@ Texture* DirectX::getTexture( const string& filename )
 		}
 	}
 
-	// Load texture, and add to map.
-	Texture* dest = loadTexture( filename );
-	textureMap_->put( filename, dest );
+	// Create the new texture and load it.
+	Texture* newTexture = new Texture( filename );
+	LoadTexture( newTexture );
 
-	// Return it.
-	return dest;
+	// Add to map and return.
+	textureMap_->put( filename, newTexture );
+	return newTexture;
 }
 
-//TODO: Make sure all calls check for failure.
-Texture* DirectX::loadTexture( const string& filename )
+void DirectX::LoadTexture( Texture *texture )
 {
-	LPDIRECT3DTEXTURE9	texture;
+	// Don't load again.
+	if ( texture->IsLoaded() ) {
+		return;
+	}
+
+	IDirect3DTexture9	*d3dTexture;
 	D3DXIMAGE_INFO		info;
 
-	string path = "imgFiles/" + filename + ".png";
-	HRESULT hResult;
-	
-	hResult = D3DXGetImageInfoFromFile( path.c_str(), &info );
-	if (hResult != D3D_OK)
-	{
+	string path = "imgFiles/" + texture->GetTextureFilename() + ".png";
+	HRESULT hResult = D3DXGetImageInfoFromFile( path.c_str(), &info );
+	if (hResult != D3D_OK) {
 		// Make sure image directory exists.
-		if (GetFileAttributes( "imgFiles" ) == INVALID_FILE_ATTRIBUTES)
+		if (GetFileAttributes( "imgFiles" ) == INVALID_FILE_ATTRIBUTES) {
 			CreateDirectory( "imgFiles", 0 );
+		}
 
 		// Try to download the texture.
 		string fileURL = "http://www.jengerer.com/itemManager/" + path;
 		if (!download( fileURL, path )) {
-			// Try the mirror.
 			string errorMessage = "Failed to load texture:\n" + path;
 			throw Exception( errorMessage );
 		}
 
 		hResult = D3DXGetImageInfoFromFile( path.c_str(), &info );
-		// If downloading succeeded, reload the texture.
 		if (hResult != D3D_OK) {
 			string errorMessage = "Failed to load texture:\n" + path;
 			throw Exception( errorMessage );
@@ -303,16 +300,13 @@ Texture* DirectX::loadTexture( const string& filename )
 		D3DX_DEFAULT,
 		0,
 		NULL, NULL,
-		&texture);
-
+		&d3dTexture );
 	if (hResult != D3D_OK) {
 		string errorMessage = "Failed to load texture:\n" + path;
 		throw Exception( errorMessage );
 	}
 
-	// Return new texture.
-	// TODO: Investigate whether there's a need for filling in texture.
-	return new Texture( texture, filename, info );
+	texture->SetTexture( d3dTexture, info );
 }
 
 Font* DirectX::createFont( const string& name, int height, bool isBolded )
@@ -518,7 +512,7 @@ void DirectX::drawTexturedQuad( TextureVertex *texVertices, Texture* texture ) {
 	// Draw quad.
 	d3dDevice_->SetFVF( D3D9T_TEXTUREVERTEX );
 	d3dDevice_->SetStreamSource( 0, vertexBuffer_, 0, sizeof( TextureVertex ) );
-	d3dDevice_->SetTexture( 0, texture->getTexture() );
+	d3dDevice_->SetTexture( 0, texture->GetTexture() );
 	d3dDevice_->DrawPrimitive( D3DPT_TRIANGLESTRIP, 0, 2 );
 }
 

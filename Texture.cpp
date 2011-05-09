@@ -1,56 +1,62 @@
 #include "Texture.h"
 
-Texture::Texture(
-	LPDIRECT3DTEXTURE9 texture,
-	const string& filename,
-	D3DXIMAGE_INFO info )
+Texture::Texture( const string& filename )
 {
-	setTexture(texture, filename);
-	info_ = info;
+	SetTexture( nullptr );
+	SetTextureFilename( filename );
 }
 
 Texture::~Texture()
 {
 	//Texture has been destroyed.
-	releaseTexture();
+	ReleaseTexture();
 }
 
-void Texture::setTexture( LPDIRECT3DTEXTURE9 texture, const string& filename )
+void Texture::SetTextureFilename( const string& filename )
 {
-	texture_	= texture;
-	filename_	= filename;
+	filename_ = filename;
 }
 
-void Texture::releaseTexture()
+const string& Texture::GetTextureFilename( void ) const
 {
-	if (texture_)
-	{
-		texture_->Release();
-		texture_ = 0;
-	}
+	return filename_;
 }
 
-bool Texture::isLoaded() const
+void Texture::SetTexture( IDirect3DTexture9 *texture )
 {
-	return (texture_ != 0);
+	texture_ = texture;
 }
 
-int Texture::getWidth() const
+void Texture::SetTexture( IDirect3DTexture9 *texture, const D3DXIMAGE_INFO& info )
 {
-	return info_.Width;
+	SetTexture( texture );
+	info_ = info;
 }
 
-int Texture::getHeight() const
-{
-	return info_.Height;
-}
-
-LPDIRECT3DTEXTURE9 Texture::getTexture()
+IDirect3DTexture9* Texture::GetTexture( void )
 {
 	return texture_;
 }
 
-const string& Texture::getFilename() const
+void Texture::ReleaseTexture( void )
 {
-	return filename_;
+	if (texture_ != nullptr) {
+		texture_->Release();
+		texture_ = nullptr;
+	}
+}
+
+bool Texture::IsLoaded( void ) const
+{
+	return (texture_ != nullptr);
+}
+
+int Texture::GetWidth( void ) const
+{
+	return info_.Width;
+}
+
+int Texture::GetHeight( void ) const
+{
+	return info_.Height;
 }

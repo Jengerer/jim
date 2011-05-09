@@ -21,8 +21,8 @@ Backpack::Backpack(
 	// Inventory formatting pointers.
 	pages_ = new HorizontalLayout();
 	excluded_ = new HorizontalLayout();
-	add( pages_ );
-	add( excluded_ );
+	Add( pages_ );
+	Add( excluded_ );
 
 	// Slot state information.
 	dragged_ = nullptr;
@@ -34,12 +34,12 @@ Backpack::Backpack(
 	page_ = 1;
 
 	// Move to start.
-	setPosition( x, y );
-	setSize( parent->getWidth(), parent->getHeight() );
+	SetPosition( x, y );
+	SetSize( parent->GetWidth(), parent->GetHeight() );
 
 	// Create item display.
 	itemDisplay_ = new ItemDisplay();
-	add( itemDisplay_ );
+	Add( itemDisplay_ );
 }
 
 Backpack::~Backpack()
@@ -150,7 +150,7 @@ void Backpack::handleMessage( int id, void *message, uint32 size )
 	case SOMsgDeleted_t::k_iMessage:
 		{
 			SOMsgDeleted_t *deleteMsg = (SOMsgDeleted_t*)message;
-			Item *target = inventory_->GetItem( deleteMsg->itemid );
+			Item *target = inventory_->GetItemByUniqueId( deleteMsg->itemid );
 			if (target != nullptr) {
 				inventory_->removeItem( target );
 				inventory_->updateExcluded();
@@ -248,9 +248,9 @@ void Backpack::loadInventory( const string &jsonInventory )
 void Backpack::formatInventory()
 {
 	// Add slots to layout.
-	pages_->setParent( this );
-	pages_->setPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
-	pages_->setSpacing( PAGE_SPACING );
+	pages_->SetParent( this );
+	pages_->SetPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
+	pages_->SetSpacing( PAGE_SPACING );
 
 	int pages = inventory_->GetPageCount();
 	int pageWidth = inventory_->GetWidth();
@@ -258,46 +258,46 @@ void Backpack::formatInventory()
 	for (int i = 0; i < pages; i++) {
 		// Add a column per page.
 		HorizontalLayout *pageColumns = new HorizontalLayout();
-		pageColumns->setParent( this );
-		pageColumns->setSpacing( SLOT_SPACING );
+		pageColumns->SetParent( this );
+		pageColumns->SetSpacing( SLOT_SPACING );
 
 		// Split the page into two.
 		for (int j = 0; j < 2; j++) {
 			// Add a row of slots per column.
 			for (int x = 0; x < (pageWidth >> 1); x++) {
 				VerticalLayout *rows = new VerticalLayout();
-				rows->setSpacing( SLOT_SPACING );
+				rows->SetSpacing( SLOT_SPACING );
 
 				// Add a slot per row.
 				for (int y = 0; y < pageHeight; y++) {
 					// Simplified formula for index.
 					int index = x + j * (pageWidth >> 1) + pageWidth * (i * pageHeight + y);
 					Slot* slot = inventory_->GetInventorySlot( index );
-					rows->add( slot );
+					rows->Add( slot );
 				}
 
-				rows->pack();
-				pageColumns->add( rows );
+				rows->Pack();
+				pageColumns->Add( rows );
 			}
 		}
 
-		pageColumns->pack();
-		pages_->add( pageColumns );
+		pageColumns->Pack();
+		pages_->Add( pageColumns );
 	}
 
-	pages_->pack();
+	pages_->Pack();
 
 	// Position and add excluded.
-	excluded_->setPosition( getX() + BACKPACK_PADDING, getHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
-	excluded_->setSpacing( SLOT_SPACING );
+	excluded_->SetPosition( GetX() + BACKPACK_PADDING, GetHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
+	excluded_->SetSpacing( SLOT_SPACING );
 
 	int length = inventory_->GetExcludedSize();
 	for (int i = 0; i < length; i++) {
 		Slot* slot = inventory_->GetExcludedSlot( i );
-		excluded_->add( slot );
+		excluded_->Add( slot );
 	}
 
-	excluded_->pack();
+	excluded_->Pack();
 
 	// Set primary camera target.
 	updateTarget();
@@ -315,8 +315,8 @@ void Backpack::setLoaded( bool isLoaded )
 }
 
 void Backpack::moveItem( Slot *source, Slot *destination ) {
-	Item* sourceItem = source->getItem();
-	Item* destItem = destination->getItem();
+	Item* sourceItem = source->GetItem();
+	Item* destItem = destination->GetItem();
 
 	// Update items.
 	inventory_->moveItem( source, destination );
@@ -330,23 +330,110 @@ void Backpack::updatePosition()
 {
 	// Position all slots.
 	if (pages_ != nullptr) {
-		pages_->setX( getX() - cameraX_ );
-		pages_->updatePosition();
+		pages_->SetX( GetX() - cameraX_ );
+		pages_->UpdatePosition();
 	}
 }
 
-bool Backpack::leftClicked( Mouse *mouse )
+bool Backpack::OnMouseMoved( Mouse *mouse )
+{
+	// Reset item display.
+	itemDisplay_->setActive( false );
+	hovered_ = nullptr;
+
+	// Mouse moved.
+	if (selected_.size() == 1 && dragged_ != nullptr) {
+		Slot* slot = selected_[0];
+		slot->UpdatePosition();
+
+		// Change page if at edges.
+		int time = GetTickCount();
+		if (time > pageDelay_) {
+			if (slot->GetX() == (GetWidth() - slot->GetWidth())) {
+				nextPage();
+				pageDelay_ = time + PAGE_CHANGE_DELAY;
+			}
+			else if (slot->GetX() == 0) {
+				prevPage();
+				pageDelay_ = time + PAGE_CHANGE_DELAY;
+			}
+		}
+
+		return true;
+	}
+
+	// Go through visible pages.
+	deque<Component*> *pageComponents = pages_->GetChildren();
+	for each (Container *page in *pageComponents) {
+		if (IsVisible( page )) {
+			// Go through visible page columns.
+			deque<Component*> *columns = page->GetChildren();
+			for each (Container *column in *columns) {
+				if (IsVisible( column )) {
+					// Go through slots in column.
+					deque<Component*> *slots = column->GetChildren();
+					for each (Component *rowSlot in *slots) {
+						Slot *slot = dynamic_cast<Slot*>(rowSlot);
+						if (mouse->isTouching( slot )) {
+							// Update display if not dragging and has item.
+							if ((slot->GetSelectType() != SELECT_TYPE_DRAG) && (slot->GetItem() != nullptr)) {
+								hovered_ = slot;
+
+								itemDisplay_->setItem( slot->GetItem() );
+								itemDisplay_->SetPosition( slot->GetX() + slot->GetWidth()/2 - itemDisplay_->GetWidth() / 2, slot->GetY() + slot->GetHeight() + DISPLAY_SPACING );
+								ClampChild( itemDisplay_, DISPLAY_SPACING );
+								itemDisplay_->setActive( true );
+							}
+
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Check excluded.
+	int length = inventory_->GetExcludedSize();
+	for (int i = 0; i < length; i++) {
+		Slot *slot = inventory_->GetExcludedSlot( i );
+		if (mouse->isTouching( slot )) {
+			// Update display if not dragging and has item.
+			if ((slot->GetSelectType() != SELECT_TYPE_DRAG) && (slot->GetItem() != nullptr)) {
+				hovered_ = slot;
+
+				itemDisplay_->setItem( slot->GetItem() );
+				itemDisplay_->SetPosition( slot->GetX() + slot->GetWidth()/2 - itemDisplay_->GetWidth() / 2, slot->GetY() + slot->GetHeight() + DISPLAY_SPACING );
+
+				// Check that we're not exceeding screen bottom.
+				int bottomBound = GetY() + GetHeight() - slot->GetHeight() - DISPLAY_SPACING;
+				if (itemDisplay_->GetY() > bottomBound) {
+					itemDisplay_->SetY( slot->GetY() - slot->GetHeight() - DISPLAY_SPACING );
+				}
+
+				ClampChild( itemDisplay_, DISPLAY_SPACING );
+				itemDisplay_->setActive( true );
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool Backpack::OnLeftClicked( Mouse *mouse )
 {
 	// Go through visible pages.
-	deque<Component*> *pageComponents = pages_->getChildren();
+	deque<Component*> *pageComponents = pages_->GetChildren();
 	for each (Container *page in *pageComponents) {
-		if (withinBounds( page )) {
+		if (IsVisible( page )) {
 			// Go through visible page columns.
-			deque<Component*> *columns = page->getChildren();
+			deque<Component*> *columns = page->GetChildren();
 			for each (Container *column in *columns) {
-				if (withinBounds( column )) {
+				if (WithinBounds( column )) {
 					// Go through slots in column.
-					deque<Component*> *slots = column->getChildren();
+					deque<Component*> *slots = column->GetChildren();
 					for each (Component *rowSlot in *slots) {
 						Slot *slot = dynamic_cast<Slot*>(rowSlot);
 						if (mouse->isTouching( slot )) {
@@ -387,29 +474,29 @@ bool Backpack::leftClicked( Mouse *mouse )
 	return false;
 }
 
-bool Backpack::leftReleased( Mouse *mouse )
+bool Backpack::OnLeftReleased( Mouse *mouse )
 {
 	if (dragged_ != nullptr) {
 		// Move item back to slot.
 		Slot* selectedSlot = selected_[0];
-		dragged_->setItem( selectedSlot->getItem() );
+		dragged_->SetItem( selectedSlot->GetItem() );
 
 		// Remove dummy slot.
-		selectedSlot->onRelease();
-		remove( selectedSlot );
+		selectedSlot->OnRelease();
+		Remove( selectedSlot );
 		delete selectedSlot;
 		selected_.clear();
 
 		// Go through visible pages.
-		deque<Component*> *pageComponents = pages_->getChildren();
+		deque<Component*> *pageComponents = pages_->GetChildren();
 		for each (Container *page in *pageComponents) {
-			if (withinBounds( page )) {
+			if (IsVisible( page )) {
 				// Go through visible page columns.
-				deque<Component*> *columns = page->getChildren();
+				deque<Component*> *columns = page->GetChildren();
 				for each (Container *column in *columns) {
-					if (withinBounds( column )) {
+					if (IsVisible( column )) {
 						// Go through slots in column.
-						deque<Component*> *slots = column->getChildren();
+						deque<Component*> *slots = column->GetChildren();
 						for each (Component *rowSlot in *slots) {
 							Slot *slot = dynamic_cast<Slot*>(rowSlot);
 							if (mouse->isTouching( slot )) {
@@ -432,90 +519,13 @@ bool Backpack::leftReleased( Mouse *mouse )
 	return false;
 }
 
-bool Backpack::mouseMoved( Mouse *mouse )
+bool Backpack::OnRightClicked( Mouse *mouse )
 {
-	// Reset item display.
-	itemDisplay_->setActive( false );
-	hovered_ = nullptr;
+	return false;
+}
 
-	// Mouse moved.
-	if (selected_.size() == 1 && dragged_ != nullptr) {
-		Slot* slot = selected_[0];
-		slot->updatePosition();
-
-		// Change page if at edges.
-		int time = GetTickCount();
-		if (time > pageDelay_) {
-			if (slot->getX() == (getWidth() - slot->getWidth())) {
-				nextPage();
-				pageDelay_ = time + PAGE_CHANGE_DELAY;
-			}
-			else if (slot->getX() == 0) {
-				prevPage();
-				pageDelay_ = time + PAGE_CHANGE_DELAY;
-			}
-		}
-
-		return true;
-	}
-
-	// Go through visible pages.
-	deque<Component*> *pageComponents = pages_->getChildren();
-	for each (Container *page in *pageComponents) {
-		if (withinBounds( page )) {
-			// Go through visible page columns.
-			deque<Component*> *columns = page->getChildren();
-			for each (Container *column in *columns) {
-				if (withinBounds( column )) {
-					// Go through slots in column.
-					deque<Component*> *slots = column->getChildren();
-					for each (Component *rowSlot in *slots) {
-						Slot *slot = dynamic_cast<Slot*>(rowSlot);
-						if (mouse->isTouching( slot )) {
-							// Update display if not dragging and has item.
-							if ((slot->getSelectType() != SELECT_TYPE_DRAG) && (slot->getItem() != nullptr)) {
-								hovered_ = slot;
-
-								itemDisplay_->setItem( slot->getItem() );
-								itemDisplay_->setPosition( slot->getX() + slot->getWidth()/2 - itemDisplay_->getWidth() / 2, slot->getY() + slot->getHeight() + DISPLAY_SPACING );
-								clampChild( itemDisplay_, DISPLAY_SPACING );
-								itemDisplay_->setActive( true );
-							}
-
-							return true;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// Check excluded.
-	int length = inventory_->GetExcludedSize();
-	for (int i = 0; i < length; i++) {
-		Slot *slot = inventory_->GetExcludedSlot( i );
-		if (mouse->isTouching( slot )) {
-			// Update display if not dragging and has item.
-			if ((slot->getSelectType() != SELECT_TYPE_DRAG) && (slot->getItem() != 0)) {
-				hovered_ = slot;
-
-				itemDisplay_->setItem( slot->getItem() );
-				itemDisplay_->setPosition( slot->getX() + slot->getWidth()/2 - itemDisplay_->getWidth() / 2, slot->getY() + slot->getHeight() + DISPLAY_SPACING );
-
-				// Check that we're not exceeding screen bottom.
-				int bottomBound = getY() + getHeight() - slot->getHeight() - DISPLAY_SPACING;
-				if (itemDisplay_->getY() > bottomBound) {
-					itemDisplay_->setY( slot->getY() - slot->getHeight() - DISPLAY_SPACING );
-				}
-
-				clampChild( itemDisplay_, DISPLAY_SPACING );
-				itemDisplay_->setActive( true );
-			}
-
-			return true;
-		}
-	}
-
+bool Backpack::OnRightReleased( Mouse *mouse )
+{
 	return false;
 }
 
@@ -524,28 +534,28 @@ void Backpack::slotGrabbed( Mouse *mouse, Slot *slot )
 	// Clear selected.
 	if (selectMode_ == SELECT_MODE_SINGLE) {
 		deselectAll();
-		if (slot->getItem() != nullptr) {
+		if (slot->GetItem() != nullptr) {
 			dragged_ = slot;
 
 			// Create a dummy slot to drag the item.
 			Slot* dragging = new Slot( *slot );
-			dragging->setIndex( slot->getIndex() );
-			dragging->setGroup( slot->getGroup() );
-			dragging->setItem( slot->getItem() );
-			dragging->setParent( this );
-			add( dragging );
+			dragging->SetIndex( slot->GetIndex() );
+			dragging->SetGroup( slot->GetGroup() );
+			dragging->SetItem( slot->GetItem() );
+			dragging->SetParent( this );
+			Add( dragging );
 		
 			// Remove item from slot.
-			slot->setItem( nullptr );
+			slot->SetItem( nullptr );
 
 			// Start dragging.
-			dragging->onDrag( mouse );
+			dragging->OnDrag( mouse );
 			select( dragging, SELECT_TYPE_DRAG );
 		}
 	}
 	else {
-		if (slot->getItem() != 0) {
-			switch (slot->getSelectType()) {
+		if (slot->GetItem() != 0) {
+			switch (slot->GetSelectType()) {
 			case SELECT_TYPE_NONE:
 				select( slot, SELECT_TYPE_NORMAL );
 				break;
@@ -561,12 +571,12 @@ void Backpack::slotReleased( Slot *slot )
 {
 	// Skip if returning or excluded.
 	if (slot != dragged_) {
-		if (slot->getItem() == nullptr || dragged_->getGroup() == GROUP_INVENTORY) {
+		if (slot->GetItem() == nullptr || dragged_->GetGroup() == GROUP_INVENTORY) {
 			// Move to slot if able.
 			moveItem( dragged_, slot );
 			selected_.push_back( slot );
-			slot->setSelectType( SELECT_TYPE_NORMAL );
-			slot->updatePosition();
+			slot->SetSelectType( SELECT_TYPE_NORMAL );
+			slot->UpdatePosition();
 		}
 	}
 	else {
@@ -577,17 +587,17 @@ void Backpack::slotReleased( Slot *slot )
 
 void Backpack::removeSlots() {
 	if (pages_ != nullptr) {
-		deque<Component*> *pageComponents = pages_->getChildren();
+		deque<Component*> *pageComponents = pages_->GetChildren();
 		for each (Container *page in *pageComponents) {
-			deque<Component*> *columns = page->getChildren();
+			deque<Component*> *columns = page->GetChildren();
 			for each (Container *column in *columns) {
-				column->removeAll();
+				column->RemoveAll();
 			}
 		}
 	}
 
 	if (excluded_ != nullptr) {
-		excluded_->removeAll();
+		excluded_->RemoveAll();
 	}
 }
 
@@ -624,12 +634,12 @@ void Backpack::equipItem( Item *item, const string& className ) {
 		throw Exception( "Attempting to equip to unknown class." );
 	}
 
-	if (item->isEquipped( equipClass )) {
-		item->setEquip( equipClass, false );
+	if (item->IsEquipped( equipClass )) {
+		item->SetEquip( equipClass, false );
 	}
 	else {
-		unequipItems( equipClass, item->getSlot() );
-		item->setEquip( equipClass, true );
+		unequipItems( equipClass, item->GetEquipSlot() );
+		item->SetEquip( equipClass, true );
 	}
 
 	updateItem( item );
@@ -638,9 +648,9 @@ void Backpack::equipItem( Item *item, const string& className ) {
 void Backpack::unequipItems( EClassEquip equipClass, const string& slot ) {
 	const itemVector* inventoryItems = inventory_->GetInventoryItems();
 	for each(Item *item in *inventoryItems) {
-		if (item->isEquipped( equipClass )) {
-			if (item->getSlot() == slot) {
-				item->setEquip( equipClass , false );
+		if (item->IsEquipped( equipClass )) {
+			if (item->GetEquipSlot() == slot) {
+				item->SetEquip( equipClass , false );
 				updateItem( item );
 				break;
 			}
@@ -649,9 +659,9 @@ void Backpack::unequipItems( EClassEquip equipClass, const string& slot ) {
 
 	const itemVector* excludedItems = inventory_->GetExcludedItems();
 	for each (Item *item in *excludedItems) {
-		if (item->isEquipped( equipClass )) {
-			if (item->getSlot() == slot) {
-				item->setEquip( equipClass , false );
+		if (item->IsEquipped( equipClass )) {
+			if (item->GetEquipSlot() == slot) {
+				item->SetEquip( equipClass , false );
 				updateItem( item );
 				break;
 			}
@@ -661,13 +671,13 @@ void Backpack::unequipItems( EClassEquip equipClass, const string& slot ) {
 
 void Backpack::select( Slot* slot, ESelectType selectType )
 {
-	slot->setSelectType( selectType );
+	slot->SetSelectType( selectType );
 	selected_.push_back( slot );
 }
 
 void Backpack::deselect( Slot* slot )
 {
-	slot->setSelectType( SELECT_TYPE_NONE );
+	slot->SetSelectType( SELECT_TYPE_NONE );
 
 	// Remove from selected.
 	slotVector::iterator i;
@@ -713,10 +723,10 @@ void Backpack::craftSelected()
 		// Write all item IDs.
 		for (int i = 0; i < itemCount; i++) {
 			Slot *slot = selected_[i];
-			Item *item = slot->getItem();
+			Item *item = slot->GetItem();
 
 			// Get ID and write.
-			uint64 itemId = item->getUniqueId();
+			uint64 itemId = item->GetUniqueId();
 			serialBuffer.write( &itemId, sizeof( itemId ) );
 		}
 
@@ -735,8 +745,8 @@ void Backpack::updateItem( Item* item )
 	GCSetItemPosition_t message;
 	memset( &message, 0xff, sizeof( message ) );
 
-	message.itemID = item->getUniqueId();
-	message.position = item->getFlags();
+	message.itemID = item->GetUniqueId();
+	message.position = item->GetFlags();
 
 	// Send it.
 	sendMessage( GCSetItemPosition_t::k_iMessage, &message, sizeof( message ) );
@@ -754,9 +764,9 @@ void Backpack::setSelectMode( ESelectMode selectMode)
 
 void Backpack::updateTarget()
 {
-	deque<Component*>* pageColumns = pages_->getChildren();
+	deque<Component*>* pageColumns = pages_->GetChildren();
 	Component *cameraTarget = pageColumns->at( page_ - 1 );
-	cameraDest_ = cameraTarget->getX() - pages_->getX() - BACKPACK_PADDING;
+	cameraDest_ = cameraTarget->GetX() - pages_->GetX() - BACKPACK_PADDING;
 }
 
 void Backpack::nextPage()

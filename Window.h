@@ -17,8 +17,8 @@ public:
 
 	bool	isActive();
 	
-	int		getWidth() const;
-	int		getHeight() const;
+	int		GetWidth() const;
+	int		GetHeight() const;
 	HWND	getHandle() const;
 
 

@@ -2,7 +2,9 @@
 
 #include <vector>
 
+#include "IMouseHandler.h"
 #include "Component.h"
+#include "Mouse.h"
 #include "Font.h"
 
 using namespace std;
@@ -21,44 +23,57 @@ using namespace std;
 #define BUTTON_FONT_HOVER		D3DCOLOR_XRGB( 42, 39, 37 )
 #define BUTTON_FONT_DISABLED	D3DCOLOR_ARGB( 150, 42, 39, 37 )
 
-enum EAlignment
+class Button: public Component, public IMouseHandler
 {
-	ALIGN_TOP_LEFT,
-	ALIGN_TOP_RIGHT,
-	ALIGN_BOTTOM_LEFT,
-	ALIGN_BOTTOM_RIGHT
-};
 
-class Button: public Component
-{
 public:
-	Button( const string& caption,
-		Texture *texture,
-		float x = 0.0f, float y = 0.0f,
-		EAlignment align = ALIGN_TOP_LEFT );
-	virtual ~Button();
+	Button( const string& caption, float x = 0.0f, float y = 0.0f );
+	virtual ~Button( void );
 	
 	// Drawable functions.
-	void draw( DirectX *directX );
-	void setTexture( Texture *texture );
+	void			OnDraw( DirectX *directX );
+
+	// Optional icon setting/getting.
+	void			SetIcon( Texture *texture );
+	Texture*		GetIcon( void );
+
+	// Caption manipulation.
+	void			SetCaption( const string& caption );
+	const string&	GetCaption( void ) const;
+
+	// Compresses the text and caption and fits to size.
+	virtual void	Pack( void );
 
 	// UI state handling.
-	void enable();
-	void disable();
-	virtual void pack();
-	bool isEnabled() const;
+	void SetEnabled( bool isEnabled );
+	bool IsEnabled( void ) const;
 
-	// MouseListener functions.
-	virtual bool mouseMoved( Mouse *mouse );
+	// Mouse handling functions.
+	virtual bool OnMouseMoved( Mouse *mouse );
+	virtual bool OnLeftClicked( Mouse *mouse );
+	virtual bool OnLeftReleased( Mouse *mouse );
+	virtual bool OnRightClicked( Mouse *mouse );
+	virtual bool OnRightReleased( Mouse *mouse );
+
+protected:
+
+	void	SetHovering( bool isHovering );
+	bool	IsHovering( void ) const;
+
+public:
 
 	// Class-wide texture.
 	static Font*	font;
 
 protected:
+
 	string			caption_;
 	bool			isHovering_;
 
 private:
-	Texture			*texture_;
-	bool			enabled_;
+
+	// TODO: Maybe make icon an image instead of just a texture?
+	Texture			*icon_;
+	bool			isEnabled_;
+
 };

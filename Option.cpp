@@ -1,31 +1,36 @@
 #include "Option.h"
 
-Option::Option( const string& caption, Texture *texture ) : Button( caption, texture ) 
+#define OPTION_PADDING_X	15
+#define OPTION_PADDING_Y	10
+#define OPTION_RADIUS		3
+
+Option::Option( const string& caption ) : Button( caption ) 
 {
-	pack();
+	// Button constructed, same behaviour as parent.
 }
 
-Option::~Option()
+Option::~Option( void )
 {
 	// Option destroyed.
 }
 
-void Option::draw( DirectX *directX )
+void Option::OnDraw( DirectX *directX )
 {
 	// Set colour.
 	D3DCOLOR buttonColour	= (isHovering_ ? BUTTON_COLOUR_HOVER : BUTTON_COLOUR );
 	D3DCOLOR fontColour		= (isHovering_ ? BUTTON_FONT_HOVER : BUTTON_FONT_NORMAL );
 
 	// Draw button base.
-	float x = getX(), y = getY();
-	directX->drawRoundedRect( getX(), getY(), getWidth(), getHeight(), MENU_BUTTON_RADIUS, buttonColour );
+	float x = GetX();
+	float y = GetY();
+	directX->drawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), OPTION_RADIUS, buttonColour );
 
 	// Draw text in center.
 	RECT rect;
-	rect.left = (long)x + MENU_BUTTON_PADDING_X;
-	rect.top = (long)y + MENU_BUTTON_PADDING_Y;
-	rect.right = (long)x + getWidth() - MENU_BUTTON_PADDING_X;
-	rect.bottom = (long)y + getHeight() - MENU_BUTTON_PADDING_Y;
+	rect.left = (long)x + OPTION_PADDING_X;
+	rect.top = (long)y + OPTION_PADDING_Y;
+	rect.right = (long)x + GetWidth() - OPTION_PADDING_X;
+	rect.bottom = (long)y + GetHeight() - OPTION_PADDING_Y;
 
 	// Write it.
 	font->drawText(
@@ -35,14 +40,12 @@ void Option::draw( DirectX *directX )
 		fontColour );
 }
 
-void Option::pack()
+void Option::Pack( void )
 {
-	// Get size.
+	// TODO: Doesn't handle icons.
 	RECT rect;
 	font->getTextRect( caption_, &rect, DT_SINGLELINE );
-	int width = (rect.right - rect.left) + MENU_BUTTON_PADDING_X * 2;
-	int height = (rect.bottom - rect.top) + MENU_BUTTON_PADDING_Y * 2;
-
-	// Set size.
-	setSize( width, height );
+	int width = (rect.right - rect.left) + OPTION_PADDING_X * 2;
+	int height = (rect.bottom - rect.top) + OPTION_PADDING_Y * 2;
+	SetSize( width, height );
 }

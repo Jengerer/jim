@@ -8,26 +8,30 @@
 // Abstract class to format elements within a container.
 class Layout: public Container
 {
+
 public:
-	Layout();
-	virtual ~Layout();
+
+	Layout( void );
+	virtual ~Layout( void );
 
 	// Format the elements into the appropriate layout.
-	virtual void	pack() = 0;
-	virtual void	updatePosition() = 0;
+	virtual void		Pack( void ) = 0;
+	virtual void		UpdatePosition( void ) = 0;
 
 	// Sets the spacing between elements.
-	int				getSpacing() const;
-	void			setSpacing( int spacing );
+	int					GetSpacing( void ) const;
+	void				SetSpacing( int spacing );
 
 	// Bound restriction based on parent.
-	virtual bool withinBounds( Component *component );
+	virtual bool		IsVisible( Component *component ) const;
 
 	// Sets a parent to handle size constraints.
-	void			setParent( Container *parent );
-	Container*		getParent();
+	void				SetParent( Container *parent );
+	const Container*	GetParent( void ) const ;
 
 private:
-	Container	*parent_;
-	int			spacing_;
+
+	Container		*parent_;
+	int				spacing_;
+
 };

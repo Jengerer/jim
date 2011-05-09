@@ -1,105 +1,128 @@
 #include "Draggable.h"
 
+//=============================================================
+// Constructor
+//=============================================================
 Draggable::Draggable( float x, float y ) : Container( x, y )
 {
+	SetParent( nullptr );
 	isDragging_ = false;
-	setParent( 0 );
-	offsetX_ = offsetY_ = 0.0f;
+
+	offsetX_ = 0.0f;
+	offsetY_ = 0.0f;
 }
 
-Draggable::~Draggable()
+Draggable::~Draggable( void )
 {
 	// Draggable destroyed.
 }
 
-bool Draggable::mouseMoved( Mouse *mouse )
+//=============================================================
+// Purpose: Updates position of component when mouse moves.
+//=============================================================
+bool Draggable::OnMouseMoved( Mouse *mouse )
 {
-	// Just update dragging.
 	if (isDragging_) {
-		updatePosition();
+		UpdatePosition();
 		return true;
 	}
 
 	return false;
 }
 
-bool Draggable::leftClicked( Mouse *mouse )
+bool Draggable::OnLeftClicked( Mouse *mouse )
 {
-	// Start dragging.
-	onDrag( mouse );
+	OnDrag( mouse );
 	return true;
 }
 
-bool Draggable::leftReleased( Mouse *mouse )
+bool Draggable::OnLeftReleased( Mouse *mouse )
 {
-	// End dragging.
-	onRelease();
+	OnRelease();
 	return true;
 }
 
-float Draggable::getX() const
+//=============================================================
+// Purpose:	Returns proper X position based on whether it is
+//			being dragged right now.
+//=============================================================
+float Draggable::GetX( void ) const
 {
 	if (isDragging_) {
-		float x = mouse_->getX() - offsetX_;
-		if (x < 0) {
-			x = 0;
-		}
-		else if (x + getWidth() > parent_->getWidth()) {
-			x = parent_->getWidth() - getWidth();
+		float x = mouse_->GetX() - offsetX_;
+
+		// Constrain position if we have a parent.
+		if (parent_ != nullptr) {
+			if ( x < parent_->GetX() ) {
+				x = parent_->GetX();
+			}
+			else if ( x + GetWidth() > parent_->GetX() + parent_->GetWidth() ) {
+				x = parent_->GetX() + parent_->GetWidth() - GetWidth();
+			}
 		}
 
 		return x;
 	}
 
-	return Component::getX();
+	return Component::GetX();
 }
 
-float Draggable::getY() const
+//=============================================================
+// Purpose:	Returns proper Y position based on whether it is
+//			being dragged right now.
+//=============================================================
+float Draggable::GetY( void ) const
 {
 	if (isDragging_) {
-		float y = mouse_->getY() - offsetY_;
-		if (y < 0) {
-			y = 0;
-		}
-		else if (y + getHeight() > parent_->getHeight()) {
-			y = parent_->getHeight() - getHeight();
+		float y = mouse_->GetY() - offsetY_;
+
+		// Constrain position if we have a parent.
+		if (parent_ != nullptr) {
+			if ( y < parent_->GetY() ) {
+				y = parent_->GetY();
+			}
+			else if ( y + GetHeight() > parent_->GetY() + parent_->GetHeight() ) {
+				y = parent_->GetY() + parent_->GetHeight() - GetHeight();
+			}
 		}
 
 		return y;
 	}
 
-	return Component::getY();
+	return Component::GetY();
 }
 
-/*
- * Purpose: Starts dragging the object.
- * Precondition: parent is set before dragging.
- */
-void Draggable::onDrag( Mouse* mouse )
+//=============================================================
+// Purpose:	Enables dragging and sets offset to mouse.
+//=============================================================
+void Draggable::OnDrag( Mouse* mouse )
 {
-	// Set the offset.
-	offsetX_ = mouse->getX() - getX();
-	offsetY_ = mouse->getY() - getY();
-
-	// Get movement control.
-	mouse_ = mouse;
+	// Set offset to mouse.
+	offsetX_ = mouse->GetX() - GetX();
+	offsetY_ = mouse->GetY() - GetY();
 	isDragging_ = true;
+	mouse_ = mouse;
 }
 
-void Draggable::setParent( Container *container ) {
-	parent_ = container;
-}
-
-void Draggable::onRelease()
+//=============================================================
+// Purpose: Sets current position and disables dragging.
+//=============================================================
+void Draggable::OnRelease( void )
 {
-	// Save new location.
-	setPosition( getX(), getY() );
-
-	// Release control.
+	SetPosition( GetX(), GetY() );
 	isDragging_ = false;
 }
 
-bool Draggable::isDragging() const
+//=============================================================
+// Purpose:	Sets the container the position is being
+//			constrained by.
+//=============================================================
+void Draggable::SetParent( Container *container )
+{
+	parent_ = container;
+}
+
+bool Draggable::IsDragging( void ) const
 {
 	return isDragging_;
 }
