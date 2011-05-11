@@ -77,18 +77,6 @@ void DirectX::openInterfaces()
 		}
 	}
 
-	// Get font for body text.
-	labelFont_ = createFont( "Arial", 14, false );
-	titleFont_ = createFont( "TF2 Build", 18, false );
-	bodyFont_ = createFont( "TF2 Build", 20, false );	
-	infoFont_ = createFont( "TF2 Secondary", 18, false );
-
-	// Set static fonts.
-	Notification::font = bodyFont_;
-	Button::font = bodyFont_;
-	ItemDisplay::nameFont = titleFont_;
-	ItemDisplay::infoFont = infoFont_;
-
 	// Create vertex buffer.
 	hResult = d3dDevice_->CreateVertexBuffer(
 		4 * sizeof(TextureVertex),
@@ -128,53 +116,34 @@ void DirectX::openInterfaces()
 void DirectX::closeInterfaces()
 {
 	// Delete map of vectors.
-	if (textureMap_) {
+	if (textureMap_ != nullptr) {
 		freeTextures();
 
 		delete textureMap_;
-		textureMap_ = 0;
-	}
-
-	// Delete fonts.
-	if (bodyFont_ != 0) {
-		delete bodyFont_;
-		bodyFont_ = 0;
-	}
-
-	if (labelFont_ != 0) {
-		delete labelFont_;
-		labelFont_ = 0;
-	}
-
-	if (titleFont_ != 0) {
-		delete titleFont_;
-		titleFont_ = 0;
-	}
-
-	if (infoFont_ != 0) {
-		delete infoFont_;
-		infoFont_ = 0;
+		textureMap_ = nullptr;
 	}
 
 	// Remove font resource.
 	RemoveFontResourceEx( "ttfFiles/tf2Build.ttf", FR_PRIVATE, 0 );
+	RemoveFontResourceEx( "ttfFiles/tf2Secondary.ttf", FR_PRIVATE, 0 );
 
 	// Delete sprite handler.
-	if (sprite_) {
+	// TODO: sprite handler is deprecated.
+	if (sprite_ != nullptr) {
 		sprite_->Release();
-		sprite_ = 0;
+		sprite_ = nullptr;
 	}
 
 	// Delete Direct3D device.
-	if (d3dDevice_) {
+	if (d3dDevice_ != nullptr) {
 		d3dDevice_->Release();
-		d3dDevice_ = 0;
+		d3dDevice_ = nullptr;
 	}
 
 	// Delete Direct3D interface.
-	if (d3d_) {
+	if (d3d_ != nullptr) {
 		d3d_->Release();
-		d3d_ = 0;
+		d3d_ = nullptr;
 	}
 }
 
@@ -492,11 +461,6 @@ void DirectX::endDraw()
 
 	/* Present scene. */
 	d3dDevice_->Present(NULL, NULL, NULL, NULL);
-}
-
-void DirectX::drawText( const string& text, RECT *rect, const DWORD& format, const D3DCOLOR& colour )
-{
-	labelFont_->drawText( text, rect, format, colour );
 }
 
 void DirectX::drawTexturedQuad( TextureVertex *texVertices, Texture* texture ) {

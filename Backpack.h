@@ -10,7 +10,6 @@
 #include "Steam.h"
 #include "Inventory.h"
 #include "Container.h"
-#include "ItemDisplay.h"
 #include "VerticalLayout.h"
 #include "HorizontalLayout.h"
 #include "SerializedBuffer.h"
@@ -61,13 +60,16 @@ public:
 	// Selection handling.
 	void			select( Slot *slot, ESelectType selectType );
 	slotVector*		getSelected();
-	Slot*			getHovered();
 	void			deselect( Slot *slot );
 	void			deselectAll();
 	void			setSelectMode( ESelectMode selectMode );
 
+	// Item hovering handler.
+	bool			IsHovering( void ) const;
+	const Slot*		GetHovering( void ) const;
+
 	// Position handling.
-	virtual void updatePosition();
+	virtual void	UpdatePosition( void );
 
 	// Mouse handling.
 	virtual bool OnMouseMoved( Mouse *mouse );
@@ -89,21 +91,22 @@ public:
 	void updateTarget();
 
 private:
+
+	void SetHovering( const Slot* slot );
+
+private:
 	Inventory *inventory_;
 	HorizontalLayout *pages_;
 	HorizontalLayout *excluded_;
 
 	// Selection variables.
-	Slot *dragged_;
-	Slot *hovered_;
-	slotVector selected_;
-	ESelectMode selectMode_;
+	Slot		*dragged_;
+	const Slot	*hovered_;
+	slotVector	selected_;
+	ESelectMode	selectMode_;
 
 	// Is backpack loaded yet?
 	bool isLoaded_;
-
-	// Display for item information.
-	ItemDisplay *itemDisplay_;
 
 	// Backpack navigation.
 	int page_, excludedPage_;

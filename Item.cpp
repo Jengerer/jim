@@ -112,7 +112,7 @@ void Item::SetIndex( uint16 position )
 	uint32 tempFlags = GetFlags();
 	tempFlags &= 0xFFFFF000;
 
-	if ((tempFlags & 0x80000000) != 0) {
+	if ((tempFlags & 0x80000000) == 0) {
 		tempFlags = 0x80000000;
 	}
 

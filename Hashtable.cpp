@@ -18,8 +18,9 @@ string lower( const string& source )
 	string result( source );
 
 	string::iterator i;
-	for (i = result.begin(); i != result.end(); i++)
+	for (i = result.begin(); i != result.end(); i++) {
 		*i = tolower(*i);
+	}
 
 	return result;
 }

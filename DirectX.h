@@ -65,7 +65,6 @@ public:
 
 	// Drawing functions.
 	void drawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour = D3DCOLOR_XRGB( 255, 255, 255 ));
-	void drawText( const string& text, RECT* rect, const DWORD& format, const D3DCOLOR& colour );	
 	void setTransform( const D3DXMATRIX* d3dMatrix );
 	void setTransform( float x, float y, float rotation, float xScale, float yScale );
 
@@ -84,12 +83,6 @@ private:
 	IDirect3DVertexBuffer9		*vertexBuffer_;
 	IDirect3DVertexBuffer9		*colourBuffer_;
 	Texture						*roundedCorner_;
-
-	// Text drawing.
-	Font						*bodyFont_;
-	Font						*labelFont_;
-	Font						*titleFont_;
-	Font						*infoFont_;
 
 	// Present parameters.
 	D3DPRESENT_PARAMETERS		params_;

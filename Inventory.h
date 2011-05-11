@@ -17,41 +17,41 @@ public:
 		int pages, int excludedWidth );
 	virtual ~Inventory();
 
-	int		GetWidth() const;
-	int		GetHeight() const;
-	int		GetPageCount() const;
-	int		GetPageCapacity() const;
-	int		GetInventorySize() const;
-	int		GetExcludedSize() const;
+	int		GetWidth( void ) const;
+	int		GetHeight( void ) const;
+	int		GetPageCount( void ) const;
+	int		GetPageSize( void ) const;
+	int		GetInventorySize( void ) const;
+	int		GetExcludedSize( void ) const;
 
 	// Slot/item getters.
 	Slot*		GetInventorySlot( int index );
 	Slot*		GetExcludedSlot( int index );
 	Item*		GetItemByUniqueId( uint64 id );
 
-	const itemVector*	GetInventoryItems() const;
-	const itemVector*	GetExcludedItems() const;
+	const itemVector*	GetInventoryItems( void ) const;
+	const itemVector*	GetExcludedItems( void ) const;
 
 	// Slot resource functions.
-	void	createSlots();
+	void	CreateSlots( void );
 	void	AddSlots( unsigned int numSlots );
-	void	removeSlots();
-	void	emptySlots();
+	void	RemoveSlots( void );
+	void	EmptySlots( void );
 
 	// Get excluded page.
-	int		GetExcludedPage() const;
+	int		GetExcludedPage( void ) const;
 	void	SetExcludedPage( int page );
-	void	updateExcluded();
+	void	UpdateExcluded( void );
 
 	// Item resource functions.
-	Slot*	addItem( Item *item );
-	Slot*	insertItem( Item *item );
-	void	removeItem( Item *item );
-	void	clearItems();
+	Slot*	AddItem( Item *item );
+	Slot*	InsertItem( Item *item );
+	void	RemoveItem( Item *item );
+	void	ClearItems( void );
 
 	// Item slot handling.
-	void	moveItem( Slot *source, Slot *destination );
-	bool	canMove( uint16 index );
+	void	MoveItem( Slot *source, Slot *destination );
+	bool	CanMove( uint16 index );
 
 private:
 

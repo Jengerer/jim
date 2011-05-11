@@ -28,9 +28,14 @@ public:
 	void			SetMessage( const string& message );
 	void			AppendMessage( const string& message );
 
+	static void		Precache( DirectX *directX );
+	static void		Release( void );
+
+protected:
+
 	// Class-wide texture and font.
-	static Texture	*texture;
-	static Font		*font;
+	static Texture	*texture_;
+	static Font		*font_;
 
 private:
 

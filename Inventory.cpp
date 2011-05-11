@@ -10,13 +10,13 @@ Inventory::Inventory(
 	excludedWidth_ = excludedWidth;
 
 	SetExcludedPage( 0 );
-	createSlots();
+	CreateSlots();
 }
 
 Inventory::~Inventory()
 {
-	clearItems();
-	removeSlots();
+	ClearItems();
+	RemoveSlots();
 }
 
 int Inventory::GetWidth() const
@@ -44,12 +44,12 @@ Slot* Inventory::GetExcludedSlot( int index )
 	return &excludedSlots_[ index ];
 }
 
-int Inventory::GetInventorySize() const
+int Inventory::GetInventorySize( void ) const
 {
-	return GetPageCapacity() * GetPageCount();
+	return GetPageSize() * GetPageCount();
 }
 
-int Inventory::GetPageCapacity() const
+int Inventory::GetPageSize( void ) const
 {
 	return GetWidth() * GetHeight();
 }
@@ -81,17 +81,17 @@ Item* Inventory::GetItemByUniqueId( uint64 id )
 	return nullptr;
 }
 
-const itemVector*	Inventory::GetInventoryItems() const
+const itemVector*	Inventory::GetInventoryItems( void ) const
 {
 	return &inventoryItems_;
 }
 
-const itemVector*	Inventory::GetExcludedItems() const
+const itemVector*	Inventory::GetExcludedItems( void ) const
 {
 	return &excludedItems_;
 }
 
-void Inventory::createSlots()
+void Inventory::CreateSlots( void )
 {
 	// Generate slot arrays.
 	inventorySlots_ = new Slot[ GetInventorySize() ];
@@ -115,11 +115,11 @@ void Inventory::createSlots()
 
 void Inventory::AddSlots( unsigned int numSlots )
 {
-	int extraPages = numSlots / (GetPageCapacity());
+	int extraPages = numSlots / GetPageSize();
 	SetPageCount( GetPageCount() + extraPages );
 }
 
-void Inventory::removeSlots()
+void Inventory::RemoveSlots( void )
 {
 	// Remove inventory.
 	if (inventorySlots_ != nullptr) {
@@ -134,7 +134,7 @@ void Inventory::removeSlots()
 	}
 }
 
-void Inventory::emptySlots()
+void Inventory::EmptySlots( void )
 {
 	int i, length;
 	if (inventorySlots_ != nullptr) {
@@ -164,7 +164,7 @@ void Inventory::SetExcludedPage( int page )
 	excludedPage_ = page;
 }
 
-void Inventory::updateExcluded() {
+void Inventory::UpdateExcluded( void ) {
 	int start = GetExcludedPage() * GetExcludedSize();
 	int itemCount = excludedItems_.size();
 	for (int i = 0; i < GetExcludedSize(); i++) {
@@ -182,12 +182,12 @@ void Inventory::updateExcluded() {
 }
 
 // Inserts an item, adds it to list, and returns its slot, if any.
-Slot* Inventory::addItem( Item* item )
+Slot* Inventory::AddItem( Item* item )
 {
-	Slot* slot = insertItem( item );
+	Slot* slot = InsertItem( item );
 	if (slot == nullptr || slot->GetGroup() == GROUP_EXCLUDED) {
 		excludedItems_.push_back( item );
-		updateExcluded();
+		UpdateExcluded();
 	}
 	else {
 		inventoryItems_.push_back( item );
@@ -197,13 +197,13 @@ Slot* Inventory::addItem( Item* item )
 }
 
 // Inserts an item and returns its slot, if any.
-Slot* Inventory::insertItem( Item* item )
+Slot* Inventory::InsertItem( Item* item )
 {
 	// Add item to correct slot.
 	uint32 flags = item->GetFlags();
 	uint16 position = item->GetIndex();
 	uint32 leftBytes = flags & 0xf0000000;
-	if ((leftBytes == 0x80000000) && (flags & 0xfff) && canMove( position )) {
+	if ((leftBytes == 0x80000000) && (flags & 0xfff) && CanMove( position )) {
 		Slot* destination = GetInventorySlot( position );
 		destination->SetItem( item );
 		return destination;
@@ -212,7 +212,7 @@ Slot* Inventory::insertItem( Item* item )
 	return nullptr;
 }
 
-void Inventory::removeItem( Item* item )
+void Inventory::RemoveItem( Item* item )
 {
 	// Search for item in inventory.
 	itemVector::iterator i;
@@ -234,7 +234,7 @@ void Inventory::removeItem( Item* item )
 		Item *current = *i;
 		if (item == current) {
 			excludedItems_.erase( i );
-			updateExcluded();
+			UpdateExcluded();
 			
 			delete item;
 			return;
@@ -242,7 +242,7 @@ void Inventory::removeItem( Item* item )
 	}
 }
 
-void Inventory::clearItems()
+void Inventory::ClearItems( void )
 {
 	for each(Item *item in inventoryItems_) {
 		delete item;
@@ -256,7 +256,7 @@ void Inventory::clearItems()
 	excludedItems_.clear();
 }
 
-void Inventory::moveItem( Slot *source, Slot *destination )
+void Inventory::MoveItem( Slot *source, Slot *destination )
 {
 	// Check if needs transfer.
 	Item* target = source->GetItem();
@@ -276,7 +276,7 @@ void Inventory::moveItem( Slot *source, Slot *destination )
 
 			// Add to inventory.
 			inventoryItems_.push_back( target );
-			updateExcluded();
+			UpdateExcluded();
 		}
 	}
 	else {
@@ -287,7 +287,7 @@ void Inventory::moveItem( Slot *source, Slot *destination )
 	destination->SetItem( target );
 }
 
-bool Inventory::canMove ( uint16 index )
+bool Inventory::CanMove ( uint16 index )
 {
 	int maxSlot = GetInventorySize();
 	if ((index >= 0) && (index < maxSlot)) {

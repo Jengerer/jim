@@ -64,7 +64,12 @@ void Slot::SetGroup( ESlotGroup group )
 	group_ = group;
 }
 
-Item* Slot::GetItem( void )
+bool Slot::HasItem( void ) const
+{
+	return item_ != nullptr;
+}
+
+Item* Slot::GetItem( void ) const
 {
 	return item_;
 }

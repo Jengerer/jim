@@ -138,6 +138,8 @@ bool Menu::OnLeftReleased( Mouse *mouse )
 
 		return true;
 	}
+
+	return false;
 }
 
 bool Menu::OnRightClicked( Mouse *mouse )

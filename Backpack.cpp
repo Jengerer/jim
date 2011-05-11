@@ -36,10 +36,6 @@ Backpack::Backpack(
 	// Move to start.
 	SetPosition( x, y );
 	SetSize( parent->GetWidth(), parent->GetHeight() );
-
-	// Create item display.
-	itemDisplay_ = new ItemDisplay();
-	Add( itemDisplay_ );
 }
 
 Backpack::~Backpack()
@@ -96,7 +92,7 @@ void Backpack::handleMessage( int id, void *message, uint32 size )
 									(EItemQuality)econItem.quality(),
 									econItem.quantity(),
 									econItem.inventory() );
-								inventory_->addItem( item );
+								inventory_->AddItem( item );
 							}
 						}
 
@@ -119,7 +115,7 @@ void Backpack::handleMessage( int id, void *message, uint32 size )
 			}
 
 			setLoaded( true );
-			inventory_->updateExcluded();
+			inventory_->UpdateExcluded();
 			break;
 		}
 
@@ -142,8 +138,8 @@ void Backpack::handleMessage( int id, void *message, uint32 size )
 				craftedItem->position);
 
 			// Add this item to excluded.
-			inventory_->addItem( newItem );
-			inventory_->updateExcluded();
+			inventory_->AddItem( newItem );
+			inventory_->UpdateExcluded();
 			break;
 		}
 		
@@ -152,12 +148,11 @@ void Backpack::handleMessage( int id, void *message, uint32 size )
 			SOMsgDeleted_t *deleteMsg = (SOMsgDeleted_t*)message;
 			Item *target = inventory_->GetItemByUniqueId( deleteMsg->itemid );
 			if (target != nullptr) {
-				inventory_->removeItem( target );
-				inventory_->updateExcluded();
+				inventory_->RemoveItem( target );
+				inventory_->UpdateExcluded();
 
-				// Check if item is display target.
-				if (itemDisplay_->getItem() == target) {
-					itemDisplay_->setItem( nullptr );
+				if ((hovered_ != nullptr) && (target == hovered_->GetItem())) {
+					hovered_ = nullptr;
 				}
 			}
 			break;
@@ -241,7 +236,7 @@ void Backpack::loadInventory( const string &jsonInventory )
 			item.position );
 
 		// Add the item.
-		inventory_->addItem( newItem );
+		inventory_->AddItem( newItem );
 	}
 }
 
@@ -319,14 +314,14 @@ void Backpack::moveItem( Slot *source, Slot *destination ) {
 	Item* destItem = destination->GetItem();
 
 	// Update items.
-	inventory_->moveItem( source, destination );
+	inventory_->MoveItem( source, destination );
 	updateItem( sourceItem ); // Definitely not null.
 	if (destItem != nullptr) {
 		updateItem( destItem );
 	}
 }
 
-void Backpack::updatePosition()
+void Backpack::UpdatePosition()
 {
 	// Position all slots.
 	if (pages_ != nullptr) {
@@ -337,14 +332,13 @@ void Backpack::updatePosition()
 
 bool Backpack::OnMouseMoved( Mouse *mouse )
 {
-	// Reset item display.
-	itemDisplay_->setActive( false );
-	hovered_ = nullptr;
-
 	// Mouse moved.
 	if (selected_.size() == 1 && dragged_ != nullptr) {
 		Slot* slot = selected_[0];
 		slot->UpdatePosition();
+
+		// No longer hovering.
+		SetHovering( nullptr );
 
 		// Change page if at edges.
 		int time = GetTickCount();
@@ -375,16 +369,7 @@ bool Backpack::OnMouseMoved( Mouse *mouse )
 					for each (Component *rowSlot in *slots) {
 						Slot *slot = dynamic_cast<Slot*>(rowSlot);
 						if (mouse->isTouching( slot )) {
-							// Update display if not dragging and has item.
-							if ((slot->GetSelectType() != SELECT_TYPE_DRAG) && (slot->GetItem() != nullptr)) {
-								hovered_ = slot;
-
-								itemDisplay_->setItem( slot->GetItem() );
-								itemDisplay_->SetPosition( slot->GetX() + slot->GetWidth()/2 - itemDisplay_->GetWidth() / 2, slot->GetY() + slot->GetHeight() + DISPLAY_SPACING );
-								ClampChild( itemDisplay_, DISPLAY_SPACING );
-								itemDisplay_->setActive( true );
-							}
-
+							SetHovering( slot->HasItem() ? slot : nullptr );
 							return true;
 						}
 					}
@@ -398,27 +383,12 @@ bool Backpack::OnMouseMoved( Mouse *mouse )
 	for (int i = 0; i < length; i++) {
 		Slot *slot = inventory_->GetExcludedSlot( i );
 		if (mouse->isTouching( slot )) {
-			// Update display if not dragging and has item.
-			if ((slot->GetSelectType() != SELECT_TYPE_DRAG) && (slot->GetItem() != nullptr)) {
-				hovered_ = slot;
-
-				itemDisplay_->setItem( slot->GetItem() );
-				itemDisplay_->SetPosition( slot->GetX() + slot->GetWidth()/2 - itemDisplay_->GetWidth() / 2, slot->GetY() + slot->GetHeight() + DISPLAY_SPACING );
-
-				// Check that we're not exceeding screen bottom.
-				int bottomBound = GetY() + GetHeight() - slot->GetHeight() - DISPLAY_SPACING;
-				if (itemDisplay_->GetY() > bottomBound) {
-					itemDisplay_->SetY( slot->GetY() - slot->GetHeight() - DISPLAY_SPACING );
-				}
-
-				ClampChild( itemDisplay_, DISPLAY_SPACING );
-				itemDisplay_->setActive( true );
-			}
-
+			SetHovering( slot->HasItem() ? slot : nullptr );
 			return true;
 		}
 	}
 
+	SetHovering( nullptr );
 	return false;
 }
 
@@ -762,6 +732,21 @@ void Backpack::setSelectMode( ESelectMode selectMode)
 	selectMode_ = selectMode;
 }
 
+bool Backpack::IsHovering( void ) const
+{
+	return (hovered_ != nullptr) && (hovered_->GetItem() != nullptr);
+}
+
+const Slot* Backpack::GetHovering( void ) const
+{
+	return hovered_;
+}
+
+void Backpack::SetHovering( const Slot *slot )
+{
+	hovered_ = slot;
+}
+
 void Backpack::updateTarget()
 {
 	deque<Component*>* pageColumns = pages_->GetChildren();
@@ -790,7 +775,7 @@ void Backpack::prevPage()
 void Backpack::handleCamera()
 {
 	moveCamera();
-	updatePosition();
+	UpdatePosition();
 }
 
 void Backpack::moveCamera()
@@ -808,9 +793,4 @@ void Backpack::moveCamera()
 
 	// Now propel.
 	cameraX_ += cameraSpeed_;
-}
-
-Slot* Backpack::getHovered()
-{
-	return hovered_;
 }

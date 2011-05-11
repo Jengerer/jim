@@ -44,10 +44,9 @@ LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-	ItemManager* itemManager = nullptr;
+	ItemManager* itemManager = new ItemManager();
 
 	try {
-		itemManager = new ItemManager();
 		itemManager->LoadInterfaces( hInstance );
 	}
 	catch (Exception mainException) {
@@ -85,10 +84,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_HEIGHT )
 {
-	alert_ = 0;
-	error_ = 0;
-	backpack_ = 0;
+	alert_ = nullptr;
+	error_ = nullptr;
+	backpack_ = nullptr;
+	itemDisplay_ = nullptr;
 
+	// Listen for input keys.
 	AddKey( VK_LEFT );
 	AddKey( VK_RIGHT );
 	AddKey( VK_ESCAPE );
@@ -98,16 +99,25 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 
 ItemManager::~ItemManager( void )
 {
-	// ItemManager has been destroyed.
 	CloseInterfaces();
 }
 
 void ItemManager::LoadInterfaces( HINSTANCE instance )
 {
+	// Start up DirectX and window.
 	Application::LoadInterfaces( APPLICATION_TITLE, instance );
-	loadProgress_ = CreateNotification( "Initializing item manager..." );
+
+	// Necessary to display progress/status.
+	Notification::Precache( directX_ );
+	Button::Precache( directX_ );
 
 	try {
+		// Precache secondary resources.
+		ItemDisplay::Precache( directX_ );
+
+		// Create start up message.
+		loadProgress_ = CreateNotification( "Initializing item manager..." );
+
 		// Create buttons.
 		Texture *craftTexture = directX_->getTexture( "manager/gear" );
 		Texture *equipTexture = directX_->getTexture( "manager/equip" );
@@ -125,30 +135,35 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		buttonLayout->Add( sortButton_ );
 		buttonLayout->Pack();
 
+		// Create backpack.
 		backpack_ = new Backpack( 0.0f, 0.0f, this );
 		backpack_->createInventory( PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT, EXCLUDED_SIZE );
 		backpack_->openInterfaces();
 		AddBottom( backpack_ );
 		AddBottom( buttonLayout );
+
+		// Create item display.
+		itemDisplay_ = new ItemDisplay();
+		Add( itemDisplay_ );
+
+		// Load definitions from translated APIs.
 		LoadDefinitions();
-		// loadItems();
 
 		// Set default button state.
 		sortButton_->SetEnabled( false );
 		equipButton_->SetEnabled( false );
 		craftButton_->SetEnabled( false );
 
-		// Hide the loading dialog.
-		RemovePopup( loadProgress_ );
-
-		// Set application ready to run.
+		// We should be good to go!
 		SetState( APPLICATION_STATE_RUN );
 	}
 	catch (Exception& loadException) {
-		RemovePopup( loadProgress_ );
 		error_ = CreateAlert( *loadException.getMessage() );
 		SetState( APPLICATION_STATE_EXIT );
 	}
+
+	// Safely finished, remove status.
+	RemovePopup( loadProgress_ );
 }
 
 void ItemManager::CloseInterfaces( void )
@@ -175,6 +190,7 @@ void ItemManager::RunApplication( void )
 	if (GetState() == APPLICATION_STATE_RUN) {
 		HandleCallbacks();
 		backpack_->handleCamera();
+		UpdateItemDisplay();
 	}
 
 	// Redraw screen.
@@ -299,8 +315,8 @@ bool ItemManager::OnMouseMoved( Mouse *mouse )
 	else {
 		// Check backpack.
 		if (backpack_ && backpack_->OnMouseMoved(mouse)) {
-			if (backpack_->getHovered() != nullptr) {
-				SetCursor(hand_);
+			if ( backpack_->IsHovering() ) {
+				SetCursor( hand_ );
 			}
 
 			return true;
@@ -352,6 +368,26 @@ void ItemManager::HandleKeyboard( void )
 	}
 }
 
+void ItemManager::UpdateItemDisplay( void )
+{
+	if ( backpack_->IsHovering() ) {
+		const Slot *hovering = backpack_->GetHovering();
+		itemDisplay_->SetActive( true );
+		itemDisplay_->SetItem( hovering->GetItem() );
+
+		// Display position: horizontally centered and below the slot.
+		float displayX = hovering->GetX() + hovering->GetWidth() / 2 - itemDisplay_->GetWidth() / 2;
+		float displayY = hovering->GetY() + hovering->GetHeight() + ITEM_DISPLAY_SPACING;
+		itemDisplay_->SetPosition( displayX, displayY );
+		ClampChild( itemDisplay_, ITEM_DISPLAY_SPACING );
+	}
+	else {
+		itemDisplay_->SetActive( false );
+	}
+
+	itemDisplay_->UpdateAlpha();
+}
+
 void ItemManager::LoadDefinitions( void )
 {
 	// Set the message and redraw.
@@ -383,10 +419,10 @@ void ItemManager::LoadDefinitions( void )
 		}
 
 		// Get strings.
-		string index	= thisItem.get("index", root).asString();
-		string name		= thisItem.get("name",	root).asString();
-		string image	= thisItem.get("image", root).asString();
-		string slot		= thisItem.get("slot",	root).asString();
+		string index	= thisItem.get( "index", root ).asString();
+		string name		= thisItem.get( "name", root ).asString();
+		string image	= thisItem.get( "image", root ).asString();
+		string slot		= thisItem.get( "slot", root ).asString();
 
 		// Make sure there's a file.
 		if (image.length() == 0) {
@@ -417,9 +453,9 @@ void ItemManager::LoadDefinitions( void )
 			itemTable->put("texture", texture);
 		}
 		catch (Exception &textureException) {
-			if (itemTable) {
+			if (itemTable != nullptr) {
 				delete itemTable;
-				itemTable = 0;
+				itemTable = nullptr;
 			}
 
 			throw textureException;
