@@ -1,6 +1,10 @@
 #include "Button.h"
 
-Font*		Button::font = 0;
+Font*		Button::font_ = nullptr;
+
+#define BUTTON_FONT_FACE	"TF2 Build"
+#define BUTTON_FONT_SIZE	20
+#define BUTTON_FONT_BOLDED	false
 
 Button::Button( const string& caption, float x, float y )
 {
@@ -45,7 +49,7 @@ void Button::OnDraw( DirectX* directX )
 	rect.bottom = (long)y + GetHeight() - BUTTON_PADDING_Y;
 
 	// Write it.
-	font->drawText(
+	font_->drawText(
 		caption_,
 		&rect,
 		DT_CENTER | DT_SINGLELINE | DT_VCENTER, 
@@ -79,7 +83,7 @@ void Button::Pack( void )
 {
 	// Get caption size.
 	RECT rect;
-	font->getTextRect( caption_, &rect, DT_SINGLELINE );
+	font_->getTextRect( caption_, &rect, DT_SINGLELINE );
 	int width = (rect.right - rect.left) + BUTTON_PADDING_X * 2;
 	int contentHeight = rect.bottom - rect.top;
 
@@ -131,6 +135,19 @@ bool Button::OnRightClicked( Mouse *mouse )
 bool Button::OnRightReleased( Mouse *mouse )
 {
 	return mouse->isTouching( this );
+}
+
+void Button::Precache( DirectX *directX )
+{
+	font_ = directX->createFont( BUTTON_FONT_FACE, BUTTON_FONT_SIZE, BUTTON_FONT_BOLDED );
+}
+
+void Button::Release( void )
+{
+	if (font_ != nullptr) {
+		delete font_;
+		font_ = nullptr;
+	}
 }
 
 void Button::SetHovering( bool isHovering )

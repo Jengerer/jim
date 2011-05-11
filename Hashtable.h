@@ -13,30 +13,29 @@ string lower(const string& source);
 string upper(const string& source);
 
 // The following class defines a hash function for strings.
-class stringHasher : public stdext::hash_compare<string>
+class StringHasher : public stdext::hash_compare<string>
 {
 public:
 	// Inspired by the java.lang.String.hashCode() algorithm.
-	size_t operator() (const string& whichString) const
+	size_t operator() ( const string& whichString ) const
 	{
 		size_t result = 0;
 		string::const_iterator i, end;
-
-		string newString = lower(whichString);
-		for(i = newString.begin(), end = newString.end(); i != end; i++)
-			result = 31 * result + (*i);
+		for (i = whichString.begin(), end = whichString.end(); i != end; i++) {
+			result = 31 * result + tolower( *i );
+		}
 
 		return result;
 	}
 
-	bool operator() (const string& s1, const string& s2) const
+	bool operator() ( const string& s1, const string& s2 ) const
 	{
-		return lower(s1) < lower(s2);
+		return operator()(s1) < operator()(s2);
 	}
 };
 
 // For easier type usage.
-typedef stdext::hash_map<string, boost::any, stringHasher>	stringMap;
+typedef stdext::hash_map<string, boost::any, StringHasher>	stringMap;
 typedef stdext::pair<string, boost::any>					stringPair;
 
 // TODO: Add integer support.

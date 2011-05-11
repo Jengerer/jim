@@ -9,6 +9,16 @@
 
 using namespace std;
 
+#pragma pack(push, 1)
+
+struct GCProtobufHeader_t
+{
+	uint32 m_EMsg;
+	uint32 m_cubProtobufHeader;
+};
+
+#pragma pack(pop)
+
 class Steam
 {
 public:

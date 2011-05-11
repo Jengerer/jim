@@ -39,7 +39,8 @@ public:
 	virtual void	UpdatePosition();
 
 	// Slot attribute functions.
-	Item*		GetItem( void );
+	bool		HasItem( void ) const;
+	Item*		GetItem( void ) const;
 	void		SetItem( Item* item );
 	int			GetIndex( void ) const;
 	void		SetIndex( int index );

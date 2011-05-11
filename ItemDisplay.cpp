@@ -1,13 +1,32 @@
 #include "ItemDisplay.h"
 
-Font *ItemDisplay::nameFont = 0;
-Font *ItemDisplay::infoFont = 0;
+#define ITEM_DISPLAY_TITLE_FONT_FACE		"TF2 Build"
+#define ITEM_DISPLAY_TITLE_FONT_SIZE		18
+#define ITEM_DISPLAY_TITLE_FONT_BOLDED		false
+
+#define ITEM_DISPLAY_INFO_FONT_FACE			"TF2 Secondary"
+#define ITEM_DISPLAY_INFO_FONT_SIZE			18
+#define ITEM_DISPLAY_INFO_FONT_BOLDED		false
+
+Font *ItemDisplay::nameFont_ = nullptr;
+Font *ItemDisplay::infoFont_ = nullptr;
 
 ItemDisplay::ItemDisplay()
 {
-	// Item display created.
-	setItem( 0 );
-	alpha_ = 0;
+	SetAlpha( 0 );
+
+	// Create text objects.
+	nameText_ = new Text( nameFont_ );
+	nameText_->SetColour( ITEM_DISPLAY_NAME_COLOUR );
+	infoText_ = new Text( infoFont_ );
+
+	// Add to layout.
+	textLayout_ = new VerticalLayout();
+	textLayout_->SetSpacing( ITEM_DISPLAY_SPACING );
+	textLayout_->Add( nameText_ );
+	textLayout_->Add( infoText_ );
+	textLayout_->Pack();
+	Add( textLayout_ );
 }
 
 ItemDisplay::~ItemDisplay()
@@ -19,64 +38,115 @@ void ItemDisplay::OnDraw( DirectX *directX )
 {
 	// Transition alpha.
 	if (item_ != nullptr) {
-		if (isActive_) {
-			alpha_ += DISPLAY_ALPHA_SPEED;
-			if (alpha_ > DISPLAY_ALPHA_MAX) {
-				alpha_ = DISPLAY_ALPHA_MAX;
-			}
-		}
-		else {
-			alpha_ -= DISPLAY_ALPHA_SPEED;
-			if (alpha_ < 0) {
-				alpha_ = 0;
-			}
-		}
-
-		if (alpha_ > 0) {
+		if (GetAlpha() > 0) {
 			// Draw base rectangle.
-			directX->drawRoundedRect( GetX(), GetY(), DISPLAY_WIDTH, GetHeight(), 5, D3DCOLOR_RGBA( 0, 0, 0, alpha_ ) );
-
-			// Now draw name centered.
-			RECT titleRect = { GetX() + DISPLAY_PADDING, GetY() + DISPLAY_PADDING, GetX() + DISPLAY_WIDTH - DISPLAY_PADDING, GetY() + GetHeight() - DISPLAY_PADDING };
-			nameFont->getTextRect( itemName, &titleRect, DT_CENTER );
-			nameFont->drawText( itemName, &titleRect, DT_CENTER, D3DCOLOR_RGBA( 255, 255, 0, alpha_ ) );
-
-			// Draw level below it.
-			RECT levelRect = { GetX() + DISPLAY_PADDING, titleRect.bottom + DISPLAY_SPACING, GetX() + DISPLAY_WIDTH - DISPLAY_PADDING, GetY() + GetHeight() - DISPLAY_PADDING };
-			stringstream levelText;
-			levelText << "LEVEL " << (unsigned int)item_->GetLevel() << " (" << hex << item_->GetFlags() << ")";
-			infoFont->drawText( levelText.str().c_str(), &levelRect, DT_CENTER | DT_WORDBREAK, D3DCOLOR_RGBA( 255, 255, 255, alpha_ ) );
+			directX->drawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), 5, D3DCOLOR_RGBA( 0, 0, 0, alpha_ ) );
+			textLayout_->OnDraw( directX );
 		}
 	}
 }
 
-Item *ItemDisplay::getItem()
+void ItemDisplay::UpdatePosition( void )
+{
+	textLayout_->SetPosition( GetX() + ITEM_DISPLAY_PADDING, GetY() + ITEM_DISPLAY_PADDING );
+}
+
+void ItemDisplay::UpdateAlpha( void )
+{
+	if ( IsActive() ) {
+		SetAlpha( GetAlpha() + ITEM_DISPLAY_ALPHA_SPEED );
+	}
+	else {
+		SetAlpha( GetAlpha() - ITEM_DISPLAY_ALPHA_SPEED );
+	}
+}
+
+void ItemDisplay::Pack( void )
+{
+	SetSize( textLayout_->GetWidth() + ITEM_DISPLAY_PADDING * 2, textLayout_->GetHeight() + ITEM_DISPLAY_PADDING * 2 );
+}
+
+void ItemDisplay::SetAlpha( int alpha )
+{
+	alpha_ = alpha;
+	if (alpha_ < 0) {
+		alpha_ = 0;
+	}
+	else if (alpha_ > ITEM_DISPLAY_ALPHA_MAX) {
+		alpha_ = ITEM_DISPLAY_ALPHA_MAX;
+	}
+}
+
+int ItemDisplay::GetAlpha( void ) const
+{
+	return alpha_;
+}
+
+const Item* ItemDisplay::GetItem( void ) const
 {
 	return item_;
 }
 
-void ItemDisplay::setItem( Item *item )
+void ItemDisplay::SetItem( const Item *item )
 {
-	// Basic set.
 	item_ = item;
+	if (item != nullptr) {
+		SetActive( true );
+		SetName( item->GetName() );
 
-	// Now resize for information.
-	if (item != 0) {
-		RECT titleRect = { 0, 0, DISPLAY_WIDTH - DISPLAY_PADDING*2, 0 };
-		itemName = item->GetName();
-		nameFont->wrapText( itemName, &titleRect, DT_CENTER );
+		// Build information text.
+		stringstream infoStream;
+		infoStream << "LEVEL " << (unsigned int)item->GetLevel() << " (" << hex << item->GetFlags() << ")";
+		infoText_->SetText( infoStream.str() );
 
-		RECT levelRect = { 0, 0, DISPLAY_WIDTH - DISPLAY_PADDING*2, 0 };
-		stringstream levelText;
-		levelText << "LEVEL " << (unsigned int)item->GetLevel() << " (" << hex << item->GetFlags() << ")";
-		infoFont->getTextRect( levelText.str().c_str(), &levelRect, DT_WORDBREAK );
-
-		// Resize display.
-		SetSize( DISPLAY_WIDTH, (titleRect.bottom - titleRect.top) + DISPLAY_SPACING + (levelRect.bottom - levelRect.top) + DISPLAY_PADDING * 2 );
+		textLayout_->Pack();
+		Pack();
 	}
 }
 
-void ItemDisplay::setActive( bool isActive )
+const string& ItemDisplay::GetName( void ) const
+{
+	return itemName_;
+}
+
+void ItemDisplay::SetName( const string& name )
+{
+	itemName_ = name;
+	nameText_->SetText( name );
+}
+
+bool ItemDisplay::IsActive( void ) const
+{
+	return isActive_;
+}
+
+void ItemDisplay::SetActive( bool isActive )
 {
 	isActive_ = isActive;
+}
+
+void ItemDisplay::Precache( DirectX* directX )
+{
+	nameFont_ = directX->createFont( 
+		ITEM_DISPLAY_TITLE_FONT_FACE, 
+		ITEM_DISPLAY_TITLE_FONT_SIZE, 
+		ITEM_DISPLAY_TITLE_FONT_BOLDED );
+
+	infoFont_ = directX->createFont( 
+		ITEM_DISPLAY_INFO_FONT_FACE, 
+		ITEM_DISPLAY_INFO_FONT_SIZE, 
+		ITEM_DISPLAY_INFO_FONT_BOLDED );
+}
+
+void ItemDisplay::Release( void )
+{
+	if (nameFont_ != nullptr) {
+		delete nameFont_;
+		nameFont_ = nullptr;
+	}
+
+	if (infoFont_ != nullptr ) {
+		delete infoFont_;
+		infoFont_ = nullptr;
+	}
 }

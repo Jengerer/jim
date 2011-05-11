@@ -55,20 +55,19 @@ public:
 	virtual bool OnRightClicked( Mouse *mouse );
 	virtual bool OnRightReleased( Mouse *mouse );
 
+	static void		Precache( DirectX *directX );
+	static void		Release( void );
+
 protected:
 
 	void	SetHovering( bool isHovering );
 	bool	IsHovering( void ) const;
 
-public:
-
-	// Class-wide texture.
-	static Font*	font;
-
 protected:
 
 	string			caption_;
 	bool			isHovering_;
+	static Font		*font_;
 
 private:
 

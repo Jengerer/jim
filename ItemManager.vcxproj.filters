@@ -135,6 +135,9 @@
     <ClCompile Include="Notification.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\Text.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectX.h">
@@ -891,6 +894,9 @@
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="IMouseHandler.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\Text.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
   </ItemGroup>

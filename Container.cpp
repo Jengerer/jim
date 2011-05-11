@@ -71,20 +71,24 @@ void Container::ClampChild( Component *component, int padding ) const
 	int bottomBound = GetY() + GetHeight() - component->GetHeight() - padding;
 
 	// Clamp X position.
-	if ( component->GetX() < leftBound ) {
-		component->SetX( leftBound );
+	int finalX = component->GetX();
+	if ( finalX < leftBound ) {
+		finalX = leftBound;
 	}
-	else if ( component->GetX() > rightBound ) {
-		component->SetX( rightBound );
+	else if ( finalX > rightBound ) {
+		finalX = rightBound;
 	}
 
 	// Clamp Y position.
-	if ( component->GetY() < topBound ) {
-		component->SetY( topBound );
+	int finalY = component->GetY();
+	if ( finalY < topBound ) {
+		finalY = topBound;
 	}
-	else if ( component->GetY() > bottomBound ) {
-		component->SetY( bottomBound );
+	else if ( finalY > bottomBound ) {
+		finalY = bottomBound;
 	}
+
+	component->SetPosition( finalX, finalY );
 }
 
 void Container::Add( Component* component )

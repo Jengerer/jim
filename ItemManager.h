@@ -1,12 +1,12 @@
 #ifndef ITEM_MANAGER_H
 #define ITEM_MANAGER_H
 
-#include "Application.h"
-#include "Notification.h"
 #include "Alert.h"
-#include "Button.h"
-
+#include "Application.h"
 #include "Backpack.h"
+#include "Button.h"
+#include "ItemDisplay.h"
+#include "Notification.h"
 
 #define BUTTON_SPACING	2
 #define BUTTON_Y		380
@@ -17,7 +17,7 @@ public:
 	ItemManager( void );
 	virtual ~ItemManager( void );
 
-	// Initializing and closing.
+	// Starting up.
 	void LoadInterfaces( HINSTANCE instance );
 	void CloseInterfaces( void );
 
@@ -42,9 +42,13 @@ public:
 
 	// Interface handling.
 	Notification*	CreateNotification( const string& message );
-	Alert*	CreateAlert( const string& message );
-	Button*	CreateButton( const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f );
+	Alert*			CreateAlert( const string& message );
+	Button*			CreateButton( const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f );
 
+	// Item display.
+	void	UpdateItemDisplay( void );
+
+	// Popup handlign.
 	void	ShowPopup( Popup *popup );
 	void	HidePopup( Popup *popup );
 	void	HandlePopup( Popup *popup );
@@ -63,6 +67,9 @@ private:
 	bool			leftPressed_;
 	bool			rightPressed_;
 	bool			enterPressed_;
+
+	// Display for item information.
+	ItemDisplay *itemDisplay_;
 
 	// Interface variables.
 	Notification	*loadProgress_;

@@ -33,7 +33,7 @@ void Option::OnDraw( DirectX *directX )
 	rect.bottom = (long)y + GetHeight() - OPTION_PADDING_Y;
 
 	// Write it.
-	font->drawText(
+	font_->drawText(
 		caption_,
 		&rect,
 		DT_SINGLELINE | DT_VCENTER, 
@@ -44,7 +44,7 @@ void Option::Pack( void )
 {
 	// TODO: Doesn't handle icons.
 	RECT rect;
-	font->getTextRect( caption_, &rect, DT_SINGLELINE );
+	font_->getTextRect( caption_, &rect, DT_SINGLELINE );
 	int width = (rect.right - rect.left) + OPTION_PADDING_X * 2;
 	int height = (rect.bottom - rect.top) + OPTION_PADDING_Y * 2;
 	SetSize( width, height );
