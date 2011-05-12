@@ -46,6 +46,11 @@ void Text::OnDraw( DirectX *directX )
 	font_->drawText( text_, &textRect, 0, GetColour() );
 }
 
+Font* Text::GetFont( void ) const
+{
+	return font_;
+}
+
 void Text::SetFont( Font *font )
 {
 	font_ = font;

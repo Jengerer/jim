@@ -4,7 +4,7 @@
 bool* (*Steam_BGetCallback) (HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg, HSteamCall *phSteamCall);
 void* (*Steam_FreeLastCallback) (HSteamPipe hSteamPipe);
 
-Steam::Steam()
+Steam::Steam( void )
 {
 	// Set to null.
 	steamClient_	= 0;
@@ -12,13 +12,13 @@ Steam::Steam()
 	hUser_ = 0;
 }
 
-Steam::~Steam()
+Steam::~Steam( void )
 {
 	//Steam has been destroyed.
-	closeInterfaces();
+	CloseInterfaces();
 }
 
-void Steam::openInterfaces()
+void Steam::LoadInterfaces( void )
 {
 	// Set Team Fortress 2 application ID.
 	SetEnvironmentVariable( "SteamAppId", "440" );
@@ -93,7 +93,7 @@ void Steam::openInterfaces()
 		throw Exception( "Failed to get ISteamGameCoordinator interface." );
 }
 
-void Steam::closeInterfaces()
+void Steam::CloseInterfaces( void )
 {
 	if (steamClient_)
 	{

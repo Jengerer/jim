@@ -97,7 +97,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\Text.cpp" />
     <ClCompile Include="Alert.cpp" />
     <ClCompile Include="Backpack.cpp" />
     <ClCompile Include="Button.cpp" />
@@ -129,12 +128,13 @@
     <ClCompile Include="SerializedBuffer.cpp" />
     <ClCompile Include="Slot.cpp" />
     <ClCompile Include="Steam.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VerticalLayout.cpp" />
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="WrappedText.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\Text.h" />
     <ClInclude Include="Alert.h" />
     <ClInclude Include="Backpack.h" />
     <ClInclude Include="Button.h" />
@@ -169,6 +169,7 @@
     <ClInclude Include="SerializedBuffer.h" />
     <ClInclude Include="Slot.h" />
     <ClInclude Include="Steam.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Title.h" />
     <ClInclude Include="VerticalLayout.h" />
@@ -387,6 +388,7 @@
     <ClInclude Include="steam\UserItemsCommon.h" />
     <ClInclude Include="steam\UserStatsCommon.h" />
     <ClInclude Include="steam\UtilsCommon.h" />
+    <ClInclude Include="WrappedText.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="steam\steam_api.lib" />

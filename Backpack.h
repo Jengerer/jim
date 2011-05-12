@@ -33,36 +33,36 @@ public:
 	Backpack( float x, float y, Container* parent );
 	virtual ~Backpack();
 
-	// Interface handling.
-	void openInterfaces();
-	void closeInterfaces();
+	// Resource and interface management.
+	virtual void	LoadInterfaces( void );
+	virtual void	CloseInterfaces( void );
 
 	// Steam message handling.
-	void handleCallback( int id, void *callback );
-	void handleMessage( int id, void *message, uint32 size );
+	void			HandleCallback( int id, void *callback );
+	void			HandleMessage( int id, void *message, uint32 size );
 
 	// Inventory resource handling.
-	void createInventory( int width, int height, int pages, int excludedSize );
-	void loadInventory( const string& jsonInventory );
-	void formatInventory();
+	void			CreateInventory( int width, int height, int pages, int excludedSize );
+	void			LoadInventory( const string& jsonInventory );
+	void			FormatInventory( void );
 
-	// Inventory attribute handling.
-	bool isLoaded() const;
-	void setLoaded( bool isLoaded );
+	// Has backpack been loaded yet?
+	bool			IsLoaded( void ) const;
+	void			SetLoaded( bool isLoaded );
 
 	// Item handling.
-	virtual void	moveItem( Slot *source, Slot *destination );
-	void			updateItem( Item *item );
-	void			equipItem( Item *item, const string& className );
-	void			unequipItems( EClassEquip equipClass, const string& slotName );
-	void			craftSelected();
+	virtual void	MoveItem( Slot *source, Slot *destination );
+	void			UpdateItem( Item *item );
+	void			EquipItem( Item *item, const string& className );
+	void			UnequipItems( EClassEquip equipClass, const string& slotName );
+	void			CraftSelected( void );
 
 	// Selection handling.
-	void			select( Slot *slot, ESelectType selectType );
-	slotVector*		getSelected();
-	void			deselect( Slot *slot );
-	void			deselectAll();
-	void			setSelectMode( ESelectMode selectMode );
+	void			SelectSlot( Slot *slot, ESelectType selectType );
+	slotVector*		GetSelected( void );
+	void			DeselectSlot( Slot *slot );
+	void			DeselectAll( void );
+	void			SetSelectMode( ESelectMode selectMode );
 
 	// Item hovering handler.
 	bool			IsHovering( void ) const;
@@ -72,44 +72,48 @@ public:
 	virtual void	UpdatePosition( void );
 
 	// Mouse handling.
-	virtual bool OnMouseMoved( Mouse *mouse );
-	virtual bool OnLeftClicked( Mouse *mouse );
-	virtual bool OnLeftReleased( Mouse *mouse );
-	virtual bool OnRightClicked( Mouse *mouse );
-	virtual bool OnRightReleased( Mouse *mouse );
+	virtual bool	OnMouseMoved( Mouse *mouse );
+	virtual bool	OnLeftClicked( Mouse *mouse );
+	virtual bool	OnLeftReleased( Mouse *mouse );
+	virtual bool	OnRightClicked( Mouse *mouse );
+	virtual bool	OnRightReleased( Mouse *mouse );
 
 	// Slot handling functions.
-	void removeSlots();
-	void slotGrabbed( Mouse *mouse, Slot *slot );
-	void slotReleased( Slot *slot );
+	void			RemoveSlots( void );
+	void			OnSlotGrabbed( Mouse *mouse, Slot *slot );
+	void			OnSlotReleased( Slot *slot );
 
 	// Page viewing functions.
-	void nextPage();
-	void prevPage();
-	void moveCamera();
-	void handleCamera();
-	void updateTarget();
+	void			NextPage( void );
+	void			PrevPage( void );
+	void			MoveCamera( void );
+	void			HandleCamera( void );
+	void			UpdateTarget( void );
 
 private:
 
-	void SetHovering( const Slot* slot );
+	void			SetHovering( const Slot* slot );
 
 private:
-	Inventory *inventory_;
-	HorizontalLayout *pages_;
-	HorizontalLayout *excluded_;
+
+	Inventory			*inventory_;
+
+	// Layout objects.
+	HorizontalLayout	*pages_;
+	HorizontalLayout	*excluded_;
 
 	// Selection variables.
-	Slot		*dragged_;
-	const Slot	*hovered_;
-	slotVector	selected_;
-	ESelectMode	selectMode_;
+	Slot				*dragged_;
+	const Slot			*hovered_;
+	slotVector			selected_;
+	ESelectMode			selectMode_;
 
 	// Is backpack loaded yet?
-	bool isLoaded_;
+	bool				isLoaded_;
 
 	// Backpack navigation.
-	int page_, excludedPage_;
-	int pageDelay_;
-	float cameraX_, cameraSpeed_, cameraDest_;
+	int					page_, excludedPage_;
+	int					pageDelay_;
+	float				cameraX_, cameraSpeed_, cameraDest_;
+
 };

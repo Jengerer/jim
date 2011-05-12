@@ -5,6 +5,7 @@
 #include "Font.h"
 #include "Item.h"
 #include "Text.h"
+#include "WrappedText.h"
 #include "VerticalLayout.h"
 
 #define ITEM_DISPLAY_PADDING		10
@@ -61,7 +62,7 @@ private:
 	int			alpha_;
 
 	VerticalLayout	*textLayout_;
-	Text			*nameText_;
-	Text			*infoText_;
+	WrappedText		*nameText_;
+	WrappedText		*infoText_;
 
 };

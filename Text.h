@@ -19,13 +19,17 @@ public:
 
 	// Drawing functions.
 	virtual void	OnDraw( DirectX *directX );
+	Font*			GetFont( void ) const;
 	void			SetFont( Font *font );
 	virtual void	Pack( void );
 
-private:
+protected:
 
 	Font		*font_;
 	string		text_;
+
+private:
+
 	D3DCOLOR	colour_;
 
 };
