@@ -16,9 +16,11 @@ ItemDisplay::ItemDisplay()
 	SetAlpha( 0 );
 
 	// Create text objects.
-	nameText_ = new Text( nameFont_ );
+	nameText_ = new WrappedText( nameFont_, ITEM_DISPLAY_WIDTH );
 	nameText_->SetColour( ITEM_DISPLAY_NAME_COLOUR );
-	infoText_ = new Text( infoFont_ );
+	nameText_->SetTextFormatting( DT_CENTER );
+	infoText_ = new WrappedText( infoFont_, ITEM_DISPLAY_WIDTH );
+	infoText_->SetTextFormatting( DT_CENTER );
 
 	// Add to layout.
 	textLayout_ = new VerticalLayout();

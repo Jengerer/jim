@@ -40,8 +40,8 @@ Backpack::Backpack(
 
 Backpack::~Backpack()
 {
-	removeSlots();
-	closeInterfaces();
+	RemoveSlots();
+	CloseInterfaces();
 
 	if (inventory_ != nullptr) {
 		delete inventory_;
@@ -49,26 +49,26 @@ Backpack::~Backpack()
 	}
 }
 
-void Backpack::openInterfaces()
+void Backpack::LoadInterfaces( void )
 {
-	Steam::openInterfaces();
+	Steam::LoadInterfaces();
 }
 
-void Backpack::closeInterfaces()
+void Backpack::CloseInterfaces( void )
 {
-	Steam::closeInterfaces();
+	Steam::CloseInterfaces();
 }
 
-void Backpack::handleCallback( int id, void *callback )
+void Backpack::HandleCallback( int id, void *callback )
 {
 }
 
-void Backpack::handleMessage( int id, void *message, uint32 size )
+void Backpack::HandleMessage( int id, void *message, uint32 size )
 {
 	switch (id) {
 	case SOMsgCacheSubscribed_t::k_iMessage:
 		{
-			if ( isLoaded() ) {
+			if ( IsLoaded() ) {
 				return;
 			}
 
@@ -114,28 +114,29 @@ void Backpack::handleMessage( int id, void *message, uint32 size )
 
 			}
 
-			setLoaded( true );
+			SetLoaded( true );
 			inventory_->UpdateExcluded();
 			break;
 		}
 
 	case SOMsgCreate_t::k_iMessage:
 		{
-			SOMsgCreate_t *msgCreate = (SOMsgCreate_t*)message;
-			SOMsgCacheSubscribed_Item_t* craftedItem = &msgCreate->item;
+			// Get object created.
+			CMsgSOSingleObject deleteObj;
+			deleteObj.ParseFromArray( message, size );
 
-			//Make sure it's a valid item.
-			if (msgCreate->unknown == 5) {
-				break;
-			}
+			// Get item from object.
+			CSOEconItem econItem;
+			econItem.ParseFromArray( deleteObj.object_data().data(), deleteObj.object_data().size() );
 
+			// Now add item.
 			Item* newItem = new Item(
-				craftedItem->itemid,
-				craftedItem->itemdefindex,
-				craftedItem->itemlevel,
-				(EItemQuality)craftedItem->itemquality,
-				craftedItem->quantity,
-				craftedItem->position);
+				econItem.id(),
+				econItem.def_index(),
+				econItem.level(),
+				(EItemQuality)econItem.quality(),
+				econItem.quantity(),
+				econItem.inventory() );
 
 			// Add this item to excluded.
 			inventory_->AddItem( newItem );
@@ -145,28 +146,31 @@ void Backpack::handleMessage( int id, void *message, uint32 size )
 		
 	case SOMsgDeleted_t::k_iMessage:
 		{
-			SOMsgDeleted_t *deleteMsg = (SOMsgDeleted_t*)message;
-			Item *target = inventory_->GetItemByUniqueId( deleteMsg->itemid );
-			if (target != nullptr) {
-				inventory_->RemoveItem( target );
-				inventory_->UpdateExcluded();
+			// Get deleted message.
+			CMsgSOSingleObject deleteObj;
+			deleteObj.ParseFromArray( message, size );
 
-				if ((hovered_ != nullptr) && (target == hovered_->GetItem())) {
-					hovered_ = nullptr;
-				}
+			// Get ID of deleted item.
+			CSOEconItem deletedItem;
+			deletedItem.ParseFromArray( deleteObj.object_data().data(), deleteObj.object_data().size() );
+
+			// Now remove from inventory.
+			Item *targettedItem = inventory_->GetItemByUniqueId( deletedItem.id() );
+			if (targettedItem != nullptr) {
+				inventory_->RemoveItem( targettedItem );
 			}
 			break;
 		}
 	}
 }
 
-void Backpack::createInventory( int width, int height, int pages, int excludedSize )
+void Backpack::CreateInventory( int width, int height, int pages, int excludedSize )
 {
 	inventory_ = new Inventory( width, height, pages, excludedSize );
-	formatInventory();
+	FormatInventory();
 }
 
-void Backpack::loadInventory( const string &jsonInventory )
+void Backpack::LoadInventory( const string &jsonInventory )
 {	
 	// Begin inventory parsing.
 	Json::Reader	reader;
@@ -240,7 +244,7 @@ void Backpack::loadInventory( const string &jsonInventory )
 	}
 }
 
-void Backpack::formatInventory()
+void Backpack::FormatInventory( void )
 {
 	// Add slots to layout.
 	pages_->SetParent( this );
@@ -295,29 +299,43 @@ void Backpack::formatInventory()
 	excluded_->Pack();
 
 	// Set primary camera target.
-	updateTarget();
+	UpdateTarget();
 	cameraX_ = cameraDest_;
 }
 
-bool Backpack::isLoaded() const
+bool Backpack::IsLoaded( void ) const
 {
 	return isLoaded_;
 }
 
-void Backpack::setLoaded( bool isLoaded )
+void Backpack::SetLoaded( bool isLoaded )
 {
 	isLoaded_ = isLoaded;
 }
 
-void Backpack::moveItem( Slot *source, Slot *destination ) {
+void Backpack::MoveItem( Slot *source, Slot *destination ) {
+	// Avoid redundancy.
+	if (source == destination) {
+		return;
+	}
+
 	Item* sourceItem = source->GetItem();
+	if (sourceItem == nullptr) {
+		int i = 5;
+	}
 	Item* destItem = destination->GetItem();
 
 	// Update items.
+	if (sourceItem == nullptr) {
+		int i = 5;
+	}
 	inventory_->MoveItem( source, destination );
-	updateItem( sourceItem ); // Definitely not null.
+	if (sourceItem == nullptr) {
+		int i = 5;
+	}
+	UpdateItem( sourceItem ); // Definitely not null.
 	if (destItem != nullptr) {
-		updateItem( destItem );
+		UpdateItem( destItem );
 	}
 }
 
@@ -344,11 +362,11 @@ bool Backpack::OnMouseMoved( Mouse *mouse )
 		int time = GetTickCount();
 		if (time > pageDelay_) {
 			if (slot->GetX() == (GetWidth() - slot->GetWidth())) {
-				nextPage();
+				NextPage();
 				pageDelay_ = time + PAGE_CHANGE_DELAY;
 			}
 			else if (slot->GetX() == 0) {
-				prevPage();
+				PrevPage();
 				pageDelay_ = time + PAGE_CHANGE_DELAY;
 			}
 		}
@@ -408,10 +426,10 @@ bool Backpack::OnLeftClicked( Mouse *mouse )
 						Slot *slot = dynamic_cast<Slot*>(rowSlot);
 						if (mouse->isTouching( slot )) {
 							if (dragged_ == nullptr) {
-								slotGrabbed( mouse, slot );
+								OnSlotGrabbed( mouse, slot );
 							}
 							else {
-								slotReleased( slot );
+								OnSlotReleased( slot );
 							}
 							return true;
 						}
@@ -427,10 +445,10 @@ bool Backpack::OnLeftClicked( Mouse *mouse )
 		Slot *slot = inventory_->GetExcludedSlot( i );
 		if (mouse->isTouching( slot )) {
 			if (dragged_ == nullptr) {
-				slotGrabbed( mouse, slot );
+				OnSlotGrabbed( mouse, slot );
 			}
 			else {
-				slotReleased( slot );
+				OnSlotReleased( slot );
 			}
 			return true;
 		}
@@ -438,7 +456,7 @@ bool Backpack::OnLeftClicked( Mouse *mouse )
 
 	// Nothing hit, deselect all.
 	if (selectMode_ != SELECT_MODE_MULTIPLE) {
-		deselectAll();
+		DeselectAll();
 	}
 
 	return false;
@@ -452,7 +470,6 @@ bool Backpack::OnLeftReleased( Mouse *mouse )
 		dragged_->SetItem( selectedSlot->GetItem() );
 
 		// Remove dummy slot.
-		selectedSlot->OnRelease();
 		Remove( selectedSlot );
 		delete selectedSlot;
 		selected_.clear();
@@ -470,7 +487,7 @@ bool Backpack::OnLeftReleased( Mouse *mouse )
 						for each (Component *rowSlot in *slots) {
 							Slot *slot = dynamic_cast<Slot*>(rowSlot);
 							if (mouse->isTouching( slot )) {
-								slotReleased( slot );
+								OnSlotReleased( slot );
 								dragged_ = nullptr;
 								return true;
 							}
@@ -481,7 +498,7 @@ bool Backpack::OnLeftReleased( Mouse *mouse )
 		}
 
 		// Dragged was not moved.
-		select( dragged_, SELECT_TYPE_NORMAL );
+		SelectSlot( dragged_, SELECT_TYPE_NORMAL );
 		dragged_ = nullptr;
 		return true;
 	}
@@ -499,11 +516,11 @@ bool Backpack::OnRightReleased( Mouse *mouse )
 	return false;
 }
 
-void Backpack::slotGrabbed( Mouse *mouse, Slot *slot )
+void Backpack::OnSlotGrabbed( Mouse *mouse, Slot *slot )
 {
 	// Clear selected.
 	if (selectMode_ == SELECT_MODE_SINGLE) {
-		deselectAll();
+		DeselectAll();
 		if (slot->GetItem() != nullptr) {
 			dragged_ = slot;
 
@@ -520,42 +537,39 @@ void Backpack::slotGrabbed( Mouse *mouse, Slot *slot )
 
 			// Start dragging.
 			dragging->OnDrag( mouse );
-			select( dragging, SELECT_TYPE_DRAG );
+			SelectSlot( dragging, SELECT_TYPE_DRAG );
 		}
 	}
 	else {
 		if (slot->GetItem() != 0) {
 			switch (slot->GetSelectType()) {
 			case SELECT_TYPE_NONE:
-				select( slot, SELECT_TYPE_NORMAL );
+				SelectSlot( slot, SELECT_TYPE_NORMAL );
 				break;
 			default:
-				deselect( slot );
+				DeselectSlot( slot );
 				break;
 			}
 		}
 	}
 }
 
-void Backpack::slotReleased( Slot *slot )
+void Backpack::OnSlotReleased( Slot *slot )
 {
 	// Skip if returning or excluded.
-	if (slot != dragged_) {
-		if (slot->GetItem() == nullptr || dragged_->GetGroup() == GROUP_INVENTORY) {
-			// Move to slot if able.
-			moveItem( dragged_, slot );
-			selected_.push_back( slot );
-			slot->SetSelectType( SELECT_TYPE_NORMAL );
-			slot->UpdatePosition();
-		}
+	if (!slot->HasItem() || dragged_->GetGroup() == GROUP_INVENTORY) {
+		// Move to slot if able.
+		MoveItem( dragged_, slot );
+		SelectSlot( slot, SELECT_TYPE_NORMAL );
+		slot->UpdatePosition();
 	}
 	else {
 		// Set to regular select.
-		select( dragged_, SELECT_TYPE_NORMAL );
+		SelectSlot( dragged_, SELECT_TYPE_NORMAL );
 	}
 }
 
-void Backpack::removeSlots() {
+void Backpack::RemoveSlots( void ) {
 	if (pages_ != nullptr) {
 		deque<Component*> *pageComponents = pages_->GetChildren();
 		for each (Container *page in *pageComponents) {
@@ -571,7 +585,7 @@ void Backpack::removeSlots() {
 	}
 }
 
-void Backpack::equipItem( Item *item, const string& className ) {
+void Backpack::EquipItem( Item *item, const string& className ) {
 	EClassEquip equipClass;
 	if (className == "scout") {
 		equipClass = CLASS_SCOUT;
@@ -608,20 +622,20 @@ void Backpack::equipItem( Item *item, const string& className ) {
 		item->SetEquip( equipClass, false );
 	}
 	else {
-		unequipItems( equipClass, item->GetEquipSlot() );
+		UnequipItems( equipClass, item->GetEquipSlot() );
 		item->SetEquip( equipClass, true );
 	}
 
-	updateItem( item );
+	UpdateItem( item );
 }
 
-void Backpack::unequipItems( EClassEquip equipClass, const string& slot ) {
+void Backpack::UnequipItems( EClassEquip equipClass, const string& slot ) {
 	const itemVector* inventoryItems = inventory_->GetInventoryItems();
 	for each(Item *item in *inventoryItems) {
 		if (item->IsEquipped( equipClass )) {
 			if (item->GetEquipSlot() == slot) {
 				item->SetEquip( equipClass , false );
-				updateItem( item );
+				UpdateItem( item );
 				break;
 			}
 		}
@@ -632,20 +646,20 @@ void Backpack::unequipItems( EClassEquip equipClass, const string& slot ) {
 		if (item->IsEquipped( equipClass )) {
 			if (item->GetEquipSlot() == slot) {
 				item->SetEquip( equipClass , false );
-				updateItem( item );
+				UpdateItem( item );
 				break;
 			}
 		}
 	}
 }
 
-void Backpack::select( Slot* slot, ESelectType selectType )
+void Backpack::SelectSlot( Slot* slot, ESelectType selectType )
 {
 	slot->SetSelectType( selectType );
 	selected_.push_back( slot );
 }
 
-void Backpack::deselect( Slot* slot )
+void Backpack::DeselectSlot( Slot* slot )
 {
 	slot->SetSelectType( SELECT_TYPE_NONE );
 
@@ -660,16 +674,16 @@ void Backpack::deselect( Slot* slot )
 	}
 }
 
-void Backpack::deselectAll()
+void Backpack::DeselectAll()
 {
 	// Deselect all.
 	while (!selected_.empty()) {
 		Slot *slot = selected_.back();
-		deselect( slot );
+		DeselectSlot( slot );
 	}
 }
 
-void Backpack::craftSelected()
+void Backpack::CraftSelected( void )
 {
 	// Number of items to craft.
 	uint16 itemCount = selected_.size();
@@ -701,7 +715,7 @@ void Backpack::craftSelected()
 		}
 
 		// Deselect everything.
-		deselectAll();
+		DeselectAll();
 
 		// Send message.
 		sendMessage( GCCraft_t::k_iMessage, message, messageSize );
@@ -709,7 +723,7 @@ void Backpack::craftSelected()
 	}
 }
 
-void Backpack::updateItem( Item* item )
+void Backpack::UpdateItem( Item* item )
 {
 	// Generate message with new flags.
 	GCSetItemPosition_t message;
@@ -722,12 +736,12 @@ void Backpack::updateItem( Item* item )
 	sendMessage( GCSetItemPosition_t::k_iMessage, &message, sizeof( message ) );
 }
 
-slotVector* Backpack::getSelected()
+slotVector* Backpack::GetSelected( void )
 {
 	return &selected_;
 }
 
-void Backpack::setSelectMode( ESelectMode selectMode)
+void Backpack::SetSelectMode( ESelectMode selectMode)
 {
 	selectMode_ = selectMode;
 }
@@ -747,38 +761,38 @@ void Backpack::SetHovering( const Slot *slot )
 	hovered_ = slot;
 }
 
-void Backpack::updateTarget()
+void Backpack::UpdateTarget( void )
 {
 	deque<Component*>* pageColumns = pages_->GetChildren();
 	Component *cameraTarget = pageColumns->at( page_ - 1 );
 	cameraDest_ = cameraTarget->GetX() - pages_->GetX() - BACKPACK_PADDING;
 }
 
-void Backpack::nextPage()
+void Backpack::NextPage( void )
 {
 	if (page_ < inventory_->GetPageCount()) {
 		page_++;
 	}
 
-	updateTarget();
+	UpdateTarget();
 }
 
-void Backpack::prevPage()
+void Backpack::PrevPage( void )
 {
 	if (page_ > 1) {
 		page_--;
 	}
 
-	updateTarget();
+	UpdateTarget();
 }
 
-void Backpack::handleCamera()
+void Backpack::HandleCamera( void )
 {
-	moveCamera();
+	MoveCamera();
 	UpdatePosition();
 }
 
-void Backpack::moveCamera()
+void Backpack::MoveCamera( void )
 {
 	// Add elastic speed.
 	float cameraDistance = cameraDest_ - cameraX_;

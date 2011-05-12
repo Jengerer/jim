@@ -137,8 +137,8 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// Create backpack.
 		backpack_ = new Backpack( 0.0f, 0.0f, this );
-		backpack_->createInventory( PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT, EXCLUDED_SIZE );
-		backpack_->openInterfaces();
+		backpack_->CreateInventory( PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT, EXCLUDED_SIZE );
+		backpack_->LoadInterfaces();
 		AddBottom( backpack_ );
 		AddBottom( buttonLayout );
 
@@ -189,7 +189,7 @@ void ItemManager::RunApplication( void )
 	Application::RunApplication();
 	if (GetState() == APPLICATION_STATE_RUN) {
 		HandleCallbacks();
-		backpack_->handleCamera();
+		backpack_->HandleCamera();
 		UpdateItemDisplay();
 	}
 
@@ -217,7 +217,7 @@ bool ItemManager::OnLeftClicked( Mouse *mouse )
 
 		// Check backpack.
 		if (backpack_->OnLeftClicked(mouse)) {
-			slotVector* selected = backpack_->getSelected();
+			slotVector* selected = backpack_->GetSelected();
 
 			// Set equip button state.
 			if (selected->size() == 1) {
@@ -267,11 +267,11 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 
 		// Now run buttons.
 		if (craftButton_->IsEnabled() && mouse->isTouching(craftButton_)) {
-			backpack_->craftSelected();
+			backpack_->CraftSelected();
 			return true;
 		}
 		else if (equipButton_->IsEnabled() && mouse->isTouching(equipButton_)) {
-			slotVector* selected = backpack_->getSelected();
+			slotVector* selected = backpack_->GetSelected();
 			Slot* slot = selected->at(0);
 			Item* item = slot->GetItem();
 			Hashtable* classes = item->GetEquipClasses();
@@ -283,7 +283,7 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 				// Get the class.
 				string className = classes->begin()->first;
 				// TODO: Use some integer or enum to handle classes, not strings.
-				backpack_->equipItem(item, className);
+				backpack_->EquipItem(item, className);
 			}
 		}
 	}
@@ -353,15 +353,15 @@ void ItemManager::HandleKeyboard( void )
 			ExitApplication();
 		}
 		else {
-			if (backpack_ && backpack_->isLoaded()) {
+			if (backpack_ && backpack_->IsLoaded()) {
 				// Toggle between single and multiple selection.
-				backpack_->setSelectMode( IsKeyPressed( VK_LCONTROL ) ? SELECT_MODE_MULTIPLE : SELECT_MODE_SINGLE );
+				backpack_->SetSelectMode( IsKeyPressed( VK_LCONTROL ) ? SELECT_MODE_MULTIPLE : SELECT_MODE_SINGLE );
 
 				if (IsKeyClicked( VK_LEFT )) {
-					backpack_->prevPage();
+					backpack_->PrevPage();
 				}
 				else if (IsKeyClicked( VK_RIGHT )) {
-					backpack_->nextPage();
+					backpack_->NextPage();
 				}
 			}
 		}
@@ -488,13 +488,13 @@ void ItemManager::LoadItemsFromWeb( void )
 		throw Exception("Failed to read inventory from profile.");
 	}
 
-	backpack_->loadInventory(jsonInventory);	
+	backpack_->LoadInventory( jsonInventory );	
 
 	// Show success.
 	loadProgress_->SetMessage("Items successfully loaded!");
 	DrawFrame();
 
-	backpack_->setLoaded(true);
+	backpack_->SetLoaded( true );
 }
 
 #include <fstream>
@@ -594,11 +594,9 @@ void ItemManager::HandleCallbacks( void ) {
 							}
 
 						default:
-							backpack_->handleMessage( id & 0x0FFFFFFF, headerBuffer.here(), bodySize );
+							backpack_->HandleMessage( id & 0x0FFFFFFF, headerBuffer.here(), bodySize );
 							break;
 						}
-
-						google::protobuf::ShutdownProtobufLibrary();
 					}
 
 					if (buffer != nullptr) {
