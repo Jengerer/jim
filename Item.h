@@ -56,6 +56,7 @@ public:
 	uint8			GetLevel( void ) const;
 	EItemQuality	GetQuality( void ) const;
 	uint32			GetFlags( void ) const;
+	void			SetFlags( uint32 flags );
 	uint32			GetCount( void ) const;
 
 	// Secondary attributes.
@@ -71,6 +72,7 @@ public:
 
 	// Drawing and interaction.
 	Texture*		GetTexture( void );
+	static bool		ValidFlags( uint32 flags );
 
 private:
 
@@ -78,7 +80,6 @@ private:
 	void SetTypeIndex( uint16 typeIndex );
 	void SetLevel( uint8 level );
 	void SetQuality( EItemQuality quality );
-	void SetFlags( uint32 flags );
 	void SetCount( uint32 count );
 
 public:

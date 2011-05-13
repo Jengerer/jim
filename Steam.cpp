@@ -1,4 +1,8 @@
 #include "Steam.h"
+#include "SerializedBuffer.h"
+
+#include "protobuf/base_gcmessages.pb.h"
+#include "protobuf/gcsdk_gcmessages.pb.h"
 
 /* Function prototypes to load from DLL. */
 bool* (*Steam_BGetCallback) (HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg, HSteamCall *phSteamCall);
@@ -119,50 +123,76 @@ void Steam::CloseInterfaces( void )
 	SteamAPI_Shutdown();
 }
 
-bool Steam::getCallback( CallbackMsg_t* tCallback )
+bool Steam::GetCallback( CallbackMsg_t* tCallback )
 {
 	HSteamCall steamCall;
 	return Steam_BGetCallback( hPipe_, tCallback, &steamCall );
 }
 
-void Steam::releaseCallback()
+void Steam::ReleaseCallback( void )
 {
 	Steam_FreeLastCallback( hPipe_ );
 }
 
-bool Steam::hasMessage( uint32* messageSize )
+bool Steam::HasMessage( uint32* messageSize )
 {
 	return gameCoordinator_->IsMessageAvailable( messageSize );
 }
 
-void Steam::getMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize )
+void Steam::GetMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize )
 {
 	gameCoordinator_->RetrieveMessage( id, buffer, size, realSize );
 }
 
-void Steam::sendMessage( uint32 id, void* buffer, uint32 size )
+void Steam::SendMessage( uint32 id, void* buffer, uint32 size )
 {
-	// Send message.
-	gameCoordinator_->SendMessage( id, buffer, size );
+	// Check if we need a protobuf header sent.
+	if ((id & 0x80000000) != 0) {
+		// Create header for response.
+		CMsgProtoBufHeader responseHeader;
+		GenerateProtobufHeader( &responseHeader );
+		string headerData;
+		responseHeader.SerializeToString( &headerData );
+
+		// Fill in struct.
+		GCProtobufHeader_t structHeader;
+		structHeader.m_cubProtobufHeader = headerData.length();
+		structHeader.m_EMsg = id;
+
+		// Append messages.
+		uint32 responseSize = sizeof( GCProtobufHeader_t ) + headerData.length() + size;
+		void* response = malloc( responseSize );
+		SerializedBuffer responseBuffer( response );
+		responseBuffer.write( &structHeader, sizeof( GCProtobufHeader_t ) );
+		responseBuffer.write( (void*)headerData.c_str(), headerData.length() );
+		responseBuffer.write( buffer, size );
+		gameCoordinator_->SendMessage( id, responseBuffer.start(), responseSize );
+		free( response );
+	}
+	else {
+		// Just send it.
+		gameCoordinator_->SendMessage( id, buffer, size );
+	}
 }
 
-void Steam::deleteItem( uint64 itemId )
-{
-	// Generate message.
-	SOMsgDeleted_t message;
-	memset( &message, 0xFF, sizeof( SOMsgUpdate_t ) );
-
-	message.itemid = itemId;
-	
-	/* Send it. */
-	gameCoordinator_->SendMessage(
-		SOMsgDeleted_t::k_iMessage,
-		&message,
-		sizeof( SOMsgDeleted_t ));
-}
-
-uint64 Steam::getSteamId() const
+uint64 Steam::GetSteamId( void ) const
 {
 	CSteamID steamId = steamUser_->GetSteamID();
 	return steamId.ConvertToUint64();
+}
+
+void Steam::SetTargetId( uint64 targetId )
+{
+	targetId_ = targetId;
+}
+
+uint64 Steam::GetTargetId( void ) const
+{
+	return targetId_;
+}
+
+void Steam::GenerateProtobufHeader( CMsgProtoBufHeader *headerMsg ) const
+{
+	headerMsg->set_client_steam_id( GetSteamId() );
+	headerMsg->set_job_id_target( GetTargetId() );
 }

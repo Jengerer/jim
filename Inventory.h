@@ -1,13 +1,15 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include "Item.h"
 #include "Slot.h"
 
-typedef Slot*	slotArray;
+typedef Slot* slotArray;
 typedef vector<Slot*> slotVector;
-typedef vector<Item*> itemVector;
+typedef pair<const uint64, Item*> itemPair;
+typedef map<uint64, Item*> itemMap;
 
 class Inventory
 {
@@ -25,12 +27,12 @@ public:
 	int		GetExcludedSize( void ) const;
 
 	// Slot/item getters.
-	Slot*		GetInventorySlot( int index );
-	Slot*		GetExcludedSlot( int index );
+	Slot*		GetInventorySlot( int index ) const;
+	Slot*		GetExcludedSlot( int index ) const;
 	Item*		GetItemByUniqueId( uint64 id );
 
-	const itemVector*	GetInventoryItems( void ) const;
-	const itemVector*	GetExcludedItems( void ) const;
+	const itemMap*	GetInventoryItems( void ) const;
+	const itemMap*	GetExcludedItems( void ) const;
 
 	// Slot resource functions.
 	void	CreateSlots( void );
@@ -46,12 +48,17 @@ public:
 	// Item resource functions.
 	Slot*	AddItem( Item *item );
 	Slot*	InsertItem( Item *item );
-	void	RemoveItem( Item *item );
+	void	RemoveItem( uint64 uniqueId );
 	void	ClearItems( void );
+
+	// Item list maintenance.
+	void	ToInventory( Item *item );
+	void	ToExcluded( Item *item );
 
 	// Item slot handling.
 	void	MoveItem( Slot *source, Slot *destination );
-	bool	CanMove( uint16 index );
+	bool	IsValidIndex( uint16 index ) const;
+	bool	CanMove( uint16 index ) const;
 
 private:
 
@@ -69,8 +76,8 @@ private:
 	int		excludedPage_;
 
 	// Item vectors.
-	itemVector	inventoryItems_;
-	itemVector	excludedItems_;
+	itemMap		inventoryItems_;
+	itemMap		excludedItems_;
 
 	// Slot arrays.
 	slotArray	inventorySlots_;
