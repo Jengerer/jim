@@ -12,6 +12,7 @@ Button::Button( const string& caption, float x, float y )
 	SetCaption( caption );
 	SetPosition( x, y );
 	SetEnabled( true );
+	SetIcon( nullptr );
 	Pack();
 }
 
@@ -59,6 +60,7 @@ void Button::OnDraw( DirectX* directX )
 void Button::SetIcon( Texture *texture )
 {
 	icon_ = texture;
+	Pack();
 }
 
 Texture* Button::GetIcon( void )

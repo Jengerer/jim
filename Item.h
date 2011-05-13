@@ -26,8 +26,14 @@ enum EClassEquip {
 	CLASS_MEDIC = 0x00100000,
 	CLASS_SNIPER = 0x00020000,
 	CLASS_SPY = 0x00800000,
-	CLASS_ALL = 0x01FB4000
+	CLASS_ALL = 0x01FF0000
 };
+
+#define FL_ITEM_ALL			0xFFFFFFFF
+#define FL_ITEM_VALID		0x80000000
+#define FL_ITEM_NEW			0x40000000
+#define FL_ITEM_POSITION	0x0000FFFF
+#define FL_ITEM_NONPOSITION	FL_ITEM_ALL ^ FL_ITEM_POSITION
 
 class Item: public Image
 {
@@ -63,6 +69,8 @@ public:
 	const string&	GetName( void ) const;
 	uint16			GetIndex( void ) const ;
 	void			SetIndex( uint16 position );
+	bool			IsNew( void ) const;
+	void			SetNew( bool isNew );
 
 	// Equipment handling.
 	bool			IsEquipped( EClassEquip equipClass = CLASS_ALL ) const;

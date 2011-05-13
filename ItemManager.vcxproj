@@ -97,13 +97,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Alert.cpp" />
+    <ClCompile Include="Notice.cpp" />
     <ClCompile Include="Backpack.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Container.cpp" />
     <ClCompile Include="Curl.cpp" />
-    <ClCompile Include="Notification.cpp" />
+    <ClCompile Include="Alert.cpp" />
     <ClCompile Include="Draggable.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Font.cpp" />
@@ -135,14 +135,14 @@
     <ClCompile Include="WrappedText.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Alert.h" />
+    <ClInclude Include="Notice.h" />
     <ClInclude Include="Backpack.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Container.h" />
     <ClInclude Include="Curl.h" />
     <ClInclude Include="IMouseHandler.h" />
-    <ClInclude Include="Notification.h" />
+    <ClInclude Include="Alert.h" />
     <ClInclude Include="Draggable.h" />
     <ClInclude Include="IDrawable.h" />
     <ClInclude Include="Exception.h" />
@@ -160,6 +160,7 @@
     <ClInclude Include="KeyValueParser.h" />
     <ClInclude Include="Layout.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="NotificationQueue.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Popup.h" />
