@@ -5,8 +5,8 @@
 #include "Application.h"
 #include "Backpack.h"
 #include "Button.h"
+#include "Notice.h"
 #include "ItemDisplay.h"
-#include "Notification.h"
 
 #define BUTTON_SPACING	2
 #define BUTTON_Y		380
@@ -41,7 +41,7 @@ public:
 	virtual bool OnMouseMoved( Mouse *mouse );
 
 	// Interface handling.
-	Notification*	CreateNotification( const string& message );
+	Notice*			CreateNotice( const string& message );
 	Alert*			CreateAlert( const string& message );
 	Button*			CreateButton( const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f );
 
@@ -72,7 +72,7 @@ private:
 	ItemDisplay *itemDisplay_;
 
 	// Interface variables.
-	Notification	*loadProgress_;
+	Notice			*loadProgress_;
 	Alert			*alert_;
 	Alert			*error_;
 	Button			*equipButton_, *craftButton_, *sortButton_;

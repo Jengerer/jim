@@ -1,6 +1,6 @@
 #include "Alert.h"
 
-Alert::Alert( const string& message ) : Notification( message )
+Alert::Alert( const string& message ) : Notice( message )
 {
 	// Make OK button.
 	okButton = new Button( "okay" );
@@ -17,7 +17,7 @@ Alert::~Alert( void)
 void Alert::OnDraw( DirectX *directX )
 {
 	// Draw like our parent.
-	Notification::OnDraw( directX );
+	Notice::OnDraw( directX );
 	okButton->OnDraw( directX );
 }
 
@@ -25,20 +25,20 @@ void Alert::UpdatePosition( void )
 {
 	// Move the button.
 	float buttonX = GetX() + GetWidth()/2 - okButton->GetWidth()/2;
-	float buttonY = GetY() + GetHeight() - okButton->GetHeight() - NOTIFICATION_PADDING - NOTIFICATION_STROKE_WIDTH;
+	float buttonY = GetY() + GetHeight() - okButton->GetHeight() - NOTICE_PADDING - NOTICE_STROKE_WIDTH;
 	okButton->SetPosition( buttonX, buttonY );
 }
 
 void Alert::Pack()
 {
-	Notification::Pack();
-	SetSize( GetWidth(), GetHeight() + okButton->GetHeight() + NOTIFICATION_PADDING );
+	Notice::Pack();
+	SetSize( GetWidth(), GetHeight() + okButton->GetHeight() + NOTICE_PADDING );
 	UpdatePosition();
 }
 
 void Alert::SetMessage( const string& message )
 {
-	Notification::SetMessage( message );
+	Notice::SetMessage( message );
 }
 
 const Button* Alert::GetButton( void ) const
@@ -49,7 +49,7 @@ const Button* Alert::GetButton( void ) const
 bool Alert::OnMouseMoved( Mouse *mouse )
 {
 	// Parent behaviour.
-	Notification::OnMouseMoved( mouse );
+	Notice::OnMouseMoved( mouse );
 	okButton->OnMouseMoved( mouse );
 	return true;
 }

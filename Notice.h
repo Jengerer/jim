@@ -1,23 +1,23 @@
-#ifndef NOTIFICATION_H
-#define NOTIFICATION_H
+#ifndef NOTICE_H
+#define NOTICE_H
 
 #include "IDrawable.h"
 #include "Popup.h"
 
-#define NOTIFICATION_WIDTH			300
-#define NOTIFICATION_RADIUS			10
-#define NOTIFICATION_PADDING		20
-#define NOTIFICATION_STROKE_WIDTH	5
-#define NOTIFICATION_STROKE_COLOUR	D3DCOLOR_RGBA( 153, 142, 121, 100 )
-#define NOTIFICATION_COLOUR			D3DCOLOR_XRGB( 42, 39, 37 )
+#define NOTICE_WIDTH			300
+#define NOTICE_RADIUS			10
+#define NOTICE_PADDING			20
+#define NOTICE_STROKE_WIDTH		5
+#define NOTICE_STROKE_COLOUR	D3DCOLOR_RGBA( 153, 142, 121, 100 )
+#define NOTICE_COLOUR			D3DCOLOR_XRGB( 42, 39, 37 )
 
-class Notification : public Popup
+class Notice : public Popup
 {
 
 public:
 
-	Notification( const string& message );
-	virtual ~Notification( void );
+	Notice( const string& message );
+	virtual ~Notice( void );
 
 	void			OnDraw( DirectX* directX );
 
@@ -43,4 +43,4 @@ private:
 
 };
 
-#endif // NOTIFICATION_H
+#endif // NOTICE_H

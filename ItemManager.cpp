@@ -108,7 +108,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 	Application::LoadInterfaces( APPLICATION_TITLE, instance );
 
 	// Necessary to display progress/status.
-	Notification::Precache( directX_ );
+	Notice::Precache( directX_ );
 	Button::Precache( directX_ );
 
 	try {
@@ -116,7 +116,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		ItemDisplay::Precache( directX_ );
 
 		// Create start up message.
-		loadProgress_ = CreateNotification( "Initializing item manager..." );
+		loadProgress_ = CreateNotice( "Initializing item manager..." );
 
 		// Create buttons.
 		Texture *craftTexture = directX_->getTexture( "manager/gear" );
@@ -563,7 +563,15 @@ void ItemManager::HandleCallbacks( void ) {
 								// Not handling yet.
 								break;
 							}
-						case GCCraftResponse_t::k_iMessage:
+
+						default:
+							backpack_->HandleMessage( id & 0x0FFFFFFF, headerBuffer.here(), bodySize );
+							break;
+						}
+					}
+					else {
+						switch (id) {
+							case GCCraftResponse_t::k_iMessage:
 							{
 								GCCraftResponse_t *craftMsg = (GCCraftResponse_t*)buffer;
 								if (craftMsg->blueprint == 0xffff) {
@@ -575,10 +583,6 @@ void ItemManager::HandleCallbacks( void ) {
 
 								break;
 							}
-
-						default:
-							backpack_->HandleMessage( id & 0x0FFFFFFF, headerBuffer.here(), bodySize );
-							break;
 						}
 					}
 
@@ -607,23 +611,23 @@ Button* ItemManager::CreateButton(const string& caption, Texture *texture, float
 	return newButton;
 }
 
-Notification* ItemManager::CreateNotification( const string& message )
+Notice* ItemManager::CreateNotice( const string& message )
 {
-	Notification* newNotification = new Notification( message );
-	Add( newNotification );
+	Notice* newNotice = new Notice( message );
+	Add( newNotice );
 
 	// Set position.
-	float x = (float)(GetWidth() / 2) - (float)(newNotification->GetWidth() / 2);
-	float y = (float)(GetHeight() / 2) - (float)(newNotification->GetHeight() / 2);
-	newNotification->SetPosition( x, y );
-	newNotification->SetParent( this );
+	float x = (float)(GetWidth() / 2) - (float)(newNotice->GetWidth() / 2);
+	float y = (float)(GetHeight() / 2) - (float)(newNotice->GetHeight() / 2);
+	newNotice->SetPosition( x, y );
+	newNotice->SetParent( this );
 
 	// Show popup.
-	ShowPopup( newNotification );
+	ShowPopup( newNotice );
 
 	// Add and return.
-	popupList_.push_back( newNotification );
-	return newNotification;
+	popupList_.push_back( newNotice );
+	return newNotice;
 }
 
 Alert* ItemManager::CreateAlert( const string& message )

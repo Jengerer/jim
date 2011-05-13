@@ -78,7 +78,11 @@ void Slot::SetItem( Item* item )
 {
 	item_ = item;
 	if (item != nullptr) {
-		item->SetIndex( GetIndex() );
+		// Retain flags if this is an excluded slot.
+		if (GetGroup() == GROUP_INVENTORY) {
+			item->SetIndex( GetIndex() );
+		}
+
 		UpdatePosition();
 	}
 }
@@ -86,7 +90,7 @@ void Slot::SetItem( Item* item )
 //=============================================================
 // Purpose: Gets the slot of the index, starts at 0.
 //=============================================================
-int Slot::GetIndex() const
+int Slot::GetIndex( void ) const
 {
 	return index_;
 }

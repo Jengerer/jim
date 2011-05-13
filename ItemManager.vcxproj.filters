@@ -72,9 +72,6 @@
     <ClCompile Include="Button.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="Alert.cpp">
-      <Filter>Source Files\UI Elements</Filter>
-    </ClCompile>
     <ClCompile Include="Popup.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
@@ -132,13 +129,16 @@
     <ClCompile Include="protobuf\steammessages.pb.cc">
       <Filter>Source Files\protobufs</Filter>
     </ClCompile>
-    <ClCompile Include="Notification.cpp">
-      <Filter>Source Files\UI Elements</Filter>
-    </ClCompile>
     <ClCompile Include="Text.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
     <ClCompile Include="WrappedText.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Notice.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Alert.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
   </ItemGroup>
@@ -827,9 +827,6 @@
     <ClInclude Include="Popup.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
-    <ClInclude Include="Alert.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
     <ClInclude Include="Backpack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -890,9 +887,6 @@
     <ClInclude Include="protobuf\gcsdk_gcmessages.pb.h">
       <Filter>Header Files\protobufs</Filter>
     </ClInclude>
-    <ClInclude Include="Notification.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
     <ClInclude Include="IDrawable.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
@@ -903,6 +897,15 @@
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="WrappedText.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="NotificationQueue.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Alert.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Notice.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
   </ItemGroup>

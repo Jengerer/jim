@@ -103,21 +103,34 @@ const string& Item::GetName( void ) const
 
 uint16 Item::GetIndex( void ) const
 {
-	return (GetFlags() & 0xFFF) - 1;
+	return (GetFlags() & 0xFFFF) - 1;
 }
 
 void Item::SetIndex( uint16 position )
 {
-	// Strip position from flags.
+	// Remove new item flag.
+	SetNew( false );
+
 	uint32 tempFlags = GetFlags();
-	tempFlags &= 0xFFFFF000;
-
-	if ((tempFlags & 0x80000000) == 0) {
-		tempFlags = 0x80000000;
-	}
-
-	tempFlags += position + 1;
+	tempFlags &= FL_ITEM_NONPOSITION; // Remove current position.
+	tempFlags |= (position + 1) & FL_ITEM_POSITION; // Set new.
 	SetFlags( tempFlags );
+}
+
+bool Item::IsNew( void ) const
+{
+	return GetFlags() & 0x30000000;
+}
+
+void Item::SetNew( bool isNew )
+{
+	uint32 tempFlags = GetFlags();
+	if (isNew) {
+		SetFlags( tempFlags | FL_ITEM_NEW );
+	}
+	else {
+		SetFlags( tempFlags & (FL_ITEM_ALL ^ FL_ITEM_NEW) );
+	}
 }
 
 bool Item::IsEquipped( EClassEquip equipClass ) const
