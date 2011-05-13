@@ -81,7 +81,7 @@ void Backpack::HandleMessage( int id, void *message, uint32 size )
 				switch ( subscribedType.type_id() ) {
 				case 1:
 					{
-						if ( getSteamId() == subscribedMsg.owner() ) {
+						if ( GetSteamId() == subscribedMsg.owner() ) {
 							for (int i = 0; i < subscribedType.object_data_size(); i++) {
 								CSOEconItem econItem;
 								econItem.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
@@ -100,7 +100,7 @@ void Backpack::HandleMessage( int id, void *message, uint32 size )
 					}
 				case 7:
 					{
-						if ( subscribedMsg.owner() == getSteamId() ) {
+						if ( subscribedMsg.owner() == GetSteamId() ) {
 							for (int i = 0; i < subscribedType.object_data_size(); i++) {
 								CSOEconGameAccountClient gameAccountClient;
 								gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
@@ -157,7 +157,37 @@ void Backpack::HandleMessage( int id, void *message, uint32 size )
 			// Now remove from inventory.
 			Item *targettedItem = inventory_->GetItemByUniqueId( deletedItem.id() );
 			if (targettedItem != nullptr) {
-				inventory_->RemoveItem( targettedItem );
+				inventory_->RemoveItem( targettedItem->GetUniqueId() );
+			}
+			break;
+		}
+
+	case k_ESOMsg_UpdateMultiple:
+		{
+			CMsgSOMultipleObjects updateMsg;
+			updateMsg.ParseFromArray( message, size );
+
+			for (int i = 0; i < updateMsg.objects_size(); i++) {
+				CMsgSOMultipleObjects::SingleObject singleObject = updateMsg.objects( i );
+				if (singleObject.type_id() == 1) {
+					CSOEconItem econItem;
+					econItem.ParseFromArray( singleObject.object_data().data(), singleObject.object_data().size() );
+
+					// Attempt to find the item.
+					Item *item = inventory_->GetItemByUniqueId( econItem.id() );
+					if (item == nullptr) {
+						break;
+					}
+
+					// Place item into excluded, to be resolved later.
+					item->SetFlags( econItem.inventory() );
+					
+					uint16 newIndex = item->GetIndex();
+					// Attempt to retrieve slots.
+					if (inventory_->CanMove( newIndex )) {
+						Slot *slot = inventory_->GetInventorySlot( newIndex );
+					}
+				}
 			}
 			break;
 		}
@@ -320,19 +350,10 @@ void Backpack::MoveItem( Slot *source, Slot *destination ) {
 	}
 
 	Item* sourceItem = source->GetItem();
-	if (sourceItem == nullptr) {
-		int i = 5;
-	}
 	Item* destItem = destination->GetItem();
 
 	// Update items.
-	if (sourceItem == nullptr) {
-		int i = 5;
-	}
 	inventory_->MoveItem( source, destination );
-	if (sourceItem == nullptr) {
-		int i = 5;
-	}
 	UpdateItem( sourceItem ); // Definitely not null.
 	if (destItem != nullptr) {
 		UpdateItem( destItem );
@@ -630,8 +651,10 @@ void Backpack::EquipItem( Item *item, const string& className ) {
 }
 
 void Backpack::UnequipItems( EClassEquip equipClass, const string& slot ) {
-	const itemVector* inventoryItems = inventory_->GetInventoryItems();
-	for each(Item *item in *inventoryItems) {
+	const itemMap* inventoryItems = inventory_->GetInventoryItems();
+	itemMap::const_iterator i;
+	for (i = inventoryItems->begin(); i != inventoryItems->end(); i++) {
+		Item *item = i->second;
 		if (item->IsEquipped( equipClass )) {
 			if (item->GetEquipSlot() == slot) {
 				item->SetEquip( equipClass , false );
@@ -641,8 +664,9 @@ void Backpack::UnequipItems( EClassEquip equipClass, const string& slot ) {
 		}
 	}
 
-	const itemVector* excludedItems = inventory_->GetExcludedItems();
-	for each (Item *item in *excludedItems) {
+	const itemMap *excludedItems = inventory_->GetExcludedItems();
+	for (i = excludedItems->begin(); i != excludedItems->end(); i++) {
+		Item *item = i->second;
 		if (item->IsEquipped( equipClass )) {
 			if (item->GetEquipSlot() == slot) {
 				item->SetEquip( equipClass , false );
@@ -674,7 +698,7 @@ void Backpack::DeselectSlot( Slot* slot )
 	}
 }
 
-void Backpack::DeselectAll()
+void Backpack::DeselectAll( void )
 {
 	// Deselect all.
 	while (!selected_.empty()) {
@@ -718,7 +742,7 @@ void Backpack::CraftSelected( void )
 		DeselectAll();
 
 		// Send message.
-		sendMessage( GCCraft_t::k_iMessage, message, messageSize );
+		SendMessage( GCCraft_t::k_iMessage, message, messageSize );
 		free( message );
 	}
 }
@@ -733,7 +757,24 @@ void Backpack::UpdateItem( Item* item )
 	message.position = item->GetFlags();
 
 	// Send it.
-	sendMessage( GCSetItemPosition_t::k_iMessage, &message, sizeof( message ) );
+	SendMessage( GCSetItemPosition_t::k_iMessage, &message, sizeof( message ) );
+
+	/*
+	// Generate econ item with updates.
+	CSOEconItem econItem;
+	econItem.set_id( item->GetUniqueId() );
+	econItem.set_inventory( item->GetFlags() );
+	string itemMessage = econItem.SerializeAsString();
+
+	// Generate message with new flags.
+	CMsgSOSingleObject updateMsg;
+	updateMsg.set_owner( GetSteamId() );
+	updateMsg.set_type_id( 1 );
+	updateMsg.set_object_data( itemMessage.c_str(), itemMessage.length() );
+	string updateString = updateMsg.SerializeAsString();
+
+	// Send it.
+	SendMessage( k_EMsgGCSetItemPosition | 0x80000000, (void*)updateString.c_str(), updateString.length() );*/
 }
 
 slotVector* Backpack::GetSelected( void )

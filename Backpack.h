@@ -3,9 +3,6 @@
 #include <json/json.h>
 #include <string>
 
-#include "protobuf/steammessages.pb.h"
-#include "protobuf/base_gcmessages.pb.h"
-
 #include "Menu.h"
 #include "Steam.h"
 #include "Inventory.h"

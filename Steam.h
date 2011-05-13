@@ -7,6 +7,8 @@
 #include "Item.h"
 #include "Exception.h"
 
+#include "protobuf/steammessages.pb.h"
+
 using namespace std;
 
 #pragma pack(push, 1)
@@ -30,17 +32,22 @@ public:
 	virtual void CloseInterfaces( void );
 
 	// Callback and message handling.
-	bool getCallback( CallbackMsg_t* callback );
-	void releaseCallback();
-	bool hasMessage( uint32* size );
-	void getMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize );
-	void sendMessage( unsigned int id, void* buffer, uint32 size );
-
-	// Interface handling.void
-	void deleteItem( uint64 uniqueId );
+	bool		GetCallback( CallbackMsg_t* callback );
+	void		ReleaseCallback( void );
+	bool		HasMessage( uint32* size );
+	void		GetMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize );
+	void		SendMessage( unsigned int id, void* buffer, uint32 size );
 
 	// Steam getters.
-	uint64 getSteamId() const;
+	uint64		GetSteamId( void ) const;
+
+	// For sending protobuf headers.
+	void		SetTargetId( uint64 targetId );
+	void		GenerateProtobufHeader( CMsgProtoBufHeader *headerMsg ) const;
+
+private:
+
+	uint64		GetTargetId( void ) const;
 
 private:
 	// Steam handles.
@@ -51,6 +58,9 @@ private:
 	ISteamClient008*			steamClient_;
 	ISteamUser012*				steamUser_;
 	ISteamGameCoordinator001*	gameCoordinator_;
+
+	// Steam interface target.
+	uint64						targetId_;
 
 	// For function loading.
 	HMODULE						clientDll_;

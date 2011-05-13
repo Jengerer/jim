@@ -474,7 +474,7 @@ void ItemManager::LoadItemsFromWeb( void )
 	loadProgress_->AppendMessage("\n\nLoading items...");
 	DrawFrame();
 
-	uint64 userId = backpack_->getSteamId();
+	uint64 userId = backpack_->GetSteamId();
 	stringstream urlStream;
 	urlStream << "http://api.steampowered.com/ITFItems_440/GetPlayerItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&SteamID=" << userId << "&format=json";
 	string apiUrl = urlStream.str();
@@ -502,21 +502,21 @@ void ItemManager::LoadItemsFromWeb( void )
 
 void ItemManager::HandleCallbacks( void ) {
 	CallbackMsg_t callback;
-	if ( backpack_->getCallback(&callback) ) {
+	if ( backpack_->GetCallback( &callback ) ) {
 		switch (callback.m_iCallback) {
 		case GCMessageAvailable_t::k_iCallback:
 			{
 				GCMessageAvailable_t *message = (GCMessageAvailable_t *)callback.m_pubParam;
 				
 				uint32 size;
-				if ( backpack_->hasMessage( &size ) )
+				if ( backpack_->HasMessage( &size ) )
 				{
 					uint32 id, realSize = 0;
 
 					// Retrieve the message.
 					// WARNING: Do NOT use return before calling free on buffer.
 					void* buffer = malloc( size );
-					backpack_->getMessage( &id, buffer, size, &realSize );
+					backpack_->GetMessage( &id, buffer, size, &realSize );
 
 					// Filter protobuf messages.
 					bool isProtobuf = (id & 0x80000000) != 0;
@@ -533,6 +533,12 @@ void ItemManager::HandleCallbacks( void ) {
 						headerMsg.ParseFromArray( headerBytes, headerSize );
 						headerBuffer.push( headerSize );
 
+						// Check if we can set target ID.
+						// TODO: Maybe move all this horseshit into Steam.
+						if ( headerMsg.has_job_id_source() ) {
+							backpack_->SetTargetId( headerMsg.job_id_source() );
+						}
+
 						uint32 bodySize = size - sizeof( GCProtobufHeader_t ) - headerSize;
 
 						switch (id & 0x0FFFFFFF) {
@@ -547,31 +553,8 @@ void ItemManager::HandleCallbacks( void ) {
 								responseMsg.set_item_schema_version( 0 );
 								string responseString = responseMsg.SerializeAsString();
 
-								// Create header for response.
-								CMsgProtoBufHeader responseHeader;
-								responseHeader.set_client_steam_id( headerMsg.client_steam_id() );
-								responseHeader.set_job_id_target( headerMsg.job_id_source() );
-								string headerData;
-								responseHeader.SerializeToString( &headerData );
-
-								// Fill in struct.
-								GCProtobufHeader_t *responseStruct = new GCProtobufHeader_t;
-								responseStruct->m_cubProtobufHeader = headerData.length();
-								responseStruct->m_EMsg = k_EMsgGCStartupCheckResponse | 0x80000000;
-
-								// Append messages.
-								uint32 responseSize = sizeof( GCProtobufHeader_t ) + headerData.length() + responseString.length();
-								void* response = malloc( responseSize );
-								SerializedBuffer responseBuffer( response );
-								responseBuffer.write( responseStruct, sizeof( GCProtobufHeader_t ) );
-								responseBuffer.write( (void*)headerData.c_str(), headerData.length() );
-								responseBuffer.write( (void*)responseString.c_str(), responseString.length() );
-
 								// Send and free.
-								backpack_->sendMessage(responseStruct->m_EMsg, responseBuffer.start(), responseSize);
-
-								delete responseStruct;
-								free( response );
+								backpack_->SendMessage( k_EMsgGCStartupCheckResponse | 0x80000000, (void*)responseString.c_str(), responseString.size() );
 							}
 							break;
 
@@ -607,7 +590,7 @@ void ItemManager::HandleCallbacks( void ) {
 			}
 		}
 
-		backpack_->releaseCallback();
+		backpack_->ReleaseCallback();
 	} 
 }
 
