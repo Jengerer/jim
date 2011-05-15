@@ -44,10 +44,10 @@ public:
 	int		GetExcludedPage( void ) const;
 	void	SetExcludedPage( int page );
 	void	UpdateExcluded( void );
+	void	ResolveExcluded( void );
 
 	// Item resource functions.
-	Slot*	AddItem( Item *item );
-	Slot*	InsertItem( Item *item );
+	void	InsertItem( Item *item );
 	void	RemoveItem( uint64 uniqueId );
 	void	ClearItems( void );
 

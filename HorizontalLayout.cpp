@@ -12,25 +12,35 @@ HorizontalLayout::~HorizontalLayout( void )
 
 void HorizontalLayout::Pack( void )
 {
-	int width = 0, height = 0;
-	deque<Component*>::iterator i;
+	// First get maximum height.
+	int maxHeight = 0;
+	deque<Component*>::const_iterator i;
 	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
 		Component *component = *i;
-		component->SetPosition( GetX() + width, GetY() );
+		int height = component->GetHeight();
+		if (height > maxHeight) {
+			maxHeight = height;
+		}
+	}
+
+	// Now pack.
+	int width = 0;
+	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
+		Component *component = *i;
+
+		// Set position aligned vertically.
+		int middleY = GetY() + ((maxHeight - component->GetHeight()) >> 1);
+		component->SetPosition( GetX() + width, middleY );
 
 		// Push width by component width and spacing (if not last).
 		width += component->GetWidth();
 		if ( component != componentStack_.back() ) {
 			width += GetSpacing();
 		}
-
-		// Store maximum height.
-		if (component->GetHeight() > height) {
-			height = component->GetHeight();
-		}
 	}
 
-	SetSize( width, height );
+	// Update size.
+	SetSize( width, maxHeight );
 }
 
 void HorizontalLayout::UpdatePosition( void )

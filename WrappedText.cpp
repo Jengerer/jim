@@ -2,6 +2,7 @@
 
 WrappedText::WrappedText( Font *font, int textWidth ) : Text( font )
 {
+	SetTextFormatting( 0 );
 	SetTextWidth( textWidth );
 }
 
@@ -19,15 +20,21 @@ void WrappedText::OnDraw( DirectX *directX )
 		GetY() + GetHeight()
 	};
 
-	font_->drawText( text_, &textRect, GetTextFormatting(), GetColour() );
+	font_->drawText( GetText(), &textRect, GetTextFormatting(), ((GetAlpha() & 0xff) << 24) | (GetColour() & 0xFFFFFF) );
 }
 
 void WrappedText::Pack( void )
 {	
-	RECT resultSize = { 0, 0, GetTextWidth(), 0 };
+	RECT resultSize;
+	resultSize.left		= GetX();
+	resultSize.top		= GetY();
+	resultSize.right	= resultSize.left + GetTextWidth();
+
+	// Now calculate bottom.
 	GetFont()->wrapText( text_, &resultSize, 0 );
 	SetSize( GetTextWidth(), resultSize.bottom - resultSize.top );
 }
+
 
 int WrappedText::GetTextWidth( void ) const
 {

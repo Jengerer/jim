@@ -25,7 +25,11 @@ Application::~Application()
 
 void Application::LoadInterfaces( const char* title, HINSTANCE instance )
 {
+	// Get DirectX running.
 	directX_ = new DirectX(	instance, title, GetWidth(), GetHeight() );
+	directX_->LoadInterfaces();
+
+	// Create mouse objects and cursors.
 	mouse_ = new Mouse( directX_ );
 	arrow_ = LoadCursor( nullptr, IDC_ARROW );
 	hand_ = LoadCursor( nullptr, IDC_HAND );
@@ -35,7 +39,7 @@ void Application::CloseInterfaces( void )
 {
 	if (directX_ != nullptr) {
 		delete directX_;
-		directX_ = 0;
+		directX_ = nullptr;
 	}
 }
 
@@ -71,9 +75,9 @@ void Application::RunApplication( void )
 void Application::DrawFrame( void )
 {
 	// Start redraw.
-	if ( directX_->beginDraw() ) {
+	if ( directX_->BeginDraw() ) {
 		OnDraw( directX_ );
-		directX_->endDraw();
+		directX_->EndDraw();
 	}
 	else {
 		throw Exception( "Failed to call Direct3D BeginDraw." );

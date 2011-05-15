@@ -3,6 +3,7 @@
 Component::Component( float x, float y )
 {
 	SetPosition( x, y );
+	SetAlpha( 255 );
 }
 
 Component::~Component()
@@ -50,4 +51,20 @@ float Component::GetX() const
 float Component::GetY() const
 {
 	return y_;
+}
+
+void Component::SetAlpha( int alpha )
+{
+	alpha_ = alpha;
+	if (alpha_ > 255) {
+		alpha_ = 255;
+	}
+	else if (alpha_ < 0) {
+		alpha_ = 0;
+	}
+}
+
+int Component::GetAlpha( void ) const
+{
+	return alpha_;
 }

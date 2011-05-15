@@ -43,7 +43,7 @@ void Text::OnDraw( DirectX *directX )
 		GetY() + GetHeight()
 	};
 
-	font_->drawText( text_, &textRect, 0, GetColour() );
+	font_->drawText( text_, &textRect, 0, ((GetAlpha() & 0xff) << 24) | (GetColour() & 0xFFFFFF) );
 }
 
 Font* Text::GetFont( void ) const
@@ -58,7 +58,7 @@ void Text::SetFont( Font *font )
 
 void Text::Pack( void )
 {
-	RECT resultSize = { 0, 0, 0, 0 };
+	RECT resultSize;
 	font_->getTextRect( text_, &resultSize, 0 );
 	SetSize( resultSize.right - resultSize.left, resultSize.bottom - resultSize.top );
 }

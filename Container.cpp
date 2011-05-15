@@ -28,9 +28,24 @@ void Container::SetPosition( float x, float y )
 	UpdatePosition();
 }
 
-void Container::UpdatePosition()
+void Container::UpdatePosition( void )
 {
 	// Optionally implemented.
+}
+
+void Container::Pack( void )
+{
+	// Optionally implemented.
+}
+
+void Container::SetAlpha( int alpha )
+{
+	Component::SetAlpha( alpha );
+	deque<Component*>::iterator i;
+	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
+		Component *component = *i;
+		component->SetAlpha( alpha );
+	}
 }
 
 //=============================================================

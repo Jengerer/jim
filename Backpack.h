@@ -3,13 +3,14 @@
 #include <json/json.h>
 #include <string>
 
-#include "Menu.h"
-#include "Steam.h"
-#include "Inventory.h"
 #include "Container.h"
-#include "VerticalLayout.h"
 #include "HorizontalLayout.h"
+#include "Inventory.h"
+#include "Menu.h"
+#include "NotificationQueue.h"
 #include "SerializedBuffer.h"
+#include "Steam.h"
+#include "VerticalLayout.h"
 
 #define BACKPACK_PADDING		25
 #define BACKPACK_PADDING_TOP	50
@@ -42,6 +43,9 @@ public:
 	void			CreateInventory( int width, int height, int pages, int excludedSize );
 	void			LoadInventory( const string& jsonInventory );
 	void			FormatInventory( void );
+
+	// Notification handling.
+	void			SetNotificationQueue( NotificationQueue *notifications );
 
 	// Has backpack been loaded yet?
 	bool			IsLoaded( void ) const;
@@ -94,6 +98,9 @@ private:
 private:
 
 	Inventory			*inventory_;
+
+	// Queue to direct notifications to.
+	NotificationQueue	*notifications_;
 
 	// Layout objects.
 	HorizontalLayout	*pages_;

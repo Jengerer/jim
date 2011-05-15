@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Texture.h"
-#include "Draggable.h"
 #include "Component.h"
+#include "DirectX.h"
+#include "Draggable.h"
+#include "Image.h"
 #include "Item.h"
+#include "Texture.h"
 
 // Slot selection type for manager handling.
 enum ESelectType {
@@ -20,11 +22,6 @@ enum ESlotGroup {
 
 #define SLOT_WIDTH	70
 #define SLOT_HEIGHT	60
-#define SLOT_RADIUS 5
-
-#define SLOT_STROKE_VINTAGE	D3DCOLOR_RGBA( 69, 97, 141, 200 )
-#define SLOT_STROKE_NORMAL	D3DCOLOR_RGBA( 193, 165, 0, 150 )
-#define SLOT_STROKE_WIDTH	2
 
 class Slot : public Draggable
 {
@@ -51,12 +48,24 @@ public:
 	ESelectType	GetSelectType( void ) const;
 	void		SetSelectType( ESelectType selectType );
 
+	static void	Precache( DirectX *directX );
+	static void Release( void );
+
+protected:
+
+	// TODO: Come up with a better set up, mixing together.
+	static Texture	*emptySlot_;
+	static Texture	*normalSlot_;
+	static Texture	*normalSelected_;
+	static Texture	*vintageSlot_;
+	static Texture	*vintageSelected_;
+
 private:
 
 	Item*		item_;
+	Image*		image_;
 	int			index_;
 	ESlotGroup	group_;
-	D3DCOLOR	colour_;
 
 	bool		isActive_;
 	ESelectType	selectType_;

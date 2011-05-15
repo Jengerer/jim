@@ -37,45 +37,47 @@ public:
 	virtual ~DirectX();
 
 	// Initializing and closing.
-	void openInterfaces();
-	void closeInterfaces();
-
-	// Font handling.
-	Font* createFont( const string& name, int height, bool isBolded );
+	void		LoadInterfaces( void );
+	void		CloseInterfaces( void );
 
 	// Resource handling.
-	void loadTextures();
-	void freeTextures();
-	void releaseTextures();
-	Texture* getTexture( const string& filename );
-	void LoadTexture( Texture* texture );
+	void		LoadTextures( void );
+	void		FreeTextures( void );
+	void		ReleaseTextures( void );
+	Texture*	GetTexture( const string& filename );
+	void		LoadTexture( Texture* texture );
+
+	// Texture drawing and rendering.
+	Texture*	CreateTexture( const string& name, int width, int height );
+	void		SetRenderTarget( Texture *texture );
+	void		ResetRenderTarget( void );
+
+	// Font handling.
+	Font*		CreateFont( const string& name, int height, bool isBolded );
 
 	// Vertex buffer.
-	void createTexturedQuad( TextureVertex *vertices, float x, float y, int width, int height, D3DCOLOR colour = 0xFFFFFFFF );
-	void createColouredQuad( ColourVertex *vertices, float x, float y, int width, int height, D3DCOLOR colour );
-	void drawColouredQuad( void* vertices, size_t verticesSize );
-	void drawTexturedQuad( TextureVertex *vertices, Texture* texture );
-	void drawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR colour );
-	void drawRoundedRect( float x, float y, int width, int height, float radiusTl, float radiusTr, float radiusBr, float radiusBl, D3DCOLOR colour );
+	void		CreateTexturedQuad( TextureVertex *vertices, float x, float y, int width, int height, D3DCOLOR colour = 0xFFFFFFFF );
+	void		CreateColouredQuad( ColourVertex *vertices, float x, float y, int width, int height, D3DCOLOR colour );
+	void		DrawColouredQuad( void* vertices, size_t verticesSize );
+	void		DrawTexturedQuad( TextureVertex *vertices, Texture* texture );
+	void		DrawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR colour );
+	void		DrawRoundedRect( float x, float y, int width, int height, float radiusTl, float radiusTr, float radiusBr, float radiusBl, D3DCOLOR colour );
 
 	// Running functions.
-	bool checkDevice();
-	bool beginDraw();
-	void endDraw();
+	bool		CheckDevice( void );
+	bool		BeginDraw( void );
+	void		EndDraw( void );
 
 	// Drawing functions.
-	void drawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour = D3DCOLOR_XRGB( 255, 255, 255 ));
-	void setTransform( const D3DXMATRIX* d3dMatrix );
-	void setTransform( float x, float y, float rotation, float xScale, float yScale );
-
-	// Window handling.
-	Window* getWindow();
+	void		DrawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour = D3DCOLOR_XRGB( 255, 255, 255 ));
 
 private:
+
 	// Direct3D interfaces.
 	IDirect3D9					*d3d_;
 	IDirect3DDevice9			*d3dDevice_;
-	ID3DXSprite					*sprite_;
+	IDirect3DSurface9			*backBuffer_;
+	D3DPRESENT_PARAMETERS		params_;
 
 	// Vertex drawing.
 	TextureVertex				texVertices_[4];
@@ -84,9 +86,7 @@ private:
 	IDirect3DVertexBuffer9		*colourBuffer_;
 	Texture						*roundedCorner_;
 
-	// Present parameters.
-	D3DPRESENT_PARAMETERS		params_;
-
 	// Texture handling.
 	Hashtable*					textureMap_;
+
 };

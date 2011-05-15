@@ -7,79 +7,72 @@ DirectX::DirectX( HINSTANCE hInstance,
 	const char *title,
 	int width, int height ) : Window( hInstance, title, width, height )
 {
-	// Set as null.
-	textureMap_ = 0;
-	roundedCorner_ = 0;
-
-	try {
-		openInterfaces();
-	}
-	catch (Exception dxException) {
-		closeInterfaces();
-		throw dxException;
-	}
+	textureMap_ = nullptr;
+	roundedCorner_ = nullptr;
 }
 
 DirectX::~DirectX()
 {
 	//DirectX has been destroyed.
-	closeInterfaces();
+	CloseInterfaces();
 }
 
-void DirectX::openInterfaces()
+void DirectX::LoadInterfaces( void )
 {
 	d3d_ = Direct3DCreate9( D3D_SDK_VERSION );
-
-	if (d3d_ == 0)
+	if (d3d_ == nullptr) {
 		throw Exception( "Failed to create Direct3D." );
+	}
 
 	D3DDISPLAYMODE d3dMode;
 	d3d_->GetAdapterDisplayMode( D3DADAPTER_DEFAULT, &d3dMode );
 
 	ZeroMemory( &params_, sizeof( D3DPRESENT_PARAMETERS ) );
+	params_.Windowed			= TRUE;
+	params_.SwapEffect			= D3DSWAPEFFECT_DISCARD;
+	params_.BackBufferFormat	= d3dMode.Format;
 
-	params_.Windowed				= TRUE;
-	params_.SwapEffect				= D3DSWAPEFFECT_DISCARD;
-	params_.BackBufferFormat		= d3dMode.Format;
-
-	d3d_->CreateDevice(
+	HRESULT result = d3d_->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
 		getHandle(),
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
 		&params_,
 		&d3dDevice_);
-
-	if (d3dDevice_ == 0)
+	if ( FAILED( result ) ) {
 		throw Exception( "Failed to create Direct3D device!" );
-
-	HRESULT hResult;
-	hResult = D3DXCreateSprite( d3dDevice_, &sprite_ );
-	if (hResult != D3D_OK)
-		throw Exception( "Failed to create sprite handler." );
+	}
 
 	// Load font as resource.
-	if (!AddFontResourceEx("ttfFiles/tf2Build.ttf", FR_PRIVATE, 0)) {
+	if (AddFontResourceEx("ttfFiles/tf2Build.ttf", FR_PRIVATE, 0) == 0) {
 		if (!download("www.jengerer.com/itemManager/ttfFiles/tf2Build.ttf", "ttfFiles/tf2Build.ttf") || !AddFontResource("ttfFiles/tf2Build.ttf")) {
 			throw Exception( "Failed to load font." );
 		}
 	}
 
 	// Load font as resource.
-	if (!AddFontResourceEx("ttfFiles/tf2Secondary.ttf", FR_PRIVATE, 0)) {
+	if (AddFontResourceEx("ttfFiles/tf2Secondary.ttf", FR_PRIVATE, 0) == 0) {
 		if (!download("www.jengerer.com/itemManager/ttfFiles/tf2Secondary.ttf", "ttfFiles/tf2Secondary.ttf") || !AddFontResource("ttfFiles/tf2Secondary.ttf")) {
 			throw Exception( "Failed to load font." );
 		}
 	}
 
 	// Create vertex buffer.
-	hResult = d3dDevice_->CreateVertexBuffer(
+	result = d3dDevice_->CreateVertexBuffer(
 		4 * sizeof(TextureVertex),
 		D3DUSAGE_WRITEONLY,
 		D3D9T_TEXTUREVERTEX,
 		D3DPOOL_DEFAULT,
 		&vertexBuffer_,
 		NULL );
+	if ( FAILED( result ) ) {
+		throw Exception( "Failed to create vertex buffer." );
+	}
+
+	result = d3dDevice_->GetBackBuffer( 0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer_ );
+	if ( FAILED( result ) ) {
+		throw Exception( "Failed to get back buffer surface." );
+	}
 
 	// Set render and stage states.
 	d3dDevice_->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE );
@@ -98,22 +91,18 @@ void DirectX::openInterfaces()
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_TEXTURE );
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_TEXTURE );
 
-	if (hResult != D3D_OK)
-		throw Exception( "Failed to create vertex buffer." );
-
 	// Create empty hashtable.
 	textureMap_ = new Hashtable();
 
 	// Load round corner.
-	roundedCorner_ = getTexture( "manager/rounded_corner" );
+	roundedCorner_ = GetTexture( "manager/rounded_corner" );
 }
 
-void DirectX::closeInterfaces()
+void DirectX::CloseInterfaces( void )
 {
 	// Delete map of vectors.
 	if (textureMap_ != nullptr) {
-		freeTextures();
-
+		FreeTextures();
 		delete textureMap_;
 		textureMap_ = nullptr;
 	}
@@ -121,13 +110,6 @@ void DirectX::closeInterfaces()
 	// Remove font resource.
 	RemoveFontResourceEx( "ttfFiles/tf2Build.ttf", FR_PRIVATE, 0 );
 	RemoveFontResourceEx( "ttfFiles/tf2Secondary.ttf", FR_PRIVATE, 0 );
-
-	// Delete sprite handler.
-	// TODO: sprite handler is deprecated.
-	if (sprite_ != nullptr) {
-		sprite_->Release();
-		sprite_ = nullptr;
-	}
 
 	// Delete Direct3D device.
 	if (d3dDevice_ != nullptr) {
@@ -142,19 +124,17 @@ void DirectX::closeInterfaces()
 	}
 }
 
-void DirectX::freeTextures()
+void DirectX::FreeTextures( void )
 {
 	// Delete all texture objects.
 	stringMap::iterator i;
-	while (!textureMap_->empty()) {
+	while ( !textureMap_->empty() ) {
 		i = textureMap_->begin();
 
 		try {
-			Texture* thisTexture = boost::any_cast<Texture*>(i->second);
-
-			// Delete the texture and remove it.
-			delete thisTexture;
-			textureMap_->remove(i);
+			Texture* texture = boost::any_cast<Texture*>(i->second);
+			textureMap_->remove( i );
+			delete texture;
 		}
 		catch (const boost::bad_any_cast &) {
 			throw Exception( "Failed to get texture from table, unexpected variable type received." );
@@ -162,7 +142,7 @@ void DirectX::freeTextures()
 	}
 }
 
-void DirectX::loadTextures()
+void DirectX::LoadTextures( void )
 {
 	// Reload any existing unloaded textures.
 	stringMap::iterator i;
@@ -170,7 +150,7 @@ void DirectX::loadTextures()
 		boost::any& value = i->second;
 		try {
 			Texture* texture = boost::any_cast<Texture*>(value);
-			if (!texture->IsLoaded()) {
+			if ( !texture->IsLoaded() ) {
 				LoadTexture( texture );
 			}
 		}
@@ -180,7 +160,7 @@ void DirectX::loadTextures()
 	}
 }
 
-void DirectX::releaseTextures()
+void DirectX::ReleaseTextures( void )
 {
 	// Get textures and release them.
 	stringMap::iterator i;
@@ -196,8 +176,64 @@ void DirectX::releaseTextures()
 	}
 }
 
-// TODO: Make sure all calls check for success.
-Texture* DirectX::getTexture( const string& filename )
+Texture* DirectX::CreateTexture( const string& name, int width, int height )
+{
+	// Create empty texture.
+	IDirect3DTexture9* emptyTexture = nullptr;
+	d3dDevice_->CreateTexture(
+		width, height,
+		1, D3DUSAGE_RENDERTARGET,
+		D3DFMT_A8R8G8B8,
+		D3DPOOL_DEFAULT,
+		&emptyTexture,
+		nullptr );
+	
+	// Generate image information.
+	D3DXIMAGE_INFO newInformation;
+	ZeroMemory( &newInformation, sizeof( D3DXIMAGE_INFO ) );
+	newInformation.Width = width;
+	newInformation.Height = height;
+	newInformation.Format = D3DFMT_A8R8G8B8;
+
+	// Generate texture object and initialize.
+	Texture *newTexture = new Texture( name );
+	newTexture->SetTexture( emptyTexture, newInformation );
+	return newTexture;
+}
+
+void DirectX::SetRenderTarget( Texture *texture )
+{
+	IDirect3DTexture9* targetTexture = texture->GetTexture();
+	IDirect3DSurface9* targetSurface = nullptr;
+
+	// Get the surface to render to.
+	HRESULT result = targetTexture->GetSurfaceLevel( 0, &targetSurface );
+	if ( FAILED( result ) ) {
+		throw Exception( "Failed to get texture surface for rendering." );
+	}
+
+	d3dDevice_->SetRenderTarget( 0, targetSurface );
+	d3dDevice_->Clear(
+		0,
+		nullptr,
+		D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+		D3DCOLOR_ARGB( 0, 0, 0, 0 ),
+		1.0f, 0 );
+	targetSurface->Release();
+}
+
+void DirectX::ResetRenderTarget( void )
+{
+	// Release current target if not back buffer.
+	IDirect3DSurface9 *renderTarget = nullptr;
+	d3dDevice_->GetRenderTarget( 0, &renderTarget );
+	renderTarget->Release();
+
+	// Set to back buffer.
+	d3dDevice_->SetRenderTarget( 0, backBuffer_ );
+}
+
+Texture* DirectX::GetTexture( const string& filename )
 {
 	//Check if that texture exists already.
 	stringMap::iterator iter = textureMap_->find( filename );
@@ -230,8 +266,8 @@ void DirectX::LoadTexture( Texture *texture )
 	D3DXIMAGE_INFO		info;
 
 	string path = "imgFiles/" + texture->GetTextureFilename() + ".png";
-	HRESULT hResult = D3DXGetImageInfoFromFile( path.c_str(), &info );
-	if (hResult != D3D_OK) {
+	HRESULT result = D3DXGetImageInfoFromFile( path.c_str(), &info );
+	if ( FAILED( result ) ) {
 		// Make sure image directory exists.
 		if (GetFileAttributes( "imgFiles" ) == INVALID_FILE_ATTRIBUTES) {
 			CreateDirectory( "imgFiles", 0 );
@@ -244,15 +280,15 @@ void DirectX::LoadTexture( Texture *texture )
 			throw Exception( errorMessage );
 		}
 
-		hResult = D3DXGetImageInfoFromFile( path.c_str(), &info );
-		if (hResult != D3D_OK) {
+		result = D3DXGetImageInfoFromFile( path.c_str(), &info );
+		if ( FAILED( result ) ) {
 			string errorMessage = "Failed to load texture:\n" + path;
 			throw Exception( errorMessage );
 		}
 	}
 
 	// Load the texture.
-	hResult = D3DXCreateTextureFromFileEx(
+	result = D3DXCreateTextureFromFileEx(
 		d3dDevice_,
 		path.c_str(),
 		info.Width, // Use file size.
@@ -265,19 +301,20 @@ void DirectX::LoadTexture( Texture *texture )
 		0,
 		NULL, NULL,
 		&d3dTexture );
-	if (hResult != D3D_OK) {
+	if ( FAILED( result ) ) {
 		string errorMessage = "Failed to load texture:\n" + path;
 		throw Exception( errorMessage );
 	}
 
+	// Finally, load the texture in.
 	texture->SetTexture( d3dTexture, info );
 }
 
-Font* DirectX::createFont( const string& name, int height, bool isBolded )
+Font* DirectX::CreateFont( const string& name, int height, bool isBolded )
 {
 	// Generate D3D font.
-	ID3DXFont *d3dFont;
-	HRESULT hr = D3DXCreateFont(
+	ID3DXFont *d3dFont = nullptr;
+	HRESULT result = D3DXCreateFont(
 		d3dDevice_,
 		height,
 		0, 
@@ -291,14 +328,15 @@ Font* DirectX::createFont( const string& name, int height, bool isBolded )
 		name.c_str(),
 		&d3dFont );
 
-	if (hr != D3D_OK) {
+	if ( FAILED( result ) ) {
 		throw Exception( "Failed to create font." );
 	}
 
 	return new Font( d3dFont );
 }
 
-void DirectX::createTexturedQuad( TextureVertex* vertices, float x, float y, int width, int height, D3DCOLOR colour ) {
+void DirectX::CreateTexturedQuad( TextureVertex* vertices, float x, float y, int width, int height, D3DCOLOR colour )
+{
 	// Set universals.
 	for (int i = 0; i < 4; i++) {
 		vertices[i].z = 1.0f;
@@ -306,41 +344,36 @@ void DirectX::createTexturedQuad( TextureVertex* vertices, float x, float y, int
 		vertices[i].colour = colour;
 	}
 
-	// Set corners.
-	TextureVertex *topLeft = &vertices[1];
-	TextureVertex *bottomLeft = &vertices[0];
-	TextureVertex *bottomRight = &vertices[2];
-	TextureVertex *topRight = &vertices[3];
-
 	x -= 0.5f;
 	y -= 0.5f;
 	
 	// Top left.
-	topLeft->x = x;
-	topLeft->y = y;
-	topLeft->tu = 0;
-	topLeft->tv = 0;
+	vertices[1].x = x;
+	vertices[1].y = y;
+	vertices[1].tu = 0;
+	vertices[1].tv = 0;
 
 	// Top right.
-	topRight->x = x + (float)width;
-	topRight->y = y;
-	topRight->tu = 1;
-	topRight->tv = 0;
+	vertices[3].x = x + (float)width;
+	vertices[3].y = y;
+	vertices[3].tu = 1;
+	vertices[3].tv = 0;
 
 	// Bottom right.
-	bottomRight->x = x + (float)width;
-	bottomRight->y = y + (float)height;
-	bottomRight->tu = 1;
-	bottomRight->tv = 1;
+	vertices[2].x = x + (float)width;
+	vertices[2].y = y + (float)height;
+	vertices[2].tu = 1;
+	vertices[2].tv = 1;
 
 	// Bottom left.
-	bottomLeft->x = x;
-	bottomLeft->y = y + (float)height;
-	bottomLeft->tu = 0;
-	bottomLeft->tv = 1;
+	vertices[0].x = x;
+	vertices[0].y = y + (float)height;
+	vertices[0].tu = 0;
+	vertices[0].tv = 1;
 }
 
-void DirectX::createColouredQuad( ColourVertex* vertices, float x, float y, int width, int height, D3DCOLOR colour ) {
+void DirectX::CreateColouredQuad( ColourVertex* vertices, float x, float y, int width, int height, D3DCOLOR colour )
+{
 	// Set universals.
 	for (int i = 0; i < 4; i++) {
 		vertices[i].z = 1.0f;
@@ -358,58 +391,59 @@ void DirectX::createColouredQuad( ColourVertex* vertices, float x, float y, int 
 	y -= 0.5f;
 	
 	// Top left.
-	topLeft->x = x;
-	topLeft->y = y;
+	vertices[1].x = x;
+	vertices[1].y = y;
 
 	// Top right.
-	topRight->x = x + (float)width;
-	topRight->y = y;
+	vertices[3].x = x + (float)width;
+	vertices[3].y = y;
 	
 	// Bottom right.
-	bottomRight->x = x + (float)width;
-	bottomRight->y = y + (float)height;
+	vertices[2].x = x + (float)width;
+	vertices[2].y = y + (float)height;
 
 	// Bottom left.
-	bottomLeft->x = x;
-	bottomLeft->y = y + (float)height;
+	vertices[0].x = x;
+	vertices[0].y = y + (float)height;
 }
 
-void DirectX::drawRoundedRect( float x, float y, int width, int height, float radiusTl, float radiusTr, float radiusBr, float radiusBl, D3DCOLOR colour ) {
+void DirectX::DrawRoundedRect( float x, float y, int width, int height, float radiusTl, float radiusTr, float radiusBr, float radiusBl, D3DCOLOR colour )
+{
 	// Draw top-left and top.
-	createTexturedQuad( texVertices_, x, y, radiusTl, radiusTl, colour );
-	drawTexturedQuad( texVertices_, roundedCorner_ );
-	createColouredQuad( clrVertices_, x + radiusTl, y, width - radiusTl - radiusTr, radiusTl, colour );
-	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	CreateTexturedQuad( texVertices_, x, y, radiusTl, radiusTl, colour );
+	DrawTexturedQuad( texVertices_, roundedCorner_ );
+	CreateColouredQuad( clrVertices_, x + radiusTl, y, width - radiusTl - radiusTr, radiusTl, colour );
+	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
 
 	// Draw top-right and right.
-	createTexturedQuad( texVertices_, x + width, y, -radiusTr, radiusTr, colour );
-	drawTexturedQuad( texVertices_, roundedCorner_ );
-	createColouredQuad( clrVertices_, x + width, y + radiusTr, -radiusTr, height - radiusTr - radiusBr, colour );
-	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	CreateTexturedQuad( texVertices_, x + width, y, -radiusTr, radiusTr, colour );
+	DrawTexturedQuad( texVertices_, roundedCorner_ );
+	CreateColouredQuad( clrVertices_, x + width, y + radiusTr, -radiusTr, height - radiusTr - radiusBr, colour );
+	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
 
 	// Draw bottom-right and bottom.
-	createTexturedQuad( texVertices_, x + width, y + height, -radiusBr, -radiusBr, colour );
-	drawTexturedQuad( texVertices_, roundedCorner_ );
-	createColouredQuad( clrVertices_, x + radiusBl, y + height, width - radiusBl - radiusBr, -radiusBr, colour );
-	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	CreateTexturedQuad( texVertices_, x + width, y + height, -radiusBr, -radiusBr, colour );
+	DrawTexturedQuad( texVertices_, roundedCorner_ );
+	CreateColouredQuad( clrVertices_, x + radiusBl, y + height, width - radiusBl - radiusBr, -radiusBr, colour );
+	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
 
 	// Draw bottom-left and left.
-	createTexturedQuad( texVertices_, x, y + height, radiusBl, -radiusBl, colour );
-	drawTexturedQuad( texVertices_, roundedCorner_ );
-	createColouredQuad( clrVertices_, x, y + radiusTl, radiusBl, height - radiusTl - radiusBl, colour );
-	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	CreateTexturedQuad( texVertices_, x, y + height, radiusBl, -radiusBl, colour );
+	DrawTexturedQuad( texVertices_, roundedCorner_ );
+	CreateColouredQuad( clrVertices_, x, y + radiusTl, radiusBl, height - radiusTl - radiusBl, colour );
+	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
 
 	// Fill in center.
-	createColouredQuad( clrVertices_, x + radiusBl, y + radiusTl, width - radiusBl - radiusTr, height - radiusTl - radiusBr, colour );
-	drawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	CreateColouredQuad( clrVertices_, x + radiusBl, y + radiusTl, width - radiusBl - radiusTr, height - radiusTl - radiusBr, colour );
+	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
 }
 
-void DirectX::drawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR color )
+void DirectX::DrawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR color )
 {
-	drawRoundedRect( x, y, width, height, radius, radius, radius, radius, color );
+	DrawRoundedRect( x, y, width, height, radius, radius, radius, radius, color );
 }
 
-void DirectX::drawColouredQuad( void *vertices, size_t verticesSize )
+void DirectX::DrawColouredQuad( void *vertices, size_t verticesSize )
 {
 	// Copy information and unlock.
 	void *verticesResult;
@@ -431,34 +465,8 @@ void DirectX::drawColouredQuad( void *vertices, size_t verticesSize )
 	d3dDevice_->DrawPrimitive( D3DPT_TRIANGLESTRIP, 0, 2 );
 }
 
-bool DirectX::beginDraw()
+void DirectX::DrawTexturedQuad( TextureVertex *texVertices, Texture* texture )
 {
-	// Ensure we have all interfaces functional.
-	if (!checkDevice())
-		return false;
-
-	// Clear background.
-	d3dDevice_->Clear( 0, NULL, D3DCLEAR_TARGET, BACKGROUND_COLOUR, 1.0f, 0 );
-
-	// Begin scene.
-	HRESULT hResult = d3dDevice_->BeginScene();
-	if (hResult != D3D_OK)
-		return false;
-
-	// Begin drawing with sprite.
-	return true;
-}
-
-void DirectX::endDraw()
-{
-	/* End scene. */
-	d3dDevice_->EndScene();
-
-	/* Present scene. */
-	d3dDevice_->Present(NULL, NULL, NULL, NULL);
-}
-
-void DirectX::drawTexturedQuad( TextureVertex *texVertices, Texture* texture ) {
 	// Add to vertex buffer.
 	void *vertices = 0;
 	HRESULT hr = vertexBuffer_->Lock( 0, 0, &vertices, 0 );
@@ -475,78 +483,64 @@ void DirectX::drawTexturedQuad( TextureVertex *texVertices, Texture* texture ) {
 	d3dDevice_->DrawPrimitive( D3DPT_TRIANGLESTRIP, 0, 2 );
 }
 
-void DirectX::drawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour)
+void DirectX::DrawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour)
 {
-	createTexturedQuad( texVertices_, x, y, width, height );
-	drawTexturedQuad( texVertices_, texture );
+	CreateTexturedQuad( texVertices_, x, y, width, height, colour );
+	DrawTexturedQuad( texVertices_, texture );
 }
 
-bool DirectX::checkDevice()
+bool DirectX::BeginDraw( void )
 {
-	HRESULT hResult = d3dDevice_->TestCooperativeLevel();
-	switch (hResult)
-	{
+	// Ensure we have all interfaces functional.
+	if ( !CheckDevice() ) {
+		return false;
+	}
+
+	// Clear background.
+	d3dDevice_->Clear( 0, NULL, D3DCLEAR_TARGET, BACKGROUND_COLOUR, 1.0f, 0 );
+	HRESULT result = d3dDevice_->BeginScene();
+	if ( FAILED( result ) ) {
+		return false;
+	}
+
+	// Begin drawing with sprite.
+	return true;
+}
+
+void DirectX::EndDraw( void )
+{
+	// End scene and present.
+	d3dDevice_->EndScene();
+	d3dDevice_->Present(NULL, NULL, NULL, NULL);
+}
+
+bool DirectX::CheckDevice( void )
+{
+	HRESULT result = d3dDevice_->TestCooperativeLevel();
+	switch (result) {
 	case D3DERR_DEVICELOST:
 		return false;
+
 	case D3DERR_DEVICENOTRESET:
 		{
 			// Release all textures.
-			releaseTextures();
+			ReleaseTextures();
 
 			// Refresh the sprite.
-			sprite_->OnLostDevice();
-			HRESULT hResult = d3dDevice_->Reset( &params_ );
-			sprite_->OnResetDevice();
-
-			// Check that everything was properly refreshed.
-			if (hResult != D3D_OK)
-			{
+			HRESULT result = d3dDevice_->Reset( &params_ );
+			if ( FAILED( result ) ) {
 				throw Exception( "Failed to reset Direct3D device." );
 				PostMessage( getHandle(), WM_DESTROY, 0, 0 );
 			}
 
 			// Reload all textures.
-			loadTextures();
+			LoadTextures();
 		}
 
 		return false;
+		break;
+
 	default:
-		// Device is fine.
 		return true;
 	}
-}
-
-void DirectX::setTransform( const D3DXMATRIX *d3dMatrix )
-{
-	sprite_->SetTransform( d3dMatrix );
-}
-
-void DirectX::setTransform( float x, float y, float rotation, float xScale, float yScale)
-{
-	// Result matrix.
-	D3DXMATRIX matrix;
-
-	// Transform vectors.
-	D3DXVECTOR2 vecTranslation( 0.0f, 0.0f );
-	D3DXVECTOR2 vecCenter( x, y );
-	D3DXVECTOR2 vecScale( xScale, yScale );
-
-	D3DXMatrixTransformation2D(
-		// Output variable.
-		&matrix, 
-
-		// Scaling arguments.
-		&vecCenter, 
-		1.0f,
-		&vecScale,
-
-		// Rotation arguments
-		&vecCenter,
-		rotation,
-
-		// Translation arguments.
-		&vecTranslation);		
-
-	// Set it.
-	setTransform(&matrix);
 }

@@ -15,6 +15,9 @@ ItemDisplay::ItemDisplay()
 {
 	SetAlpha( 0 );
 
+	// Unset texture.
+	roundedRect_ = nullptr;
+
 	// Create text objects.
 	nameText_ = new WrappedText( nameFont_, ITEM_DISPLAY_WIDTH );
 	nameText_->SetColour( ITEM_DISPLAY_NAME_COLOUR );
@@ -34,15 +37,27 @@ ItemDisplay::ItemDisplay()
 ItemDisplay::~ItemDisplay()
 {
 	// Item display destroyed.
+	if (roundedRect_ != nullptr) {
+		delete roundedRect_;
+		roundedRect_ = nullptr;
+	}
 }
 
 void ItemDisplay::OnDraw( DirectX *directX )
 {
+	// See if we need to generate the texture.
+	if (roundedRect_ == nullptr) {
+		roundedRect_ = directX->CreateTexture( "item_display", GetWidth(), GetHeight() );
+		directX->SetRenderTarget( roundedRect_ );
+		directX->DrawRoundedRect( 0, 0, GetWidth(), GetHeight(), ITEM_DISPLAY_RADIUS, D3DCOLOR_XRGB( 0, 0, 0 ) );
+		directX->ResetRenderTarget();
+	}
+
 	// Transition alpha.
 	if (item_ != nullptr) {
 		if (GetAlpha() > 0) {
 			// Draw base rectangle.
-			directX->drawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), 5, D3DCOLOR_RGBA( 0, 0, 0, alpha_ ) );
+			directX->DrawTexture( roundedRect_, GetX(), GetY(), GetWidth(), GetHeight(), D3DCOLOR_ARGB( GetAlpha(), 255, 255, 255 ) );
 			textLayout_->OnDraw( directX );
 		}
 	}
@@ -65,23 +80,8 @@ void ItemDisplay::UpdateAlpha( void )
 
 void ItemDisplay::Pack( void )
 {
+	textLayout_->Pack();
 	SetSize( textLayout_->GetWidth() + ITEM_DISPLAY_PADDING * 2, textLayout_->GetHeight() + ITEM_DISPLAY_PADDING * 2 );
-}
-
-void ItemDisplay::SetAlpha( int alpha )
-{
-	alpha_ = alpha;
-	if (alpha_ < 0) {
-		alpha_ = 0;
-	}
-	else if (alpha_ > ITEM_DISPLAY_ALPHA_MAX) {
-		alpha_ = ITEM_DISPLAY_ALPHA_MAX;
-	}
-}
-
-int ItemDisplay::GetAlpha( void ) const
-{
-	return alpha_;
 }
 
 const Item* ItemDisplay::GetItem( void ) const
@@ -91,18 +91,23 @@ const Item* ItemDisplay::GetItem( void ) const
 
 void ItemDisplay::SetItem( const Item *item )
 {
-	item_ = item;
-	if (item != nullptr) {
-		SetActive( true );
-		SetName( item->GetName() );
+	if (item_ != item) {
+		item_ = item;
+		if (item != nullptr) {
+			SetActive( true );
+			SetName( item->GetName() );
 
-		// Build information text.
-		stringstream infoStream;
-		infoStream << "LEVEL " << (unsigned int)item->GetLevel() << " (" << hex << item->GetFlags() << ")";
-		infoText_->SetText( infoStream.str() );
+			if (roundedRect_ != nullptr) {
+				delete roundedRect_;
+				roundedRect_ = nullptr;
+			}
 
-		textLayout_->Pack();
-		Pack();
+			// Build information text.
+			stringstream infoStream;
+			infoStream << "LEVEL " << (unsigned int)item->GetLevel() << " (" << hex << item->GetFlags() << ")";
+			infoText_->SetText( infoStream.str() );
+			Pack();
+		}
 	}
 }
 
@@ -129,12 +134,12 @@ void ItemDisplay::SetActive( bool isActive )
 
 void ItemDisplay::Precache( DirectX* directX )
 {
-	nameFont_ = directX->createFont( 
+	nameFont_ = directX->CreateFont( 
 		ITEM_DISPLAY_TITLE_FONT_FACE, 
 		ITEM_DISPLAY_TITLE_FONT_SIZE, 
 		ITEM_DISPLAY_TITLE_FONT_BOLDED );
 
-	infoFont_ = directX->createFont( 
+	infoFont_ = directX->CreateFont( 
 		ITEM_DISPLAY_INFO_FONT_FACE, 
 		ITEM_DISPLAY_INFO_FONT_SIZE, 
 		ITEM_DISPLAY_INFO_FONT_BOLDED );

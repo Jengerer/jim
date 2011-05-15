@@ -107,6 +107,9 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 	// Start up DirectX and window.
 	Application::LoadInterfaces( APPLICATION_TITLE, instance );
 
+	// Start drawing to generate textures.
+	directX_->BeginDraw();
+
 	// Necessary to display progress/status.
 	Notice::Precache( directX_ );
 	Button::Precache( directX_ );
@@ -114,14 +117,19 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 	try {
 		// Precache secondary resources.
 		ItemDisplay::Precache( directX_ );
+		Notification::Precache( directX_ );
+		Slot::Precache( directX_ );
+
+		// End drawing.
+		directX_->EndDraw();
 
 		// Create start up message.
 		loadProgress_ = CreateNotice( "Initializing item manager..." );
 
 		// Create buttons.
-		Texture *craftTexture = directX_->getTexture( "manager/gear" );
-		Texture *equipTexture = directX_->getTexture( "manager/equip" );
-		Texture *sortTexture = directX_->getTexture( "manager/sort" );
+		Texture *craftTexture = directX_->GetTexture( "manager/gear" );
+		Texture *equipTexture = directX_->GetTexture( "manager/equip" );
+		Texture *sortTexture = directX_->GetTexture( "manager/sort" );
 
 		// Add all buttons to a layout.
 		HorizontalLayout *buttonLayout = new HorizontalLayout();
@@ -145,6 +153,12 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		// Create item display.
 		itemDisplay_ = new ItemDisplay();
 		Add( itemDisplay_ );
+
+		// Create notification queue.
+		notifications_ = new NotificationQueue();
+		notifications_->SetPosition( GetWidth() - BACKPACK_PADDING, GetHeight() - BACKPACK_PADDING );
+		backpack_->SetNotificationQueue( notifications_ );
+		Add( notifications_ );
 
 		// Load definitions from translated APIs.
 		LoadDefinitions();
@@ -180,6 +194,14 @@ void ItemManager::CloseInterfaces( void )
 		Item::informationTable = nullptr;
 	}
 
+	// Free cached resources.
+	// TODO: Make an IPrecachable interface and keep a list.
+	Button::Release();
+	ItemDisplay::Release();
+	Notice::Release();
+	Notification::Release();
+	Slot::Release();
+
 	// Free all protobuf library resources.
 	google::protobuf::ShutdownProtobufLibrary();
 }
@@ -190,6 +212,8 @@ void ItemManager::RunApplication( void )
 	if (GetState() == APPLICATION_STATE_RUN) {
 		HandleCallbacks();
 		backpack_->HandleCamera();
+
+		notifications_->UpdateNotifications();
 		UpdateItemDisplay();
 	}
 
@@ -449,8 +473,8 @@ void ItemManager::LoadDefinitions( void )
 
 		try {
 			// Get the texture, add to table.
-			Texture* texture = directX_->getTexture(image);
-			itemTable->put("texture", texture);
+			Texture* texture = directX_->GetTexture( image );
+			itemTable->put( "texture", texture );
 		}
 		catch (Exception &textureException) {
 			if (itemTable != nullptr) {
@@ -575,10 +599,7 @@ void ItemManager::HandleCallbacks( void ) {
 							{
 								GCCraftResponse_t *craftMsg = (GCCraftResponse_t*)buffer;
 								if (craftMsg->blueprint == 0xffff) {
-									CreateAlert( "Crafting failed. No such blueprint exists!" );
-								}
-								else {
-									CreateAlert( "Congratulations! Item crafting succeeded!" );
+									notifications_->AddNotification( "Crafting failed. No such blueprint!", nullptr );
 								}
 
 								break;

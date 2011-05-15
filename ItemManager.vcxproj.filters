@@ -141,6 +141,12 @@
     <ClCompile Include="Alert.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\NotificationQueue.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\Notification.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectX.h">
@@ -906,6 +912,9 @@
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Notice.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\Notification.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
   </ItemGroup>

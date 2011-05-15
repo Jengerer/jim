@@ -11,7 +11,7 @@
 #include "steam/UserItemsCommon.h"
 
 #include "Hashtable.h"
-#include "Image.h"
+#include "Texture.h"
 
 using namespace std;
 
@@ -35,7 +35,7 @@ enum EClassEquip {
 #define FL_ITEM_POSITION	0x0000FFFF
 #define FL_ITEM_NONPOSITION	FL_ITEM_ALL ^ FL_ITEM_POSITION
 
-class Item: public Image
+class Item
 {
 public:
 	bool operator==(const Item &other) const; // TODO: { return (this->GetUniqueID() == rOther.GetUniqueID()); }
@@ -53,9 +53,6 @@ public:
 	// Loading item definition by index.
 	void			GetItemInformation( void );
 
-	// Drawable functions.
-	virtual void	OnDraw( DirectX* directX );
-
 	// Item attribute getters.
 	uint64			GetUniqueId( void ) const;
 	uint16			GetTypeIndex( void ) const;
@@ -71,6 +68,7 @@ public:
 	void			SetIndex( uint16 position );
 	bool			IsNew( void ) const;
 	void			SetNew( bool isNew );
+	bool			HasValidFlags( void ) const;
 
 	// Equipment handling.
 	bool			IsEquipped( EClassEquip equipClass = CLASS_ALL ) const;
@@ -80,7 +78,6 @@ public:
 
 	// Drawing and interaction.
 	Texture*		GetTexture( void );
-	static bool		ValidFlags( uint32 flags );
 
 private:
 
@@ -96,6 +93,7 @@ public:
 	static Hashtable*	informationTable;
 
 private:
+
 	// Item information.
 	uint64				uniqueId_;
 	uint16				typeIndex_;
@@ -109,4 +107,5 @@ private:
 
 	// Pointers from the information.
 	Texture*			texture_;
+
 };

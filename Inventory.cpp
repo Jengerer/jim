@@ -159,7 +159,8 @@ void Inventory::SetExcludedPage( int page )
 	excludedPage_ = page;
 }
 
-void Inventory::UpdateExcluded( void ) {
+void Inventory::UpdateExcluded( void )
+{
 	itemMap::iterator k = excludedItems_.begin();
 	for (int i = 0; i < GetExcludedSize(); i++) {
 		Slot *slot = &excludedSlots_[i];
@@ -173,35 +174,39 @@ void Inventory::UpdateExcluded( void ) {
 	}
 }
 
-// Inserts an item, adds it to list, and returns its slot, if any.
-Slot* Inventory::AddItem( Item* item )
+//=============================================================
+// Purpose: Attempt to place items with valid positions
+//			back into the inventory.
+//=============================================================
+void Inventory::ResolveExcluded( void )
 {
-	Slot* slot = InsertItem( item );
-	if (slot == nullptr || slot->GetGroup() == GROUP_EXCLUDED) {
-		ToExcluded( item );
-		UpdateExcluded();
-	}
-	else {
-		ToInventory( item );
+	itemMap::iterator k = excludedItems_.begin();
+	while (k != excludedItems_.end()) {
+		// Get item and move on.
+		Item *item = (k++)->second;
+		InsertItem( item );
 	}
 
-	return slot;
+	UpdateExcluded();
 }
 
-// Inserts an item and returns its slot, if any.
-Slot* Inventory::InsertItem( Item* item )
+//=============================================================
+// Purpose: Inserts an item into the inventory or excluded.
+// Notes:	A call to UpdateExcluded should be called after
+//			any series of inserts.
+//=============================================================
+void Inventory::InsertItem( Item* item )
 {
-	// Add item to correct slot.
-	uint32 flags = item->GetFlags();
-	uint16 position = item->GetIndex();
-	uint32 leftBytes = flags & 0xf0000000;
-	if ((leftBytes == 0x80000000) && (flags & 0xfff) && CanMove( position )) {
-		Slot* destination = GetInventorySlot( position );
+	// Check if we should/can place in inventory.
+	uint16 index = item->GetIndex();
+	if (item->HasValidFlags() && !item->IsNew() && CanMove( index )) {
+		Slot* destination = GetInventorySlot( index );
 		destination->SetItem( item );
-		return destination;
+		ToInventory( item );
 	}
-
-	return nullptr;
+	else {
+		ToExcluded( item );
+	}
 }
 
 void Inventory::RemoveItem( uint64 uniqueId )
@@ -247,15 +252,27 @@ void Inventory::ClearItems( void )
 void Inventory::ToInventory( Item *item )
 {
 	// Remove from excluded.
-	excludedItems_.erase( item->GetUniqueId() );
+	itemMap::iterator i = excludedItems_.find( item->GetUniqueId() );
+	if (i != excludedItems_.end()) {
+		excludedItems_.erase( i );
+	}
+
 	itemPair newPair( item->GetUniqueId(), item );
 	inventoryItems_.insert( newPair );
 }
 
 void Inventory::ToExcluded( Item *item )
 {
-	// Remove from inventory.
-	inventoryItems_.erase( item->GetUniqueId() );
+	// Check if we need to remove from inventory slot.
+	itemMap::iterator i = inventoryItems_.find( item->GetUniqueId() );
+	if (i != inventoryItems_.end()) {
+		Item *item = i->second;
+		Slot *slot = GetInventorySlot( item->GetIndex() );
+		slot->SetItem( nullptr );
+		inventoryItems_.erase( i );
+	}
+
+	// Now just add to excluded.
 	itemPair newPair( item->GetUniqueId(), item );
 	excludedItems_.insert( newPair );
 }
