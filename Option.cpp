@@ -23,7 +23,7 @@ void Option::OnDraw( DirectX *directX )
 	// Draw button base.
 	float x = GetX();
 	float y = GetY();
-	directX->drawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), OPTION_RADIUS, buttonColour );
+	directX->DrawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), OPTION_RADIUS, buttonColour );
 
 	// Draw text in center.
 	RECT rect;

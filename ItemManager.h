@@ -5,8 +5,10 @@
 #include "Application.h"
 #include "Backpack.h"
 #include "Button.h"
-#include "Notice.h"
 #include "ItemDisplay.h"
+#include "Notice.h"
+#include "NotificationQueue.h"
+#include "Notification.h"
 
 #define BUTTON_SPACING	2
 #define BUTTON_Y		380
@@ -72,10 +74,13 @@ private:
 	ItemDisplay *itemDisplay_;
 
 	// Interface variables.
-	Notice			*loadProgress_;
-	Alert			*alert_;
-	Alert			*error_;
-	Button			*equipButton_, *craftButton_, *sortButton_;
+	Notice				*loadProgress_;
+	NotificationQueue	*notifications_;
+	Alert				*alert_;
+	Alert				*error_;
+	Button				*equipButton_;
+	Button				*craftButton_;
+	Button				*sortButton_;
 };
 
 #endif // ITEM_MANAGER_H

@@ -21,13 +21,13 @@ Notice::~Notice()
 void Notice::OnDraw( DirectX* directX )
 {
 	// Draw the stroke.
-	directX->drawRoundedRect( GetX(), GetY(), 
+	directX->DrawRoundedRect( GetX(), GetY(), 
 		GetWidth(), GetHeight(), 
 		NOTICE_RADIUS, 
 		NOTICE_STROKE_COLOUR ) ;
 
 	// Draw inner rectangle.
-	directX->drawRoundedRect(
+	directX->DrawRoundedRect(
 		GetX() + NOTICE_STROKE_WIDTH, 
 		GetY() + NOTICE_STROKE_WIDTH, 
 		GetWidth() - NOTICE_STROKE_WIDTH*2, 
@@ -79,7 +79,7 @@ void Notice::AppendMessage( const string& message )
 
 void Notice::Precache( DirectX *directX )
 {
-	font_ = directX->createFont( NOTICE_FONT_FACE, NOTICE_FONT_SIZE, NOTICE_FONT_BOLDED );
+	font_ = directX->CreateFont( NOTICE_FONT_FACE, NOTICE_FONT_SIZE, NOTICE_FONT_BOLDED );
 }
 
 void Notice::Release( void )

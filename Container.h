@@ -18,6 +18,8 @@ public:
 	deque<Component*>*	GetChildren( void );
 
 	virtual void		OnDraw( DirectX *directX );
+	virtual void		Pack( void );
+	virtual void		SetAlpha( int alpha );
 
 	// Relative position modifiers.
 	virtual void		SetPosition( float x, float y );

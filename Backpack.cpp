@@ -26,7 +26,10 @@ Backpack::Backpack(
 
 	// Slot state information.
 	dragged_ = nullptr;
-	hovered_ = nullptr;
+	SetHovering( nullptr );
+
+	// Set default notification queue.
+	SetNotificationQueue( nullptr );
 
 	// Starting attributes.
 	isLoaded_ = false;
@@ -92,7 +95,7 @@ void Backpack::HandleMessage( int id, void *message, uint32 size )
 									(EItemQuality)econItem.quality(),
 									econItem.quantity(),
 									econItem.inventory() );
-								inventory_->AddItem( item );
+								inventory_->InsertItem( item );
 							}
 						}
 
@@ -116,6 +119,7 @@ void Backpack::HandleMessage( int id, void *message, uint32 size )
 
 			SetLoaded( true );
 			inventory_->UpdateExcluded();
+			notifications_->AddNotification( "Backpack successfully loaded from Steam.", nullptr );
 			break;
 		}
 
@@ -139,8 +143,21 @@ void Backpack::HandleMessage( int id, void *message, uint32 size )
 				econItem.inventory() );
 
 			// Add this item to excluded.
-			inventory_->AddItem( newItem );
+			inventory_->InsertItem( newItem );
 			inventory_->UpdateExcluded();
+			
+			// Get the source.
+			string source;
+			if (econItem.origin() == 4) {
+				source = "crafted";
+			}
+			else {
+				source = "found";
+			}
+
+			// Display message.
+			notifications_->AddNotification( "You have " + source + " a " + newItem->GetName() + ".", newItem->GetTexture() );
+
 			break;
 		}
 		
@@ -181,14 +198,12 @@ void Backpack::HandleMessage( int id, void *message, uint32 size )
 
 					// Place item into excluded, to be resolved later.
 					item->SetFlags( econItem.inventory() );
-					
-					uint16 newIndex = item->GetIndex();
-					// Attempt to retrieve slots.
-					if (inventory_->CanMove( newIndex )) {
-						Slot *slot = inventory_->GetInventorySlot( newIndex );
-					}
+					inventory_->ToExcluded( item );
 				}
 			}
+
+			// Attempt to reposition excluded slots.
+			inventory_->ResolveExcluded();
 			break;
 		}
 	}
@@ -270,8 +285,10 @@ void Backpack::LoadInventory( const string &jsonInventory )
 			item.position );
 
 		// Add the item.
-		inventory_->AddItem( newItem );
+		inventory_->InsertItem( newItem );
 	}
+
+	inventory_->UpdateExcluded();
 }
 
 void Backpack::FormatInventory( void )
@@ -331,6 +348,11 @@ void Backpack::FormatInventory( void )
 	// Set primary camera target.
 	UpdateTarget();
 	cameraX_ = cameraDest_;
+}
+
+void Backpack::SetNotificationQueue( NotificationQueue *notifications )
+{
+	notifications_ = notifications;
 }
 
 bool Backpack::IsLoaded( void ) const
@@ -452,6 +474,7 @@ bool Backpack::OnLeftClicked( Mouse *mouse )
 							else {
 								OnSlotReleased( slot );
 							}
+
 							return true;
 						}
 					}
@@ -546,10 +569,11 @@ void Backpack::OnSlotGrabbed( Mouse *mouse, Slot *slot )
 			dragged_ = slot;
 
 			// Create a dummy slot to drag the item.
-			Slot* dragging = new Slot( *slot );
-			dragging->SetIndex( slot->GetIndex() );
+			Slot* dragging = new Slot( 
+				slot->GetIndex(), 
+				slot->GetItem() );
+			dragging->SetPosition( slot->GetX(), slot->GetY() );
 			dragging->SetGroup( slot->GetGroup() );
-			dragging->SetItem( slot->GetItem() );
 			dragging->SetParent( this );
 			Add( dragging );
 		

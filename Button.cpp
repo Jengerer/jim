@@ -36,10 +36,10 @@ void Button::OnDraw( DirectX* directX )
 
 	// Draw button base.
 	float x = GetX(), y = GetY();
-	directX->drawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), BUTTON_RADIUS, 0, BUTTON_RADIUS, 0, buttonColour );
+	directX->DrawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), BUTTON_RADIUS, 0, BUTTON_RADIUS, 0, buttonColour );
 
 	if ( GetIcon() != nullptr ) {
-		directX->drawTexture( GetIcon(), GetX() + BUTTON_PADDING_X, GetY() + BUTTON_PADDING_Y, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
+		directX->DrawTexture( GetIcon(), GetX() + BUTTON_PADDING_X, GetY() + BUTTON_PADDING_Y, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
 	}
 
 	// Draw text in center.
@@ -141,7 +141,10 @@ bool Button::OnRightReleased( Mouse *mouse )
 
 void Button::Precache( DirectX *directX )
 {
-	font_ = directX->createFont( BUTTON_FONT_FACE, BUTTON_FONT_SIZE, BUTTON_FONT_BOLDED );
+	font_ = directX->CreateFont( 
+		BUTTON_FONT_FACE, 
+		BUTTON_FONT_SIZE, 
+		BUTTON_FONT_BOLDED );
 }
 
 void Button::Release( void )

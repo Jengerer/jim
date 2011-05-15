@@ -10,6 +10,7 @@
 
 #define ITEM_DISPLAY_PADDING		10
 #define ITEM_DISPLAY_SPACING		10
+#define ITEM_DISPLAY_RADIUS			5
 #define ITEM_DISPLAY_WIDTH			200
 #define ITEM_DISPLAY_ALPHA_SPEED	30
 #define ITEM_DISPLAY_ALPHA_MAX		225
@@ -28,10 +29,6 @@ public:
 	virtual void	UpdatePosition( void );
 	void			UpdateAlpha( void );
 	virtual void	Pack( void );
-
-	// Visibility attributes.
-	void			SetAlpha( int alpha );
-	int				GetAlpha( void ) const;
 
 	// Item functions.
 	const Item*		GetItem( void ) const;
@@ -59,10 +56,10 @@ private:
 	bool		isActive_;
 	const Item	*item_;
 	string		itemName_;
-	int			alpha_;
 
 	VerticalLayout	*textLayout_;
 	WrappedText		*nameText_;
 	WrappedText		*infoText_;
+	Texture			*roundedRect_;
 
 };

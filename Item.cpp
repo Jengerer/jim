@@ -1,9 +1,6 @@
 #include "Item.h"
 
-/* Create definitions Hashtable. */
-Hashtable* Item::informationTable = NULL;
-
-const int ITEM_SIZE		= 60;
+Hashtable* Item::informationTable = nullptr;
 
 Item::Item(
 	uint64 uniqueId,
@@ -20,9 +17,6 @@ Item::Item(
 	SetQuality( quality );
 	SetCount( count );
 	SetFlags( flags );
-
-	// Set constant size.
-	SetSize( ITEM_SIZE, ITEM_SIZE );
 
 	// Set null pointers for things to be acquired.
 	texture_ = nullptr;
@@ -54,11 +48,6 @@ void Item::GetItemInformation( void )
 	}
 
 	GetTexture();
-}
-
-void Item::OnDraw( DirectX* directX )
-{
-	directX->drawTexture( texture_, GetX(), GetY(), ITEM_SIZE, ITEM_SIZE );
 }
 
 uint64 Item::GetUniqueId( void ) const
@@ -119,7 +108,7 @@ void Item::SetIndex( uint16 position )
 
 bool Item::IsNew( void ) const
 {
-	return GetFlags() & 0x30000000;
+	return GetFlags() & FL_ITEM_NEW;
 }
 
 void Item::SetNew( bool isNew )
@@ -133,10 +122,15 @@ void Item::SetNew( bool isNew )
 	}
 }
 
+bool Item::HasValidFlags( void ) const
+{
+	return GetFlags() & FL_ITEM_VALID;
+}
+
 bool Item::IsEquipped( EClassEquip equipClass ) const
 {
 	int equipFlags = flags_ & equipClass;
-	int validFlags = flags_ & 0x80000000;
+	int validFlags = flags_ & FL_ITEM_VALID;
 	return ((validFlags != 0) && (equipFlags != 0x00000000));
 }
 
@@ -159,7 +153,7 @@ void Item::SetEquip( EClassEquip equipClass, bool equip )
 	if ((GetFlags() & equipClass) != 0) {
 		if (!equip) {
 			// Item is equipped to this class; remove flag.
-			flags_ &= (0xffffffff - equipClass);
+			flags_ &= (FL_ITEM_ALL ^ equipClass);
 		}
 	}
 	else {

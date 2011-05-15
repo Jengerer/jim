@@ -81,6 +81,6 @@ void Font::drawText(const string& text, LPRECT rect, DWORD format, const D3DCOLO
 		text.c_str(),
 		-1,
 		rect,
-		format,
+		format | DT_NOCLIP,
 		colour );
 }

@@ -5,7 +5,9 @@
 
 class HorizontalLayout: public Layout
 {
+
 public:
+
 	HorizontalLayout( void );
 	virtual ~HorizontalLayout( void );
 
@@ -14,4 +16,5 @@ public:
 
 	// Repositions all elements.
 	virtual void UpdatePosition( void );
+
 };

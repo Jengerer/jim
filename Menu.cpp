@@ -16,8 +16,8 @@ Menu::~Menu()
 void Menu::draw( DirectX *directX )
 {
 	// Draw stroked rounded rectangle.
-	directX->drawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), MENU_RADIUS + MENU_STROKE, MENU_STROKE_COLOUR );
-	directX->drawRoundedRect( GetX() + MENU_STROKE, GetY() + MENU_STROKE, GetWidth() - MENU_STROKE * 2, GetHeight() - MENU_STROKE * 2, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
+	directX->DrawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), MENU_RADIUS + MENU_STROKE, MENU_STROKE_COLOUR );
+	directX->DrawRoundedRect( GetX() + MENU_STROKE, GetY() + MENU_STROKE, GetWidth() - MENU_STROKE * 2, GetHeight() - MENU_STROKE * 2, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
 
 	// Draw buttons.
 	for (int i = 0; i < options_.size(); i++) {

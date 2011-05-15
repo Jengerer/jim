@@ -21,6 +21,10 @@ public:
 	virtual float	GetX( void ) const;
 	virtual float	GetY( void ) const;
 
+	// Visibility functions.
+	virtual void	SetAlpha( int alpha );
+	int				GetAlpha( void ) const;
+
 	// Size functions.
 	virtual int		GetWidth( void ) const;
 	virtual int		GetHeight( void ) const;
@@ -30,5 +34,6 @@ private:
 
 	float x_, y_;
 	int width_, height_;
+	int alpha_;
 
 };
