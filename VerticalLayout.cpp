@@ -12,25 +12,35 @@ VerticalLayout::~VerticalLayout( void )
 
 void VerticalLayout::Pack( void )
 {
-	int width = 0, height = 0;
-	deque<Component*>::iterator i;
+	// First get maximum width.
+	int maxWidth = 0;
+	deque<Component*>::const_iterator i;
 	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
 		Component *component = *i;
-		component->SetPosition( GetX(), GetY() + height );
-
-		// Push height by component height and spacing (if not last).
-		height += component->GetHeight();
-		if (component != componentStack_.back()) {
-			height += GetSpacing();
-		}
-
-		// Store maximum width.
-		if (component->GetWidth() > width) {
-			width = component->GetWidth();
+		int width = component->GetWidth();
+		if (width > maxWidth) {
+			maxWidth = width;
 		}
 	}
 
-	SetSize( width, height );
+	// Now pack.
+	int height = 0;
+	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
+		Component *component = *i;
+
+		// Set position aligned horizontally.
+		int middleX = GetX() + ((maxWidth - component->GetWidth()) >> 1);
+		component->SetPosition( middleX, GetY() + height );
+
+		// Push width by component width and spacing (if not last).
+		height += component->GetHeight();
+		if ( component != componentStack_.back() ) {
+			height += GetSpacing();
+		}
+	}
+
+	// Update size.
+	SetSize( maxWidth, height );
 }
 
 void VerticalLayout::UpdatePosition( void )
