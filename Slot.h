@@ -60,6 +60,8 @@ protected:
 	static RoundedRectangle	*normalSelected_;
 	static RoundedRectangle	*vintageSlot_;
 	static RoundedRectangle	*vintageSelected_;
+	static RoundedRectangle *genuineSlot_;
+	static RoundedRectangle *genuineSelected_;
 
 private:
 

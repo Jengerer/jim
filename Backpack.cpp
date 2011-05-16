@@ -429,7 +429,7 @@ bool Backpack::OnMouseMoved( Mouse *mouse )
 					deque<Component*> *slots = column->GetChildren();
 					for each (Component *rowSlot in *slots) {
 						Slot *slot = dynamic_cast<Slot*>(rowSlot);
-						if (mouse->isTouching( slot )) {
+						if (mouse->IsTouching( slot )) {
 							SetHovering( slot->HasItem() ? slot : nullptr );
 							return true;
 						}
@@ -443,7 +443,7 @@ bool Backpack::OnMouseMoved( Mouse *mouse )
 	int length = inventory_->GetExcludedSize();
 	for (int i = 0; i < length; i++) {
 		Slot *slot = inventory_->GetExcludedSlot( i );
-		if (mouse->isTouching( slot )) {
+		if (mouse->IsTouching( slot )) {
 			SetHovering( slot->HasItem() ? slot : nullptr );
 			return true;
 		}
@@ -467,7 +467,7 @@ bool Backpack::OnLeftClicked( Mouse *mouse )
 					deque<Component*> *slots = column->GetChildren();
 					for each (Component *rowSlot in *slots) {
 						Slot *slot = dynamic_cast<Slot*>(rowSlot);
-						if (mouse->isTouching( slot )) {
+						if (mouse->IsTouching( slot )) {
 							if (dragged_ == nullptr) {
 								OnSlotGrabbed( mouse, slot );
 							}
@@ -487,7 +487,7 @@ bool Backpack::OnLeftClicked( Mouse *mouse )
 	int length = inventory_->GetExcludedSize();
 	for (int i = 0; i < length; i++) {
 		Slot *slot = inventory_->GetExcludedSlot( i );
-		if (mouse->isTouching( slot )) {
+		if (mouse->IsTouching( slot )) {
 			if (dragged_ == nullptr) {
 				OnSlotGrabbed( mouse, slot );
 			}
@@ -530,7 +530,7 @@ bool Backpack::OnLeftReleased( Mouse *mouse )
 						deque<Component*> *slots = column->GetChildren();
 						for each (Component *rowSlot in *slots) {
 							Slot *slot = dynamic_cast<Slot*>(rowSlot);
-							if (mouse->isTouching( slot )) {
+							if (mouse->IsTouching( slot )) {
 								OnSlotReleased( slot );
 								dragged_ = nullptr;
 								return true;
@@ -742,31 +742,14 @@ void Backpack::CraftSelected( void )
 void Backpack::UpdateItem( Item* item )
 {
 	// Generate message with new flags.
+	// TODO: See if we can use protobufs here before old messages are deprecated.
 	GCSetItemPosition_t message;
-	memset( &message, 0xff, sizeof( message ) );
-
+	memset( &message, 0xFF, sizeof( message ) );
 	message.itemID = item->GetUniqueId();
 	message.position = item->GetFlags();
 
 	// Send it.
 	SendMessage( GCSetItemPosition_t::k_iMessage, &message, sizeof( message ) );
-
-	/*
-	// Generate econ item with updates.
-	CSOEconItem econItem;
-	econItem.set_id( item->GetUniqueId() );
-	econItem.set_inventory( item->GetFlags() );
-	string itemMessage = econItem.SerializeAsString();
-
-	// Generate message with new flags.
-	CMsgSOSingleObject updateMsg;
-	updateMsg.set_owner( GetSteamId() );
-	updateMsg.set_type_id( 1 );
-	updateMsg.set_object_data( itemMessage.c_str(), itemMessage.length() );
-	string updateString = updateMsg.SerializeAsString();
-
-	// Send it.
-	SendMessage( k_EMsgGCSetItemPosition | 0x80000000, (void*)updateString.c_str(), updateString.length() );*/
 }
 
 slotVector* Backpack::GetSelected( void )
@@ -821,8 +804,10 @@ void Backpack::PrevPage( void )
 
 void Backpack::HandleCamera( void )
 {
-	MoveCamera();
-	UpdatePosition();
+	if (cameraX_ != cameraDest_) {
+		MoveCamera();
+		UpdatePosition();
+	}
 }
 
 void Backpack::MoveCamera( void )

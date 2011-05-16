@@ -86,26 +86,23 @@ void Application::DrawFrame( void )
 
 void Application::UpdateMouse( void )
 {
+	// Update mouse regardless of focus.
+	mouse_->Poll();
+	OnMouseMoved( mouse_ );
+
 	// Skip if not in focus.
 	if ( GetFocus() == GetWindow()->getHandle() ) {
-		// TODO: Only call on actual movement.
-		OnMouseMoved( mouse_ );
-
 		// Handle mouse events.
 		if ( IsKeyClicked( VK_LBUTTON ) )  {
-			mouse_->setLeftMouse( true );
 			OnLeftClicked( mouse_ );
 		}
 		else if ( IsKeyReleased( VK_LBUTTON ) ) {
-			mouse_->setLeftMouse( false );
 			OnLeftReleased( mouse_ );
 		}
 		else if ( IsKeyClicked( VK_RBUTTON ) ) {
-			mouse_->setRightMouse( true );
 			OnRightClicked( mouse_ );
 		}
 		else if ( IsKeyReleased( VK_RBUTTON ) ) {
-			mouse_->setRightMouse( true );
 			OnRightReleased( mouse_ );
 		}
 	}

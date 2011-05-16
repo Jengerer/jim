@@ -79,9 +79,9 @@ uint32 Item::GetCount( void ) const
 	return count_;
 }
 
-const char* Item::GetName( void ) const
+const string& Item::GetName( void ) const
 {
-	return information_->itemName;
+	return information_->GetName();
 }
 
 uint16 Item::GetIndex( void ) const
@@ -130,17 +130,17 @@ bool Item::IsEquipped( EClassEquip equipClass ) const
 
 EItemSlot Item::GetEquipSlot( void ) const
 {
-	return information_->itemSlot;
+	return information_->GetSlot();
 }
 
 uint32 Item::GetEquipClasses( void ) const
 {
-	return information_->classFlags;
+	return information_->GetClassFlags();
 }
 
 uint8 Item::GetEquipClassCount( void ) const
 {
-	return information_->classCount;
+	return information_->GetClassCount();
 }
 
 void Item::SetEquip( EClassEquip equipClass, bool equip )
@@ -161,7 +161,7 @@ void Item::SetEquip( EClassEquip equipClass, bool equip )
 
 Texture* Item::GetTexture( void )
 {
-	return information_->texture;
+	return information_->GetTexture();
 }
 
 void Item::SetUniqueId( uint64 uniqueId )

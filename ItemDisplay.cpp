@@ -85,7 +85,7 @@ void ItemDisplay::SetItem( const Item *item )
 
 			// Build information text.
 			stringstream infoStream;
-			infoStream << "LEVEL " << (unsigned int)item->GetLevel() << " (" << hex << item->GetFlags() << ")";
+			infoStream << "LEVEL " << (unsigned int)item->GetLevel() << " (" << hex << item->GetFlags() << ")\nQuality: " << item->GetQuality();
 			infoText_->SetText( infoStream.str() );
 			Pack();
 		}

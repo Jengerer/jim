@@ -1,16 +1,16 @@
 #include "ItemManager.h"
 
-#ifdef _DEBUG
-#define _CRTDBG_MAP_ALLOC
-#define D3D_DEBUG_INFO
-#endif
-
 #include <stdlib.h>
 #include <crtdbg.h>
 
 #include "protobuf/base_gcmessages.pb.h"
 #include "protobuf/steammessages.pb.h"
 #include "protobuf/gcsdk_gcmessages.pb.h"
+
+#ifdef _DEBUG
+#define _CRTDBG_MAP_ALLOC
+#define D3D_DEBUG_INFO
+#endif
 
 using namespace std;
 
@@ -195,9 +195,7 @@ void ItemManager::CloseInterfaces( void )
 		// Free all allocated resources.
 		InformationMap::iterator i;
 		for (i = Item::definitions->begin(); i != Item::definitions->end(); i++) {
-			ItemInformation *information = i->second;
-			delete[] information->itemName;
-			delete[] information->textureName;
+			delete i->second;
 		}
 
 		// Now just remove the table.
@@ -223,7 +221,6 @@ void ItemManager::RunApplication( void )
 	if (GetState() == APPLICATION_STATE_RUN) {
 		HandleCallbacks();
 		backpack_->HandleCamera();
-
 		notifications_->UpdateNotifications();
 		UpdateItemDisplay();
 	}
@@ -245,7 +242,7 @@ bool ItemManager::OnLeftClicked( Mouse *mouse )
 		// Check, but don't register buttons.
 		vector<Button*>::iterator i;
 		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
-			if (mouse->isTouching( *i )) {
+			if (mouse->IsTouching( *i )) {
 				return true;
 			}
 		}
@@ -282,7 +279,7 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 	// Check top popup.
 	if (!popupStack_.empty()) {
 		Popup *top = popupStack_.back();
-		if (mouse->isTouching( top )) {
+		if (mouse->IsTouching( top )) {
 			top->OnLeftReleased( mouse );
 		}
 
@@ -301,11 +298,11 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 		}
 
 		// Now run buttons.
-		if (craftButton_->IsEnabled() && mouse->isTouching(craftButton_)) {
+		if (craftButton_->IsEnabled() && mouse->IsTouching(craftButton_)) {
 			backpack_->CraftSelected();
 			return true;
 		}
-		else if (equipButton_->IsEnabled() && mouse->isTouching(equipButton_)) {
+		else if (equipButton_->IsEnabled() && mouse->IsTouching(equipButton_)) {
 			slotVector* selected = backpack_->GetSelected();
 			Slot* slot = selected->at(0);
 			Item* item = slot->GetItem();
@@ -313,11 +310,12 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 			uint8 classCount = item->GetEquipClassCount();
 			if (classCount > 1) {
 				// Show equip menu.
-				
+				notifications_->AddNotification( "This item has more than one class.", item->GetTexture() );
 			}
 			else {
 				// Class flags are the one class we can equip for.
 				backpack_->EquipItem( item, (EClassEquip)classFlags );
+				notifications_->AddNotification( item->GetName() + " has been equip-toggled.", item->GetTexture() );
 			}
 		}
 	}
@@ -337,8 +335,6 @@ bool ItemManager::OnRightReleased( Mouse *mouse )
 
 bool ItemManager::OnMouseMoved( Mouse *mouse )
 {
-	// Get new position.
-	mouse_->pollPosition();
 	SetCursor( arrow_ );
 
 	// Pass message to highest popup.
@@ -454,28 +450,15 @@ void ItemManager::LoadDefinitions( void )
 		}
 
 		// Get strings.
-		string& index	= thisItem.get( "index", root ).asString();
-		string& name	= thisItem.get( "name", root ).asString();
-		string& image	= thisItem.get( "image", root ).asString();
-		string& slot	= thisItem.get( "slot", root ).asString();
+		string index	= thisItem.get( "index", root ).asString();
+		string name		= thisItem.get( "name", root ).asString();
+		string image	= thisItem.get( "image", root ).asString();
+		string slot		= thisItem.get( "slot", root ).asString();
 
 		// Make sure there's a file.
 		if (image.length() == 0) {
 			image = "backpack/unknown_item";
 		}
-
-		// Generate information struct.
-		ItemInformation *itemInformation = new ItemInformation;
-
-		// Create item name.
-		char *itemName = new char[ name.length() + 1 ];
-		strcpy( itemName, name.c_str() );
-		itemInformation->itemName = itemName;
-
-		// Create texture name.
-		char *textureName = new char[ image.size() + 1 ];
-		strcpy( textureName, image.c_str() );
-		itemInformation->textureName = textureName;
 
 		// Create class flags.
 		// TODO: Definitely move this to the parser.
@@ -515,7 +498,6 @@ void ItemManager::LoadDefinitions( void )
 				}
 			}
 		}
-		itemInformation->classFlags = classFlags;
 
 		// Create slot.
 		EItemSlot itemSlot;
@@ -552,17 +534,22 @@ void ItemManager::LoadDefinitions( void )
 		else {
 			throw Exception( "Failed to parse item definition. Unexpected item slot type found." );
 		}
-		itemInformation->itemSlot = itemSlot;
 
 		// Attempt to load the texture.
+		Texture *texture = nullptr;
 		try {
-			Texture *texture = directX_->GetTexture( textureName );
-			itemInformation->texture = texture;
+			texture = directX_->GetTexture( image );
 		}
 		catch (Exception &textureException) {
-			delete itemInformation;
 			throw textureException;
 		}
+
+		// Generate information object.
+		CItemInformation *itemInformation = new CItemInformation(
+			name,
+			texture,
+			classFlags,
+			itemSlot );
 
 		// Parse item type and insert.
 		int32 typeIndex = atoi( index.c_str() );
