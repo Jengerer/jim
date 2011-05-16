@@ -115,28 +115,28 @@ bool Button::IsEnabled() const
 bool Button::OnMouseMoved( Mouse *mouse )
 {
 	// Mouse moved.
-	isHovering_ = mouse->isTouching( this );
+	isHovering_ = mouse->IsTouching( this );
 	return isHovering_;
 }
 
 bool Button::OnLeftClicked( Mouse *mouse )
 {
-	return mouse->isTouching( this );
+	return mouse->IsTouching( this );
 }
 
 bool Button::OnLeftReleased( Mouse *mouse )
 {
-	return mouse->isTouching( this );
+	return mouse->IsTouching( this );
 }
 
 bool Button::OnRightClicked( Mouse *mouse )
 {
-	return mouse->isTouching( this );
+	return mouse->IsTouching( this );
 }
 
 bool Button::OnRightReleased( Mouse *mouse )
 {
-	return mouse->isTouching( this );
+	return mouse->IsTouching( this );
 }
 
 void Button::Precache( DirectX *directX )

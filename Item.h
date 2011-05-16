@@ -11,13 +11,13 @@
 #include "steam/UserItemsCommon.h"
 
 #include "Exception.h"
-#include "ItemShared.h"
+#include "CItemInformation.h"
 #include "Texture.h"
 
 // Using int32 so we can have -1 index for fallback.
 // TODO: Keep it as uint16, but store a static fallback definition.
-typedef std::map<int32, ItemInformation*>	InformationMap;
-typedef std::pair<int32, ItemInformation*>	InformationPair;
+typedef std::map<int32, CItemInformation*>	InformationMap;
+typedef std::pair<int32, CItemInformation*>	InformationPair;
 
 class Item
 {
@@ -44,7 +44,7 @@ public:
 	uint32			GetCount( void ) const;
 
 	// Secondary attributes.
-	const char*		GetName( void ) const;
+	const string&	GetName( void ) const;
 	uint16			GetIndex( void ) const ;
 	void			SetIndex( uint16 position );
 	bool			IsNew( void ) const;
@@ -85,6 +85,6 @@ private:
 	uint32					flags_;
 
 	// Item definition information.
-	const ItemInformation	*information_;
+	const CItemInformation	*information_;
 
 };

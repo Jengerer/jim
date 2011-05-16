@@ -114,7 +114,7 @@ bool Menu::OnMouseMoved( Mouse *mouse )
 bool Menu::OnLeftClicked( Mouse *mouse )
 {
 	selected_ = nullptr;
-	if ( !mouse->isTouching( this ) ) {
+	if ( !mouse->IsTouching( this ) ) {
 		setState( POPUP_STATE_INACTIVE );
 	}
 
@@ -124,12 +124,12 @@ bool Menu::OnLeftClicked( Mouse *mouse )
 
 bool Menu::OnLeftReleased( Mouse *mouse )
 {
-	if (mouse->isTouching( this )) {
+	if (mouse->IsTouching( this )) {
 		for (int i = 0; i < options_.size(); i++) {
 			Option *button = options_[i];
 
 			// Set selected button, and go inactive.
-			if (mouse->isTouching( button )) {
+			if (mouse->IsTouching( button )) {
 				setState( POPUP_STATE_INACTIVE );
 				selected_ = button;
 				break;

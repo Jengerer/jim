@@ -56,8 +56,8 @@ bool Alert::OnMouseMoved( Mouse *mouse )
 
 bool Alert::OnLeftClicked( Mouse *mouse )
 {
-	if (mouse->isTouching( this )) {
-		if (!mouse->isTouching( okButton )) {
+	if (mouse->IsTouching( this )) {
+		if (!mouse->IsTouching( okButton )) {
 			Draggable::OnLeftClicked( mouse );
 		}
 
@@ -69,9 +69,9 @@ bool Alert::OnLeftClicked( Mouse *mouse )
 
 bool Alert::OnLeftReleased( Mouse *mouse )
 {
-	if (mouse->isTouching( this )) {
+	if (mouse->IsTouching( this )) {
 		// Now set state if we're terminated.
-		if (mouse->isTouching( okButton )) {
+		if (mouse->IsTouching( okButton )) {
 			setState( POPUP_STATE_KILLED );
 		}
 		else {

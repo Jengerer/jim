@@ -1,6 +1,5 @@
-#pragma once
-
-#include <vector>
+#ifndef MOUSE_H
+#define MOUSE_H
 
 #include "Window.h"
 #include "Component.h"
@@ -21,33 +20,29 @@ enum EMouseCursor {
 	MOUSE_CURSOR_HAND
 };
 
-class Component;
 class Mouse
 {
+
 public:
+
 	Mouse( Window* window );
 
 	// Mouse control and settings.
-	void setWindow( Window* window );
-	void pollPosition();
+	void SetWindow( Window* window );
+	void Poll( void );
 
 	// Position functions.
-	int GetX() const;
-	int GetY() const;
-
-	// Mouse state functions.
-	void setLeftMouse( bool isClicked );
-	void setRightMouse( bool isClicked );
-	bool isLeftDown();
-	bool isRightDown();
+	int GetX( void ) const;
+	int GetY( void ) const;
 
 	// Call to components.
-	bool isTouching( const Component* component );
+	bool IsTouching( const Component* component ) const;
 
 private:
+
 	Window*	window_;
 	POINT	position_;
-	bool	leftClicked_;
-	bool	rightClicked_;
+
 };
 
+#endif // MOUSE_H

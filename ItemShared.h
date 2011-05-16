@@ -38,18 +38,4 @@ enum EItemSlot {
 #define FL_ITEM_POSITION	0x0000FFFF
 #define FL_ITEM_NONPOSITION	(FL_ITEM_ALL ^ FL_ITEM_POSITION)
 
-struct ItemInformation {
-	const char		*itemName;
-
-	// Name and pointer of texture.
-	const char		*textureName;
-	Texture*		texture;
-
-	// All equip flags and number of classes.
-	uint32			classFlags;
-	uint8			classCount;
-
-	EItemSlot		itemSlot;
-};
-
 #endif // ITEM_DEFINITIONS_H

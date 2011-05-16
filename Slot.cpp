@@ -5,6 +5,7 @@
 #define SLOT_STROKE_WIDTH			1
 #define SLOT_STROKE_NORMAL_COLOUR	D3DCOLOR_XRGB( 248, 212, 0 )
 #define SLOT_STROKE_VINTAGE_COLOUR	D3DCOLOR_XRGB( 69, 97, 141 )
+#define SLOT_STROKE_GENUINE_COLOUR	D3DCOLOR_XRGB( 75, 115, 83 )
 
 #define SLOT_SELECTED_COLOUR		D3DCOLOR_XRGB( 108, 96, 83 )
 #define SLOT_NORMAL_COLOUR			D3DCOLOR_XRGB( 60, 53, 46 )
@@ -16,6 +17,8 @@ RoundedRectangle	*Slot::normalSlot_		= nullptr;
 RoundedRectangle	*Slot::normalSelected_	= nullptr;
 RoundedRectangle	*Slot::vintageSlot_		= nullptr;
 RoundedRectangle	*Slot::vintageSelected_	= nullptr;
+RoundedRectangle	*Slot::genuineSlot_		= nullptr;
+RoundedRectangle	*Slot::genuineSelected_	= nullptr;
 
 //=============================================================
 // Constructor
@@ -54,6 +57,9 @@ void Slot::OnDraw( DirectX* directX )
 			case EItemQuality::k_EItemQuality_Unique:
 				whichRect = vintageSlot_;
 				break;
+			case EItemQuality::k_EItemQuality_Common:
+				whichRect = genuineSlot_;
+				break;
 			default:
 				whichRect = normalSlot_;
 				break;
@@ -63,6 +69,9 @@ void Slot::OnDraw( DirectX* directX )
 			switch ( item->GetQuality() ) {
 			case EItemQuality::k_EItemQuality_Unique:
 				whichRect = vintageSelected_;
+				break;
+			case EItemQuality::k_EItemQuality_Common:
+				whichRect = genuineSelected_;
 				break;
 			default:
 				whichRect = normalSelected_;
@@ -170,12 +179,16 @@ void Slot::Precache( DirectX *directX )
 	normalSelected_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
 	vintageSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
 	vintageSelected_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
+	genuineSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
+	genuineSelected_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
 
 	// Set up attributes.
 	normalSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
 	normalSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
 	vintageSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
 	vintageSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
+	genuineSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
+	genuineSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
 
 	// Generate them.
 	emptySlot_->Generate( directX );
@@ -183,6 +196,8 @@ void Slot::Precache( DirectX *directX )
 	normalSelected_->Generate( directX );
 	vintageSlot_->Generate( directX );
 	vintageSelected_->Generate( directX );
+	genuineSlot_->Generate( directX );
+	genuineSelected_->Generate( directX );
 }
 
 void Slot::Release( void )
