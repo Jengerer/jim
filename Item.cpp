@@ -1,6 +1,6 @@
 #include "Item.h"
 
-Hashtable* Item::informationTable = nullptr;
+InformationMap *Item::definitions = nullptr;
 
 Item::Item(
 	uint64 uniqueId,
@@ -19,10 +19,7 @@ Item::Item(
 	SetFlags( flags );
 
 	// Set null pointers for things to be acquired.
-	texture_ = nullptr;
 	information_ = nullptr;
-
-	// Load item's definition.
 	GetItemInformation();
 }
 
@@ -33,17 +30,19 @@ Item::~Item( void )
 
 void Item::GetItemInformation( void )
 {
-	// Convert item type to string.
-	string defIndex = boost::lexical_cast<string, int>( GetTypeIndex() );
-	try {
-		information_ = informationTable->getTable( defIndex );
+	// Attempt to find item information.
+	InformationMap::iterator i = definitions->find( GetTypeIndex() );
+	if (i != definitions->end()) {
+		information_ = i->second;
 	}
-	catch (Exception &) {
-		try {
-			information_ = informationTable->getTable( "-1" );
+	else {
+		// Fall back to default.
+		i = definitions->find( -1 );
+		if (i != definitions->end()) {
+			information_ = i->second;
 		}
-		catch (Exception &) {
-			throw Exception( "Failed to get item information. No definition or default definition found." );
+		else {
+			throw Exception( "Failed to find item or fallback definition." );
 		}
 	}
 
@@ -80,14 +79,9 @@ uint32 Item::GetCount( void ) const
 	return count_;
 }
 
-const string& Item::GetName( void ) const
+const char* Item::GetName( void ) const
 {
-	try {
-		return *information_->getString( "name" );
-	}
-	catch (Exception &) {
-		throw Exception( "Failed to get item name from table." );
-	}
+	return information_->itemName;
 }
 
 uint16 Item::GetIndex( void ) const
@@ -134,18 +128,19 @@ bool Item::IsEquipped( EClassEquip equipClass ) const
 	return ((validFlags != 0) && (equipFlags != 0x00000000));
 }
 
-const string& Item::GetEquipSlot( void ) const
+EItemSlot Item::GetEquipSlot( void ) const
 {
-	return *information_->getString( "slot" );
+	return information_->itemSlot;
 }
 
-Hashtable* Item::GetEquipClasses( void ) const
+uint32 Item::GetEquipClasses( void ) const
 {
-	if (information_->contains( "classes" )) {
-		return information_->getTable( "classes" );
-	}
+	return information_->classFlags;
+}
 
-	return nullptr;
+uint8 Item::GetEquipClassCount( void ) const
+{
+	return information_->classCount;
 }
 
 void Item::SetEquip( EClassEquip equipClass, bool equip )
@@ -166,16 +161,7 @@ void Item::SetEquip( EClassEquip equipClass, bool equip )
 
 Texture* Item::GetTexture( void )
 {
-	if (texture_ == nullptr) {
-		try	{
-			texture_ = boost::any_cast<Texture*>( information_->get( "texture" ) );
-		}
-		catch (const boost::bad_any_cast &) {
-			throw Exception( "Unexpected variable type for item texture." );
-		}
-	}
-	
-	return texture_;
+	return information_->texture;
 }
 
 void Item::SetUniqueId( uint64 uniqueId )

@@ -5,6 +5,7 @@
 #include "Draggable.h"
 #include "Image.h"
 #include "Item.h"
+#include "RoundedRectangle.h"
 #include "Texture.h"
 
 // Slot selection type for manager handling.
@@ -53,12 +54,12 @@ public:
 
 protected:
 
-	// TODO: Come up with a better set up, mixing together.
-	static Texture	*emptySlot_;
-	static Texture	*normalSlot_;
-	static Texture	*normalSelected_;
-	static Texture	*vintageSlot_;
-	static Texture	*vintageSelected_;
+	// TODO: Maybe come up with a better set up, mixing together.
+	static RoundedRectangle	*emptySlot_;
+	static RoundedRectangle	*normalSlot_;
+	static RoundedRectangle	*normalSelected_;
+	static RoundedRectangle	*vintageSlot_;
+	static RoundedRectangle	*vintageSelected_;
 
 private:
 

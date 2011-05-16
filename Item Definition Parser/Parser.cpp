@@ -149,7 +149,7 @@ void loadDefinitions()
 		thisObject["slot"] = *itemSlot;
 		thisObject["image"] = *texturePath;
 
-		string slotName = lower(*itemSlot);
+		string slotName = *itemSlot;
 
 		int slot = 0;
 		if (slotName == "primary")
@@ -211,8 +211,7 @@ void loadDefinitions()
 			if (!classTable->empty()) {
 				if (classTable->size() == 1) {
 					stringMap::iterator iter = classTable->begin();
-					string* name = boost::any_cast<string*>(iter->second);
-					string className = lower(*name);
+					string className = *boost::any_cast<string*>(iter->second);
 					if (className == "scout")
 						classIndex = 1;
 					else if (className == "soldier")
@@ -244,7 +243,6 @@ void loadDefinitions()
 					try
 					{
 						string* className = boost::any_cast<string*>(hashIterator->second);
-						*className = lower(*className);
 						itemClasses.append(*className);
 					} catch (const boost::bad_any_cast &)
 					{

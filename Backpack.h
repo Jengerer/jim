@@ -54,8 +54,8 @@ public:
 	// Item handling.
 	virtual void	MoveItem( Slot *source, Slot *destination );
 	void			UpdateItem( Item *item );
-	void			EquipItem( Item *item, const string& className );
-	void			UnequipItems( EClassEquip equipClass, const string& slotName );
+	void			EquipItem( Item *item, EClassEquip classEquip );
+	void			UnequipItems( EClassEquip equipClass, EItemSlot slot );
 	void			CraftSelected( void );
 
 	// Selection handling.

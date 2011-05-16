@@ -28,7 +28,7 @@ public:
 	// Size functions.
 	virtual int		GetWidth( void ) const;
 	virtual int		GetHeight( void ) const;
-	void			SetSize( int width, int height );
+	virtual void	SetSize( int width, int height );
 
 private:
 

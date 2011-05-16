@@ -630,51 +630,19 @@ void Backpack::RemoveSlots( void ) {
 	}
 }
 
-void Backpack::EquipItem( Item *item, const string& className ) {
-	EClassEquip equipClass;
-	if (className == "scout") {
-		equipClass = CLASS_SCOUT;
-	}
-	else if (className == "soldier") {
-		equipClass = CLASS_SOLDIER;
-	}
-	else if (className == "pyro") {
-		equipClass = CLASS_PYRO;
-	}
-	else if (className == "demoman") {
-		equipClass = CLASS_DEMOMAN;
-	}
-	else if (className == "heavy") {
-		equipClass = CLASS_HEAVY;
-	}
-	else if (className == "engineer") {
-		equipClass = CLASS_ENGINEER;
-	}
-	else if (className == "medic") {
-		equipClass = CLASS_MEDIC;
-	}
-	else if (className == "sniper") {
-		equipClass = CLASS_SNIPER;
-	}
-	else if (className == "spy") {
-		equipClass = CLASS_SPY;
+void Backpack::EquipItem( Item *item, EClassEquip classEquip ) {
+	if (item->IsEquipped( classEquip )) {
+		item->SetEquip( classEquip, false );
 	}
 	else {
-		throw Exception( "Attempting to equip to unknown class." );
-	}
-
-	if (item->IsEquipped( equipClass )) {
-		item->SetEquip( equipClass, false );
-	}
-	else {
-		UnequipItems( equipClass, item->GetEquipSlot() );
-		item->SetEquip( equipClass, true );
+		UnequipItems( classEquip, item->GetEquipSlot() );
+		item->SetEquip( classEquip, true );
 	}
 
 	UpdateItem( item );
 }
 
-void Backpack::UnequipItems( EClassEquip equipClass, const string& slot ) {
+void Backpack::UnequipItems( EClassEquip equipClass, EItemSlot slot ) {
 	const itemMap* inventoryItems = inventory_->GetInventoryItems();
 	itemMap::const_iterator i;
 	for (i = inventoryItems->begin(); i != inventoryItems->end(); i++) {
