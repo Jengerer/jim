@@ -2,6 +2,7 @@
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
+#define D3D_DEBUG_INFO
 #endif
 
 #include <stdlib.h>
@@ -31,11 +32,9 @@ const int	APPLICATION_VERSION		= 1000;
 
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	_crtBreakAlloc = 1421;
-
 	switch (message) {
 	case WM_DESTROY:
-		PostQuitMessage(0);
+		PostQuitMessage( 0 );
 		break;
 	}
 
@@ -45,34 +44,37 @@ LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	ItemManager* itemManager = new ItemManager();
-
 	try {
 		itemManager->LoadInterfaces( hInstance );
 	}
 	catch (Exception mainException) {
-		MessageBox(NULL, mainException.getMessage()->c_str(), "Initialization failed!", MB_OK);
-		return EXIT_FAILURE;
+		if (itemManager != nullptr) {
+			delete itemManager;
+			itemManager = nullptr;
+		}
+
+		MessageBox( NULL, mainException.getMessage()->c_str(), "Initialization failed!", MB_OK );
 	}
 
-	bool isDone = false;
-
+	// Enter main program loop.
 	MSG msg;
-	while (!isDone) {
+	bool running = true;
+	while (running) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
-				isDone = true;
+				running = false;
 			}
 
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
 		}
 
 		itemManager->RunApplication();
 	}
 
-	if (itemManager) {
+	if (itemManager != nullptr) {
 		delete itemManager;
-		itemManager = 0;
+		itemManager = nullptr;
 	}
 
 #ifdef _DEBUG
@@ -189,9 +191,18 @@ void ItemManager::CloseInterfaces( void )
 	}
 
 	// Delete item information.
-	if (Item::informationTable != nullptr) {
-		delete Item::informationTable;
-		Item::informationTable = nullptr;
+	if (Item::definitions != nullptr) {
+		// Free all allocated resources.
+		InformationMap::iterator i;
+		for (i = Item::definitions->begin(); i != Item::definitions->end(); i++) {
+			ItemInformation *information = i->second;
+			delete[] information->itemName;
+			delete[] information->textureName;
+		}
+
+		// Now just remove the table.
+		delete Item::definitions;
+		Item::definitions = nullptr;
 	}
 
 	// Free cached resources.
@@ -247,8 +258,8 @@ bool ItemManager::OnLeftClicked( Mouse *mouse )
 			if (selected->size() == 1) {
 				Slot *slot = selected->at( 0 );
 				Item *item = slot->GetItem();
-				Hashtable *classes = item->GetEquipClasses();
-				equipButton_->SetEnabled( classes != nullptr );
+				uint32 classes = item->GetEquipClasses();
+				equipButton_->SetEnabled( classes != 0 );
 			}
 			else {
 				equipButton_->SetEnabled( false );
@@ -298,16 +309,15 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 			slotVector* selected = backpack_->GetSelected();
 			Slot* slot = selected->at(0);
 			Item* item = slot->GetItem();
-			Hashtable* classes = item->GetEquipClasses();
-			if (classes->size() > 1) {
+			uint32 classFlags = item->GetEquipClasses();
+			uint8 classCount = item->GetEquipClassCount();
+			if (classCount > 1) {
 				// Show equip menu.
 				
 			}
-			else if (classes->size() == 1) {
-				// Get the class.
-				string className = classes->begin()->first;
-				// TODO: Use some integer or enum to handle classes, not strings.
-				backpack_->EquipItem(item, className);
+			else {
+				// Class flags are the one class we can equip for.
+				backpack_->EquipItem( item, (EClassEquip)classFlags );
 			}
 		}
 	}
@@ -352,9 +362,12 @@ bool ItemManager::OnMouseMoved( Mouse *mouse )
 		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
 			Button *button = *i;
 			if (button->IsEnabled() && button->OnMouseMoved( mouse )) {
-				SetCursor( hand_ );
-				return true;
+				hitButton = true;
 			}
+		}
+
+		if (hitButton) {
+			SetCursor( hand_ );
 		}
 	}
 
@@ -427,9 +440,7 @@ void ItemManager::LoadDefinitions( void )
 	if (!reader.parse(itemDefinitions, root, false))
 		throw Exception("Failed to parse item definitions.");
 
-	unsigned int texturesLoaded = 0;
-	unsigned int textureCount = root.size();
-	Item::informationTable = new Hashtable();
+	Item::definitions = new InformationMap();
 	for (Json::ValueIterator i = root.begin(); i != root.end(); i++) {
 		Json::Value thisItem = *i;
 		
@@ -443,49 +454,120 @@ void ItemManager::LoadDefinitions( void )
 		}
 
 		// Get strings.
-		string index	= thisItem.get( "index", root ).asString();
-		string name		= thisItem.get( "name", root ).asString();
-		string image	= thisItem.get( "image", root ).asString();
-		string slot		= thisItem.get( "slot", root ).asString();
+		string& index	= thisItem.get( "index", root ).asString();
+		string& name	= thisItem.get( "name", root ).asString();
+		string& image	= thisItem.get( "image", root ).asString();
+		string& slot	= thisItem.get( "slot", root ).asString();
 
 		// Make sure there's a file.
 		if (image.length() == 0) {
 			image = "backpack/unknown_item";
 		}
 
-		// Add strings to new table.
-		Hashtable *itemTable = new Hashtable();
-		itemTable->put("name", new string(name));
-		itemTable->put("image", new string(image));
-		itemTable->put("slot", new string(slot));
+		// Generate information struct.
+		ItemInformation *itemInformation = new ItemInformation;
 
-		if (thisItem.isMember("classes")) {
-			Hashtable *classTable = new Hashtable();
-			itemTable->put("classes", classTable);
+		// Create item name.
+		char *itemName = new char[ name.length() + 1 ];
+		strcpy( itemName, name.c_str() );
+		itemInformation->itemName = itemName;
+
+		// Create texture name.
+		char *textureName = new char[ image.size() + 1 ];
+		strcpy( textureName, image.c_str() );
+		itemInformation->textureName = textureName;
+
+		// Create class flags.
+		// TODO: Definitely move this to the parser.
+		uint32 classFlags = CLASS_NONE;
+		if (thisItem.isMember( "classes" )) {
+			Json::Value& classes = thisItem.get( "classes", root );
 
 			// Add all classes.
-			Json::Value classes = thisItem.get("classes", root);
-			for (Json::ValueIterator j = classes.begin(); j != classes.end(); j++) {
-				string className = (*j).asString();
-				classTable->put(className, new string("yes"));
+			for (Json::ValueIterator i = classes.begin(); i != classes.end(); i++) {
+				string className = (*i).asString();
+				if (className == "scout" ) {
+					classFlags |= CLASS_SCOUT;
+				}
+				if (className == "soldier" ) {
+					classFlags |= CLASS_SOLDIER;
+				}
+				if (className == "pyro" ) {
+					classFlags |= CLASS_PYRO;
+				}
+				if (className == "demoman" ) {
+					classFlags |= CLASS_DEMOMAN;
+				}
+				if (className == "heavy" ) {
+					classFlags |= CLASS_HEAVY;
+				}
+				if (className == "engineer" ) {
+					classFlags |= CLASS_ENGINEER;
+				}
+				if (className == "medic" ) {
+					classFlags |= CLASS_MEDIC;
+				}
+				if (className == "sniper" ) {
+					classFlags |= CLASS_SNIPER;
+				}
+				if (className == "spy" ) {
+					classFlags |= CLASS_SPY;
+				}
 			}
 		}
+		itemInformation->classFlags = classFlags;
 
+		// Create slot.
+		EItemSlot itemSlot;
+		if (slot == "primary") {
+			itemSlot = SLOT_PRIMARY;
+		}
+		else if (slot == "secondary") {
+			itemSlot = SLOT_SECONDARY;
+		}
+		else if (slot == "melee") {
+			itemSlot = SLOT_MELEE;
+		}
+		else if (slot == "pda") {
+			itemSlot = SLOT_PDA;
+		}
+		else if (slot == "pda2") {
+			itemSlot = SLOT_PDA2;
+		}
+		else if (slot == "building") {
+			itemSlot = SLOT_BUILDING;
+		}
+		else if (slot == "head") {
+			itemSlot = SLOT_HEAD;
+		}
+		else if (slot == "misc") {
+			itemSlot = SLOT_MISC;
+		}
+		else if (slot == "action") {
+			itemSlot = SLOT_ACTION;
+		}
+		else if (slot == "Engineer") {
+			itemSlot = SLOT_ENGINEER;
+		}
+		else {
+			throw Exception( "Failed to parse item definition. Unexpected item slot type found." );
+		}
+		itemInformation->itemSlot = itemSlot;
+
+		// Attempt to load the texture.
 		try {
-			// Get the texture, add to table.
-			Texture* texture = directX_->GetTexture( image );
-			itemTable->put( "texture", texture );
+			Texture *texture = directX_->GetTexture( textureName );
+			itemInformation->texture = texture;
 		}
 		catch (Exception &textureException) {
-			if (itemTable != nullptr) {
-				delete itemTable;
-				itemTable = nullptr;
-			}
-
+			delete itemInformation;
 			throw textureException;
 		}
 
-		Item::informationTable->put(index, itemTable);
+		// Parse item type and insert.
+		int32 typeIndex = atoi( index.c_str() );
+		InformationPair infoPair( typeIndex, itemInformation );
+		Item::definitions->insert( infoPair );
 	}
 
 	// Set the message and redraw.

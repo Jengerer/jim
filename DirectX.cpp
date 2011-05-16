@@ -7,7 +7,7 @@ DirectX::DirectX( HINSTANCE hInstance,
 	const char *title,
 	int width, int height ) : Window( hInstance, title, width, height )
 {
-	textureMap_ = nullptr;
+	textures_ = nullptr;
 	roundedCorner_ = nullptr;
 }
 
@@ -92,7 +92,7 @@ void DirectX::LoadInterfaces( void )
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_TEXTURE );
 
 	// Create empty hashtable.
-	textureMap_ = new Hashtable();
+	textures_ = new TextureMap();
 
 	// Load round corner.
 	roundedCorner_ = GetTexture( "manager/rounded_corner" );
@@ -101,15 +101,21 @@ void DirectX::LoadInterfaces( void )
 void DirectX::CloseInterfaces( void )
 {
 	// Delete map of vectors.
-	if (textureMap_ != nullptr) {
+	if (textures_ != nullptr) {
 		FreeTextures();
-		delete textureMap_;
-		textureMap_ = nullptr;
+		delete textures_;
+		textures_ = nullptr;
 	}
 
 	// Remove font resource.
 	RemoveFontResourceEx( "ttfFiles/tf2Build.ttf", FR_PRIVATE, 0 );
 	RemoveFontResourceEx( "ttfFiles/tf2Secondary.ttf", FR_PRIVATE, 0 );
+
+	// Free backbuffer.
+	if (backBuffer_ != nullptr) {
+		backBuffer_->Release();
+		backBuffer_ = nullptr;
+	}
 
 	// Delete Direct3D device.
 	if (d3dDevice_ != nullptr) {
@@ -127,35 +133,22 @@ void DirectX::CloseInterfaces( void )
 void DirectX::FreeTextures( void )
 {
 	// Delete all texture objects.
-	stringMap::iterator i;
-	while ( !textureMap_->empty() ) {
-		i = textureMap_->begin();
-
-		try {
-			Texture* texture = boost::any_cast<Texture*>(i->second);
-			textureMap_->remove( i );
-			delete texture;
-		}
-		catch (const boost::bad_any_cast &) {
-			throw Exception( "Failed to get texture from table, unexpected variable type received." );
-		}
+	TextureMap::iterator i;
+	while ( (i = textures_->begin()) != textures_->end() ) {
+		Texture *texture = i->second;
+		textures_->erase( i );
+		delete texture;
 	}
 }
 
 void DirectX::LoadTextures( void )
 {
 	// Reload any existing unloaded textures.
-	stringMap::iterator i;
-	for (i = textureMap_->begin(); i != textureMap_->end(); i++) {
-		boost::any& value = i->second;
-		try {
-			Texture* texture = boost::any_cast<Texture*>(value);
-			if ( !texture->IsLoaded() ) {
-				LoadTexture( texture );
-			}
-		}
-		catch (const boost::bad_any_cast &) {
-			throw Exception( "Failed to get texture string, unexpected variable type received." );
+	TextureMap::iterator i;
+	for (i = textures_->begin(); i != textures_->end(); i++) {
+		Texture *texture = i->second;
+		if ( !texture->IsLoaded() ) {
+			LoadTexture( texture );
 		}
 	}
 }
@@ -163,16 +156,10 @@ void DirectX::LoadTextures( void )
 void DirectX::ReleaseTextures( void )
 {
 	// Get textures and release them.
-	stringMap::iterator i;
-	for (i = textureMap_->begin(); i != textureMap_->end(); i++) {
-		try {
-			// Just release it.
-			Texture* thisTexture = boost::any_cast<Texture*>(i->second);
-			thisTexture->ReleaseTexture();
-		}
-		catch (const boost::bad_any_cast &) {
-			throw Exception( "Failed to get texture from table, unexpected variable type received." );
-		}
+	TextureMap::iterator i;
+	for (i = textures_->begin(); i != textures_->end(); i++) {
+		Texture *texture = i->second;
+		texture->ReleaseTexture();
 	}
 }
 
@@ -224,35 +211,26 @@ void DirectX::SetRenderTarget( Texture *texture )
 
 void DirectX::ResetRenderTarget( void )
 {
-	// Release current target if not back buffer.
-	IDirect3DSurface9 *renderTarget = nullptr;
-	d3dDevice_->GetRenderTarget( 0, &renderTarget );
-	renderTarget->Release();
-
 	// Set to back buffer.
 	d3dDevice_->SetRenderTarget( 0, backBuffer_ );
 }
 
 Texture* DirectX::GetTexture( const string& filename )
 {
-	//Check if that texture exists already.
-	stringMap::iterator iter = textureMap_->find( filename );
-	if (iter != textureMap_->end()) {
-		try {
-			return boost::any_cast<Texture*>( iter->second );
-		}
-		catch (const boost::bad_any_cast &) {
-			throw Exception( "Failed to cast texture, unexpected variable type received." );
-		}
+	// Check if the texture exists already.
+	TextureMap::iterator i = textures_->find( filename );
+	if (i != textures_->end()) {
+		return i->second;
 	}
 
-	// Create the new texture and load it.
-	Texture* newTexture = new Texture( filename );
-	LoadTexture( newTexture );
+	// Create and load.
+	Texture* texture = new Texture( filename );
+	LoadTexture( texture );
 
-	// Add to map and return.
-	textureMap_->put( filename, newTexture );
-	return newTexture;
+	// Insert and return.
+	TexturePair texturePair( filename, texture );
+	textures_->insert( texturePair );
+	return texture;
 }
 
 void DirectX::LoadTexture( Texture *texture )

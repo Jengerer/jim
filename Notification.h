@@ -5,6 +5,7 @@
 #include "Font.h"
 #include "HorizontalLayout.h"
 #include "Image.h"
+#include "RoundedRectangle.h"
 #include "Texture.h"
 #include "WrappedText.h"
 
@@ -16,7 +17,6 @@ public:
 	Notification( const string& message, Texture *texture = nullptr );
 	virtual ~Notification( void );
 
-	virtual void	OnDraw( DirectX *directX );
 	virtual void	Pack( void );
 	virtual void	UpdatePosition( void );
 
@@ -35,6 +35,7 @@ private:
 	WrappedText			*text_;
 	Image				*image_;
 	HorizontalLayout	*layout_;
+	RoundedRectangle	*roundedRect_;
 
 };
 

@@ -11,11 +11,11 @@
 
 #define ITEM_SIZE 60
 
-Texture	*Slot::emptySlot_		= nullptr;
-Texture	*Slot::normalSlot_		= nullptr;
-Texture	*Slot::normalSelected_	= nullptr;
-Texture	*Slot::vintageSlot_		= nullptr;
-Texture	*Slot::vintageSelected_	= nullptr;
+RoundedRectangle	*Slot::emptySlot_		= nullptr;
+RoundedRectangle	*Slot::normalSlot_		= nullptr;
+RoundedRectangle	*Slot::normalSelected_	= nullptr;
+RoundedRectangle	*Slot::vintageSlot_		= nullptr;
+RoundedRectangle	*Slot::vintageSelected_	= nullptr;
 
 //=============================================================
 // Constructor
@@ -45,33 +45,33 @@ void Slot::OnDraw( DirectX* directX )
 {
 	// Draw stroke based on quality.
 	Item *item				= GetItem();
-	Texture *slotTexture	= emptySlot_;
+	RoundedRectangle* whichRect = emptySlot_;
 
 	// Alter texture and tint based on attributes.
 	if (item != nullptr) {
 		if ( GetSelectType() == SELECT_TYPE_NONE ) {
 			switch ( item->GetQuality() ) {
 			case EItemQuality::k_EItemQuality_Unique:
-				slotTexture = vintageSlot_;
+				whichRect = vintageSlot_;
 				break;
 			default:
-				slotTexture = normalSlot_;
+				whichRect = normalSlot_;
 				break;
 			}
 		}
 		else {
 			switch ( item->GetQuality() ) {
 			case EItemQuality::k_EItemQuality_Unique:
-				slotTexture = vintageSelected_;
+				whichRect = vintageSelected_;
 				break;
 			default:
-				slotTexture = normalSelected_;
+				whichRect = normalSelected_;
 				break;
 			}
 		}
 	}
 
-	directX->DrawTexture( slotTexture, GetX(), GetY(), SLOT_WIDTH, SLOT_HEIGHT, D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
+	directX->DrawTexture( whichRect->GetTexture(), GetX(), GetY(), SLOT_WIDTH, SLOT_HEIGHT, D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
 	image_->OnDraw( directX );
 }
 
@@ -165,40 +165,24 @@ void Slot::SetSelectType( ESelectType selectType )
 
 void Slot::Precache( DirectX *directX )
 {
-	emptySlot_			= directX->CreateTexture( "empty_slot", SLOT_WIDTH, SLOT_HEIGHT );
-	normalSlot_			= directX->CreateTexture( "normal_slot", SLOT_WIDTH, SLOT_HEIGHT );
-	normalSelected_		= directX->CreateTexture( "normal_selected", SLOT_WIDTH, SLOT_HEIGHT );
-	vintageSlot_		= directX->CreateTexture( "vintage_slot", SLOT_WIDTH, SLOT_HEIGHT );
-	vintageSelected_	= directX->CreateTexture( "vintage_selected", SLOT_WIDTH, SLOT_HEIGHT );
+	emptySlot_			= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
+	normalSlot_			= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
+	normalSelected_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
+	vintageSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
+	vintageSelected_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
 
-	// Draw empty slot.
-	directX->SetRenderTarget( emptySlot_ );
-	directX->DrawRoundedRect( 0, 0, SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
-	directX->ResetRenderTarget();
+	// Set up attributes.
+	normalSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
+	normalSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
+	vintageSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
+	vintageSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
 
-	// Draw normal slot.
-	directX->SetRenderTarget( normalSlot_ );
-	directX->DrawRoundedRect( 0, 0, SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_STROKE_NORMAL_COLOUR );
-	directX->DrawRoundedRect( SLOT_STROKE_WIDTH, SLOT_STROKE_WIDTH, SLOT_WIDTH - SLOT_STROKE_WIDTH*2, SLOT_HEIGHT - SLOT_STROKE_WIDTH*2, SLOT_RADIUS - SLOT_STROKE_WIDTH, SLOT_NORMAL_COLOUR );
-	directX->ResetRenderTarget();
-
-	// Draw normal selected.
-	directX->SetRenderTarget( normalSelected_ );
-	directX->DrawRoundedRect( 0, 0, SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_STROKE_NORMAL_COLOUR );
-	directX->DrawRoundedRect( SLOT_STROKE_WIDTH, SLOT_STROKE_WIDTH, SLOT_WIDTH - SLOT_STROKE_WIDTH*2, SLOT_HEIGHT - SLOT_STROKE_WIDTH*2, SLOT_RADIUS - SLOT_STROKE_WIDTH, SLOT_SELECTED_COLOUR );
-	directX->ResetRenderTarget();
-
-	// Draw vintage slot.
-	directX->SetRenderTarget( vintageSlot_ );
-	directX->DrawRoundedRect( 0, 0, SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_STROKE_VINTAGE_COLOUR );
-	directX->DrawRoundedRect( SLOT_STROKE_WIDTH, SLOT_STROKE_WIDTH, SLOT_WIDTH - SLOT_STROKE_WIDTH*2, SLOT_HEIGHT - SLOT_STROKE_WIDTH*2, SLOT_RADIUS - SLOT_STROKE_WIDTH, SLOT_NORMAL_COLOUR );
-	directX->ResetRenderTarget();
-
-	// Draw vintage selected.
-	directX->SetRenderTarget( vintageSelected_ );
-	directX->DrawRoundedRect( 0, 0, SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_STROKE_VINTAGE_COLOUR );
-	directX->DrawRoundedRect( SLOT_STROKE_WIDTH, SLOT_STROKE_WIDTH, SLOT_WIDTH - SLOT_STROKE_WIDTH*2, SLOT_HEIGHT - SLOT_STROKE_WIDTH*2, SLOT_RADIUS - SLOT_STROKE_WIDTH, SLOT_SELECTED_COLOUR );
-	directX->ResetRenderTarget();
+	// Generate them.
+	emptySlot_->Generate( directX );
+	normalSlot_->Generate( directX );
+	normalSelected_->Generate( directX );
+	vintageSlot_->Generate( directX );
+	vintageSelected_->Generate( directX );
 }
 
 void Slot::Release( void )

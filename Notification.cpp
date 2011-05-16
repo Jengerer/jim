@@ -2,13 +2,13 @@
 
 #define NOTIFICATION_ICON_SIZE		48
 #define NOTIFICATION_TEXT_WIDTH		160
-#define NOTIFICATION_COLOUR			D3DCOLOR_RGBA( 42, 39, 37, GetAlpha() )
+#define NOTIFICATION_COLOUR			D3DCOLOR_XRGB( 42, 39, 37 )
 #define NOTIFICATION_RADIUS			5
 #define NOTIFICATION_PADDING		10
 #define NOTIFICATION_SPACING		5
 
-#define NOTIFICATION_STROKE_WIDTH	2
-#define NOTIFICATION_STROKE_COLOUR	D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() >> 1 )
+#define NOTIFICATION_STROKE_SIZE	2
+#define NOTIFICATION_STROKE_COLOUR	D3DCOLOR_XRGB( 255, 255, 255 )
 
 #define NOTIFICATION_FONT_FACE		"TF2 Build"
 #define NOTIFICATION_FONT_SIZE		14
@@ -35,31 +35,21 @@ Notification::Notification( const string& message, Texture *texture )
 	SetMessage( message );
 	SetTexture( texture );
 	Pack();
+
+	// Create rounded rectangle.
+	roundedRect_ = new RoundedRectangle( 
+		GetWidth(), GetHeight(), 
+		NOTIFICATION_RADIUS, 
+		NOTIFICATION_COLOUR );
+	roundedRect_->SetStroke( 
+		NOTIFICATION_STROKE_SIZE, 
+		NOTIFICATION_STROKE_COLOUR );
+	AddBottom( roundedRect_ );
 }
 
 Notification::~Notification( void )
 {
 	// Notification destroyed.
-}
-
-void Notification::OnDraw( DirectX *directX )
-{
-	// Draw rounded rectangle.
-	directX->DrawRoundedRect(
-		GetX() - NOTIFICATION_STROKE_WIDTH, GetY() - NOTIFICATION_STROKE_WIDTH,
-		GetWidth() + NOTIFICATION_STROKE_WIDTH*2, GetHeight() + NOTIFICATION_STROKE_WIDTH * 2,
-		NOTIFICATION_RADIUS + NOTIFICATION_STROKE_WIDTH, NOTIFICATION_RADIUS + NOTIFICATION_STROKE_WIDTH, NOTIFICATION_RADIUS + NOTIFICATION_STROKE_WIDTH, NOTIFICATION_RADIUS + NOTIFICATION_STROKE_WIDTH,
-		NOTIFICATION_STROKE_COLOUR );
-
-	// Draw rounded rectangle.
-	directX->DrawRoundedRect(
-		GetX(), GetY(),
-		GetWidth(), GetHeight(),
-		NOTIFICATION_RADIUS, NOTIFICATION_RADIUS, NOTIFICATION_RADIUS, NOTIFICATION_RADIUS,
-		NOTIFICATION_COLOUR );
-
-	// Draw layout.
-	layout_->OnDraw( directX );
 }
 
 void Notification::Pack( void )
@@ -74,6 +64,7 @@ void Notification::Pack( void )
 void Notification::UpdatePosition( void )
 {
 	// Just move the layout padding in.
+	roundedRect_->SetPosition( GetX(), GetY() );
 	layout_->SetPosition(
 		GetX() + NOTIFICATION_PADDING, 
 		GetY() + NOTIFICATION_PADDING );

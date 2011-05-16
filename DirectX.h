@@ -1,14 +1,14 @@
 #pragma once
 
+#include <string>
+#include <sstream>
+#include <map>
+
 #include "Curl.h"
 #include "Texture.h"
-#include "Hashtable.h"
 #include "Exception.h"
 #include "Window.h"
 #include "Font.h"
-
-#include <string>
-#include <sstream>
 
 using namespace std;
 
@@ -22,6 +22,10 @@ struct ColourVertex {
 	float x, y, z, rhw;
 	DWORD colour;
 };
+
+// Bring string hasher in here.
+typedef std::map<string, Texture*>	TextureMap;
+typedef std::pair<string, Texture*>	TexturePair;
 
 #define D3D9T_TEXTUREVERTEX (D3DFVF_XYZRHW | D3DFVF_TEX1 | D3DFVF_DIFFUSE)
 #define D3D9T_COLOURVERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
@@ -87,6 +91,6 @@ private:
 	Texture						*roundedCorner_;
 
 	// Texture handling.
-	Hashtable*					textureMap_;
+	TextureMap					*textures_;
 
 };

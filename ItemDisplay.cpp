@@ -4,6 +4,8 @@
 #define ITEM_DISPLAY_TITLE_FONT_SIZE		18
 #define ITEM_DISPLAY_TITLE_FONT_BOLDED		false
 
+#define ITEM_DISPLAY_COLOUR					D3DCOLOR_XRGB( 0, 0, 0 )
+
 #define ITEM_DISPLAY_INFO_FONT_FACE			"TF2 Secondary"
 #define ITEM_DISPLAY_INFO_FONT_SIZE			18
 #define ITEM_DISPLAY_INFO_FONT_BOLDED		false
@@ -30,41 +32,20 @@ ItemDisplay::ItemDisplay()
 	textLayout_->SetSpacing( ITEM_DISPLAY_SPACING );
 	textLayout_->Add( nameText_ );
 	textLayout_->Add( infoText_ );
-	textLayout_->Pack();
 	Add( textLayout_ );
+
+	roundedRect_ = new RoundedRectangle( GetWidth(), GetHeight(), ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_COLOUR );
+	roundedRect_->SetCornerRadius( ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_RADIUS );
+	AddBottom( roundedRect_ );
 }
 
 ItemDisplay::~ItemDisplay()
 {
-	// Item display destroyed.
-	if (roundedRect_ != nullptr) {
-		delete roundedRect_;
-		roundedRect_ = nullptr;
-	}
-}
-
-void ItemDisplay::OnDraw( DirectX *directX )
-{
-	// See if we need to generate the texture.
-	if (roundedRect_ == nullptr) {
-		roundedRect_ = directX->CreateTexture( "item_display", GetWidth(), GetHeight() );
-		directX->SetRenderTarget( roundedRect_ );
-		directX->DrawRoundedRect( 0, 0, GetWidth(), GetHeight(), ITEM_DISPLAY_RADIUS, D3DCOLOR_XRGB( 0, 0, 0 ) );
-		directX->ResetRenderTarget();
-	}
-
-	// Transition alpha.
-	if (item_ != nullptr) {
-		if (GetAlpha() > 0) {
-			// Draw base rectangle.
-			directX->DrawTexture( roundedRect_, GetX(), GetY(), GetWidth(), GetHeight(), D3DCOLOR_ARGB( GetAlpha(), 255, 255, 255 ) );
-			textLayout_->OnDraw( directX );
-		}
-	}
 }
 
 void ItemDisplay::UpdatePosition( void )
 {
+	roundedRect_->SetPosition( GetX(), GetY() );
 	textLayout_->SetPosition( GetX() + ITEM_DISPLAY_PADDING, GetY() + ITEM_DISPLAY_PADDING );
 }
 
@@ -81,7 +62,12 @@ void ItemDisplay::UpdateAlpha( void )
 void ItemDisplay::Pack( void )
 {
 	textLayout_->Pack();
-	SetSize( textLayout_->GetWidth() + ITEM_DISPLAY_PADDING * 2, textLayout_->GetHeight() + ITEM_DISPLAY_PADDING * 2 );
+	SetSize( 
+		textLayout_->GetWidth() + ITEM_DISPLAY_PADDING * 2, 
+		textLayout_->GetHeight() + ITEM_DISPLAY_PADDING * 2 );
+
+	// Reset rounded rectangle size.
+	roundedRect_->SetSize( GetWidth(), GetHeight() );
 }
 
 const Item* ItemDisplay::GetItem( void ) const
@@ -96,11 +82,6 @@ void ItemDisplay::SetItem( const Item *item )
 		if (item != nullptr) {
 			SetActive( true );
 			SetName( item->GetName() );
-
-			if (roundedRect_ != nullptr) {
-				delete roundedRect_;
-				roundedRect_ = nullptr;
-			}
 
 			// Build information text.
 			stringstream infoStream;

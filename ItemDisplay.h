@@ -4,6 +4,7 @@
 #include "DirectX.h"
 #include "Font.h"
 #include "Item.h"
+#include "RoundedRectangle.h"
 #include "Text.h"
 #include "WrappedText.h"
 #include "VerticalLayout.h"
@@ -25,7 +26,6 @@ public:
 	virtual ~ItemDisplay( void );
 
 	// Drawing functions.
-	virtual void	OnDraw( DirectX* directX );
 	virtual void	UpdatePosition( void );
 	void			UpdateAlpha( void );
 	virtual void	Pack( void );
@@ -57,9 +57,9 @@ private:
 	const Item	*item_;
 	string		itemName_;
 
-	VerticalLayout	*textLayout_;
-	WrappedText		*nameText_;
-	WrappedText		*infoText_;
-	Texture			*roundedRect_;
+	VerticalLayout		*textLayout_;
+	WrappedText			*nameText_;
+	WrappedText			*infoText_;
+	RoundedRectangle	*roundedRect_;
 
 };

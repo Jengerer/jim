@@ -1,30 +1,5 @@
 #include "Hashtable.h"
 
-string upper( const string& source )
-{
-	// Copy the string.
-	string result( source );
-
-	string::iterator i;
-	for (i = result.begin(); i != result.end(); i++)
-		*i = toupper(*i);
-
-	return result;
-}
-
-string lower( const string& source )
-{
-	// Copy the string.
-	string result( source );
-
-	string::iterator i;
-	for (i = result.begin(); i != result.end(); i++) {
-		*i = tolower(*i);
-	}
-
-	return result;
-}
-
 Hashtable::Hashtable()
 {
 	hashMap_ = new stringMap();

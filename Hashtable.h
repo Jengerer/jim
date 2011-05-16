@@ -7,16 +7,11 @@
 #include <string>
 #include <boost/any.hpp>
 
-using namespace std;
-
-string lower(const string& source);
-string upper(const string& source);
-
 // The following class defines a hash function for strings.
-class StringHasher : public stdext::hash_compare<string>
+class StringHasher : public std::hash_compare<string>
 {
 public:
-	// Inspired by the java.lang.String.hashCode() algorithm.
+	// Adapted from the java.lang.String.hashCode() algorithm.
 	size_t operator() ( const string& whichString ) const
 	{
 		size_t result = 0;
@@ -35,12 +30,9 @@ public:
 };
 
 // For easier type usage.
-typedef stdext::hash_map<string, boost::any, StringHasher>	stringMap;
-typedef stdext::pair<string, boost::any>					stringPair;
-
-// TODO: Add integer support.
-//typedef stdext::hash_map<int, boost::any>					intAnyMap;
-//typedef stdext::pair<int, boost::any>						intAnyPair;
+// TODO: Maybe add int key support.
+typedef std::hash_map<string, boost::any, StringHasher>	stringMap;
+typedef std::pair<string, boost::any>					stringPair;
 
 class Hashtable
 {
