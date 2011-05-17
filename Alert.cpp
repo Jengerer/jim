@@ -83,13 +83,3 @@ bool Alert::OnLeftReleased( Mouse *mouse )
 
 	return false;
 }
-
-bool Alert::OnRightClicked( Mouse *mouse )
-{
-	return true;
-}
-
-bool Alert::OnRightReleased( Mouse *mouse )
-{
-	return true;
-}

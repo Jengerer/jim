@@ -1,14 +1,18 @@
 #include "ItemDisplay.h"
 
 #define ITEM_DISPLAY_TITLE_FONT_FACE		"TF2 Build"
-#define ITEM_DISPLAY_TITLE_FONT_SIZE		18
+#define ITEM_DISPLAY_TITLE_FONT_SIZE		17
 #define ITEM_DISPLAY_TITLE_FONT_BOLDED		false
 
 #define ITEM_DISPLAY_COLOUR					D3DCOLOR_XRGB( 0, 0, 0 )
 
 #define ITEM_DISPLAY_INFO_FONT_FACE			"TF2 Secondary"
-#define ITEM_DISPLAY_INFO_FONT_SIZE			18
+#define ITEM_DISPLAY_INFO_FONT_SIZE			16
 #define ITEM_DISPLAY_INFO_FONT_BOLDED		false
+
+#define ITEM_DISPLAY_NORMAL_COLOUR	D3DCOLOR_XRGB( 248, 212, 0 )
+#define ITEM_DISPLAY_VINTAGE_COLOUR	D3DCOLOR_XRGB( 69, 97, 141 )
+#define ITEM_DISPLAY_GENUINE_COLOUR	D3DCOLOR_XRGB( 75, 115, 83 )
 
 Font *ItemDisplay::nameFont_ = nullptr;
 Font *ItemDisplay::infoFont_ = nullptr;
@@ -53,6 +57,9 @@ void ItemDisplay::UpdateAlpha( void )
 {
 	if ( IsActive() ) {
 		SetAlpha( GetAlpha() + ITEM_DISPLAY_ALPHA_SPEED );
+		if (GetAlpha() > ITEM_DISPLAY_ALPHA_MAX) {
+			SetAlpha( ITEM_DISPLAY_ALPHA_MAX );
+		}
 	}
 	else {
 		SetAlpha( GetAlpha() - ITEM_DISPLAY_ALPHA_SPEED );
@@ -81,11 +88,38 @@ void ItemDisplay::SetItem( const Item *item )
 		item_ = item;
 		if (item != nullptr) {
 			SetActive( true );
-			SetName( item->GetName() );
+
+			// Alter display based on quality.
+			string namePrefix;
+			D3DCOLOR nameColour;
+			switch (item->GetQuality()) {
+			case EItemQuality::k_EItemQuality_Common:
+				namePrefix = "Genuine";
+				nameColour = ITEM_DISPLAY_GENUINE_COLOUR;
+				break;
+
+			case EItemQuality::k_EItemQuality_Unique:
+				namePrefix = "Vintage";
+				nameColour = ITEM_DISPLAY_VINTAGE_COLOUR;
+				break;
+
+			default:
+				nameColour = ITEM_DISPLAY_NORMAL_COLOUR;
+				break;
+			}
+
+			// Set quality colour and prefix.
+			nameText_->SetColour( nameColour );
+			if (item->HasCustomName()) {
+				SetName( item->GetCustomName() );
+			}
+			else {
+				SetName( namePrefix + ' ' + item->GetName() );
+			}
 
 			// Build information text.
 			stringstream infoStream;
-			infoStream << "LEVEL " << (unsigned int)item->GetLevel() << " (" << hex << item->GetFlags() << ")\nQuality: " << item->GetQuality();
+			infoStream << "LEVEL " << (uint16)item->GetLevel();
 			infoText_->SetText( infoStream.str() );
 			Pack();
 		}

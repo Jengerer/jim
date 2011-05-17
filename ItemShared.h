@@ -19,7 +19,8 @@ enum EClassEquip {
 };
 
 enum EItemSlot {
-	SLOT_PRIMARY = 0,
+	SLOT_INVALID = 0,
+	SLOT_PRIMARY,
 	SLOT_SECONDARY,
 	SLOT_MELEE,
 	SLOT_PDA,
@@ -28,7 +29,7 @@ enum EItemSlot {
 	SLOT_HEAD,
 	SLOT_MISC,
 	SLOT_ACTION,
-	SLOT_ENGINEER
+	SLOT_GRENADE
 };
 
 // Inventory flags.

@@ -121,6 +121,21 @@ bool Item::HasValidFlags( void ) const
 	return GetFlags() & FL_ITEM_VALID;
 }
 
+void Item::SetCustomName( const string& name )
+{
+	customName_ = '"' + name + '"';
+}
+
+const string& Item::GetCustomName( void ) const
+{
+	return customName_;
+}
+
+bool Item::HasCustomName( void ) const
+{
+	return customName_.length() != 0;
+}
+
 bool Item::IsEquipped( EClassEquip equipClass ) const
 {
 	int equipFlags = flags_ & equipClass;

@@ -129,16 +129,6 @@ bool Button::OnLeftReleased( Mouse *mouse )
 	return mouse->IsTouching( this );
 }
 
-bool Button::OnRightClicked( Mouse *mouse )
-{
-	return mouse->IsTouching( this );
-}
-
-bool Button::OnRightReleased( Mouse *mouse )
-{
-	return mouse->IsTouching( this );
-}
-
 void Button::Precache( DirectX *directX )
 {
 	font_ = directX->CreateFont( 

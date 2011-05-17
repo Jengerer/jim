@@ -11,7 +11,6 @@ Application::Application( int width, int height )
 
 	// Add mouse keys by default.
 	AddKey( VK_LBUTTON );
-	AddKey( VK_RBUTTON );
 
 	// We're just beginning, so much to do!
 	SetState( APPLICATION_STATE_START );
@@ -98,12 +97,6 @@ void Application::UpdateMouse( void )
 		}
 		else if ( IsKeyReleased( VK_LBUTTON ) ) {
 			OnLeftReleased( mouse_ );
-		}
-		else if ( IsKeyClicked( VK_RBUTTON ) ) {
-			OnRightClicked( mouse_ );
-		}
-		else if ( IsKeyReleased( VK_RBUTTON ) ) {
-			OnRightReleased( mouse_ );
 		}
 	}
 }

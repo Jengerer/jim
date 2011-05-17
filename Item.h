@@ -50,6 +50,9 @@ public:
 	bool			IsNew( void ) const;
 	void			SetNew( bool isNew );
 	bool			HasValidFlags( void ) const;
+	void			SetCustomName( const string& name );
+	const string&	GetCustomName( void ) const;
+	bool			HasCustomName( void ) const;
 
 	// Equipment handling.
 	bool			IsEquipped( EClassEquip equipClass = CLASS_ALL ) const;
@@ -83,6 +86,9 @@ private:
 	EItemQuality			quality_;
 	uint32					count_;
 	uint32					flags_;
+
+	// Secondary information.
+	string					customName_;
 
 	// Item definition information.
 	const CItemInformation	*information_;

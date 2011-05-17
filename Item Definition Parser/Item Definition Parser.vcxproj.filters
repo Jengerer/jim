@@ -24,10 +24,13 @@
     <ClInclude Include="..\Curl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KeyValueParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Hashtable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KeyValueParser.h">
+    <ClInclude Include="..\ItemShared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

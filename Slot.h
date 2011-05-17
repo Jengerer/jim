@@ -6,6 +6,7 @@
 #include "Image.h"
 #include "Item.h"
 #include "RoundedRectangle.h"
+#include "Text.h"
 #include "Texture.h"
 
 // Slot selection type for manager handling.
@@ -34,7 +35,8 @@ public:
 
 	// Drawing function.
 	virtual void	OnDraw( DirectX* directX );
-	virtual void	UpdatePosition();
+	virtual void	UpdatePosition( void );
+	void			UpdateSlot( void );
 
 	// Slot attribute functions.
 	bool		HasItem( void ) const;
@@ -63,14 +65,21 @@ protected:
 	static RoundedRectangle *genuineSlot_;
 	static RoundedRectangle *genuineSelected_;
 
+	static Font *equippedFont_;
+	static Text *equippedText_;
+
 private:
 
-	Item*		item_;
-	Image*		image_;
-	int			index_;
-	ESlotGroup	group_;
+	// Item stored here.
+	Item*				item_;
 
-	bool		isActive_;
-	ESelectType	selectType_;
+	// Display member variables.
+	Image				*itemImage_;
+	Image				*slotImage_;
+
+	// Information about slot.
+	int					index_;
+	ESlotGroup			group_;
+	ESelectType			selectType_;
 
 };

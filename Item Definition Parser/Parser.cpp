@@ -1,8 +1,8 @@
 #include "Parser.h"
 
 #include <string>
-#include <hash_map>
 #include <iostream>
+#include <json/json.h>
 
 using namespace std;
 
@@ -49,16 +49,13 @@ void loadDefinitions()
 	// Spacing!
 	cout << endl;
 
-	KeyValueParser definitionParser( itemDefinition );
-	KeyValueParser languageParser( langDefinition );
-
 	try {
 		cout << "Parsing item definitions... ";
-		itemDefinitions = definitionParser.getHashtable();
+		itemDefinitions = KeyValueParser::Parse( itemDefinition );
 		cout << "done!" << endl;
 
 		cout << "Parsing language definitions... ";
-		langDefinitions = languageParser.getHashtable();
+		langDefinitions = KeyValueParser::Parse( langDefinition );
 		cout << "done!" << endl;
 	}
 	catch (Exception parseException) {
@@ -88,9 +85,6 @@ void loadDefinitions()
 	Json::Value root;
 	Json::StyledWriter jsonWriter;
 
-	ofstream defLegacy;
-	defLegacy.open("itemDefinitions.txt");
-
 	// Handle items.
 	stringMap::iterator hashIterator, itemIterator, nameIterator;
 	for (hashIterator = definitionsTable->begin(); hashIterator != definitionsTable->end(); hashIterator++)
@@ -105,12 +99,12 @@ void loadDefinitions()
 		}
 
 		// Try get the item name.
-		string *itemName, *realName, *itemIndex, *itemSlot, *texturePath, *textureUrl;
+		string *itemName, *realName, *itemIndex, *slotName, *texturePath, *textureUrl;
 		try
 		{
 			itemName = thisTable->getString("item_name");
 			itemIndex = thisTable->getString("defindex");
-			itemSlot = thisTable->getString("item_slot");
+			slotName = thisTable->getString("item_slot");
 			texturePath = thisTable->getString("image_inventory");
 			textureUrl = thisTable->getString("image_url");
 		} catch (Exception tableException)
@@ -146,46 +140,49 @@ void loadDefinitions()
 		Json::Value thisObject;
 		thisObject["index"] = *itemIndex;
 		thisObject["name"] = *realName;
-		thisObject["slot"] = *itemSlot;
 		thisObject["image"] = *texturePath;
 
-		string slotName = *itemSlot;
+		// Create slot.
+		EItemSlot itemSlot;
+		if (*slotName == "invalid") {
+			itemSlot = SLOT_INVALID;
+		}
+		else if (*slotName == "primary") {
+			itemSlot = SLOT_PRIMARY;
+		}
+		else if (*slotName == "secondary") {
+			itemSlot = SLOT_SECONDARY;
+		}
+		else if (*slotName == "melee") {
+			itemSlot = SLOT_MELEE;
+		}
+		else if (*slotName == "pda") {
+			itemSlot = SLOT_PDA;
+		}
+		else if (*slotName == "pda2") {
+			itemSlot = SLOT_PDA2;
+		}
+		else if (*slotName == "building") {
+			itemSlot = SLOT_BUILDING;
+		}
+		else if (*slotName == "head") {
+			itemSlot = SLOT_HEAD;
+		}
+		else if (*slotName == "misc") {
+			itemSlot = SLOT_MISC;
+		}
+		else if (*slotName == "action") {
+			itemSlot = SLOT_ACTION;
+		}
+		else if (*slotName == "grenade") {
+			itemSlot = SLOT_GRENADE;
+		}
+		else {
+			throw Exception( "Failed to parse item definition. Unexpected item slot type found." );
+		}
+		thisObject["slot"] = itemSlot;
 
-		int slot = 0;
-		if (slotName == "primary")
-			slot = 1;
-		else if (slotName == "secondary")
-			slot = 2;
-		else if (slotName == "melee")
-			slot = 3;
-		else if (slotName == "pda")
-			slot = 4;
-		else if (slotName == "pda2")
-			slot = 5;
-		else if (slotName == "building")
-			slot = 6;
-		else if (slotName == "head")
-			slot = 7;
-		else if (slotName == "misc")
-			slot = 8;
-		else if (slotName == "action")
-			slot = 9;
-		else if (slotName == "engineer")
-			slot = 10;
-		else
-			throw Exception("Unknown slot: " + *itemSlot);
-
-		Json::Value allClasses;
-		allClasses.append("scout");
-		allClasses.append("soldier");
-		allClasses.append("pyro");
-		allClasses.append("demoman");
-		allClasses.append("heavy");
-		allClasses.append("engineer");
-		allClasses.append("medic");
-		allClasses.append("sniper");
-		allClasses.append("spy");
-
+		unsigned int allClasses = CLASS_ALL;
 		Hashtable *usedByTable = NULL, *classTable = NULL;
 		try
 		{
@@ -196,86 +193,69 @@ void loadDefinitions()
 			thisObject["classes"] = allClasses;
 		}
 
-		int classIndex = 0;
-
-		if (usedByTable != NULL)
-		{
-			try
-			{
+		if (usedByTable != nullptr) {
+			try {
 				classTable = usedByTable->getTable("class");
-			} catch (Exception classException)
-			{
+			}
+			catch (Exception classException) {
 				throw Exception("Unexpected definition format. " + *realName + " has class usage, but no classes defined.");
 			}
 
-			if (!classTable->empty()) {
-				if (classTable->size() == 1) {
-					stringMap::iterator iter = classTable->begin();
-					string className = *boost::any_cast<string*>(iter->second);
-					if (className == "scout")
-						classIndex = 1;
-					else if (className == "soldier")
-						classIndex = 2;
-					else if (className == "pyro")
-						classIndex = 3;
-					else if (className == "demoman")
-						classIndex = 4;
-					else if (className == "heavy")
-						classIndex = 5;
-					else if (className == "engineer")
-						classIndex = 6;
-					else if (className == "medic")
-						classIndex = 7;
-					else if (className == "sniper")
-						classIndex = 8;
-					else if (className == "spy")
-						classIndex = 9;
-					else {
-						throw Exception("Unknown class name: " + className);
-					}
+			stringMap::iterator i;
+			unsigned int classFlags = CLASS_NONE;
+			for (i = classTable->begin(); i != classTable->end(); i++) {
+				string *className = nullptr;
+				try {
+					className = boost::any_cast<string*>(i->second);
+				}
+				catch (boost::bad_any_cast&) {
+					throw Exception( "Failed to parse class usage." );
 				}
 
-				Json::Value itemClasses;
-				stringMap::iterator hashIterator;
-				for (hashIterator = classTable->begin(); hashIterator != classTable->end(); hashIterator++)
-				{
-					// Get the class name.
-					try
-					{
-						string* className = boost::any_cast<string*>(hashIterator->second);
-						itemClasses.append(*className);
-					} catch (const boost::bad_any_cast &)
-					{
-						throw Exception( "Bad cast for class name. Expected string." );
-					}
-				}
-
-				thisObject["classes"] = itemClasses;
+				// Add all classes.
+				if (*className == "Scout")
+					classFlags |= CLASS_SCOUT;
+				if (*className == "Soldier")
+					classFlags |= CLASS_SOLDIER;
+				if (*className == "Pyro")
+					classFlags |= CLASS_PYRO;
+				if (*className == "Demoman")
+					classFlags |= CLASS_DEMOMAN;
+				if (*className == "Heavy")
+					classFlags |= CLASS_HEAVY;
+				if (*className == "Engineer")
+					classFlags |= CLASS_ENGINEER;
+				if (*className == "Medic")
+					classFlags |= CLASS_MEDIC;
+				if (*className == "Sniper")
+					classFlags |= CLASS_SNIPER;
+				if (*className == "Spy")
+					classFlags |= CLASS_SPY;
 			}
+
+			thisObject["classes"] = classFlags;
 		}
 
-		defLegacy << *itemIndex << " " << *realName << "; " << *texturePath << " " << classIndex << " " << slot << "\n";
-		root.append(thisObject);
+		root.append( thisObject );
 	}
 
 	// Add definition for unknown item.
 	Json::Value unknownItem;
 	unknownItem["index"] = "-1";
 	unknownItem["name"] = "Unknown Item";
-	unknownItem["slot"] = "misc";
+	unknownItem["slot"] = SLOT_INVALID;
 	unknownItem["image"] = "backpack/unknown_item";
-
-	defLegacy << "-1 Unknown Item; backpack/unknown_item 0 0";
-	defLegacy.close();
+	unknownItem["classes"] = 0;
 
 	// Set -1 to be unknown index.
-	root.append(unknownItem);
+	root.append( unknownItem );
 
-	ofstream jsonOutput("itemDefinitions.json");
-	if (!jsonOutput)
+	ofstream jsonOutput( "itemDefinitions.json" );
+	if (!jsonOutput) {
 		throw Exception( "Couldn't write to file." );
+	}
 
-	string jsonText = jsonWriter.write(root);
+	string jsonText = jsonWriter.write( root );
 	jsonOutput << jsonText;
 	jsonOutput.close();
 

@@ -300,9 +300,9 @@ Font* DirectX::CreateFont( const string& name, int height, bool isBolded )
 		0,
 		false,
 		DEFAULT_CHARSET,
-		OUT_TT_PRECIS,
-		CLEARTYPE_NATURAL_QUALITY,
-		FF_DECORATIVE,
+		OUT_DEFAULT_PRECIS,
+		DEFAULT_QUALITY,
+		FF_DONTCARE,
 		name.c_str(),
 		&d3dFont );
 

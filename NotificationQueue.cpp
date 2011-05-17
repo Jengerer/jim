@@ -60,24 +60,20 @@ bool NotificationQueue::OnMouseMoved( Mouse *mouse )
 bool NotificationQueue::OnLeftClicked( Mouse *mouse )
 {
 	// Left clicked.
+	if (HasNotification()) {
+		Notification *current = GetCurrentNotification();
+		if (mouse->IsTouching( current )) {
+			SetNextNotification();
+			return true;
+		}
+	}
+	
 	return false;
 }
 
 bool NotificationQueue::OnLeftReleased( Mouse *mouse )
 {
 	// Left released.
-	return false;
-}
-
-bool NotificationQueue::OnRightClicked( Mouse *mouse )
-{
-	// Right clicked.
-	return false;
-}
-
-bool NotificationQueue::OnRightReleased( Mouse *mouse )
-{
-	// Right released.
 	return false;
 }
 
