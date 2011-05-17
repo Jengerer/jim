@@ -22,8 +22,6 @@ public:
 	// Mouse handling.
 	virtual bool	OnLeftClicked( Mouse *mouse );
 	virtual bool	OnLeftReleased( Mouse *mouse );
-	virtual bool	OnRightClicked( Mouse *mouse );
-	virtual bool	OnRightReleased( Mouse *mouse );
 	virtual bool	OnMouseMoved( Mouse *mouse );
 
 

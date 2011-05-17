@@ -1,14 +1,19 @@
 #include "Slot.h"
 
+#define SLOT_PADDING 5
 #define SLOT_RADIUS 5
 
-#define SLOT_STROKE_WIDTH			1
+#define SLOT_STROKE_WIDTH			2
 #define SLOT_STROKE_NORMAL_COLOUR	D3DCOLOR_XRGB( 248, 212, 0 )
 #define SLOT_STROKE_VINTAGE_COLOUR	D3DCOLOR_XRGB( 69, 97, 141 )
 #define SLOT_STROKE_GENUINE_COLOUR	D3DCOLOR_XRGB( 75, 115, 83 )
 
 #define SLOT_SELECTED_COLOUR		D3DCOLOR_XRGB( 108, 96, 83 )
 #define SLOT_NORMAL_COLOUR			D3DCOLOR_XRGB( 60, 53, 46 )
+
+#define EQUIPPED_FONT_FACE			"TF2 Build"
+#define EQUIPPED_FONT_SIZE			10
+#define EQUIPPED_FONT_BOLDED		false
 
 #define ITEM_SIZE 60
 
@@ -20,23 +25,34 @@ RoundedRectangle	*Slot::vintageSelected_	= nullptr;
 RoundedRectangle	*Slot::genuineSlot_		= nullptr;
 RoundedRectangle	*Slot::genuineSelected_	= nullptr;
 
+Font *Slot::equippedFont_ = nullptr;
+Text *Slot::equippedText_ = nullptr;
+
 //=============================================================
 // Constructor
 //=============================================================
 Slot::Slot( int index, Item* item )
 {
-	// Create image.
-	image_ = new Image( 0, 0 );
-	image_->SetSize( ITEM_SIZE, ITEM_SIZE );
-	Add( image_ );
+	// Create slot image.
+	slotImage_ = new Image( 0, 0, emptySlot_->GetTexture() );
+	slotImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
+	Add( slotImage_ );
 
+	// Create item image.
+	itemImage_ = new Image( 0, 0 );
+	itemImage_->SetSize( ITEM_SIZE, ITEM_SIZE );
+	Add( itemImage_ );
+
+	// Set attributes.
 	SetItem( item );
 	SetIndex( index );
 	SetSize( SLOT_WIDTH, SLOT_HEIGHT );
 
-	// Inactive and deselected by default.
-	isActive_ = false;
+	// Deselected by default.
 	SetSelectType( SELECT_TYPE_NONE );
+
+	// Set drawing parameters.
+	UpdateSlot();
 }
 
 Slot::~Slot()
@@ -47,41 +63,63 @@ Slot::~Slot()
 void Slot::OnDraw( DirectX* directX )
 {
 	// Draw stroke based on quality.
-	Item *item				= GetItem();
-	RoundedRectangle* whichRect = emptySlot_;
+	Container::OnDraw( directX );
 
-	// Alter texture and tint based on attributes.
-	if (item != nullptr) {
+	// See if we should draw equipped.
+	if (HasItem() && GetItem()->IsEquipped()) {
+		equippedText_->SetPosition( GetX() + SLOT_WIDTH - SLOT_PADDING - equippedText_->GetWidth(), GetY() + SLOT_HEIGHT - SLOT_PADDING - equippedText_->GetHeight() );
+		equippedText_->OnDraw( directX );
+	}
+}
+
+void Slot::UpdateSlot( void )
+{
+	// Update item image.
+	if (HasItem()) {
+		Item *item = GetItem();
+		itemImage_->SetTexture( item->GetTexture() );
+	}
+	else {
+		itemImage_->SetTexture( nullptr );
+	}
+
+	// Update slot image.
+	Texture *slotTexture = nullptr;
+	if (HasItem()) {
+		Item *item = GetItem();
 		if ( GetSelectType() == SELECT_TYPE_NONE ) {
 			switch ( item->GetQuality() ) {
 			case EItemQuality::k_EItemQuality_Unique:
-				whichRect = vintageSlot_;
+				slotTexture = vintageSlot_->GetTexture();
 				break;
 			case EItemQuality::k_EItemQuality_Common:
-				whichRect = genuineSlot_;
+				slotTexture = genuineSlot_->GetTexture();
 				break;
 			default:
-				whichRect = normalSlot_;
+				slotTexture = normalSlot_->GetTexture();
 				break;
 			}
 		}
 		else {
 			switch ( item->GetQuality() ) {
 			case EItemQuality::k_EItemQuality_Unique:
-				whichRect = vintageSelected_;
+				slotTexture = vintageSelected_->GetTexture();
 				break;
 			case EItemQuality::k_EItemQuality_Common:
-				whichRect = genuineSelected_;
+				slotTexture = genuineSelected_->GetTexture();
 				break;
 			default:
-				whichRect = normalSelected_;
+				slotTexture = normalSelected_->GetTexture();
 				break;
 			}
 		}
 	}
+	else {
+		slotTexture = emptySlot_->GetTexture();
+	}
 
-	directX->DrawTexture( whichRect->GetTexture(), GetX(), GetY(), SLOT_WIDTH, SLOT_HEIGHT, D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
-	image_->OnDraw( directX );
+	// Set the texture.
+	slotImage_->SetTexture( slotTexture );
 }
 
 ESlotGroup Slot::GetGroup() const
@@ -108,19 +146,15 @@ void Slot::SetItem( Item* item )
 {
 	item_ = item;
 	if (item != nullptr) {
-		// Update image's texture.
-		image_->SetTexture( item->GetTexture() );
+		UpdatePosition();
 
-		// Retain flags if this is an excluded slot.
+		// Only update index if inventory slot.
 		if (GetGroup() == GROUP_INVENTORY) {
 			item->SetIndex( GetIndex() );
 		}
+	}
 
-		UpdatePosition();
-	}
-	else {
-		image_->SetTexture( nullptr );
-	}
+	UpdateSlot();
 }
 
 //=============================================================
@@ -144,13 +178,12 @@ void Slot::SetIndex( int index )
 //=============================================================
 void Slot::UpdatePosition( void )
 {
-	// Move the item.
-	Item* item = GetItem();
-	if (item != nullptr) {
-		float itemX = GetX() + (GetWidth() / 2) - (image_->GetWidth() / 2);
-		float itemY = GetY() + (GetHeight() / 2) - (image_->GetHeight() / 2);
-		image_->SetPosition( itemX, itemY );
-	}
+	slotImage_->SetPosition( GetX(), GetY() );
+	
+	// Now center item image.
+	float itemX = GetX() + ((GetWidth() - itemImage_->GetWidth()) >> 1);
+	float itemY = GetY() + ((GetHeight() - itemImage_->GetWidth()) >> 1);
+	itemImage_->SetPosition( itemX, itemY );
 }
 
 ESelectType Slot::GetSelectType( void ) const
@@ -170,6 +203,8 @@ void Slot::SetSelectType( ESelectType selectType )
 		SetAlpha( 255 );
 		break;
 	}
+
+	UpdateSlot();
 }
 
 void Slot::Precache( DirectX *directX )
@@ -198,6 +233,12 @@ void Slot::Precache( DirectX *directX )
 	vintageSelected_->Generate( directX );
 	genuineSlot_->Generate( directX );
 	genuineSelected_->Generate( directX );
+
+	// Create equipped font.
+	equippedFont_ = directX->CreateFont( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE, EQUIPPED_FONT_BOLDED );
+	equippedText_ = new Text( equippedFont_ );
+	equippedText_->SetText( "EQUIPPED" );
+	equippedText_->Pack();
 }
 
 void Slot::Release( void )
@@ -225,5 +266,25 @@ void Slot::Release( void )
 	if (vintageSelected_ != nullptr) {
 		delete vintageSelected_;
 		vintageSelected_ = nullptr;
+	}
+
+	if (genuineSlot_ != nullptr) {
+		delete genuineSlot_;
+		genuineSlot_ = nullptr;
+	}
+
+	if (genuineSelected_ != nullptr) {
+		delete genuineSelected_;
+		genuineSelected_ = nullptr;
+	}
+
+	if (equippedFont_ != nullptr) {
+		delete equippedFont_;
+		equippedFont_ = nullptr;
+	}
+
+	if (equippedText_ != nullptr) {
+		delete equippedText_;
+		equippedText_ = nullptr;
 	}
 }

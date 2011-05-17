@@ -27,6 +27,7 @@ class Button: public Component, public IMouseHandler
 {
 
 public:
+
 	Button( const string& caption, float x = 0.0f, float y = 0.0f );
 	virtual ~Button( void );
 	
@@ -52,8 +53,6 @@ public:
 	virtual bool OnMouseMoved( Mouse *mouse );
 	virtual bool OnLeftClicked( Mouse *mouse );
 	virtual bool OnLeftReleased( Mouse *mouse );
-	virtual bool OnRightClicked( Mouse *mouse );
-	virtual bool OnRightReleased( Mouse *mouse );
 
 	static void		Precache( DirectX *directX );
 	static void		Release( void );

@@ -1,85 +1,72 @@
 #include "KeyValueParser.h"
 
-KeyValueParser::KeyValueParser(string parseString)
+#include <stack>
+
+Hashtable* KeyValueParser::Parse( const string& inputString )
 {
-	m_strParse = parseString;
-}
+	// Create base map.
+	Hashtable *baseTable = new Hashtable();
+	stack<Hashtable*> tableStack;
 
-KeyValueParser::~KeyValueParser()
-{
-	/* KeyValueParser has been destroyed. */
-}
-
-Hashtable* KeyValueParser::getHashtable()
-{
-	/* Create the new table. */
-	Hashtable* baseTable = new Hashtable();
-
-	/* Keep track of the depth. */
-	vector<Hashtable*> tableDepth;
-
-	/* Track which table we're writing to. */
+	// Track where we're writing to.
 	Hashtable* addingTable = baseTable;
-	Hashtable* currentTable = NULL;
+	Hashtable* currentTable = nullptr;
 
 	// Parsing index variables.
-	int nIndex = 0;
-	int nLength = m_strParse.length();
+	int index = 0;
+	int length = inputString.length();
 
 	// Word parsing variables.
 	bool writingNow = false;
 	string thisWord, lastWord;
 	bool hasKey = false;
 
-	int nStart;
+	int start;
 
 	// Begin parsing.
-	while (nIndex < nLength)
+	while (index < length)
 	{
-		switch (m_strParse[nIndex])
+		switch (inputString[index])
 		{
 		case '/':
 			{
-				char nextChar = m_strParse[nIndex+1];
+				char nextChar = inputString[index+1];
 				if (nextChar == '/' && !writingNow)
 				{
 					// This is a commented line, go to next.
-					int newLinePos = m_strParse.find('\n', nIndex+1);
-					nIndex = newLinePos;
+					int nextLine = inputString.find( '\n', index+1 );
+					index = nextLine;
 				}
 			}
 			break;
 
 		case '\\':
-			nIndex++;
+			index++;
 			break;
 
 		case '"':
-			// We've reached the start. Seek the end.
+			// Start of quoted value.
 			if (!writingNow)
 			{
-				nStart = nIndex + 1;
+				start = index + 1;
 				writingNow = true;
 			} else
 			{
 				// Get the word.
-				thisWord = m_strParse.substr(nStart, (nIndex - nStart));
+				thisWord = inputString.substr( start, (index - start) );
 				writingNow = false;
 			
 				// Check if this is a key..
-				if (hasKey)
-				{
-					string* addWord = new string(thisWord);
-					addingTable->put(lastWord, addWord);
-					
-					// Unset the key.
-					hasKey = false;
-				} else
-				{
+				if (hasKey) {
+					string* addWord = new string( thisWord );
+					addingTable->put( lastWord, addWord );
+				}
+				else {
 					// Just set the key.
 					lastWord = thisWord;
-					hasKey = true;
 				}
+
+				hasKey = !hasKey;
 			}
 			break;
 
@@ -89,10 +76,10 @@ Hashtable* KeyValueParser::getHashtable()
 				currentTable = new Hashtable();
 
 				// Add it.
-				addingTable->put(lastWord, currentTable);
+				addingTable->put( lastWord, currentTable );
 
 				// Add to depth vector, and set new adding.
-				tableDepth.push_back(addingTable);
+				tableStack.push( addingTable );
 				addingTable = currentTable;
 
 				hasKey = false;
@@ -101,18 +88,17 @@ Hashtable* KeyValueParser::getHashtable()
 
 		case '}':
 			// Remove last table from depth, and set parent.
-			if (tableDepth.empty())
-			{
+			if (tableStack.empty()) {
 				delete baseTable;
 				throw Exception( "Unexpected format in KeyValue file. Parsing failed." );
 			}
 
-			addingTable = tableDepth.back();
-			tableDepth.pop_back();
+			addingTable = tableStack.top();
+			tableStack.pop();
 			break;
 		}
 
-		nIndex++;
+		index++;
 	}
 
 	return baseTable;

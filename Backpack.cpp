@@ -95,6 +95,11 @@ void Backpack::HandleMessage( int id, void *message, uint32 size )
 									(EItemQuality)econItem.quality(),
 									econItem.quantity(),
 									econItem.inventory() );
+
+								if (econItem.has_custom_name()) {
+									item->SetCustomName( econItem.custom_name() );
+								}
+
 								inventory_->InsertItem( item );
 							}
 						}
@@ -547,16 +552,6 @@ bool Backpack::OnLeftReleased( Mouse *mouse )
 		return true;
 	}
 
-	return false;
-}
-
-bool Backpack::OnRightClicked( Mouse *mouse )
-{
-	return false;
-}
-
-bool Backpack::OnRightReleased( Mouse *mouse )
-{
 	return false;
 }
 

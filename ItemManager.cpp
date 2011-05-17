@@ -125,10 +125,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		// End drawing.
 		directX_->EndDraw();
 
-		// Create start up message.
-		loadProgress_ = CreateNotice( "Initializing item manager..." );
-
-		// Create buttons.
+		// Get button textures.
 		Texture *craftTexture = directX_->GetTexture( "manager/gear" );
 		Texture *equipTexture = directX_->GetTexture( "manager/equip" );
 		Texture *sortTexture = directX_->GetTexture( "manager/sort" );
@@ -140,17 +137,19 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		craftButton_ = CreateButton( "craft", craftTexture, BACKPACK_PADDING, BUTTON_Y );
 		equipButton_ = CreateButton( "equip", equipTexture, craftButton_->GetX() + craftButton_->GetWidth() + BUTTON_SPACING, BUTTON_Y );
 		sortButton_	 = CreateButton( "sort", sortTexture, equipButton_->GetX() + equipButton_->GetWidth() + BUTTON_SPACING, BUTTON_Y );
+		sortButton_->SetEnabled( false );
+		equipButton_->SetEnabled( false );
+		craftButton_->SetEnabled( false );
 		buttonLayout->Add( craftButton_ );
 		buttonLayout->Add( equipButton_ );
 		buttonLayout->Add( sortButton_ );
 		buttonLayout->Pack();
+		Add( buttonLayout );
 
 		// Create backpack.
 		backpack_ = new Backpack( 0.0f, 0.0f, this );
 		backpack_->CreateInventory( PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT, EXCLUDED_SIZE );
-		backpack_->LoadInterfaces();
-		AddBottom( backpack_ );
-		AddBottom( buttonLayout );
+		Add( backpack_ );
 
 		// Create item display.
 		itemDisplay_ = new ItemDisplay();
@@ -162,13 +161,12 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		backpack_->SetNotificationQueue( notifications_ );
 		Add( notifications_ );
 
-		// Load definitions from translated APIs.
-		LoadDefinitions();
+		// Create start up message.
+		loadProgress_ = CreateNotice( "Initializing item manager..." );
 
-		// Set default button state.
-		sortButton_->SetEnabled( false );
-		equipButton_->SetEnabled( false );
-		craftButton_->SetEnabled( false );
+		// Attempt to load Steam and definitions.
+		backpack_->LoadInterfaces();
+		LoadDefinitions();
 
 		// We should be good to go!
 		SetState( APPLICATION_STATE_RUN );
@@ -204,7 +202,6 @@ void ItemManager::CloseInterfaces( void )
 	}
 
 	// Free cached resources.
-	// TODO: Make an IPrecachable interface and keep a list.
 	Button::Release();
 	ItemDisplay::Release();
 	Notice::Release();
@@ -239,6 +236,11 @@ bool ItemManager::OnLeftClicked( Mouse *mouse )
 		return true;
 	}
 	else {
+		// Check notification.
+		if (notifications_->OnLeftClicked( mouse )) {
+			return true;
+		}
+
 		// Check, but don't register buttons.
 		vector<Button*>::iterator i;
 		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
@@ -300,6 +302,8 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 		// Now run buttons.
 		if (craftButton_->IsEnabled() && mouse->IsTouching(craftButton_)) {
 			backpack_->CraftSelected();
+			craftButton_->SetEnabled( false );
+			equipButton_->SetEnabled( false );
 			return true;
 		}
 		else if (equipButton_->IsEnabled() && mouse->IsTouching(equipButton_)) {
@@ -321,16 +325,6 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 	}
 
 	return false;
-}
-
-bool ItemManager::OnRightClicked( Mouse *mouse )
-{
-	return true;
-}
-
-bool ItemManager::OnRightReleased( Mouse *mouse )
-{
-	return true;
 }
 
 bool ItemManager::OnMouseMoved( Mouse *mouse )
@@ -453,86 +447,12 @@ void ItemManager::LoadDefinitions( void )
 		string index	= thisItem.get( "index", root ).asString();
 		string name		= thisItem.get( "name", root ).asString();
 		string image	= thisItem.get( "image", root ).asString();
-		string slot		= thisItem.get( "slot", root ).asString();
+		EItemSlot slot	= (EItemSlot)thisItem.get( "slot", root ).asUInt();
+		uint32 classes	= thisItem.get( "classes", root ).asUInt();
 
 		// Make sure there's a file.
 		if (image.length() == 0) {
 			image = "backpack/unknown_item";
-		}
-
-		// Create class flags.
-		// TODO: Definitely move this to the parser.
-		uint32 classFlags = CLASS_NONE;
-		if (thisItem.isMember( "classes" )) {
-			Json::Value& classes = thisItem.get( "classes", root );
-
-			// Add all classes.
-			for (Json::ValueIterator i = classes.begin(); i != classes.end(); i++) {
-				string className = (*i).asString();
-				if (className == "scout" ) {
-					classFlags |= CLASS_SCOUT;
-				}
-				if (className == "soldier" ) {
-					classFlags |= CLASS_SOLDIER;
-				}
-				if (className == "pyro" ) {
-					classFlags |= CLASS_PYRO;
-				}
-				if (className == "demoman" ) {
-					classFlags |= CLASS_DEMOMAN;
-				}
-				if (className == "heavy" ) {
-					classFlags |= CLASS_HEAVY;
-				}
-				if (className == "engineer" ) {
-					classFlags |= CLASS_ENGINEER;
-				}
-				if (className == "medic" ) {
-					classFlags |= CLASS_MEDIC;
-				}
-				if (className == "sniper" ) {
-					classFlags |= CLASS_SNIPER;
-				}
-				if (className == "spy" ) {
-					classFlags |= CLASS_SPY;
-				}
-			}
-		}
-
-		// Create slot.
-		EItemSlot itemSlot;
-		if (slot == "primary") {
-			itemSlot = SLOT_PRIMARY;
-		}
-		else if (slot == "secondary") {
-			itemSlot = SLOT_SECONDARY;
-		}
-		else if (slot == "melee") {
-			itemSlot = SLOT_MELEE;
-		}
-		else if (slot == "pda") {
-			itemSlot = SLOT_PDA;
-		}
-		else if (slot == "pda2") {
-			itemSlot = SLOT_PDA2;
-		}
-		else if (slot == "building") {
-			itemSlot = SLOT_BUILDING;
-		}
-		else if (slot == "head") {
-			itemSlot = SLOT_HEAD;
-		}
-		else if (slot == "misc") {
-			itemSlot = SLOT_MISC;
-		}
-		else if (slot == "action") {
-			itemSlot = SLOT_ACTION;
-		}
-		else if (slot == "Engineer") {
-			itemSlot = SLOT_ENGINEER;
-		}
-		else {
-			throw Exception( "Failed to parse item definition. Unexpected item slot type found." );
 		}
 
 		// Attempt to load the texture.
@@ -548,8 +468,8 @@ void ItemManager::LoadDefinitions( void )
 		CItemInformation *itemInformation = new CItemInformation(
 			name,
 			texture,
-			classFlags,
-			itemSlot );
+			classes,
+			slot );
 
 		// Parse item type and insert.
 		int32 typeIndex = atoi( index.c_str() );

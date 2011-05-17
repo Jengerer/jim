@@ -15,12 +15,9 @@ bool getKeyValue(string whichLine, string* destKey, string* destValue);
 
 class KeyValueParser
 {
+
 public:
-	KeyValueParser(string parseString);
-	~KeyValueParser();
 
-	Hashtable* getHashtable();
+	static Hashtable* Parse( const string& inputString );
 
-private:
-	string		m_strParse;
 };

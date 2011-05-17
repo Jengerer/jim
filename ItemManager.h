@@ -10,7 +10,7 @@
 #include "NotificationQueue.h"
 #include "Notification.h"
 
-#define BUTTON_SPACING	2
+#define BUTTON_SPACING	5
 #define BUTTON_Y		380
 
 class ItemManager: public Application
@@ -38,8 +38,6 @@ public:
 	// Mouse input handling.
 	virtual bool OnLeftClicked( Mouse *mouse );
 	virtual bool OnLeftReleased( Mouse *mouse );
-	virtual bool OnRightClicked( Mouse *mouse );
-	virtual bool OnRightReleased( Mouse *mouse );
 	virtual bool OnMouseMoved( Mouse *mouse );
 
 	// Interface handling.
@@ -71,7 +69,7 @@ private:
 	bool			enterPressed_;
 
 	// Display for item information.
-	ItemDisplay *itemDisplay_;
+	ItemDisplay		*itemDisplay_;
 
 	// Interface variables.
 	Notice				*loadProgress_;

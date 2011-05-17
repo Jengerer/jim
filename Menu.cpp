@@ -1,110 +1,64 @@
 #include "Menu.h"
 
 // Menu created.
-Menu::Menu()
+Menu::Menu( void )
 {
-	selected_	= 0;
-	widest_		= 0;
+	SetClicked( nullptr );
 	setState( POPUP_STATE_INACTIVE );
+
+	// Create rounded rectangle.
+	roundedRect_ = new RoundedRectangle( 0, 0, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
+	roundedRect_->SetStroke( MENU_STROKE_SIZE, MENU_STROKE_COLOUR );
+	Add( roundedRect_ );
+
+	// Create layout.
+	layout_ = new VerticalLayout();
+	Add( layout_ );
 }
 
-Menu::~Menu()
+Menu::~Menu( void )
 {
 	// Menu destroyed.
 }
 
-void Menu::draw( DirectX *directX )
+Button* Menu::AddOption( const string& caption, Texture *texture )
 {
-	// Draw stroked rounded rectangle.
-	directX->DrawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), MENU_RADIUS + MENU_STROKE, MENU_STROKE_COLOUR );
-	directX->DrawRoundedRect( GetX() + MENU_STROKE, GetY() + MENU_STROKE, GetWidth() - MENU_STROKE * 2, GetHeight() - MENU_STROKE * 2, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
-
-	// Draw buttons.
-	for (int i = 0; i < options_.size(); i++) {
-		Option *button = options_[i];
-		button->OnDraw( directX );
-	}
-}
-
-Option* Menu::addOption( const string& caption, Texture *texture = 0 )
-{
-	Option *button = new Option( caption );
+	Button *button = new Button( caption );
 	button->SetIcon( texture );
-	options_.push_back( button );
-	Add( button );
 
-	// Update widest button.
-	if ((widest_ == 0) || (button->GetWidth() > widest_)) {
-		widest_ = button->GetWidth();
-	}
+	// Add to layout and list.
+	options_.push_back( button );
+	layout_->Add( button );
 
 	return button;
 }
 
-Option* Menu::getSelected()
+Button* Menu::GetClicked( void ) const
 {
-	return selected_;
+	return clicked_;
 }
 
-void Menu::pack()
+void Menu::Pack( void )
 {
-	int width = widest_ + MENU_PADDING * 2 + MENU_STROKE * 2;
-	int height = MENU_PADDING * 2 + MENU_STROKE * 2;
-
-	// Pack buttons.
-	for (int i = 0; i < options_.size(); i++) {
-		Option *button = options_[i];
-
-		// Pack this button.
-		button->SetSize( widest_, button->GetHeight() );
-		height += button->GetHeight();
-	}
-
-	// Add spacing heights.
-	if (options_.size() >= 2) {
-		height += (options_.size() - 1) * MENU_SPACING;
-	}
-
-	// Set new size.
-	SetSize( width, height );
+	layout_->Pack();
+	roundedRect_->SetSize( layout_->GetWidth() + MENU_PADDING * 2,
+		layout_->GetHeight() + MENU_PADDING * 2 );
+	SetSize( roundedRect_->GetWidth(), roundedRect_->GetHeight() );
 }
 
-void Menu::display( int x, int y, Container *parent )
-{
-	setState( POPUP_STATE_ACTIVE );
-
-	// Set new position, clamped to container.
-	int newX = x, newY = y;
-	if (newX + GetWidth() > parent->GetWidth()) {
-		newX -= GetWidth();
-	}
-
-	// Set new Y.
-	if (newY + GetHeight() > parent->GetHeight()) {
-		newY -= GetHeight();
-	}
-
-	SetPosition( newX, newY );
-}
-
-void Menu::updatePosition()
+void Menu::UpdatePosition( void )
 {
 	// Position all buttons.
-	int y = GetY() + MENU_PADDING + MENU_STROKE;
-	for (int i = 0; i < options_.size(); i++) {
-		Option *button = options_[i];
-		button->SetX( GetX() + MENU_PADDING + MENU_STROKE );
-		button->SetY( y );
-
-		y += button->GetHeight() + MENU_SPACING;
-	}
+	roundedRect_->SetPosition( GetX(), GetY() );
+	layout_->SetPosition( GetX() + MENU_PADDING, GetY() + MENU_PADDING );
 }
 
 bool Menu::OnMouseMoved( Mouse *mouse )
 {
 	// Pass message to buttons.
-	for (int i = 0; i < options_.size(); i++) {
-		Option *button = options_[i];
+	vector<Button*>::iterator i;
+	for (i = options_.begin(); i != options_.end(); i++) {
+		Button *button = *i;
 		button->OnMouseMoved( mouse );
 	}
 
@@ -113,7 +67,7 @@ bool Menu::OnMouseMoved( Mouse *mouse )
 
 bool Menu::OnLeftClicked( Mouse *mouse )
 {
-	selected_ = nullptr;
+	SetClicked( nullptr );
 	if ( !mouse->IsTouching( this ) ) {
 		setState( POPUP_STATE_INACTIVE );
 	}
@@ -125,13 +79,14 @@ bool Menu::OnLeftClicked( Mouse *mouse )
 bool Menu::OnLeftReleased( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
-		for (int i = 0; i < options_.size(); i++) {
-			Option *button = options_[i];
+		vector<Button*>::iterator i;
+		for (i = options_.begin(); i != options_.end(); i++) {
+			Button *button = *i;
 
 			// Set selected button, and go inactive.
 			if (mouse->IsTouching( button )) {
 				setState( POPUP_STATE_INACTIVE );
-				selected_ = button;
+				SetClicked( button );
 				break;
 			}
 		}
@@ -142,14 +97,7 @@ bool Menu::OnLeftReleased( Mouse *mouse )
 	return false;
 }
 
-bool Menu::OnRightClicked( Mouse *mouse )
+void Menu::SetClicked( Button *clicked )
 {
-	// Same behaviour as left click.
-	return OnLeftClicked( mouse );
-}
-
-bool Menu::OnRightReleased( Mouse *mouse )
-{
-	// Same behaviour as left click.
-	return OnLeftClicked( mouse );
+	clicked_ = clicked;
 }

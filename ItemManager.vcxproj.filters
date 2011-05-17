@@ -102,9 +102,6 @@
     <ClCompile Include="Menu.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="Option.cpp">
-      <Filter>Source Files\UI Elements</Filter>
-    </ClCompile>
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -141,16 +138,16 @@
     <ClCompile Include="Alert.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\NotificationQueue.cpp">
-      <Filter>Source Files\UI Elements</Filter>
+    <ClCompile Include="CItemInformation.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\Notification.cpp">
-      <Filter>Source Files\UI Elements</Filter>
+    <ClCompile Include="Notification.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\RoundedRectangle.cpp">
-      <Filter>Source Files\UI Elements</Filter>
+    <ClCompile Include="NotificationQueue.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\CItemInformation.cpp">
+    <ClCompile Include="RoundedRectangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -866,9 +863,6 @@
     <ClInclude Include="Menu.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
-    <ClInclude Include="Option.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
     <ClInclude Include="Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -920,17 +914,20 @@
     <ClInclude Include="Notice.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\Notification.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\RoundedRectangle.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
     <ClInclude Include="ItemShared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\CItemInformation.h">
+    <ClInclude Include="CItemInformation.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Notification.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RoundedRectangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ToggleSet.h">
+      <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

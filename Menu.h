@@ -1,41 +1,51 @@
-#pragma once
+#ifndef MENU_H
+#define MENU_H
 
-#include <vector>
-
+#include "Button.h"
 #include "Popup.h"
-#include "Option.h"
+#include "RoundedRectangle.h"
+#include "VerticalLayout.h"
 
-#define MENU_PADDING	10
-#define MENU_SPACING	10
-#define MENU_RADIUS		3
-#define MENU_STROKE		4
-#define MENU_STROKE_COLOUR		D3DCOLOR_ARGB( 100, 153, 142, 121 )
+#define MENU_PADDING			10
+#define MENU_SPACING			10
+#define MENU_RADIUS				3
+#define MENU_STROKE_SIZE		4
+#define MENU_STROKE_COLOUR		D3DCOLOR_ARGB( 255, 255, 255, 50 )
 #define MENU_BACKGROUND_COLOUR	D3DCOLOR_XRGB( 42, 39, 37 )
 
-class Menu: public Popup, public IMouseHandler {
+class Menu: public Popup, public IMouseHandler
+{
+
 public:
-	Menu();
-	virtual ~Menu();
+
+	Menu( void );
+	virtual ~Menu( void);
 
 	// Menu handling functions.
-	Option*	addOption( const string& caption, Texture *texture );
-	Option*	getSelected();
+	Button*			AddOption( const string& caption, Texture *texture = nullptr );
+	Button*			GetClicked( void ) const;
 
 	// Drawing functions.
-	void pack();
-	void draw( DirectX *directX );
-	void display( int x, int y, Container *parent );
-	virtual void updatePosition();
+	virtual void	Pack( void );
+	virtual void	UpdatePosition( void );
 
 	// Mouse handling.
-	virtual bool OnMouseMoved( Mouse *mouse );
-	virtual bool OnLeftClicked( Mouse *mouse );
-	virtual bool OnLeftReleased( Mouse *mouse );
-	virtual bool OnRightClicked( Mouse *mouse );
-	virtual bool OnRightReleased( Mouse *mouse );
+	virtual bool	OnMouseMoved( Mouse *mouse );
+	virtual bool	OnLeftClicked( Mouse *mouse );
+	virtual bool	OnLeftReleased( Mouse *mouse );
 
 private:
-	Option*			selected_;
-	int				widest_;
-	vector<Option*>	options_;
+
+	void			SetClicked( Button *clicked );
+
+private:
+
+	RoundedRectangle	*roundedRect_;
+	VerticalLayout		*layout_;
+	Button*				clicked_;
+
+	vector<Button*>		options_;
+
 };
+
+#endif // MENU_H

@@ -97,10 +97,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\CItemInformation.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\Notification.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\NotificationQueue.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\RoundedRectangle.cpp" />
+    <ClCompile Include="CItemInformation.cpp" />
+    <ClCompile Include="Notification.cpp" />
+    <ClCompile Include="NotificationQueue.cpp" />
+    <ClCompile Include="RoundedRectangle.cpp" />
     <ClCompile Include="Notice.cpp" />
     <ClCompile Include="Backpack.cpp" />
     <ClCompile Include="Button.cpp" />
@@ -119,7 +119,6 @@
     <ClCompile Include="KeyboardHandler.cpp" />
     <ClCompile Include="Layout.cpp" />
     <ClCompile Include="Menu.cpp" />
-    <ClCompile Include="Option.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="Item.cpp" />
@@ -139,10 +138,10 @@
     <ClCompile Include="WrappedText.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\CItemInformation.h" />
+    <ClInclude Include="CItemInformation.h" />
     <ClInclude Include="ItemShared.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\Notification.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\RoundedRectangle.h" />
+    <ClInclude Include="Notification.h" />
+    <ClInclude Include="RoundedRectangle.h" />
     <ClInclude Include="Notice.h" />
     <ClInclude Include="Backpack.h" />
     <ClInclude Include="Button.h" />
@@ -169,7 +168,6 @@
     <ClInclude Include="Layout.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="NotificationQueue.h" />
-    <ClInclude Include="Option.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Popup.h" />
     <ClInclude Include="protobuf\base_gcmessages.pb.h" />
@@ -181,6 +179,7 @@
     <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Title.h" />
+    <ClInclude Include="ToggleSet.h" />
     <ClInclude Include="VerticalLayout.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="steam\AppsCommon.h" />

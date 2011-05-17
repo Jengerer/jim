@@ -10,8 +10,6 @@ public:
 
 	virtual bool OnLeftClicked( Mouse *mouse ) = 0;
 	virtual bool OnLeftReleased( Mouse *mouse ) = 0;
-	virtual bool OnRightClicked( Mouse *mouse ) = 0;
-	virtual bool OnRightReleased( Mouse *mouse ) = 0;
 	virtual bool OnMouseMoved( Mouse *mouse ) = 0;
 
 };
