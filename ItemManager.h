@@ -9,6 +9,7 @@
 #include "Notice.h"
 #include "NotificationQueue.h"
 #include "Notification.h"
+#include "ToggleSet.h"
 
 #define BUTTON_SPACING	5
 #define BUTTON_Y		380
@@ -60,7 +61,7 @@ private:
 
 	// User interface stacks.
 	deque<Popup*>	popupStack_;
-	vector<Popup*>	popupList_;
+	vector<Popup*>	popupList_; // TODO: These might be dep'd.
 	vector<Button*>	buttonList_;
 
 	// Keyboard booleans.
@@ -71,14 +72,25 @@ private:
 	// Display for item information.
 	ItemDisplay		*itemDisplay_;
 
-	// Interface variables.
+	// Progress notice.
 	Notice				*loadProgress_;
+
+	// Information notifications.
 	NotificationQueue	*notifications_;
+
+	// Alerts.
 	Alert				*alert_;
 	Alert				*error_;
+
+	// Inventory buttons.
 	Button				*equipButton_;
 	Button				*craftButton_;
 	Button				*sortButton_;
+
+	// Equipment management.
+	ToggleSet			*equipSet_;
+	Button				*equipSoldier_;
+	Button				*equipDemoman_;
 };
 
 #endif // ITEM_MANAGER_H

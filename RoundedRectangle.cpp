@@ -4,6 +4,7 @@ RoundedRectangle::RoundedRectangle( int width, int height, int radius, D3DCOLOR 
 {
 	UnsetTexture();
 	SetStroke( 0, D3DCOLOR_XRGB( 0, 0, 0 ) );
+	SetStrokeType( STROKE_TYPE_OUTER );
 	SetCornerRadius( radius, radius, radius, radius );
 	SetColour( colour );
 	SetSize( width, height );
@@ -31,10 +32,18 @@ void RoundedRectangle::OnDraw( DirectX *directX )
 	}
 
 	// Draw texture.
+	float textureX = GetX();
+	float textureY = GetY();
+	if (GetStrokeType() == STROKE_TYPE_OUTER) {
+		int strokeSize = GetStrokeSize();
+		textureX -= strokeSize;
+		textureY -= strokeSize;
+	}
+
 	directX->DrawTexture(
 		roundedRect_,
-		GetX(), GetY(),
-		GetWidth(), GetHeight(),
+		textureX, textureY,
+		roundedRect_->GetWidth(), roundedRect_->GetHeight(),
 		D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
 }
 
@@ -65,29 +74,60 @@ void RoundedRectangle::SetCornerRadius( int radiusTl, int radiusTr, int radiusBr
 
 void RoundedRectangle::Generate( DirectX *directX )
 {
-	roundedRect_ = directX->CreateTexture( "rounded_rect", GetWidth(), GetHeight() );
+	int rectWidth = GetWidth();
+	int rectHeight = GetHeight();
+	if (GetStrokeType() == STROKE_TYPE_OUTER) {
+		rectWidth += GetStrokeSize() << 1;
+		rectHeight += GetStrokeSize() << 1;
+	}
+	roundedRect_ = directX->CreateTexture( "rounded_rect", rectWidth, rectHeight );
 	directX->SetRenderTarget( roundedRect_ );
 		
 	// Draw stroke, if exists.
+	EStrokeType strokeType = GetStrokeType();
+	int strokeSize = GetStrokeSize();
 	if (GetStrokeSize() != 0) {
-		directX->DrawRoundedRect(
-			0, 0,
-			GetWidth(), GetHeight(),
-			radiusTl_, radiusTr_, radiusBr_, radiusBl_,
-			GetStrokeColour() );
+		switch (strokeType) {
+		case STROKE_TYPE_OUTER:
+			directX->DrawRoundedRect(
+				0, 0,
+				GetWidth() + (strokeSize << 1),
+				GetHeight() + (strokeSize << 1),
+				radiusTl_ + strokeSize, radiusTr_ + strokeSize, radiusBr_ + strokeSize, radiusBl_ + strokeSize,
+				GetStrokeColour() );
+			break;
+		case STROKE_TYPE_INNER:
+			directX->DrawRoundedRect(
+				0, 0,
+				GetWidth(), GetHeight(),
+				radiusTl_, radiusTr_, radiusBr_, radiusBl_,
+				GetStrokeColour() );
+			break;
+		}
 	}
 
 	// Draw inner rectangle.
-	directX->DrawRoundedRect(
-		GetStrokeSize(),
-		GetStrokeSize(),
-		GetWidth() - (GetStrokeSize() << 1),
-		GetHeight() - (GetStrokeSize() << 1),
-		radiusTl_ - GetStrokeSize(),
-		radiusTr_ - GetStrokeSize(),
-		radiusBr_ - GetStrokeSize(),
-		radiusBl_ - GetStrokeSize(),
-		GetColour() );
+	switch (strokeType) {
+	case STROKE_TYPE_OUTER:
+		directX->DrawRoundedRect(
+			strokeSize, strokeSize,
+			GetWidth(),
+			GetHeight(),
+			radiusTl_, radiusTr_, radiusBr_, radiusBl_,
+			GetColour() );
+		break;
+	case STROKE_TYPE_INNER:
+		directX->DrawRoundedRect(
+			strokeSize, strokeSize,
+			GetWidth() - (strokeSize << 1),
+			GetHeight() - (strokeSize << 1),
+			radiusTl_ - strokeSize,
+			radiusTr_ - strokeSize,
+			radiusBr_ - strokeSize,
+			radiusBl_ - strokeSize,
+			GetColour() );
+		break;
+	}
 
 	directX->ResetRenderTarget();
 }
@@ -123,4 +163,14 @@ D3DCOLOR RoundedRectangle::GetStrokeColour( void ) const
 int RoundedRectangle::GetStrokeSize( void ) const
 {
 	return strokeSize_;
+}
+
+void RoundedRectangle::SetStrokeType( EStrokeType strokeType )
+{
+	strokeType_ = strokeType;
+}
+
+EStrokeType RoundedRectangle::GetStrokeType( void ) const
+{
+	return strokeType_;
 }

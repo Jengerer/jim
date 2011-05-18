@@ -19,7 +19,7 @@ public:
 	Notice( const string& message );
 	virtual ~Notice( void );
 
-	void			OnDraw( DirectX* directX );
+	virtual void	OnDraw( DirectX* directX );
 
 	// Resizes the notification based on new text.
 	virtual void	Pack( void );

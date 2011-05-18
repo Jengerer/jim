@@ -121,6 +121,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		ItemDisplay::Precache( directX_ );
 		Notification::Precache( directX_ );
 		Slot::Precache( directX_ );
+		ToggleSet::Precache( directX_ );
 
 		// End drawing.
 		directX_->EndDraw();
@@ -161,6 +162,11 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		backpack_->SetNotificationQueue( notifications_ );
 		Add( notifications_ );
 
+		// Create equip buttons.
+		equipSoldier_ = CreateButton( "Soldier" );
+		equipDemoman_ = CreateButton( "Demoman" );
+		equipSet_ = nullptr;
+
 		// Create start up message.
 		loadProgress_ = CreateNotice( "Initializing item manager..." );
 
@@ -182,6 +188,17 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 void ItemManager::CloseInterfaces( void )
 {
+	// Delete buttons.
+	if (equipSoldier_ != nullptr) {
+		delete equipSoldier_;
+		equipSoldier_ = nullptr;
+	}
+
+	if (equipDemoman_ != nullptr) {
+		delete equipDemoman_;
+		equipDemoman_ = nullptr;
+	}
+
 	// Delete the mouse.
 	if (mouse_ != nullptr) {
 		delete mouse_;
@@ -207,6 +224,7 @@ void ItemManager::CloseInterfaces( void )
 	Notice::Release();
 	Notification::Release();
 	Slot::Release();
+	ToggleSet::Release();
 
 	// Free all protobuf library resources.
 	google::protobuf::ShutdownProtobufLibrary();
@@ -314,7 +332,15 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 			uint8 classCount = item->GetEquipClassCount();
 			if (classCount > 1) {
 				// Show equip menu.
-				notifications_->AddNotification( "This item has more than one class.", item->GetTexture() );
+				if (equipSet_ == nullptr) {
+					equipSet_ = new ToggleSet( "Equipped", "Unequipped" );
+					equipSet_->AddSetA( equipSoldier_ );
+					equipSet_->AddSetB( equipDemoman_ );
+					equipSet_->Pack();
+					equipSet_->SetPosition( (GetWidth() - equipSet_->GetWidth()) / 2, (GetHeight() - equipSet_->GetHeight()) / 2 );
+					Add( equipSet_ );
+					ShowPopup( equipSet_ );
+				}
 			}
 			else {
 				// Class flags are the one class we can equip for.

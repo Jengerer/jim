@@ -133,6 +133,7 @@
     <ClCompile Include="Steam.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="ToggleSet.cpp" />
     <ClCompile Include="VerticalLayout.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WrappedText.cpp" />
