@@ -150,6 +150,9 @@
     <ClCompile Include="RoundedRectangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ToggleSet.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectX.h">

@@ -4,12 +4,17 @@
 #include <vector>
 
 #include "Button.h"
-#include "Container.h"
+#include "Font.h"
+#include "HorizontalLayout.h"
 #include "Layout.h"
+#include "Popup.h"
 #include "RoundedRectangle.h"
 #include "Text.h"
+#include "VerticalLayout.h"
 
-class ToggleSet : public Container, public IMouseHandler
+typedef vector<Button*> ButtonList;
+
+class ToggleSet : public Popup, public IMouseHandler
 {
 
 public:
@@ -17,26 +22,46 @@ public:
 	ToggleSet( const string& nameSetA, const string& nameSetB );
 	virtual ~ToggleSet( void );
 
+	virtual void Pack( void );
+	virtual void UpdatePosition( void );
+
 	void	AddSetA( Button *button );
 	void	AddSetB( Button *button );
 
-	vector<Button*>*	GetSetA( void ) const;
-	vector<Button*>*	GetSetB( void ) const;
+	void	RemoveSetA( Button *button );
+	void	RemoveSetB( Button *button );
+
+	const ButtonList*	GetSetA( void ) const;
+	const ButtonList*	GetSetB( void ) const;
 
 	virtual bool OnMouseMoved( Mouse *mouse );
 	virtual bool OnLeftClicked( Mouse *mouse );
 	virtual bool OnLeftReleased( Mouse *mouse );
+
+	static void Precache( DirectX *directX );
+	static void Release( void );
+
+private:
+
+	void RemoveSet( ButtonList* set, Button *button );
+
+protected:
+
+	static Font *titleFont_;
 
 private:
 
 	Text	*titleSetA_;
 	Text	*titleSetB_;
 
-	VerticalLayout *layoutSetA_;
-	VerticalLayout *layoutSetB_;
+	HorizontalLayout	*setLayout_;
+	VerticalLayout		*layoutSetA_;
+	VerticalLayout		*layoutSetB_;
 
-	vector<Button*> buttonSetA_;
-	vector<Button*> buttonSetB_;
+	RoundedRectangle *roundedRect_;
+
+	ButtonList buttonSetA_;
+	ButtonList buttonSetB_;
 
 };
 

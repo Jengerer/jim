@@ -4,6 +4,12 @@
 #include "Container.h"
 #include "DirectX.h"
 
+enum EStrokeType {
+	STROKE_TYPE_OUTER,
+	STROKE_TYPE_INNER,
+	// STROKE_TYPE_MIDDLE
+};
+
 class RoundedRectangle : public Container
 {
 
@@ -16,6 +22,7 @@ public:
 	virtual void	OnDraw( DirectX *directX );
 
 	void			SetStroke( int size, D3DCOLOR colour );
+	void			SetStrokeType( EStrokeType strokeType );
 	void			SetColour( D3DCOLOR colour );
 	virtual void	SetSize( int width, int height );
 	void			SetCornerRadius( int radiusTl, int radiusTr, int radiusBr, int radiusBl );
@@ -34,6 +41,7 @@ private:
 	D3DCOLOR	GetColour( void ) const;
 	D3DCOLOR	GetStrokeColour( void ) const;
 	int			GetStrokeSize( void ) const;
+	EStrokeType	GetStrokeType( void ) const;
 
 private:
 
@@ -45,6 +53,7 @@ private:
 	D3DCOLOR	colour_;
 	D3DCOLOR	strokeColour_;
 	int			strokeSize_;
+	EStrokeType	strokeType_;
 
 	Texture		*roundedRect_;
 

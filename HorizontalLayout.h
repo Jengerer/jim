@@ -3,6 +3,12 @@
 #include "Layout.h"
 #include "Component.h"
 
+enum EVerticalAlignType {
+	ALIGN_TOP,
+	ALIGN_MIDDLE,
+	ALIGN_BOTTOM
+};
+
 class HorizontalLayout: public Layout
 {
 
@@ -13,8 +19,18 @@ public:
 
 	// Packs elements into a horizontal layout.
 	virtual void Pack( void );
+	void SetMinimumHeight( int minimumHeight );
+
+	void				SetAlignType( EVerticalAlignType alignType );
+	EVerticalAlignType	GetAlignType( void ) const;
 
 	// Repositions all elements.
 	virtual void UpdatePosition( void );
+
+private:
+
+	int minimumHeight_;
+	EVerticalAlignType alignType_;
+
 
 };

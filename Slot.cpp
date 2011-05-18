@@ -219,11 +219,17 @@ void Slot::Precache( DirectX *directX )
 
 	// Set up attributes.
 	normalSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
+	normalSlot_->SetStrokeType( STROKE_TYPE_INNER );
 	normalSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
+	normalSelected_->SetStrokeType( STROKE_TYPE_INNER );
 	vintageSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
+	vintageSlot_->SetStrokeType( STROKE_TYPE_INNER );
 	vintageSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
+	vintageSelected_->SetStrokeType( STROKE_TYPE_INNER );
 	genuineSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
+	genuineSlot_->SetStrokeType( STROKE_TYPE_INNER );
 	genuineSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
+	genuineSelected_->SetStrokeType( STROKE_TYPE_INNER );
 
 	// Generate them.
 	emptySlot_->Generate( directX );

@@ -2,7 +2,8 @@
 
 VerticalLayout::VerticalLayout( void )
 {
-	// VerticalLayout created.
+	SetMinimumWidth( 0 );
+	SetAlignType( ALIGN_CENTER );
 }
 
 VerticalLayout::~VerticalLayout( void )
@@ -23,14 +24,28 @@ void VerticalLayout::Pack( void )
 		}
 	}
 
+	if (maxWidth < minimumWidth_) {
+		maxWidth = minimumWidth_;
+	}
+
 	// Now pack.
 	int height = 0;
 	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
 		Component *component = *i;
 
 		// Set position aligned horizontally.
-		int middleX = GetX() + ((maxWidth - component->GetWidth()) >> 1);
-		component->SetPosition( middleX, GetY() + height );
+		int posX = GetX();
+		switch (GetAlignType()) {
+		case ALIGN_LEFT:
+			break;
+		case ALIGN_CENTER:
+			posX += ((maxWidth - component->GetWidth()) >> 1);
+			break;
+		case ALIGN_RIGHT:
+			posX += (maxWidth - component->GetWidth());
+			break;
+		}
+		component->SetPosition( posX, GetY() + height );
 
 		// Push width by component width and spacing (if not last).
 		height += component->GetHeight();
@@ -41,6 +56,21 @@ void VerticalLayout::Pack( void )
 
 	// Update size.
 	SetSize( maxWidth, height );
+}
+
+void VerticalLayout::SetAlignType( EHorizontalAlignType alignType )
+{
+	alignType_ = alignType;
+}
+
+EHorizontalAlignType VerticalLayout::GetAlignType( void ) const
+{
+	return alignType_;
+}
+
+void VerticalLayout::SetMinimumWidth( int minimumWidth )
+{
+	minimumWidth_ = minimumWidth;
 }
 
 void VerticalLayout::UpdatePosition( void )
