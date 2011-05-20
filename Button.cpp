@@ -2,18 +2,29 @@
 
 Font*		Button::font_ = nullptr;
 
-#define BUTTON_FONT_FACE	"TF2 Build"
-#define BUTTON_FONT_SIZE	20
-#define BUTTON_FONT_BOLDED	false
+// Rounded rectangle parameters.
+#define BUTTON_RADIUS		5
+#define BUTTON_SPACING		5
+#define BUTTON_PADDING		10
 
-Button::Button( const string& caption, float x, float y )
+// Button colours.
+#define BUTTON_COLOUR			D3DCOLOR_XRGB( 247, 231, 198 )
+#define BUTTON_COLOUR_HOVER		D3DCOLOR_XRGB( 180, 81, 14 )
+#define BUTTON_COLOUR_DISABLED	D3DCOLOR_ARGB( 50, 247, 231, 198 )
+
+Button::Button( float x, float y ) : RoundedRectangleContainer( BUTTON_RADIUS, x, y )
 {
+	// Generate layout.
+	layout_ = new HorizontalLayout();
+	layout_->SetSpacing( BUTTON_SPACING );
+	Add( layout_ );
+	SetContained( layout_ );
+	SetPadding( BUTTON_PADDING );
+
+	// Default attributes.
 	SetHovering( false );
-	SetCaption( caption );
-	SetPosition( x, y );
 	SetEnabled( true );
-	SetIcon( nullptr );
-	Pack();
+	UpdateButton();
 }
 
 Button::~Button()
@@ -21,90 +32,34 @@ Button::~Button()
 	// Button has been destroyed.
 }
 
-void Button::OnDraw( DirectX* directX )
-{
-	// Set colour.
-	D3DCOLOR buttonColour, fontColour;
-	if ( IsEnabled() ) {
-		buttonColour = (isHovering_ ? BUTTON_COLOUR_HOVER : BUTTON_COLOUR );
-		fontColour = (isHovering_ ? BUTTON_FONT_HOVER : BUTTON_FONT_NORMAL );
-	}
-	else {
-		buttonColour = BUTTON_COLOUR_DISABLED;
-		fontColour = BUTTON_FONT_DISABLED;
-	}
-
-	// Draw button base.
-	float x = GetX(), y = GetY();
-	directX->DrawRoundedRect( GetX(), GetY(), GetWidth(), GetHeight(), BUTTON_RADIUS, 0, BUTTON_RADIUS, 0, buttonColour );
-
-	if ( GetIcon() != nullptr ) {
-		directX->DrawTexture( GetIcon(), GetX() + BUTTON_PADDING_X, GetY() + BUTTON_PADDING_Y, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
-	}
-
-	// Draw text in center.
-	RECT rect;
-	rect.left = (long)x + ( GetIcon() != 0 ? BUTTON_ICON_SIZE + BUTTON_ICON_SPACING : 0 ) + BUTTON_PADDING_X;
-	rect.top = (long)y + BUTTON_PADDING_Y;
-	rect.right = (long)x + GetWidth() - BUTTON_PADDING_X;
-	rect.bottom = (long)y + GetHeight() - BUTTON_PADDING_Y;
-
-	// Write it.
-	font_->drawText(
-		caption_,
-		&rect,
-		DT_CENTER | DT_SINGLELINE | DT_VCENTER, 
-		fontColour );
-}
-
-void Button::SetIcon( Texture *texture )
-{
-	icon_ = texture;
-	Pack();
-}
-
-Texture* Button::GetIcon( void )
-{
-	return icon_;
-}
-
-void Button::SetCaption( const string& caption )
-{
-	caption_ = caption;
-}
-
-const string& Button::GetCaption( void ) const
-{
-	return caption_;
-}
-
-//=============================================================
-// Purpose: Resizes the button to fit the button and icon.
-//=============================================================
 void Button::Pack( void )
 {
-	// Get caption size.
-	RECT rect;
-	font_->getTextRect( caption_, &rect, DT_SINGLELINE );
-	int width = (rect.right - rect.left) + BUTTON_PADDING_X * 2;
-	int contentHeight = rect.bottom - rect.top;
+	layout_->Pack();
+	RoundedRectangleContainer::Pack();
+}
 
-	// Check if expansion for icon needed.
-	if (icon_ != nullptr) {
-		width += BUTTON_ICON_SIZE + BUTTON_ICON_SPACING;
-		if (BUTTON_ICON_SIZE > contentHeight) {
-			contentHeight = BUTTON_ICON_SIZE;
+void Button::UpdateButton( void )
+{
+	D3DCOLOR colour;
+	if ( IsEnabled() ) {
+		if ( IsHovering() ) {
+			colour = BUTTON_COLOUR_HOVER;
+		}
+		else {
+			colour = BUTTON_COLOUR;
 		}
 	}
+	else {
+		colour = BUTTON_COLOUR_DISABLED;
+	}
 
-	// Pad and size.
-	int height = contentHeight + BUTTON_PADDING_Y * 2;
-	SetSize( width, height );
+	SetColour( colour );
 }
 
 void Button::SetEnabled( bool isEnabled )
 {
 	isEnabled_ = isEnabled;
+	UpdateButton();
 }
 
 bool Button::IsEnabled() const
@@ -116,6 +71,7 @@ bool Button::OnMouseMoved( Mouse *mouse )
 {
 	// Mouse moved.
 	isHovering_ = mouse->IsTouching( this );
+	UpdateButton();
 	return isHovering_;
 }
 
@@ -129,25 +85,10 @@ bool Button::OnLeftReleased( Mouse *mouse )
 	return mouse->IsTouching( this );
 }
 
-void Button::Precache( DirectX *directX )
-{
-	font_ = directX->CreateFont( 
-		BUTTON_FONT_FACE, 
-		BUTTON_FONT_SIZE, 
-		BUTTON_FONT_BOLDED );
-}
-
-void Button::Release( void )
-{
-	if (font_ != nullptr) {
-		delete font_;
-		font_ = nullptr;
-	}
-}
-
 void Button::SetHovering( bool isHovering )
 {
 	isHovering_ = isHovering;
+	UpdateButton();
 }
 
 bool Button::IsHovering( void ) const

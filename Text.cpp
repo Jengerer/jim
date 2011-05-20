@@ -59,6 +59,7 @@ void Text::SetFont( Font *font )
 void Text::Pack( void )
 {
 	RECT resultSize;
+	ZeroMemory( &resultSize, sizeof( RECT ) );
 	font_->getTextRect( text_, &resultSize, 0 );
 	SetSize( resultSize.right - resultSize.left, resultSize.bottom - resultSize.top );
 }

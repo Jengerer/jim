@@ -6,6 +6,7 @@
 #include "Backpack.h"
 #include "Button.h"
 #include "ItemDisplay.h"
+#include "LabelButton.h"
 #include "Notice.h"
 #include "NotificationQueue.h"
 #include "Notification.h"
@@ -44,7 +45,6 @@ public:
 	// Interface handling.
 	Notice*			CreateNotice( const string& message );
 	Alert*			CreateAlert( const string& message );
-	Button*			CreateButton( const string& caption, Texture *texture = 0, float x = 0.0f, float y = 0.0f );
 
 	// Item display.
 	void	UpdateItemDisplay( void );
@@ -83,9 +83,9 @@ private:
 	Alert				*error_;
 
 	// Inventory buttons.
-	Button				*equipButton_;
-	Button				*craftButton_;
-	Button				*sortButton_;
+	LabelButton			*equipButton_;
+	LabelButton			*craftButton_;
+	LabelButton			*sortButton_;
 
 	// Equipment management.
 	ToggleSet			*equipSet_;

@@ -1,7 +1,7 @@
 #ifndef ROUNDED_RECTANGLE_H
 #define ROUNDED_RECTANGLE_H
 
-#include "Container.h"
+#include "Component.h"
 #include "DirectX.h"
 
 enum EStrokeType {
@@ -10,13 +10,12 @@ enum EStrokeType {
 	// STROKE_TYPE_MIDDLE
 };
 
-class RoundedRectangle : public Container
+class RoundedRectangle : public Component
 {
 
 public:
 
 	RoundedRectangle( int width, int height, int radius, D3DCOLOR colour );
-	RoundedRectangle( int width, int height, int radiusTl, int radiusTr, int radiusBr, int radiusBl, D3DCOLOR colour );
 	virtual ~RoundedRectangle( void );
 
 	virtual void	OnDraw( DirectX *directX );
@@ -25,7 +24,7 @@ public:
 	void			SetStrokeType( EStrokeType strokeType );
 	void			SetColour( D3DCOLOR colour );
 	virtual void	SetSize( int width, int height );
-	void			SetCornerRadius( int radiusTl, int radiusTr, int radiusBr, int radiusBl );
+	void			SetCornerRadius( int radius );
 
 	// TODO: Maybe make Generate protected, but a friend of IPrecachable.
 	void			Generate( DirectX *directX );
@@ -45,10 +44,7 @@ private:
 
 private:
 
-	int			radiusTl_;
-	int			radiusTr_;
-	int			radiusBr_;
-	int			radiusBl_;
+	int			radius_;
 
 	D3DCOLOR	colour_;
 	D3DCOLOR	strokeColour_;

@@ -39,7 +39,7 @@ ItemDisplay::ItemDisplay()
 	Add( textLayout_ );
 
 	roundedRect_ = new RoundedRectangle( GetWidth(), GetHeight(), ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_COLOUR );
-	roundedRect_->SetCornerRadius( ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_RADIUS );
+	roundedRect_->SetCornerRadius( ITEM_DISPLAY_RADIUS );
 	AddBottom( roundedRect_ );
 }
 

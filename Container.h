@@ -11,10 +11,10 @@ public:
 	virtual ~Container( void );
 
 	// Container resource handling.
-	void				Add( Component *component );
-	void				AddBottom( Component *component );
-	void				Remove( Component *component );
-	void				RemoveAll( void );
+	virtual void		Add( Component *component );
+	virtual void		AddBottom( Component *component );
+	virtual void		Remove( Component *component );
+	virtual void		RemoveAll( void );
 	deque<Component*>*	GetChildren( void );
 
 	virtual void		OnDraw( DirectX *directX );

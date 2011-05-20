@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Container.h"
+#include "LabelButton.h"
 #include "Notice.h"
-#include "Button.h"
 #include "Mouse.h"
 
 class Alert: public Notice
@@ -26,5 +26,7 @@ public:
 
 
 private:
-	Button* okButton;
+
+	LabelButton *okButton_;
+
 };
