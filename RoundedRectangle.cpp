@@ -1,20 +1,13 @@
 #include "RoundedRectangle.h"
 
+#define COLOUR_WHITE D3DCOLOR_XRGB( 255, 255, 255 )
+
 RoundedRectangle::RoundedRectangle( int width, int height, int radius, D3DCOLOR colour )
 {
 	UnsetTexture();
 	SetStroke( 0, D3DCOLOR_XRGB( 0, 0, 0 ) );
 	SetStrokeType( STROKE_TYPE_OUTER );
-	SetCornerRadius( radius, radius, radius, radius );
-	SetColour( colour );
-	SetSize( width, height );
-}
-
-RoundedRectangle::RoundedRectangle( int width, int height, int radiusTl, int radiusTr, int radiusBr, int radiusBl, D3DCOLOR colour )
-{
-	UnsetTexture();
-	SetStroke( 0, 0 );
-	SetCornerRadius( radiusTl, radiusTr, radiusBr, radiusBl );
+	SetCornerRadius( radius );
 	SetColour( colour );
 	SetSize( width, height );
 }
@@ -64,12 +57,9 @@ void RoundedRectangle::SetSize( int width, int height )
 	RemoveTexture();
 }
 
-void RoundedRectangle::SetCornerRadius( int radiusTl, int radiusTr, int radiusBr, int radiusBl )
+void RoundedRectangle::SetCornerRadius( int radius )
 {
-	radiusTl_ = radiusTl;
-	radiusTr_ = radiusTr;
-	radiusBr_ = radiusBr;
-	radiusBl_ = radiusBl;
+	radius_ = radius;
 }
 
 void RoundedRectangle::Generate( DirectX *directX )
@@ -93,14 +83,14 @@ void RoundedRectangle::Generate( DirectX *directX )
 				0, 0,
 				GetWidth() + (strokeSize << 1),
 				GetHeight() + (strokeSize << 1),
-				radiusTl_ + strokeSize, radiusTr_ + strokeSize, radiusBr_ + strokeSize, radiusBl_ + strokeSize,
+				radius_ + strokeSize,
 				GetStrokeColour() );
 			break;
 		case STROKE_TYPE_INNER:
 			directX->DrawRoundedRect(
 				0, 0,
 				GetWidth(), GetHeight(),
-				radiusTl_, radiusTr_, radiusBr_, radiusBl_,
+				radius_,
 				GetStrokeColour() );
 			break;
 		}
@@ -113,7 +103,7 @@ void RoundedRectangle::Generate( DirectX *directX )
 			strokeSize, strokeSize,
 			GetWidth(),
 			GetHeight(),
-			radiusTl_, radiusTr_, radiusBr_, radiusBl_,
+			radius_,
 			GetColour() );
 		break;
 	case STROKE_TYPE_INNER:
@@ -121,10 +111,7 @@ void RoundedRectangle::Generate( DirectX *directX )
 			strokeSize, strokeSize,
 			GetWidth() - (strokeSize << 1),
 			GetHeight() - (strokeSize << 1),
-			radiusTl_ - strokeSize,
-			radiusTr_ - strokeSize,
-			radiusBr_ - strokeSize,
-			radiusBl_ - strokeSize,
+			radius_ - strokeSize,
 			GetColour() );
 		break;
 	}

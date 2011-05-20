@@ -97,6 +97,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\IconButton.cpp" />
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\LabelButton.cpp" />
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\RoundedRectangleContainer.cpp" />
     <ClCompile Include="CItemInformation.cpp" />
     <ClCompile Include="Notification.cpp" />
     <ClCompile Include="NotificationQueue.cpp" />
@@ -139,6 +142,10 @@
     <ClCompile Include="WrappedText.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\IconButton.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\LabelButton.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\Option.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\RoundedRectangleContainer.h" />
     <ClInclude Include="CItemInformation.h" />
     <ClInclude Include="ItemShared.h" />
     <ClInclude Include="Notification.h" />

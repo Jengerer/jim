@@ -114,11 +114,11 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 	// Necessary to display progress/status.
 	Notice::Precache( directX_ );
-	Button::Precache( directX_ );
 
 	try {
 		// Precache secondary resources.
 		ItemDisplay::Precache( directX_ );
+		LabelButton::Precache( directX_ );
 		Notification::Precache( directX_ );
 		Slot::Precache( directX_ );
 		ToggleSet::Precache( directX_ );
@@ -135,15 +135,18 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		HorizontalLayout *buttonLayout = new HorizontalLayout();
 		buttonLayout->SetSpacing( BUTTON_SPACING );
 		buttonLayout->SetPosition( BACKPACK_PADDING, BUTTON_Y );
-		craftButton_ = CreateButton( "craft", craftTexture, BACKPACK_PADDING, BUTTON_Y );
-		equipButton_ = CreateButton( "equip", equipTexture, craftButton_->GetX() + craftButton_->GetWidth() + BUTTON_SPACING, BUTTON_Y );
-		sortButton_	 = CreateButton( "sort", sortTexture, equipButton_->GetX() + equipButton_->GetWidth() + BUTTON_SPACING, BUTTON_Y );
-		sortButton_->SetEnabled( false );
-		equipButton_->SetEnabled( false );
+		craftButton_ = new LabelButton( "craft", craftTexture );
+		equipButton_ = new LabelButton( "equip", equipTexture );
+		sortButton_ = new LabelButton( "sort", sortTexture );
 		craftButton_->SetEnabled( false );
+		equipButton_->SetEnabled( false );
+		sortButton_->SetEnabled( false );
 		buttonLayout->Add( craftButton_ );
 		buttonLayout->Add( equipButton_ );
 		buttonLayout->Add( sortButton_ );
+		craftButton_->Pack();
+		equipButton_->Pack();
+		sortButton_->Pack();
 		buttonLayout->Pack();
 		Add( buttonLayout );
 
@@ -163,8 +166,10 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		Add( notifications_ );
 
 		// Create equip buttons.
-		equipSoldier_ = CreateButton( "Soldier" );
-		equipDemoman_ = CreateButton( "Demoman" );
+		equipSoldier_ = new LabelButton( "soldier", nullptr );
+		equipDemoman_ = new LabelButton( "demoman", nullptr );
+		equipSoldier_->Pack();
+		equipDemoman_->Pack();
 		equipSet_ = nullptr;
 
 		// Create start up message.
@@ -219,8 +224,8 @@ void ItemManager::CloseInterfaces( void )
 	}
 
 	// Free cached resources.
-	Button::Release();
 	ItemDisplay::Release();
+	LabelButton::Release();
 	Notice::Release();
 	Notification::Release();
 	Slot::Release();
@@ -632,19 +637,6 @@ void ItemManager::HandleCallbacks( void ) {
 
 		backpack_->ReleaseCallback();
 	} 
-}
-
-Button* ItemManager::CreateButton(const string& caption, Texture *texture, float x, float y )
-{
-	// Create and add.
-	Button* newButton = new Button(caption, x, y);
-	if (texture != nullptr) {
-		newButton->SetIcon( texture );
-	}
-
-	// Add and return.
-	buttonList_.push_back(newButton);
-	return newButton;
 }
 
 Notice* ItemManager::CreateNotice( const string& message )

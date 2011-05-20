@@ -3,9 +3,9 @@
 Alert::Alert( const string& message ) : Notice( message )
 {
 	// Make OK button.
-	okButton = new Button( "okay" );
-	okButton->Pack();
-	Add( okButton );
+	okButton_ = new LabelButton( "okay", nullptr );
+	okButton_->Pack();
+	Add( okButton_ );
 	Pack();
 }
 
@@ -18,21 +18,21 @@ void Alert::OnDraw( DirectX *directX )
 {
 	// Draw like our parent.
 	Notice::OnDraw( directX );
-	okButton->OnDraw( directX );
+	okButton_->OnDraw( directX );
 }
 
 void Alert::UpdatePosition( void )
 {
 	// Move the button.
-	float buttonX = GetX() + GetWidth()/2 - okButton->GetWidth()/2;
-	float buttonY = GetY() + GetHeight() - okButton->GetHeight() - NOTICE_PADDING - NOTICE_STROKE_WIDTH;
-	okButton->SetPosition( buttonX, buttonY );
+	float buttonX = GetX() + GetWidth()/2 - okButton_->GetWidth()/2;
+	float buttonY = GetY() + GetHeight() - okButton_->GetHeight() - NOTICE_PADDING - NOTICE_STROKE_WIDTH;
+	okButton_->SetPosition( buttonX, buttonY );
 }
 
 void Alert::Pack()
 {
 	Notice::Pack();
-	SetSize( GetWidth(), GetHeight() + okButton->GetHeight() + NOTICE_PADDING );
+	SetSize( GetWidth(), GetHeight() + okButton_->GetHeight() + NOTICE_PADDING );
 	UpdatePosition();
 }
 
@@ -43,21 +43,21 @@ void Alert::SetMessage( const string& message )
 
 const Button* Alert::GetButton( void ) const
 {
-	return okButton;
+	return okButton_;
 }
 
 bool Alert::OnMouseMoved( Mouse *mouse )
 {
 	// Parent behaviour.
 	Notice::OnMouseMoved( mouse );
-	okButton->OnMouseMoved( mouse );
+	okButton_->OnMouseMoved( mouse );
 	return true;
 }
 
 bool Alert::OnLeftClicked( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
-		if (!mouse->IsTouching( okButton )) {
+		if (!mouse->IsTouching( okButton_ )) {
 			Draggable::OnLeftClicked( mouse );
 		}
 
@@ -71,7 +71,7 @@ bool Alert::OnLeftReleased( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
 		// Now set state if we're terminated.
-		if (mouse->IsTouching( okButton )) {
+		if (mouse->IsTouching( okButton_ )) {
 			setState( POPUP_STATE_KILLED );
 		}
 		else {
