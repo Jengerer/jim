@@ -14,7 +14,6 @@ public:
 	virtual ~RoundedRectangleContainer( void );
 
 	virtual void		Pack( void );
-	virtual void		UpdatePosition( void );
 
 	// Container setting functions.
 	void				SetContained( Component *component );

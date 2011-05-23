@@ -2,7 +2,7 @@
 
 #define TOGGLE_SET_SPACING			10
 #define TOGGLE_SET_PADDING			10
-#define BUTTON_SPACING				10
+#define TOGGLE_SET_GRID_WIDTH		3
 
 #define TOGGLE_SET_RADIUS			10
 #define TOGGLE_SET_COLOUR			D3DCOLOR_XRGB( 42, 39, 37 )
@@ -18,7 +18,7 @@
 
 Font *ToggleSet::titleFont_ = nullptr;
 
-ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB )
+ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB, float x, float y ) : Popup( x, y )
 {
 	// Create titles.
 	titleSetA_ = new Text( titleFont_ );
@@ -32,24 +32,39 @@ ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB )
 	// Create rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, TOGGLE_SET_RADIUS, TOGGLE_SET_COLOUR );
 	roundedRect_->SetStroke( TOGGLE_SET_STROKE_SIZE, TOGGLE_SET_STROKE_COLOUR );
+	roundedRect_->SetPosition( 0, 0 );
 	Add( roundedRect_ );
 
+	// Create okay and cancel buttons.
+	okayButton_ = new LabelButton( "okay", nullptr );
+	okayButton_->Pack();
+	cancelButton_ = new LabelButton( "cancel", nullptr );
+	cancelButton_->Pack();
+
 	// Create layouts.
-	layoutSetA_ = new VerticalLayout();
-	layoutSetA_->SetSpacing( BUTTON_SPACING );
-	layoutSetA_->SetMinimumWidth( TOGGLE_SET_MIN_WIDTH );
-	layoutSetA_->Add( titleSetA_ );
+	//layoutSetA_ = new GridLayout( TOGGLE_SET_GRID_WIDTH );
+	layoutSetA_ = new HorizontalLayout();
+	layoutSetA_->SetSpacing( TOGGLE_SET_SPACING );
 
-	layoutSetB_ = new VerticalLayout();
-	layoutSetB_->SetSpacing( BUTTON_SPACING );
-	layoutSetB_->SetMinimumWidth( TOGGLE_SET_MIN_WIDTH );
-	layoutSetB_->Add( titleSetB_ );
+	//layoutSetB_ = new GridLayout( TOGGLE_SET_GRID_WIDTH );
+	layoutSetB_ = new HorizontalLayout();
+	layoutSetB_->SetSpacing( TOGGLE_SET_SPACING );
 
-	setLayout_ = new HorizontalLayout();
+	buttonLayout_ = new HorizontalLayout();
+	buttonLayout_->SetSpacing( TOGGLE_SET_SPACING );
+	buttonLayout_->Add( okayButton_ );
+	buttonLayout_->Add( cancelButton_ );
+	buttonLayout_->Pack();
+
+	setLayout_ = new VerticalLayout();
 	setLayout_->SetSpacing( TOGGLE_SET_SPACING );
-	setLayout_->SetAlignType( ALIGN_TOP );
+	setLayout_->SetAlignType( ALIGN_CENTER );
+	setLayout_->SetPosition( TOGGLE_SET_PADDING, TOGGLE_SET_PADDING );
+	setLayout_->Add( titleSetA_ );
 	setLayout_->Add( layoutSetA_ );
+	setLayout_->Add( titleSetB_ );
 	setLayout_->Add( layoutSetB_ );
+	setLayout_->Add( buttonLayout_ );
 	Add( setLayout_ );
 
 	Pack();
@@ -76,12 +91,6 @@ void ToggleSet::Pack( void )
 	setLayout_->Pack();
 	roundedRect_->SetSize( setLayout_->GetWidth() + TOGGLE_SET_PADDING * 2, setLayout_->GetHeight() + TOGGLE_SET_PADDING * 2 );
 	SetSize( roundedRect_->GetWidth(), roundedRect_->GetHeight() );
-}
-
-void ToggleSet::UpdatePosition( void )
-{
-	roundedRect_->SetPosition( GetX(), GetY() );
-	setLayout_->SetPosition( GetX() + TOGGLE_SET_PADDING, GetY() + TOGGLE_SET_PADDING );
 }
 
 void ToggleSet::AddSetA( Button *button )
@@ -119,14 +128,26 @@ void ToggleSet::RemoveSet( ButtonList *set, Button *button )
 	}
 }
 
-const vector<Button*>* ToggleSet::GetSetA( void ) const
+bool ToggleSet::InSetA( Button *button ) const
 {
-	return &buttonSetA_;
+	return InSet( &buttonSetA_, button );
 }
 
-const vector<Button*>* ToggleSet::GetSetB( void ) const
+bool ToggleSet::InSetB( Button *button ) const
 {
-	return &buttonSetB_;
+	return InSet( &buttonSetB_, button );
+}
+
+bool ToggleSet::InSet( const ButtonList *set, Button *button ) const
+{
+	vector<Button*>::const_iterator i, end;
+	for (i = set->begin(), end = set->end(); i != end; ++i) {
+		if (*i == button) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool ToggleSet::OnMouseMoved( Mouse *mouse )
@@ -143,16 +164,25 @@ bool ToggleSet::OnMouseMoved( Mouse *mouse )
 		button->OnMouseMoved( mouse );
 	}
 
+	okayButton_->OnMouseMoved( mouse );
+	cancelButton_->OnMouseMoved( mouse );
+
 	return true;
 }
 
 bool ToggleSet::OnLeftClicked( Mouse *mouse )
 {
-	return mouse->IsTouching( this );
+	if (mouse->IsTouching( this )) {
+		return Draggable::OnLeftClicked( mouse );
+	}
+
+	SetState( POPUP_STATE_KILLED );
+	return false;
 }
 
 bool ToggleSet::OnLeftReleased( Mouse *mouse )
 {
+	Draggable::OnLeftReleased( mouse );
 	if (!mouse->IsTouching( this )) {
 		return false;
 	}
@@ -181,7 +211,18 @@ bool ToggleSet::OnLeftReleased( Mouse *mouse )
 		}
 	}
 
+	// Get old size for repositioning.
+	int oldWidth = GetWidth();
+	int oldHeight = GetHeight();
+
 	Pack();
+
+	// Reposition aligned center.
+	// TODO: Maybe have a component-based alignment feature.
+	/*SetPosition( 
+		GetX() - ((GetWidth() - oldWidth) >> 1),
+		GetY() - ((GetHeight() - oldHeight) >> 1 ) );*/
+
 	return true;
 }
 

@@ -55,11 +55,12 @@ public:
 	bool			HasCustomName( void ) const;
 
 	// Equipment handling.
-	bool			IsEquipped( EClassEquip equipClass = CLASS_ALL ) const;
+	bool			IsEquipped( uint32 equipClass = CLASS_ALL ) const;
 	EItemSlot		GetEquipSlot( void ) const;
 	uint32			GetEquipClasses( void ) const;
+	bool			ClassUses( uint32 classFlags ) const;
 	uint8			GetEquipClassCount( void ) const;
-	void			SetEquip( EClassEquip equipClass, bool equip );
+	void			SetEquip( uint32 equipClass, bool equip );
 
 	// Drawing and interaction.
 	Texture*		GetTexture( void );

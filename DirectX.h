@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DIRECT_X_H
+#define DIRECT_X_H
 
 #include <string>
 #include <sstream>
@@ -13,13 +14,13 @@
 using namespace std;
 
 struct TextureVertex {
-	float x, y, z, rhw;
+	float x, y, z;
 	DWORD colour;
 	float tu, tv;
 };
 
-struct ColourVertex {
-	float x, y, z, rhw;
+struct DiffuseVertex {
+	float x, y, z;
 	DWORD colour;
 };
 
@@ -27,8 +28,8 @@ struct ColourVertex {
 typedef std::map<string, Texture*>	TextureMap;
 typedef std::pair<string, Texture*>	TexturePair;
 
-#define D3D9T_TEXTUREVERTEX (D3DFVF_XYZRHW | D3DFVF_TEX1 | D3DFVF_DIFFUSE)
-#define D3D9T_COLOURVERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
+#define D3D9T_DIFFUSEVERTEX ( D3DFVF_XYZ | D3DFVF_DIFFUSE )
+#define D3D9T_TEXTUREVERTEX ( D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1 )
 
 // Prototypes.
 class Font;
@@ -43,6 +44,10 @@ public:
 	// Initializing and closing.
 	void		LoadInterfaces( void );
 	void		CloseInterfaces( void );
+
+	// DirectX post-initialization.
+	void		SetProjectionSize( float width, float height );
+	void		ResetProjectionSize( void );
 
 	// Resource handling.
 	void		LoadTextures( void );
@@ -60,20 +65,21 @@ public:
 	Font*		CreateFont( const string& name, int height, bool isBolded );
 
 	// Vertex buffer.
-	void		CreateTexturedQuad( TextureVertex *vertices, float x, float y, int width, int height, D3DCOLOR colour = 0xFFFFFFFF );
-	void		CreateColouredQuad( ColourVertex *vertices, float x, float y, int width, int height, D3DCOLOR colour );
-	void		DrawColouredQuad( void* vertices, size_t verticesSize );
-	void		DrawTexturedQuad( TextureVertex *vertices, Texture* texture );
+	void		CreateDiffuseBuffer( void );
+	void		CreateTextureBuffer( void );
+	void		DrawColouredQuad( float x, float y, int width, int height, D3DCOLOR colour );
+	void		DrawTexture( Texture* texture, float x, float y, int width, int height, D3DCOLOR colour );
 	void		DrawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR colour );
 	void		DrawRoundedRect( float x, float y, int width, int height, float radiusTl, float radiusTr, float radiusBr, float radiusBl, D3DCOLOR colour );
+
+	// Transformations.
+	void		GetWorldTransform( D3DXMATRIX *matrix );
+	void		SetWorldTransform( D3DXMATRIX *matrix );
 
 	// Running functions.
 	bool		CheckDevice( void );
 	bool		BeginDraw( void );
 	void		EndDraw( void );
-
-	// Drawing functions.
-	void		DrawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour = D3DCOLOR_XRGB( 255, 255, 255 ));
 
 private:
 
@@ -83,14 +89,18 @@ private:
 	IDirect3DSurface9			*backBuffer_;
 	D3DPRESENT_PARAMETERS		params_;
 
+	// Transformation matrices.
+	D3DXMATRIX					matWorld_;
+	D3DXMATRIX					matDraw_;
+
 	// Vertex drawing.
-	TextureVertex				texVertices_[4];
-	ColourVertex				clrVertices_[4];
-	IDirect3DVertexBuffer9		*vertexBuffer_;
-	IDirect3DVertexBuffer9		*colourBuffer_;
+	IDirect3DVertexBuffer9		*textureBuffer_;
+	IDirect3DVertexBuffer9		*diffuseBuffer_;
 	Texture						*roundedCorner_;
 
 	// Texture handling.
 	TextureMap					*textures_;
 
 };
+
+#endif // DIRECT_X_H

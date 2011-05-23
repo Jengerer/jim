@@ -15,6 +15,8 @@
 #define BUTTON_SPACING	5
 #define BUTTON_Y		380
 
+typedef std::map<EClassEquip, Button*> ButtonMap;
+
 class ItemManager: public Application
 {
 public:
@@ -25,6 +27,7 @@ public:
 	void LoadInterfaces( HINSTANCE instance );
 	void CloseInterfaces( void );
 
+	// Inventory and definition loading.
 	void LoadDefinitions( void );
 	void LoadItemsFromWeb( void );
 
@@ -45,6 +48,8 @@ public:
 	// Interface handling.
 	Notice*			CreateNotice( const string& message );
 	Alert*			CreateAlert( const string& message );
+	LabelButton*	CreateLabelButton( const string& label, Texture *icon, bool isEnabled );
+	void			CreateEquipSet( const Item *item );
 
 	// Item display.
 	void	UpdateItemDisplay( void );
@@ -89,8 +94,7 @@ private:
 
 	// Equipment management.
 	ToggleSet			*equipSet_;
-	Button				*equipSoldier_;
-	Button				*equipDemoman_;
+	ButtonMap			equipButtons_;
 };
 
 #endif // ITEM_MANAGER_H

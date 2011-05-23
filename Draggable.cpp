@@ -5,11 +5,7 @@
 //=============================================================
 Draggable::Draggable( float x, float y ) : Container( x, y )
 {
-	SetParent( nullptr );
-	isDragging_ = false;
-
-	offsetX_ = 0.0f;
-	offsetY_ = 0.0f;
+	Initialize();
 }
 
 Draggable::~Draggable( void )
@@ -17,17 +13,23 @@ Draggable::~Draggable( void )
 	// Draggable destroyed.
 }
 
+void Draggable::Initialize( void )
+{
+	SetParent( nullptr );
+	SetDragging( false );
+}
+
+void Draggable::OnDraw( DirectX *directX )
+{
+	Container::OnDraw( directX );
+}
+
 //=============================================================
 // Purpose: Updates position of component when mouse moves.
 //=============================================================
 bool Draggable::OnMouseMoved( Mouse *mouse )
 {
-	if (isDragging_) {
-		UpdatePosition();
-		return true;
-	}
-
-	return false;
+	return IsDragging();
 }
 
 bool Draggable::OnLeftClicked( Mouse *mouse )
@@ -73,7 +75,7 @@ float Draggable::GetX( void ) const
 //=============================================================
 float Draggable::GetY( void ) const
 {
-	if (isDragging_) {
+	if (IsDragging()) {
 		float y = mouse_->GetY() - offsetY_;
 
 		// Constrain position if we have a parent.
@@ -95,12 +97,11 @@ float Draggable::GetY( void ) const
 //=============================================================
 // Purpose:	Enables dragging and sets offset to mouse.
 //=============================================================
-void Draggable::OnDrag( Mouse* mouse )
+void Draggable::OnDrag( const Mouse* mouse )
 {
 	// Set offset to mouse.
-	offsetX_ = mouse->GetX() - GetX();
-	offsetY_ = mouse->GetY() - GetY();
-	isDragging_ = true;
+	SetOffset( mouse->GetX() - GetX(), mouse->GetY() - GetY() );
+	SetDragging( true );
 	mouse_ = mouse;
 }
 
@@ -110,7 +111,7 @@ void Draggable::OnDrag( Mouse* mouse )
 void Draggable::OnRelease( void )
 {
 	SetPosition( GetX(), GetY() );
-	isDragging_ = false;
+	SetDragging( false );
 }
 
 //=============================================================
@@ -125,4 +126,15 @@ void Draggable::SetParent( Container *container )
 bool Draggable::IsDragging( void ) const
 {
 	return isDragging_;
+}
+
+void Draggable::SetOffset( float x, float y )
+{
+	offsetX_ = x;
+	offsetY_ = y;
+}
+
+void Draggable::SetDragging( bool isDragging )
+{
+	isDragging_ = isDragging;
 }

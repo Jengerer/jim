@@ -39,7 +39,7 @@ Slot::Slot( int index, Item* item )
 	Add( slotImage_ );
 
 	// Create item image.
-	itemImage_ = new Image( 0, 0 );
+	itemImage_ = new Image( (SLOT_WIDTH - ITEM_SIZE) / 2.0f, 0 );
 	itemImage_->SetSize( ITEM_SIZE, ITEM_SIZE );
 	Add( itemImage_ );
 
@@ -63,11 +63,11 @@ Slot::~Slot()
 void Slot::OnDraw( DirectX* directX )
 {
 	// Draw stroke based on quality.
-	Container::OnDraw( directX );
+	Draggable::OnDraw( directX );
 
 	// See if we should draw equipped.
 	if (HasItem() && GetItem()->IsEquipped()) {
-		equippedText_->SetPosition( GetX() + SLOT_WIDTH - SLOT_PADDING - equippedText_->GetWidth(), GetY() + SLOT_HEIGHT - SLOT_PADDING - equippedText_->GetHeight() );
+		equippedText_->SetPosition( SLOT_WIDTH - SLOT_PADDING - equippedText_->GetWidth(), SLOT_HEIGHT - SLOT_PADDING - equippedText_->GetHeight() );
 		equippedText_->OnDraw( directX );
 	}
 }
@@ -146,8 +146,6 @@ void Slot::SetItem( Item* item )
 {
 	item_ = item;
 	if (item != nullptr) {
-		UpdatePosition();
-
 		// Only update index if inventory slot.
 		if (GetGroup() == GROUP_INVENTORY) {
 			item->SetIndex( GetIndex() );
@@ -171,19 +169,6 @@ int Slot::GetIndex( void ) const
 void Slot::SetIndex( int index )
 {
 	index_ = index;
-}
-
-//=============================================================
-// Updates item position when moved.
-//=============================================================
-void Slot::UpdatePosition( void )
-{
-	slotImage_->SetPosition( GetX(), GetY() );
-	
-	// Now center item image.
-	float itemX = GetX() + ((GetWidth() - itemImage_->GetWidth()) >> 1);
-	float itemY = GetY() + ((GetHeight() - itemImage_->GetWidth()) >> 1);
-	itemImage_->SetPosition( itemX, itemY );
 }
 
 ESelectType Slot::GetSelectType( void ) const

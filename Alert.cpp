@@ -21,19 +21,15 @@ void Alert::OnDraw( DirectX *directX )
 	okButton_->OnDraw( directX );
 }
 
-void Alert::UpdatePosition( void )
-{
-	// Move the button.
-	float buttonX = GetX() + GetWidth()/2 - okButton_->GetWidth()/2;
-	float buttonY = GetY() + GetHeight() - okButton_->GetHeight() - NOTICE_PADDING - NOTICE_STROKE_WIDTH;
-	okButton_->SetPosition( buttonX, buttonY );
-}
-
 void Alert::Pack()
 {
 	Notice::Pack();
 	SetSize( GetWidth(), GetHeight() + okButton_->GetHeight() + NOTICE_PADDING );
-	UpdatePosition();
+	
+	// Center okay button under text.
+	okButton_->SetPosition( 
+		(GetWidth() - okButton_->GetWidth()) / 2.0f,
+		(GetHeight() - okButton_->GetHeight()) / 2.0f - NOTICE_PADDING - NOTICE_STROKE_WIDTH );
 }
 
 void Alert::SetMessage( const string& message )
@@ -72,7 +68,7 @@ bool Alert::OnLeftReleased( Mouse *mouse )
 	if (mouse->IsTouching( this )) {
 		// Now set state if we're terminated.
 		if (mouse->IsTouching( okButton_ )) {
-			setState( POPUP_STATE_KILLED );
+			SetState( POPUP_STATE_KILLED );
 		}
 		else {
 			Draggable::OnLeftReleased( mouse );

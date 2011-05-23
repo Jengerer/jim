@@ -150,16 +150,19 @@
     <ClCompile Include="ToggleSet.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\IconButton.cpp">
-      <Filter>Source Files\UI Elements</Filter>
-    </ClCompile>
     <ClCompile Include="RoundedRectangle.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\RoundedRectangleContainer.cpp">
+    <ClCompile Include="IconButton.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\LabelButton.cpp">
+    <ClCompile Include="LabelButton.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="RoundedRectangleContainer.cpp">
+      <Filter>Source Files\UI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="GridLayout.cpp">
       <Filter>Source Files\UI Elements</Filter>
     </ClCompile>
   </ItemGroup>
@@ -932,25 +935,28 @@
     <ClInclude Include="CItemInformation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Notification.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ToggleSet.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\Option.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\LabelButton.h">
-      <Filter>Header Files\UI Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\IconButton.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
     <ClInclude Include="RoundedRectangle.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\RoundedRectangleContainer.h">
+    <ClInclude Include="Option.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IconButton.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="RoundedRectangleContainer.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="LabelButton.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="GridLayout.h">
+      <Filter>Header Files\UI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Notification.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
   </ItemGroup>

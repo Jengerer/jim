@@ -57,31 +57,31 @@ void DirectX::LoadInterfaces( void )
 		}
 	}
 
-	// Create vertex buffer.
-	result = d3dDevice_->CreateVertexBuffer(
-		4 * sizeof(TextureVertex),
-		D3DUSAGE_WRITEONLY,
-		D3D9T_TEXTUREVERTEX,
-		D3DPOOL_DEFAULT,
-		&vertexBuffer_,
-		NULL );
-	if ( FAILED( result ) ) {
-		throw Exception( "Failed to create vertex buffer." );
-	}
+	CreateDiffuseBuffer();
+	CreateTextureBuffer();
 
 	result = d3dDevice_->GetBackBuffer( 0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer_ );
 	if ( FAILED( result ) ) {
 		throw Exception( "Failed to get back buffer surface." );
 	}
 
+	// Set projection matrices for 2D.
+	D3DXMATRIX matIdentity;
+	D3DXMatrixIdentity( &matIdentity );
+	d3dDevice_->SetTransform( D3DTS_WORLD, &matIdentity );
+	d3dDevice_->SetTransform( D3DTS_VIEW, &matIdentity );
+	SetProjectionSize( GetWidth(), GetHeight() );
+
 	// Set render and stage states.
 	d3dDevice_->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE );
+	d3dDevice_->SetRenderState( D3DRS_LIGHTING, FALSE );
 
 	// Set alpha blending modes.
 	d3dDevice_->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
 	d3dDevice_->SetRenderState( D3DRS_BLENDOP, D3DBLENDOP_ADD );
 	d3dDevice_->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
 	d3dDevice_->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA );
+	d3dDevice_->SetRenderState( D3DRS_ZENABLE, FALSE );
 
 	// First argument for diffuse quads.
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_DIFFUSE );
@@ -96,6 +96,14 @@ void DirectX::LoadInterfaces( void )
 
 	// Load round corner.
 	roundedCorner_ = GetTexture( "manager/rounded_corner" );
+}
+
+void DirectX::SetProjectionSize( float width, float height )
+{
+	D3DXMATRIX matProjection, matTranslation;
+	D3DXMatrixOrthoLH( &matProjection, width, -height, 0.0f, 1.0f );
+	D3DXMatrixTranslation( &matTranslation, -width / 2.0f - 0.5f, -height / 2.0f - 0.5f, 0.0f );
+	d3dDevice_->SetTransform( D3DTS_PROJECTION, &(matTranslation * matProjection) );
 }
 
 void DirectX::CloseInterfaces( void )
@@ -167,13 +175,17 @@ Texture* DirectX::CreateTexture( const string& name, int width, int height )
 {
 	// Create empty texture.
 	IDirect3DTexture9* emptyTexture = nullptr;
-	d3dDevice_->CreateTexture(
+	HRESULT result = d3dDevice_->CreateTexture(
 		width, height,
 		1, D3DUSAGE_RENDERTARGET,
 		D3DFMT_A8R8G8B8,
 		D3DPOOL_DEFAULT,
 		&emptyTexture,
 		nullptr );
+
+	if ( FAILED( result ) ) {
+		throw Exception( "Failed to create texture." );
+	}
 	
 	// Generate image information.
 	D3DXIMAGE_INFO newInformation;
@@ -203,7 +215,7 @@ void DirectX::SetRenderTarget( Texture *texture )
 	d3dDevice_->Clear(
 		0,
 		nullptr,
-		D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+		D3DCLEAR_TARGET,
 		D3DCOLOR_ARGB( 0, 0, 0, 0 ),
 		1.0f, 0 );
 	targetSurface->Release();
@@ -313,107 +325,120 @@ Font* DirectX::CreateFont( const string& name, int height, bool isBolded )
 	return new Font( d3dFont );
 }
 
-void DirectX::CreateTexturedQuad( TextureVertex* vertices, float x, float y, int width, int height, D3DCOLOR colour )
+void DirectX::CreateDiffuseBuffer( void )
 {
-	// Set universals.
-	for (int i = 0; i < 4; i++) {
-		vertices[i].z = 1.0f;
-		vertices[i].rhw = 0.5f;
-		vertices[i].colour = colour;
+	// Create vertex buffer.
+	HRESULT result = d3dDevice_->CreateVertexBuffer(
+		4 * sizeof(DiffuseVertex),
+		D3DUSAGE_WRITEONLY,
+		D3D9T_DIFFUSEVERTEX,
+		D3DPOOL_DEFAULT,
+		&diffuseBuffer_,
+		NULL );
+	if ( FAILED( result ) ) {
+		throw Exception( "Failed to create vertex buffer." );
 	}
 
-	x -= 0.5f;
-	y -= 0.5f;
+	// Lock diffuse vertex buffer.
+	DiffuseVertex *diffuseVertices = nullptr;
+	diffuseBuffer_->Lock( 0, 4 * sizeof( DiffuseVertex ), (void**)&diffuseVertices, 0 );
+
+	// Set universals.
+	diffuseVertices[0].z		= diffuseVertices[1].z
+								= diffuseVertices[2].z
+								= diffuseVertices[3].z
+								= 1.0f;
+
+	diffuseVertices[0].colour	= diffuseVertices[1].colour
+								= diffuseVertices[2].colour
+								= diffuseVertices[3].colour
+								= 0xffffffff;
 	
-	// Top left.
-	vertices[1].x = x;
-	vertices[1].y = y;
-	vertices[1].tu = 0;
-	vertices[1].tv = 0;
+	// Top left and bottom left.
+	diffuseVertices[0].x = diffuseVertices[1].x = 0.0f;
 
-	// Top right.
-	vertices[3].x = x + (float)width;
-	vertices[3].y = y;
-	vertices[3].tu = 1;
-	vertices[3].tv = 0;
+	// Top left and top right.
+	diffuseVertices[0].y = diffuseVertices[2].y = 0.0f;
 
-	// Bottom right.
-	vertices[2].x = x + (float)width;
-	vertices[2].y = y + (float)height;
-	vertices[2].tu = 1;
-	vertices[2].tv = 1;
+	// Bottom left and bottom right.
+	diffuseVertices[1].y = diffuseVertices[3].y = 1.0f;
 
-	// Bottom left.
-	vertices[0].x = x;
-	vertices[0].y = y + (float)height;
-	vertices[0].tu = 0;
-	vertices[0].tv = 1;
+	// Top right and bottom right.
+	diffuseVertices[2].x = diffuseVertices[3].x = 1.0f;
+
+	// Unlock diffuse vertex buffer.
+	diffuseBuffer_->Unlock();
 }
 
-void DirectX::CreateColouredQuad( ColourVertex* vertices, float x, float y, int width, int height, D3DCOLOR colour )
+void DirectX::CreateTextureBuffer( void )
 {
-	// Set universals.
-	for (int i = 0; i < 4; i++) {
-		vertices[i].z = 1.0f;
-		vertices[i].rhw = 1.0f;
-		vertices[i].colour = colour;
+	// Create vertex buffer.
+	HRESULT result = d3dDevice_->CreateVertexBuffer(
+		4 * sizeof(TextureVertex),
+		D3DUSAGE_WRITEONLY,
+		D3D9T_TEXTUREVERTEX,
+		D3DPOOL_DEFAULT,
+		&textureBuffer_,
+		NULL );
+	if ( FAILED( result ) ) {
+		throw Exception( "Failed to create texture vertex buffer." );
 	}
 
-	// Set corners.
-	ColourVertex *topLeft = &vertices[1];
-	ColourVertex *bottomLeft = &vertices[0];
-	ColourVertex *bottomRight = &vertices[2];
-	ColourVertex *topRight = &vertices[3];
+	// Lock diffuse vertex buffer.
+	TextureVertex *textureVertices = nullptr;
+	textureBuffer_->Lock( 0, 4 * sizeof( DiffuseVertex ), (void**)&textureVertices, 0 );
 
-	x -= 0.5f;
-	y -= 0.5f;
+	// Set universals.
+	textureVertices[0].z		= textureVertices[1].z
+								= textureVertices[2].z
+								= textureVertices[3].z
+								= 1.0f;
+
+	textureVertices[0].colour	= textureVertices[1].colour
+								= textureVertices[2].colour
+								= textureVertices[3].colour
+								= 0xffffffff;
 	
-	// Top left.
-	vertices[1].x = x;
-	vertices[1].y = y;
+	// Top left and bottom left.
+	textureVertices[0].x = textureVertices[1].x = 0.0f;
+	textureVertices[0].tu = textureVertices[1].tu = 0.0f;
 
-	// Top right.
-	vertices[3].x = x + (float)width;
-	vertices[3].y = y;
-	
-	// Bottom right.
-	vertices[2].x = x + (float)width;
-	vertices[2].y = y + (float)height;
+	// Top left and top right.
+	textureVertices[0].y = textureVertices[2].y = 0.0f;
+	textureVertices[0].tv = textureVertices[2].tv = 0.0f;
 
-	// Bottom left.
-	vertices[0].x = x;
-	vertices[0].y = y + (float)height;
+	// Bottom left and bottom right.
+	textureVertices[1].y = textureVertices[3].y = 1.0f;
+	textureVertices[1].tv = textureVertices[3].tv = 1.0f;
+
+	// Top right and bottom right.
+	textureVertices[2].x = textureVertices[3].x = 1.0f;
+	textureVertices[2].tu = textureVertices[3].tu = 1.0f;
+
+	// Unlock texture vertex buffer.
+	textureBuffer_->Unlock();
 }
 
 void DirectX::DrawRoundedRect( float x, float y, int width, int height, float radiusTl, float radiusTr, float radiusBr, float radiusBl, D3DCOLOR colour )
 {
 	// Draw top-left and top.
-	CreateTexturedQuad( texVertices_, x, y, radiusTl, radiusTl, colour );
-	DrawTexturedQuad( texVertices_, roundedCorner_ );
-	CreateColouredQuad( clrVertices_, x + radiusTl, y, width - radiusTl - radiusTr, radiusTl, colour );
-	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	DrawTexture( roundedCorner_, x, y, radiusTl, radiusTl, colour );
+	DrawColouredQuad( x + radiusTl, y, width - radiusTl - radiusTr, radiusTl, colour );
 
 	// Draw top-right and right.
-	CreateTexturedQuad( texVertices_, x + width, y, -radiusTr, radiusTr, colour );
-	DrawTexturedQuad( texVertices_, roundedCorner_ );
-	CreateColouredQuad( clrVertices_, x + width, y + radiusTr, -radiusTr, height - radiusTr - radiusBr, colour );
-	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	DrawTexture( roundedCorner_, x + width, y, -radiusTr, radiusTr, colour );
+	DrawColouredQuad( x + width, y + radiusTr, -radiusTr, height - radiusTr - radiusBr, colour );
 
 	// Draw bottom-right and bottom.
-	CreateTexturedQuad( texVertices_, x + width, y + height, -radiusBr, -radiusBr, colour );
-	DrawTexturedQuad( texVertices_, roundedCorner_ );
-	CreateColouredQuad( clrVertices_, x + radiusBl, y + height, width - radiusBl - radiusBr, -radiusBr, colour );
-	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	DrawTexture( roundedCorner_, x + width, y + height, -radiusBr, -radiusBr, colour );
+	DrawColouredQuad( x + radiusBl, y + height, width - radiusBl - radiusBr, -radiusBr, colour );
 
 	// Draw bottom-left and left.
-	CreateTexturedQuad( texVertices_, x, y + height, radiusBl, -radiusBl, colour );
-	DrawTexturedQuad( texVertices_, roundedCorner_ );
-	CreateColouredQuad( clrVertices_, x, y + radiusTl, radiusBl, height - radiusTl - radiusBl, colour );
-	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	DrawTexture( roundedCorner_, x, y + height, radiusBl, -radiusBl, colour );
+	DrawColouredQuad( x, y + radiusTl, radiusBl, height - radiusTl - radiusBl, colour );
 
 	// Fill in center.
-	CreateColouredQuad( clrVertices_, x + radiusBl, y + radiusTl, width - radiusBl - radiusTr, height - radiusTl - radiusBr, colour );
-	DrawColouredQuad( clrVertices_, sizeof( clrVertices_ ) );
+	DrawColouredQuad( x + radiusBl, y + radiusTl, width - radiusBl - radiusTr, height - radiusTl - radiusBr, colour );
 }
 
 void DirectX::DrawRoundedRect( float x, float y, int width, int height, float radius, D3DCOLOR color )
@@ -421,50 +446,74 @@ void DirectX::DrawRoundedRect( float x, float y, int width, int height, float ra
 	DrawRoundedRect( x, y, width, height, radius, radius, radius, radius, color );
 }
 
-void DirectX::DrawColouredQuad( void *vertices, size_t verticesSize )
-{
-	// Copy information and unlock.
-	void *verticesResult;
-	HRESULT hResult = vertexBuffer_->Lock( 0, 0, &verticesResult, 0 );
-	if (hResult != D3D_OK) {
-		throw Exception( "Failed to lock vertex buffer." );
-	}
-
-	memcpy( verticesResult, vertices, verticesSize );
-	vertexBuffer_->Unlock();
+void DirectX::DrawColouredQuad( float x, float y, int width, int height, D3DCOLOR colour )
+{	
+	// Change diffuse colour.
+	// TODO: Need better way of changing colour. This is too expensive.
+	DiffuseVertex *diffuseVertices = nullptr;
+	diffuseBuffer_->Lock( 0, 4 * sizeof( TextureVertex ), (void**)&diffuseVertices, 0 );
+	diffuseVertices[0].colour	= diffuseVertices[1].colour
+								= diffuseVertices[2].colour
+								= diffuseVertices[3].colour
+								= colour;
+	diffuseBuffer_->Unlock();
 
 	// Take colour and alpha from diffuse.
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_SELECTARG1 );
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1 );
 
+	// Move and scale.
+	D3DXMATRIX matScale, matTrans;
+	D3DXMatrixScaling( &matScale, width, height, 1.0f );
+	D3DXMatrixTranslation( &matTrans, x, y, 0.0f );
+	d3dDevice_->SetTransform( D3DTS_WORLD, &(matScale * matTrans) );
+
 	// Draw quad.
-	d3dDevice_->SetFVF( D3D9T_COLOURVERTEX );
-	d3dDevice_->SetStreamSource( 0, vertexBuffer_, 0, sizeof( ColourVertex ) );
+	d3dDevice_->SetFVF( D3D9T_DIFFUSEVERTEX );
+	d3dDevice_->SetStreamSource( 0, diffuseBuffer_, 0, sizeof( DiffuseVertex ) );
 	d3dDevice_->DrawPrimitive( D3DPT_TRIANGLESTRIP, 0, 2 );
 }
 
-void DirectX::DrawTexturedQuad( TextureVertex *texVertices, Texture* texture )
+void DirectX::DrawTexture( Texture* texture, float x, float y, int width, int height, D3DCOLOR colour )
 {
-	// Add to vertex buffer.
-	void *vertices = 0;
-	HRESULT hr = vertexBuffer_->Lock( 0, 0, &vertices, 0 );
-	memcpy( vertices, texVertices_, sizeof( texVertices_ ) );
-	vertexBuffer_->Unlock();
+	// Change diffuse on texture.
+	// TODO: Need better way of changing colour. This is too expensive.
+	TextureVertex *textureVertices = nullptr;
+	textureBuffer_->Lock( 0, 4 * sizeof( TextureVertex ), (void**)&textureVertices, 0 );
+	textureVertices[0].colour	= textureVertices[1].colour
+								= textureVertices[2].colour
+								= textureVertices[3].colour
+								= colour;
+	textureBuffer_->Unlock();
 
+	// Take colour and alpha from modulation.
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_MODULATE );
 	d3dDevice_->SetTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE );
 
-	// Draw quad.
+	// Set drawing parameters.
 	d3dDevice_->SetFVF( D3D9T_TEXTUREVERTEX );
-	d3dDevice_->SetStreamSource( 0, vertexBuffer_, 0, sizeof( TextureVertex ) );
 	d3dDevice_->SetTexture( 0, texture->GetTexture() );
+
+	// Move and scale.
+	D3DXMATRIX matScale, matTrans;
+	D3DXMatrixScaling( &matScale, width, height, 1.0f );
+	D3DXMatrixTranslation( &matTrans, x, y, 0.0f );
+	d3dDevice_->SetTransform( D3DTS_WORLD, &(matScale * matTrans) );
+
+	// Draw.
+	d3dDevice_->SetStreamSource( 0, textureBuffer_, 0, sizeof( TextureVertex ) );
 	d3dDevice_->DrawPrimitive( D3DPT_TRIANGLESTRIP, 0, 2 );
 }
 
-void DirectX::DrawTexture( Texture* texture, float x, float y, float width, float height, const D3DCOLOR& colour)
+void DirectX::SetWorldTransform( D3DXMATRIX *matrix )
 {
-	CreateTexturedQuad( texVertices_, x, y, width, height, colour );
-	DrawTexturedQuad( texVertices_, texture );
+	// Copy it over.
+	matWorld_ = *matrix;
+}
+
+void DirectX::GetWorldTransform( D3DXMATRIX *matrix )
+{
+	*matrix = matWorld_;
 }
 
 bool DirectX::BeginDraw( void )
@@ -487,6 +536,8 @@ bool DirectX::BeginDraw( void )
 
 void DirectX::EndDraw( void )
 {
+	D3DXMATRIX d3dTrans;
+	d3dDevice_->GetTransform( D3DTS_PROJECTION, &d3dTrans );
 	// End scene and present.
 	d3dDevice_->EndScene();
 	d3dDevice_->Present(NULL, NULL, NULL, NULL);

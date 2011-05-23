@@ -6,7 +6,6 @@ IconButton::IconButton( Texture *texture, float x, float y )
 {
 	// Create icon, add to layout.
 	icon_ = new Image( x, y, texture );
-	icon_->SetSize( ICON_SIZE, ICON_SIZE );
 	layout_->Add( icon_ );
 
 	// Take parent behaviour.
@@ -21,6 +20,12 @@ IconButton::~IconButton( void )
 void IconButton::SetIcon( Texture *texture )
 {
 	icon_->SetTexture( texture );
+	if (texture != nullptr) {
+		icon_->SetSize( ICON_SIZE, ICON_SIZE );
+	}
+	else {
+		icon_->SetSize( 0, 0 );
+	}
 }
 
 Image* IconButton::GetIcon( void ) const

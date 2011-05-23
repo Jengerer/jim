@@ -11,22 +11,30 @@ public:
 	Draggable( float x = 0.0f, float y = 0.0f );
 	virtual ~Draggable( void );
 
+	virtual void OnDraw( DirectX *directX );
+
 	// Mouse handling.
 	virtual bool OnMouseMoved( Mouse *mouse );
 	virtual bool OnLeftClicked( Mouse *mouse );
 	virtual bool OnLeftReleased( Mouse *mouse );
 
 	void SetParent( Container *container );
-	virtual void OnDrag( Mouse* mouse );
-	virtual void OnRelease( void );
 	bool IsDragging( void ) const;
+	virtual void OnDrag( const Mouse* mouse );
+	virtual void OnRelease( void );
 
 	virtual float GetX( void ) const;
 	virtual float GetY( void ) const;
 
 private:
 
-	Mouse*			mouse_;
+	void Initialize( void );
+	void SetOffset( float x, float y );
+	void SetDragging( bool isDragging );
+
+private:
+
+	const Mouse		*mouse_;
 	Container*		parent_;
 
 	bool			isDragging_;

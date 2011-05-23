@@ -17,12 +17,12 @@
 Font *ItemDisplay::nameFont_ = nullptr;
 Font *ItemDisplay::infoFont_ = nullptr;
 
-ItemDisplay::ItemDisplay()
+ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIUS )
 {
 	SetAlpha( 0 );
-
-	// Unset texture.
-	roundedRect_ = nullptr;
+	SetPadding( ITEM_DISPLAY_PADDING );
+	SetColour( ITEM_DISPLAY_COLOUR );
+	SetItem( nullptr );
 
 	// Create text objects.
 	nameText_ = new WrappedText( nameFont_, ITEM_DISPLAY_WIDTH );
@@ -34,23 +34,17 @@ ItemDisplay::ItemDisplay()
 	// Add to layout.
 	textLayout_ = new VerticalLayout();
 	textLayout_->SetSpacing( ITEM_DISPLAY_SPACING );
+	textLayout_->SetPosition( ITEM_DISPLAY_PADDING, ITEM_DISPLAY_PADDING );
 	textLayout_->Add( nameText_ );
 	textLayout_->Add( infoText_ );
-	Add( textLayout_ );
 
-	roundedRect_ = new RoundedRectangle( GetWidth(), GetHeight(), ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_COLOUR );
-	roundedRect_->SetCornerRadius( ITEM_DISPLAY_RADIUS );
-	AddBottom( roundedRect_ );
+	// Pack so we can create a temporary rectangle.
+	SetContained( textLayout_ );
+	Pack();
 }
 
-ItemDisplay::~ItemDisplay()
+ItemDisplay::~ItemDisplay( void )
 {
-}
-
-void ItemDisplay::UpdatePosition( void )
-{
-	roundedRect_->SetPosition( GetX(), GetY() );
-	textLayout_->SetPosition( GetX() + ITEM_DISPLAY_PADDING, GetY() + ITEM_DISPLAY_PADDING );
 }
 
 void ItemDisplay::UpdateAlpha( void )
@@ -68,13 +62,10 @@ void ItemDisplay::UpdateAlpha( void )
 
 void ItemDisplay::Pack( void )
 {
+	nameText_->Pack();
+	infoText_->Pack();
 	textLayout_->Pack();
-	SetSize( 
-		textLayout_->GetWidth() + ITEM_DISPLAY_PADDING * 2, 
-		textLayout_->GetHeight() + ITEM_DISPLAY_PADDING * 2 );
-
-	// Reset rounded rectangle size.
-	roundedRect_->SetSize( GetWidth(), GetHeight() );
+	RoundedRectangleContainer::Pack();
 }
 
 const Item* ItemDisplay::GetItem( void ) const

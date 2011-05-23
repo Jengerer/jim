@@ -28,7 +28,6 @@ public:
 
 	// Drawing functions.
 	virtual void	Pack( void );
-	virtual void	UpdatePosition( void );
 
 	// Mouse handling.
 	virtual bool	OnMouseMoved( Mouse *mouse );

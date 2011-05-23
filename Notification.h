@@ -18,7 +18,6 @@ public:
 	virtual ~Notification( void );
 
 	virtual void	Pack( void );
-	virtual void	UpdatePosition( void );
 
 	void			SetTexture( Texture *texture );
 	void			SetMessage( const string& message );

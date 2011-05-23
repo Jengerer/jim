@@ -24,9 +24,6 @@ public:
 	void					SetAlignType( EHorizontalAlignType alignType );
 	EHorizontalAlignType	GetAlignType( void ) const;
 
-	// Repositions all elements.
-	virtual void UpdatePosition( void );
-
 private:
 
 	int minimumWidth_;

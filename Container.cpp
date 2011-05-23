@@ -22,17 +22,6 @@ Container::~Container()
 	}
 }
 
-void Container::SetPosition( float x, float y )
-{
-	Component::SetPosition( x, y );
-	UpdatePosition();
-}
-
-void Container::UpdatePosition( void )
-{
-	// Optionally implemented.
-}
-
 void Container::Pack( void )
 {
 	// Optionally implemented.
@@ -71,6 +60,7 @@ bool Container::WithinBounds( Component *component ) const
 //=============================================================
 bool Container::IsVisible( Component *component ) const
 {
+	return true; // TODO: HOLY SHIT UNDO THIS WHEN YOU FIGURE OUT COMPONENTS.
 	return WithinBounds( component );
 }
 
@@ -150,11 +140,18 @@ deque<Component*>* Container::GetChildren()
 //=============================================================
 void Container::OnDraw( DirectX *directX )
 {
+	D3DXMATRIX matWorld, matComponent;
+	directX->GetWorldTransform( &matWorld );
+	D3DXMatrixTranslation( &matComponent, GetX(), GetY(), 0.0f );
+	directX->SetWorldTransform( &(matComponent) );
+
 	// Draw all children.
 	for (int i = 0; i < componentStack_.size(); i++) {
 		Component *component = componentStack_.at( i );
-		if (WithinBounds( component )) {
+		if (IsVisible( component )) {
 			component->OnDraw( directX );
 		}
 	}
+
+	directX->SetWorldTransform( &matWorld );
 }
