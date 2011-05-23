@@ -16,7 +16,6 @@ public:
 
 	// Format the elements into the appropriate layout.
 	virtual void		Pack( void ) = 0;
-	virtual void		UpdatePosition( void ) = 0;
 
 	// Sets the spacing between elements.
 	int					GetSpacing( void ) const;

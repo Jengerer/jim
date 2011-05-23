@@ -22,8 +22,6 @@ public:
 	virtual void		SetAlpha( int alpha );
 
 	// Relative position modifiers.
-	virtual void		SetPosition( float x, float y );
-	virtual void		UpdatePosition( void );
 	virtual bool		IsVisible( Component *component ) const;
 	virtual bool		WithinBounds( Component *component ) const;
 	void				ClampChild( Component *component, int padding = 0 ) const;

@@ -25,15 +25,6 @@ void NotificationQueue::OnDraw( DirectX *directX )
 	}
 }
 
-void NotificationQueue::UpdatePosition( void )
-{
-	// Justify notification to bottom-right.
-	if ( HasNotification() ) {
-		Notification *top = GetCurrentNotification();
-		top->SetPosition( GetX() - top->GetWidth(), GetY() - top->GetHeight() );
-	}
-}
-
 void NotificationQueue::UpdateNotifications( void )
 {
 	// Update alpha of notification.
@@ -102,9 +93,9 @@ void NotificationQueue::SetNextNotification( void )
 	// Get and set new.
 	if ( HasMoreNotifications() ) {
 		current_ = notificationQueue_.front();
+		current_->SetPosition( -current_->GetWidth(), -current_->GetHeight() );
 		notificationQueue_.pop();
 		nextTime_ = GetTickCount() + NOTIFICATION_QUEUE_DELAY;
-		UpdatePosition();
 	}
 }
 

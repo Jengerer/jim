@@ -28,28 +28,18 @@ void RoundedRectangleContainer::Pack( void )
 	SetSize( roundedRect_->GetWidth(), roundedRect_->GetHeight() );
 }
 
-void RoundedRectangleContainer::UpdatePosition( void )
-{
-	unsigned int padding = GetPadding();
-	Component *contained = GetContained();
-
-	// Move rounded rectangle here, and pad contained in.
-	int posX = GetX();
-	int posY = GetY();
-	roundedRect_->SetPosition( posX, posY );
-	contained->SetPosition(
-		posX + padding,
-		posY + padding );
-}
-
 void RoundedRectangleContainer::SetContained( Component *component )
 {
 	contained_ = component;
+
+	unsigned int padding = GetPadding();
+	contained_->SetPosition( padding, padding );
 }
 
 void RoundedRectangleContainer::SetColour( D3DCOLOR colour )
 {
 	roundedRect_->SetColour( colour );
+	roundedRect_->RemoveTexture();
 }
 
 void RoundedRectangleContainer::SetStroke( unsigned int size, D3DCOLOR colour )

@@ -35,7 +35,6 @@ public:
 
 	// Drawing function.
 	virtual void	OnDraw( DirectX* directX );
-	virtual void	UpdatePosition( void );
 	void			UpdateSlot( void );
 
 	// Slot attribute functions.

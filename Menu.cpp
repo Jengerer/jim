@@ -4,15 +4,17 @@
 Menu::Menu( void )
 {
 	SetClicked( nullptr );
-	setState( POPUP_STATE_INACTIVE );
+	SetState( POPUP_STATE_HIDDEN );
 
 	// Create rounded rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
 	roundedRect_->SetStroke( MENU_STROKE_SIZE, MENU_STROKE_COLOUR );
+	roundedRect_->SetPosition( 0, 0 );
 	Add( roundedRect_ );
 
 	// Create layout.
 	layout_ = new VerticalLayout();
+	layout_->SetPosition( MENU_PADDING, MENU_PADDING );
 	Add( layout_ );
 }
 
@@ -46,13 +48,6 @@ void Menu::Pack( void )
 	SetSize( roundedRect_->GetWidth(), roundedRect_->GetHeight() );
 }
 
-void Menu::UpdatePosition( void )
-{
-	// Position all buttons.
-	roundedRect_->SetPosition( GetX(), GetY() );
-	layout_->SetPosition( GetX() + MENU_PADDING, GetY() + MENU_PADDING );
-}
-
 bool Menu::OnMouseMoved( Mouse *mouse )
 {
 	// Pass message to buttons.
@@ -69,7 +64,7 @@ bool Menu::OnLeftClicked( Mouse *mouse )
 {
 	SetClicked( nullptr );
 	if ( !mouse->IsTouching( this ) ) {
-		setState( POPUP_STATE_INACTIVE );
+		SetState( POPUP_STATE_HIDDEN );
 	}
 
 	// Menu has priority over all under it.
@@ -85,7 +80,7 @@ bool Menu::OnLeftReleased( Mouse *mouse )
 
 			// Set selected button, and go inactive.
 			if (mouse->IsTouching( button )) {
-				setState( POPUP_STATE_INACTIVE );
+				SetState( POPUP_STATE_HIDDEN );
 				SetClicked( button );
 				break;
 			}

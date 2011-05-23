@@ -20,6 +20,7 @@ Backpack::Backpack(
 	
 	// Inventory formatting pointers.
 	pages_ = new HorizontalLayout();
+	pages_->SetParent( parent );
 	excluded_ = new HorizontalLayout();
 	Add( pages_ );
 	Add( excluded_ );
@@ -305,35 +306,22 @@ void Backpack::FormatInventory( void )
 
 	int pages = inventory_->GetPageCount();
 	int pageWidth = inventory_->GetWidth();
-	int pageHeight = inventory_->GetHeight();
+	int pageCapacity = inventory_->GetPageSize();
 	for (int i = 0; i < pages; i++) {
 		// Add a column per page.
-		HorizontalLayout *pageColumns = new HorizontalLayout();
-		pageColumns->SetParent( this );
-		pageColumns->SetSpacing( SLOT_SPACING );
+		GridLayout *page = new GridLayout( pageWidth );
+		page->SetSpacing( SLOT_SPACING );
+		page->SetParent( this );
 
 		// Split the page into two.
-		for (int j = 0; j < 2; j++) {
-			// Add a row of slots per column.
-			for (int x = 0; x < (pageWidth >> 1); x++) {
-				VerticalLayout *rows = new VerticalLayout();
-				rows->SetSpacing( SLOT_SPACING );
-
-				// Add a slot per row.
-				for (int y = 0; y < pageHeight; y++) {
-					// Simplified formula for index.
-					int index = x + j * (pageWidth >> 1) + pageWidth * (i * pageHeight + y);
-					Slot* slot = inventory_->GetInventorySlot( index );
-					rows->Add( slot );
-				}
-
-				rows->Pack();
-				pageColumns->Add( rows );
-			}
+		for (int j = 0; j < pageCapacity; j++) {
+			int index = j + (i * pageCapacity);
+			Slot* slot = inventory_->GetInventorySlot( index );
+			page->Add( slot );
 		}
-
-		pageColumns->Pack();
-		pages_->Add( pageColumns );
+		
+		page->Pack();
+		pages_->Add( page );
 	}
 
 	pages_->Pack();
@@ -387,21 +375,11 @@ void Backpack::MoveItem( Slot *source, Slot *destination ) {
 	}
 }
 
-void Backpack::UpdatePosition()
-{
-	// Position all slots.
-	if (pages_ != nullptr) {
-		pages_->SetX( GetX() - cameraX_ );
-		pages_->UpdatePosition();
-	}
-}
-
 bool Backpack::OnMouseMoved( Mouse *mouse )
 {
 	// Mouse moved.
 	if (selected_.size() == 1 && dragged_ != nullptr) {
 		Slot* slot = selected_[0];
-		slot->UpdatePosition();
 
 		// No longer hovering.
 		SetHovering( nullptr );
@@ -423,22 +401,15 @@ bool Backpack::OnMouseMoved( Mouse *mouse )
 	}
 
 	// Go through visible pages.
-	deque<Component*> *pageComponents = pages_->GetChildren();
-	for each (Container *page in *pageComponents) {
+	deque<Component*> *pages = pages_->GetChildren();
+	for each (Container *page in *pages) {
 		if (IsVisible( page )) {
 			// Go through visible page columns.
-			deque<Component*> *columns = page->GetChildren();
-			for each (Container *column in *columns) {
-				if (IsVisible( column )) {
-					// Go through slots in column.
-					deque<Component*> *slots = column->GetChildren();
-					for each (Component *rowSlot in *slots) {
-						Slot *slot = dynamic_cast<Slot*>(rowSlot);
-						if (mouse->IsTouching( slot )) {
-							SetHovering( slot->HasItem() ? slot : nullptr );
-							return true;
-						}
-					}
+			deque<Component*> *slots = page->GetChildren();
+			for each (Slot *slot in *slots) {
+				if (mouse->IsTouching( slot )) {
+					SetHovering( slot->HasItem() ? slot : nullptr );
+					return true;
 				}
 			}
 		}
@@ -461,28 +432,21 @@ bool Backpack::OnMouseMoved( Mouse *mouse )
 bool Backpack::OnLeftClicked( Mouse *mouse )
 {
 	// Go through visible pages.
-	deque<Component*> *pageComponents = pages_->GetChildren();
-	for each (Container *page in *pageComponents) {
+	deque<Component*> *pages = pages_->GetChildren();
+	for each (Container *page in *pages) {
 		if (IsVisible( page )) {
 			// Go through visible page columns.
-			deque<Component*> *columns = page->GetChildren();
-			for each (Container *column in *columns) {
-				if (WithinBounds( column )) {
-					// Go through slots in column.
-					deque<Component*> *slots = column->GetChildren();
-					for each (Component *rowSlot in *slots) {
-						Slot *slot = dynamic_cast<Slot*>(rowSlot);
-						if (mouse->IsTouching( slot )) {
-							if (dragged_ == nullptr) {
-								OnSlotGrabbed( mouse, slot );
-							}
-							else {
-								OnSlotReleased( slot );
-							}
-
-							return true;
-						}
+			deque<Component*> *slots = page->GetChildren();
+			for each (Slot *slot in *slots) {
+				if (mouse->IsTouching( slot )) {
+					if (dragged_ == nullptr) {
+						OnSlotGrabbed( mouse, slot );
 					}
+					else {
+						OnSlotReleased( slot );
+					}
+
+					return true;
 				}
 			}
 		}
@@ -601,7 +565,6 @@ void Backpack::OnSlotReleased( Slot *slot )
 		// Move to slot if able.
 		MoveItem( dragged_, slot );
 		SelectSlot( slot, SELECT_TYPE_NORMAL );
-		slot->UpdatePosition();
 	}
 	else {
 		// Set to regular select.
@@ -611,12 +574,9 @@ void Backpack::OnSlotReleased( Slot *slot )
 
 void Backpack::RemoveSlots( void ) {
 	if (pages_ != nullptr) {
-		deque<Component*> *pageComponents = pages_->GetChildren();
-		for each (Container *page in *pageComponents) {
-			deque<Component*> *columns = page->GetChildren();
-			for each (Container *column in *columns) {
-				column->RemoveAll();
-			}
+		deque<Component*> *pages = pages_->GetChildren();
+		for each (Container *page in *pages) {
+			page->RemoveAll();
 		}
 	}
 
@@ -625,19 +585,19 @@ void Backpack::RemoveSlots( void ) {
 	}
 }
 
-void Backpack::EquipItem( Item *item, EClassEquip classEquip ) {
-	if (item->IsEquipped( classEquip )) {
-		item->SetEquip( classEquip, false );
+void Backpack::EquipItem( Item *item, uint32 classFlags ) {
+	if (item->IsEquipped( classFlags )) {
+		item->SetEquip( classFlags, false );
 	}
 	else {
-		UnequipItems( classEquip, item->GetEquipSlot() );
-		item->SetEquip( classEquip, true );
+		UnequipItems( classFlags, item->GetEquipSlot() );
+		item->SetEquip( classFlags, true );
 	}
 
 	UpdateItem( item );
 }
 
-void Backpack::UnequipItems( EClassEquip equipClass, EItemSlot slot ) {
+void Backpack::UnequipItems( uint32 equipClass, EItemSlot slot ) {
 	const itemMap* inventoryItems = inventory_->GetInventoryItems();
 	itemMap::const_iterator i;
 	for (i = inventoryItems->begin(); i != inventoryItems->end(); i++) {
@@ -801,7 +761,6 @@ void Backpack::HandleCamera( void )
 {
 	if (cameraX_ != cameraDest_) {
 		MoveCamera();
-		UpdatePosition();
 	}
 }
 
@@ -820,4 +779,5 @@ void Backpack::MoveCamera( void )
 
 	// Now propel.
 	cameraX_ += cameraSpeed_;
+	pages_->SetX( -cameraX_ );
 }

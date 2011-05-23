@@ -73,8 +73,3 @@ EVerticalAlignType HorizontalLayout::GetAlignType( void ) const
 {
 	return alignType_;
 }
-
-void HorizontalLayout::UpdatePosition( void )
-{
-	Pack();
-}

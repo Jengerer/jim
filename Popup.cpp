@@ -2,20 +2,19 @@
 
 Popup::Popup( float x, float y ) : Draggable( x, y )
 {
-	setState( POPUP_STATE_ACTIVE );
 }
 
-Popup::~Popup()
+Popup::~Popup( void )
 {
 	// Popup is removed.
 }
 
-void Popup::setState( EPopupState state )
+void Popup::SetState( EPopupState state )
 {
 	state_ = state;
 }
 
-EPopupState Popup::getState() const
+EPopupState Popup::GetState( void ) const
 {
 	return state_;
 }

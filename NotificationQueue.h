@@ -20,7 +20,6 @@ public:
 
 	// Drawing and container functions.
 	virtual void	OnDraw( DirectX* directX );
-	virtual void	UpdatePosition( void );
 
 	// Updating notification state.
 	void			UpdateNotifications( void );

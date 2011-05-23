@@ -1,7 +1,6 @@
 #include "Notice.h"
 
 // Static members.
-Texture*	Notice::texture_	= nullptr;
 Font*		Notice::font_	= nullptr;
 
 #define NOTICE_FONT_FACE		"TF2 Build"

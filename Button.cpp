@@ -5,12 +5,12 @@ Font*		Button::font_ = nullptr;
 // Rounded rectangle parameters.
 #define BUTTON_RADIUS		5
 #define BUTTON_SPACING		5
-#define BUTTON_PADDING		10
+#define BUTTON_PADDING		15
 
 // Button colours.
 #define BUTTON_COLOUR			D3DCOLOR_XRGB( 247, 231, 198 )
 #define BUTTON_COLOUR_HOVER		D3DCOLOR_XRGB( 180, 81, 14 )
-#define BUTTON_COLOUR_DISABLED	D3DCOLOR_ARGB( 50, 247, 231, 198 )
+#define BUTTON_COLOUR_DISABLED	D3DCOLOR_ARGB( 150, 247, 231, 198)
 
 Button::Button( float x, float y ) : RoundedRectangleContainer( BUTTON_RADIUS, x, y )
 {
@@ -70,9 +70,9 @@ bool Button::IsEnabled() const
 bool Button::OnMouseMoved( Mouse *mouse )
 {
 	// Mouse moved.
-	isHovering_ = mouse->IsTouching( this );
-	UpdateButton();
-	return isHovering_;
+	bool isHovering = mouse->IsTouching( this );
+	SetHovering( isHovering );
+	return isHovering;
 }
 
 bool Button::OnLeftClicked( Mouse *mouse )

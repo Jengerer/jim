@@ -1,7 +1,7 @@
 #include "LabelButton.h"
 
 #define LABEL_BUTTON_FONT_NAME		"TF2 Build"
-#define LABEL_BUTTON_FONT_SIZE		18
+#define LABEL_BUTTON_FONT_SIZE		20
 #define LABEL_BUTTON_FONT_BOLDED	false
 #define LABEL_BUTTON_FONT_COLOUR	D3DCOLOR_XRGB( 42, 39, 37 )
 

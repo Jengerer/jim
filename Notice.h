@@ -34,7 +34,6 @@ public:
 protected:
 
 	// Class-wide texture and font.
-	static Texture	*texture_;
 	static Font		*font_;
 
 private:

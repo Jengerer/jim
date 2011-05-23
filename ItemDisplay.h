@@ -4,7 +4,7 @@
 #include "DirectX.h"
 #include "Font.h"
 #include "Item.h"
-#include "RoundedRectangle.h"
+#include "RoundedRectangleContainer.h"
 #include "Text.h"
 #include "WrappedText.h"
 #include "VerticalLayout.h"
@@ -17,7 +17,7 @@
 #define ITEM_DISPLAY_ALPHA_MAX		215
 #define ITEM_DISPLAY_NAME_COLOUR	D3DCOLOR_XRGB( 255, 255, 0 )
 
-class ItemDisplay: public Container
+class ItemDisplay : public RoundedRectangleContainer
 {
 
 public:
@@ -26,7 +26,6 @@ public:
 	virtual ~ItemDisplay( void );
 
 	// Drawing functions.
-	virtual void	UpdatePosition( void );
 	void			UpdateAlpha( void );
 	virtual void	Pack( void );
 
@@ -60,6 +59,5 @@ private:
 	VerticalLayout		*textLayout_;
 	WrappedText			*nameText_;
 	WrappedText			*infoText_;
-	RoundedRectangle	*roundedRect_;
 
 };

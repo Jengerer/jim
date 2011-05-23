@@ -34,18 +34,18 @@ void VerticalLayout::Pack( void )
 		Component *component = *i;
 
 		// Set position aligned horizontally.
-		int posX = GetX();
+		float posX;
 		switch (GetAlignType()) {
 		case ALIGN_LEFT:
 			break;
 		case ALIGN_CENTER:
-			posX += ((maxWidth - component->GetWidth()) >> 1);
+			posX = ((maxWidth - component->GetWidth()) >> 1);
 			break;
 		case ALIGN_RIGHT:
-			posX += (maxWidth - component->GetWidth());
+			posX = (maxWidth - component->GetWidth());
 			break;
 		}
-		component->SetPosition( posX, GetY() + height );
+		component->SetPosition( posX, height );
 
 		// Push width by component width and spacing (if not last).
 		height += component->GetHeight();
@@ -71,9 +71,4 @@ EHorizontalAlignType VerticalLayout::GetAlignType( void ) const
 void VerticalLayout::SetMinimumWidth( int minimumWidth )
 {
 	minimumWidth_ = minimumWidth;
-}
-
-void VerticalLayout::UpdatePosition( void )
-{
-	Pack();
 }

@@ -24,9 +24,6 @@ public:
 	void				SetAlignType( EVerticalAlignType alignType );
 	EVerticalAlignType	GetAlignType( void ) const;
 
-	// Repositions all elements.
-	virtual void UpdatePosition( void );
-
 private:
 
 	int minimumHeight_;

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Container.h"
+#include "GridLayout.h"
 #include "HorizontalLayout.h"
 #include "Inventory.h"
 #include "Menu.h"
@@ -54,8 +55,8 @@ public:
 	// Item handling.
 	virtual void	MoveItem( Slot *source, Slot *destination );
 	void			UpdateItem( Item *item );
-	void			EquipItem( Item *item, EClassEquip classEquip );
-	void			UnequipItems( EClassEquip equipClass, EItemSlot slot );
+	void			EquipItem( Item *item, uint32 classFlags );
+	void			UnequipItems( uint32 equipClass, EItemSlot slot );
 	void			CraftSelected( void );
 
 	// Selection handling.
@@ -68,9 +69,6 @@ public:
 	// Item hovering handler.
 	bool			IsHovering( void ) const;
 	const Slot*		GetHovering( void ) const;
-
-	// Position handling.
-	virtual void	UpdatePosition( void );
 
 	// Mouse handling.
 	virtual bool	OnMouseMoved( Mouse *mouse );

@@ -27,6 +27,7 @@ Notification::Notification( const string& message, Texture *texture )
 	// Add them to the layout.
 	layout_ = new HorizontalLayout();
 	layout_->SetSpacing( NOTIFICATION_SPACING );
+	layout_->SetPosition( NOTIFICATION_PADDING, NOTIFICATION_PADDING );
 	layout_->Add( image_ );
 	layout_->Add( text_ );
 	Add( layout_ );
@@ -44,6 +45,7 @@ Notification::Notification( const string& message, Texture *texture )
 	roundedRect_->SetStroke( 
 		NOTIFICATION_STROKE_SIZE, 
 		NOTIFICATION_STROKE_COLOUR );
+	roundedRect_->SetPosition( 0, 0 );
 	AddBottom( roundedRect_ );
 }
 
@@ -59,15 +61,6 @@ void Notification::Pack( void )
 	SetSize( 
 		layout_->GetWidth() + NOTIFICATION_PADDING * 2,
 		layout_->GetHeight() + NOTIFICATION_PADDING * 2 );
-}
-
-void Notification::UpdatePosition( void )
-{
-	// Just move the layout padding in.
-	roundedRect_->SetPosition( GetX(), GetY() );
-	layout_->SetPosition(
-		GetX() + NOTIFICATION_PADDING, 
-		GetY() + NOTIFICATION_PADDING );
 }
 
 void Notification::SetTexture( Texture *texture )

@@ -135,18 +135,12 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		HorizontalLayout *buttonLayout = new HorizontalLayout();
 		buttonLayout->SetSpacing( BUTTON_SPACING );
 		buttonLayout->SetPosition( BACKPACK_PADDING, BUTTON_Y );
-		craftButton_ = new LabelButton( "craft", craftTexture );
-		equipButton_ = new LabelButton( "equip", equipTexture );
-		sortButton_ = new LabelButton( "sort", sortTexture );
-		craftButton_->SetEnabled( false );
-		equipButton_->SetEnabled( false );
-		sortButton_->SetEnabled( false );
+		craftButton_ = CreateLabelButton( "craft", craftTexture, false );
+		equipButton_ = CreateLabelButton( "equip", equipTexture, false );
+		sortButton_ = CreateLabelButton( "sort", sortTexture, false );
 		buttonLayout->Add( craftButton_ );
 		buttonLayout->Add( equipButton_ );
 		buttonLayout->Add( sortButton_ );
-		craftButton_->Pack();
-		equipButton_->Pack();
-		sortButton_->Pack();
 		buttonLayout->Pack();
 		Add( buttonLayout );
 
@@ -166,11 +160,34 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		Add( notifications_ );
 
 		// Create equip buttons.
-		equipSoldier_ = new LabelButton( "soldier", nullptr );
-		equipDemoman_ = new LabelButton( "demoman", nullptr );
-		equipSoldier_->Pack();
-		equipDemoman_->Pack();
 		equipSet_ = nullptr;
+		Button *equipScout		= new IconButton( equipTexture );
+		Button *equipSoldier	= new IconButton( equipTexture );
+		Button *equipPyro		= new IconButton( equipTexture );
+		Button *equipDemoman	= new IconButton( sortTexture );
+		Button *equipHeavy		= new IconButton( sortTexture );
+		Button *equipEngineer	= new IconButton( sortTexture );
+		Button *equipMedic		= new IconButton( craftTexture );
+		Button *equipSniper		= new IconButton( craftTexture );
+		Button *equipSpy		= new IconButton( craftTexture );
+		equipScout->Pack();
+		equipSoldier->Pack();
+		equipPyro->Pack();
+		equipDemoman->Pack();
+		equipHeavy->Pack();
+		equipEngineer->Pack();
+		equipMedic->Pack();
+		equipSniper->Pack();
+		equipSpy->Pack();
+		equipButtons_[ CLASS_SCOUT ]	= equipScout;
+		equipButtons_[ CLASS_SOLDIER ]	= equipSoldier;
+		equipButtons_[ CLASS_PYRO ]		= equipPyro;
+		equipButtons_[ CLASS_DEMOMAN ]	= equipDemoman;
+		equipButtons_[ CLASS_HEAVY ]	= equipHeavy;
+		equipButtons_[ CLASS_ENGINEER ]	= equipEngineer;
+		equipButtons_[ CLASS_MEDIC ]	= equipMedic;
+		equipButtons_[ CLASS_SNIPER ]	= equipSniper;
+		equipButtons_[ CLASS_SPY ]		= equipSpy;
 
 		// Create start up message.
 		loadProgress_ = CreateNotice( "Initializing item manager..." );
@@ -193,17 +210,6 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 void ItemManager::CloseInterfaces( void )
 {
-	// Delete buttons.
-	if (equipSoldier_ != nullptr) {
-		delete equipSoldier_;
-		equipSoldier_ = nullptr;
-	}
-
-	if (equipDemoman_ != nullptr) {
-		delete equipDemoman_;
-		equipDemoman_ = nullptr;
-	}
-
 	// Delete the mouse.
 	if (mouse_ != nullptr) {
 		delete mouse_;
@@ -309,7 +315,7 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 		}
 
 		// Check if the popup has been closed.
-		if (top == error_ && top->getState() == POPUP_STATE_KILLED) {
+		if (top == error_ && top->GetState() == POPUP_STATE_KILLED) {
 			ExitApplication();
 		}
 
@@ -338,13 +344,7 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 			if (classCount > 1) {
 				// Show equip menu.
 				if (equipSet_ == nullptr) {
-					equipSet_ = new ToggleSet( "Equipped", "Unequipped" );
-					equipSet_->AddSetA( equipSoldier_ );
-					equipSet_->AddSetB( equipDemoman_ );
-					equipSet_->Pack();
-					equipSet_->SetPosition( (GetWidth() - equipSet_->GetWidth()) / 2, (GetHeight() - equipSet_->GetHeight()) / 2 );
-					Add( equipSet_ );
-					ShowPopup( equipSet_ );
+					CreateEquipSet( item );
 				}
 			}
 			else {
@@ -368,16 +368,7 @@ bool ItemManager::OnMouseMoved( Mouse *mouse )
 		top->OnMouseMoved( mouse );
 	}
 	else {
-		// Check backpack.
-		if (backpack_ && backpack_->OnMouseMoved(mouse)) {
-			if ( backpack_->IsHovering() ) {
-				SetCursor( hand_ );
-			}
-
-			return true;
-		}
-
-		// Check all buttons.
+		// Hover over buttons.
 		vector<Button*>::iterator i;
 		bool hitButton = false;
 		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
@@ -389,6 +380,15 @@ bool ItemManager::OnMouseMoved( Mouse *mouse )
 
 		if (hitButton) {
 			SetCursor( hand_ );
+		}
+
+		// Check backpack.
+		if (backpack_ && backpack_->OnMouseMoved(mouse)) {
+			if ( backpack_->IsHovering() ) {
+				SetCursor( hand_ );
+			}
+
+			return true;
 		}
 	}
 
@@ -680,10 +680,44 @@ Alert* ItemManager::CreateAlert( const string& message )
 	return newAlert;
 }
 
+LabelButton *ItemManager::CreateLabelButton( const string& label, Texture *icon, bool isEnabled )
+{
+	LabelButton *newButton = new LabelButton( label, icon );
+	newButton->SetEnabled( isEnabled );
+	newButton->Pack();
+
+	// Add to list.
+	buttonList_.push_back( newButton );
+	return newButton;
+}
+
+void ItemManager::CreateEquipSet( const Item *item )
+{
+	equipSet_ = new ToggleSet( "Equipped", "Unequipped" );
+	Add( equipSet_ );
+	ShowPopup( equipSet_ );
+
+	ButtonMap::iterator i;
+	for (i = equipButtons_.begin(); i != equipButtons_.end(); i++) {
+		if (item->ClassUses( i->first )) {
+			if (item->IsEquipped( i->first )) {
+				equipSet_->AddSetA( i->second );
+			}
+			else {
+				equipSet_->AddSetB( i->second );
+			}
+		}
+	}
+
+	equipSet_->Pack();
+	equipSet_->SetPosition( (GetWidth() - equipSet_->GetWidth()) / 2,
+		(GetHeight() - equipSet_->GetHeight()) / 2 );
+}
+
 void ItemManager::HandlePopup( Popup *popup )
 {
-	switch (popup->getState()) {
-		case POPUP_STATE_INACTIVE:
+	switch (popup->GetState()) {
+		case POPUP_STATE_HIDDEN:
 			HidePopup(popup);
 			break;
 		case POPUP_STATE_KILLED:
@@ -694,7 +728,7 @@ void ItemManager::HandlePopup( Popup *popup )
 
 void ItemManager::ShowPopup( Popup* popup )
 {
-	popup->setState( POPUP_STATE_ACTIVE );
+	popup->SetState( POPUP_STATE_ACTIVE );
 	popupStack_.push_back( popup );
 }
 

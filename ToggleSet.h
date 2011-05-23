@@ -5,7 +5,9 @@
 
 #include "Button.h"
 #include "Font.h"
+#include "GridLayout.h"
 #include "HorizontalLayout.h"
+#include "LabelButton.h"
 #include "Layout.h"
 #include "Popup.h"
 #include "RoundedRectangle.h"
@@ -19,11 +21,10 @@ class ToggleSet : public Popup, public IMouseHandler
 
 public:
 
-	ToggleSet( const string& nameSetA, const string& nameSetB );
+	ToggleSet( const string& nameSetA, const string& nameSetB, float x = 0.0f, float y = 0.0f );
 	virtual ~ToggleSet( void );
 
 	virtual void Pack( void );
-	virtual void UpdatePosition( void );
 
 	void	AddSetA( Button *button );
 	void	AddSetB( Button *button );
@@ -31,8 +32,8 @@ public:
 	void	RemoveSetA( Button *button );
 	void	RemoveSetB( Button *button );
 
-	const ButtonList*	GetSetA( void ) const;
-	const ButtonList*	GetSetB( void ) const;
+	bool	InSetA( Button *button ) const;
+	bool	InSetB( Button *button ) const;
 
 	virtual bool OnMouseMoved( Mouse *mouse );
 	virtual bool OnLeftClicked( Mouse *mouse );
@@ -43,6 +44,7 @@ public:
 
 private:
 
+	bool InSet( const ButtonList* set, Button *button ) const;
 	void RemoveSet( ButtonList* set, Button *button );
 
 protected:
@@ -54,9 +56,13 @@ private:
 	Text	*titleSetA_;
 	Text	*titleSetB_;
 
-	HorizontalLayout	*setLayout_;
-	VerticalLayout		*layoutSetA_;
-	VerticalLayout		*layoutSetB_;
+	Button			*okayButton_;
+	Button			*cancelButton_;
+
+	VerticalLayout	*setLayout_;
+	Layout			*layoutSetA_;
+	Layout			*layoutSetB_;
+	Layout			*buttonLayout_;
 
 	RoundedRectangle *roundedRect_;
 

@@ -36,7 +36,7 @@ void RoundedRectangle::OnDraw( DirectX *directX )
 	directX->DrawTexture(
 		roundedRect_,
 		textureX, textureY,
-		roundedRect_->GetWidth(), roundedRect_->GetHeight(),
+		GetWidth(), GetHeight(),
 		D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
 }
 
@@ -72,6 +72,7 @@ void RoundedRectangle::Generate( DirectX *directX )
 	}
 	roundedRect_ = directX->CreateTexture( "rounded_rect", rectWidth, rectHeight );
 	directX->SetRenderTarget( roundedRect_ );
+	directX->SetProjectionSize( rectWidth, rectHeight );
 		
 	// Draw stroke, if exists.
 	EStrokeType strokeType = GetStrokeType();
@@ -117,6 +118,7 @@ void RoundedRectangle::Generate( DirectX *directX )
 	}
 
 	directX->ResetRenderTarget();
+	directX->SetProjectionSize( directX->GetWidth(), directX->GetHeight() );
 }
 
 Texture *RoundedRectangle::GetTexture( void ) const

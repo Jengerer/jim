@@ -133,14 +133,18 @@ const string& Item::GetCustomName( void ) const
 
 bool Item::HasCustomName( void ) const
 {
-	return customName_.length() != 0;
+	return !customName_.empty();
 }
 
-bool Item::IsEquipped( EClassEquip equipClass ) const
+bool Item::IsEquipped( uint32 equipClass ) const
 {
 	int equipFlags = flags_ & equipClass;
-	int validFlags = flags_ & FL_ITEM_VALID;
-	return ((validFlags != 0) && (equipFlags != 0x00000000));
+	return HasValidFlags() && (equipFlags != 0);
+}
+
+bool Item::ClassUses( uint32 classFlags ) const
+{
+	return (GetEquipClasses() & classFlags) != 0;
 }
 
 EItemSlot Item::GetEquipSlot( void ) const
@@ -158,7 +162,7 @@ uint8 Item::GetEquipClassCount( void ) const
 	return information_->GetClassCount();
 }
 
-void Item::SetEquip( EClassEquip equipClass, bool equip )
+void Item::SetEquip( uint32 equipClass, bool equip )
 {
 	if ((GetFlags() & equipClass) != 0) {
 		if (!equip) {
