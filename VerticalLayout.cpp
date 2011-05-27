@@ -45,7 +45,7 @@ void VerticalLayout::Pack( void )
 			posX = (maxWidth - component->GetWidth());
 			break;
 		}
-		component->SetPosition( posX, height );
+		component->SetLocalPosition( posX, height );
 
 		// Push width by component width and spacing (if not last).
 		height += component->GetHeight();

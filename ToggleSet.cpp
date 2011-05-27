@@ -32,7 +32,7 @@ ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB, float x, f
 	// Create rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, TOGGLE_SET_RADIUS, TOGGLE_SET_COLOUR );
 	roundedRect_->SetStroke( TOGGLE_SET_STROKE_SIZE, TOGGLE_SET_STROKE_COLOUR );
-	roundedRect_->SetPosition( 0, 0 );
+	roundedRect_->SetLocalPosition( 0, 0 );
 	Add( roundedRect_ );
 
 	// Create okay and cancel buttons.
@@ -59,7 +59,7 @@ ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB, float x, f
 	setLayout_ = new VerticalLayout();
 	setLayout_->SetSpacing( TOGGLE_SET_SPACING );
 	setLayout_->SetAlignType( ALIGN_CENTER );
-	setLayout_->SetPosition( TOGGLE_SET_PADDING, TOGGLE_SET_PADDING );
+	setLayout_->SetLocalPosition( TOGGLE_SET_PADDING, TOGGLE_SET_PADDING );
 	setLayout_->Add( titleSetA_ );
 	setLayout_->Add( layoutSetA_ );
 	setLayout_->Add( titleSetB_ );

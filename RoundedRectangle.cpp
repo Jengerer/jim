@@ -25,8 +25,8 @@ void RoundedRectangle::OnDraw( DirectX *directX )
 	}
 
 	// Draw texture.
-	float textureX = GetX();
-	float textureY = GetY();
+	float textureX = GetGlobalX();
+	float textureY = GetGlobalY();
 	if (GetStrokeType() == STROKE_TYPE_OUTER) {
 		int strokeSize = GetStrokeSize();
 		textureX -= strokeSize;

@@ -22,6 +22,7 @@ void RoundedRectangleContainer::Pack( void )
 {
 	unsigned int padding = GetPadding();
 	Component *contained = GetContained();
+	contained->SetLocalPosition( padding, padding );
 	roundedRect_->SetSize(
 		contained->GetWidth() + (padding << 1),
 		contained->GetHeight() + (padding << 1) );
@@ -31,9 +32,6 @@ void RoundedRectangleContainer::Pack( void )
 void RoundedRectangleContainer::SetContained( Component *component )
 {
 	contained_ = component;
-
-	unsigned int padding = GetPadding();
-	contained_->SetPosition( padding, padding );
 }
 
 void RoundedRectangleContainer::SetColour( D3DCOLOR colour )

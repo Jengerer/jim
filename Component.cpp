@@ -1,38 +1,35 @@
 #include "Component.h"
 
-Component::Component( float x, float y )
+Component::Component( float localX, float localY )
 {
-	SetPosition( x, y );
+	SetLocalPosition( localX, localY );
+	SetGlobalPosition( localX, localY );
 	SetAlpha( 255 );
 }
 
-Component::~Component()
+Component::~Component( void )
 {
 	// Component is destroyed.
 }
 
-void Component::SetX( float x )
+void Component::SetGlobalPosition( float globalX, float globalY )
 {
-	x_ = x;
+	globalX_ = globalX;
+	globalY_ = globalY;
 }
 
-void Component::SetY( float y )
+void Component::SetLocalPosition( float localX, float localY )
 {
-	y_ = y;
+	localX_ = localX;
+	localY_ = localY;
 }
 
-void Component::SetPosition( float x, float y )
-{
-	SetX( x );
-	SetY( y );
-}
-
-int Component::GetWidth() const
+int Component::GetWidth( void ) const
 {
 	return width_;
 }
 
-int Component::GetHeight() const
+int Component::GetHeight( void ) const
 {
 	return height_;
 }
@@ -43,14 +40,24 @@ void Component::SetSize( int width, int height )
 	height_ = height;
 }
 
-float Component::GetX() const
+float Component::GetGlobalX( void ) const
 {
-	return x_;
+	return globalX_;
 }
 
-float Component::GetY() const
+float Component::GetGlobalY( void ) const
 {
-	return y_;
+	return globalY_;
+}
+
+float Component::GetLocalX( void ) const
+{
+	return localX_;
+}
+
+float Component::GetLocalY( void ) const
+{
+	return localY_;
 }
 
 void Component::SetAlpha( int alpha )

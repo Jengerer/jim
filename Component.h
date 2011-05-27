@@ -11,15 +11,18 @@ class Component: public IDrawable
 
 public:
 
-	Component( float x = 0.0f, float y = 0.0f );
+	Component( float localX = 0.0f, float localY = 0.0f );
 	virtual ~Component( void );
 
 	// Position functions.
-	virtual void	SetPosition( float x, float y );
-	virtual void	SetX( float x );
-	virtual void	SetY( float y );
-	virtual float	GetX( void ) const;
-	virtual float	GetY( void ) const;
+	virtual void	SetGlobalPosition( float globalX, float globalY );
+	virtual void	SetLocalPosition( float localX, float localY );
+	
+	// Position getters.
+	virtual float	GetGlobalX( void ) const;
+	virtual float	GetGlobalY( void ) const;
+	virtual float	GetLocalX( void ) const;
+	virtual float	GetLocalY( void ) const;
 
 	// Visibility functions.
 	virtual void	SetAlpha( int alpha );
@@ -32,7 +35,8 @@ public:
 
 private:
 
-	float x_, y_;
+	float globalX_, globalY_;
+	float localX_, localY_;
 	int width_, height_;
 	int alpha_;
 

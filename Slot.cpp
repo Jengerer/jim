@@ -60,18 +60,6 @@ Slot::~Slot()
 	// Slot is destroyed.
 }
 
-void Slot::OnDraw( DirectX* directX )
-{
-	// Draw stroke based on quality.
-	Draggable::OnDraw( directX );
-
-	// See if we should draw equipped.
-	if (HasItem() && GetItem()->IsEquipped()) {
-		equippedText_->SetPosition( SLOT_WIDTH - SLOT_PADDING - equippedText_->GetWidth(), SLOT_HEIGHT - SLOT_PADDING - equippedText_->GetHeight() );
-		equippedText_->OnDraw( directX );
-	}
-}
-
 void Slot::UpdateSlot( void )
 {
 	// Update item image.

@@ -38,20 +38,17 @@ void Container::SetAlpha( int alpha )
 }
 
 //=============================================================
-// Purpose: Checks whether a component is visibly contained
-//			by this container.
+// Purpose: Checks whether a component is bounded by this
+//			container.
 //=============================================================
 bool Container::WithinBounds( Component *component ) const
 {
-	int top = GetY() - component->GetHeight();
-	int left = GetX() - component->GetWidth();
-	int right = GetX() + GetWidth();
-	int bottom = GetY() + GetHeight();
-
-	return (component->GetX() >= left) &&
-		(component->GetX() <= right) &&
-		(component->GetY() >= top) &&
-		(component->GetY() <= bottom);
+	float localX = component->GetLocalX();
+	float localY = component->GetLocalY();
+	return (localX >= -component->GetWidth()) && 
+		(localY >= -component->GetHeight()) && 
+		(localX <= GetWidth()) && 
+		(localY <= GetHeight());
 }
 
 //=============================================================
@@ -60,7 +57,6 @@ bool Container::WithinBounds( Component *component ) const
 //=============================================================
 bool Container::IsVisible( Component *component ) const
 {
-	return true; // TODO: HOLY SHIT UNDO THIS WHEN YOU FIGURE OUT COMPONENTS.
 	return WithinBounds( component );
 }
 
@@ -70,30 +66,28 @@ bool Container::IsVisible( Component *component ) const
 //=============================================================
 void Container::ClampChild( Component *component, int padding ) const
 {
-	int leftBound = GetX() + padding;
-	int rightBound = GetX() + GetWidth() - component->GetWidth() - padding;
-	int topBound = GetY() + padding;
-	int bottomBound = GetY() + GetHeight() - component->GetHeight() - padding;
+	int localX = component->GetLocalX();
+	int localY = component->GetLocalY();
+	int rightBound = GetWidth() - component->GetWidth() - padding;
+	int bottomBound = GetHeight() - component->GetHeight() - padding;
 
 	// Clamp X position.
-	int finalX = component->GetX();
-	if ( finalX < leftBound ) {
-		finalX = leftBound;
+	if ( localX < padding ) {
+		localX = padding;
 	}
-	else if ( finalX > rightBound ) {
-		finalX = rightBound;
+	else if ( localX > rightBound ) {
+		localX = rightBound;
 	}
 
 	// Clamp Y position.
-	int finalY = component->GetY();
-	if ( finalY < topBound ) {
-		finalY = topBound;
+	if ( localY < padding ) {
+		localY = padding
 	}
-	else if ( finalY > bottomBound ) {
-		finalY = bottomBound;
+	else if ( localY > bottomBound ) {
+		localY = bottomBound;
 	}
 
-	component->SetPosition( finalX, finalY );
+	component->SetLocalPosition( localX, localY );
 }
 
 void Container::Add( Component* component )
@@ -125,7 +119,7 @@ void Container::Remove( Component* component )
 }
 
 // TODO: Maybe make it recurse on child containers.
-void Container::RemoveAll()
+void Container::RemoveAll( void )
 {
 	componentStack_.clear();
 }
@@ -140,11 +134,6 @@ deque<Component*>* Container::GetChildren()
 //=============================================================
 void Container::OnDraw( DirectX *directX )
 {
-	D3DXMATRIX matWorld, matComponent;
-	directX->GetWorldTransform( &matWorld );
-	D3DXMatrixTranslation( &matComponent, GetX(), GetY(), 0.0f );
-	directX->SetWorldTransform( &(matComponent) );
-
 	// Draw all children.
 	for (int i = 0; i < componentStack_.size(); i++) {
 		Component *component = componentStack_.at( i );
@@ -152,6 +141,4 @@ void Container::OnDraw( DirectX *directX )
 			component->OnDraw( directX );
 		}
 	}
-
-	directX->SetWorldTransform( &matWorld );
 }
