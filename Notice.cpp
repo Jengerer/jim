@@ -62,7 +62,7 @@ void Notice::Pack( void )
 	// Keep alignment.
 	float diffHeight = newHeight - oldHeight;
 	int newY = GetY() - diffHeight/2;
-	SetPosition( GetX(), newY );
+	SetLocalPosition( GetX(), newY );
 }
 
 void Notice::SetMessage( const string& message )

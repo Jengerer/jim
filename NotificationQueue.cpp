@@ -93,7 +93,7 @@ void NotificationQueue::SetNextNotification( void )
 	// Get and set new.
 	if ( HasMoreNotifications() ) {
 		current_ = notificationQueue_.front();
-		current_->SetPosition( -current_->GetWidth(), -current_->GetHeight() );
+		current_->SetLocalPosition( -current_->GetWidth(), -current_->GetHeight() );
 		notificationQueue_.pop();
 		nextTime_ = GetTickCount() + NOTIFICATION_QUEUE_DELAY;
 	}

@@ -14,10 +14,10 @@ WrappedText::~WrappedText( void )
 void WrappedText::OnDraw( DirectX *directX )
 {
 	RECT textRect = {
-		GetX(),
-		GetY(),
-		GetX() + GetWidth(),
-		GetY() + GetHeight()
+		GetGlobalX(),
+		GetGlobalY(),
+		GetGlobalX() + GetWidth(),
+		GetGlobalY() + GetHeight()
 	};
 
 	font_->drawText( GetText(), &textRect, GetTextFormatting(), ((GetAlpha() & 0xff) << 24) | (GetColour() & 0xFFFFFF) );
@@ -25,10 +25,7 @@ void WrappedText::OnDraw( DirectX *directX )
 
 void WrappedText::Pack( void )
 {	
-	RECT resultSize;
-	resultSize.left		= GetX();
-	resultSize.top		= GetY();
-	resultSize.right	= resultSize.left + GetTextWidth();
+	RECT resultSize = { 0, 0, GetTextWidth(), 0 };
 
 	// Now calculate bottom.
 	GetFont()->wrapText( text_, &resultSize, 0 );

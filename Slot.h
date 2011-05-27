@@ -34,7 +34,6 @@ public:
 	virtual ~Slot();
 
 	// Drawing function.
-	virtual void	OnDraw( DirectX* directX );
 	void			UpdateSlot( void );
 
 	// Slot attribute functions.
