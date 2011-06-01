@@ -35,7 +35,7 @@ void HorizontalLayout::Pack( void )
 		Component *component = *i;
 
 		// Set position aligned vertically.
-		int posY = GetY();
+		int posY = GetGlobalY();
 		switch (GetAlignType()) {
 		case ALIGN_TOP:
 			break;
@@ -46,7 +46,7 @@ void HorizontalLayout::Pack( void )
 			posY += (maxHeight - component->GetHeight());
 			break;
 		}
-		component->SetPosition( GetX() + width, posY );
+		component->SetLocalPosition( width, posY );
 
 		// Push width by component width and spacing (if not last).
 		width += component->GetWidth();

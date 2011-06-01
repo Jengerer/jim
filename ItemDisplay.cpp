@@ -34,7 +34,7 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 	// Add to layout.
 	textLayout_ = new VerticalLayout();
 	textLayout_->SetSpacing( ITEM_DISPLAY_SPACING );
-	textLayout_->SetPosition( ITEM_DISPLAY_PADDING, ITEM_DISPLAY_PADDING );
+	textLayout_->SetLocalPosition( ITEM_DISPLAY_PADDING, ITEM_DISPLAY_PADDING );
 	textLayout_->Add( nameText_ );
 	textLayout_->Add( infoText_ );
 

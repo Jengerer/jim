@@ -134,7 +134,6 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		// Add all buttons to a layout.
 		HorizontalLayout *buttonLayout = new HorizontalLayout();
 		buttonLayout->SetSpacing( BUTTON_SPACING );
-		buttonLayout->SetPosition( BACKPACK_PADDING, BUTTON_Y );
 		craftButton_ = CreateLabelButton( "craft", craftTexture, false );
 		equipButton_ = CreateLabelButton( "equip", equipTexture, false );
 		sortButton_ = CreateLabelButton( "sort", sortTexture, false );
@@ -142,6 +141,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		buttonLayout->Add( equipButton_ );
 		buttonLayout->Add( sortButton_ );
 		buttonLayout->Pack();
+		buttonLayout->SetGlobalPosition( BACKPACK_PADDING, BUTTON_Y );
 		Add( buttonLayout );
 
 		// Create backpack.
@@ -155,39 +155,21 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// Create notification queue.
 		notifications_ = new NotificationQueue();
-		notifications_->SetPosition( GetWidth() - BACKPACK_PADDING, GetHeight() - BACKPACK_PADDING );
+		notifications_->SetGlobalPosition( GetWidth() - BACKPACK_PADDING, GetHeight() - BACKPACK_PADDING );
 		backpack_->SetNotificationQueue( notifications_ );
 		Add( notifications_ );
 
 		// Create equip buttons.
 		equipSet_ = nullptr;
-		Button *equipScout		= new IconButton( equipTexture );
-		Button *equipSoldier	= new IconButton( equipTexture );
-		Button *equipPyro		= new IconButton( equipTexture );
-		Button *equipDemoman	= new IconButton( sortTexture );
-		Button *equipHeavy		= new IconButton( sortTexture );
-		Button *equipEngineer	= new IconButton( sortTexture );
-		Button *equipMedic		= new IconButton( craftTexture );
-		Button *equipSniper		= new IconButton( craftTexture );
-		Button *equipSpy		= new IconButton( craftTexture );
-		equipScout->Pack();
-		equipSoldier->Pack();
-		equipPyro->Pack();
-		equipDemoman->Pack();
-		equipHeavy->Pack();
-		equipEngineer->Pack();
-		equipMedic->Pack();
-		equipSniper->Pack();
-		equipSpy->Pack();
-		equipButtons_[ CLASS_SCOUT ]	= equipScout;
-		equipButtons_[ CLASS_SOLDIER ]	= equipSoldier;
-		equipButtons_[ CLASS_PYRO ]		= equipPyro;
-		equipButtons_[ CLASS_DEMOMAN ]	= equipDemoman;
-		equipButtons_[ CLASS_HEAVY ]	= equipHeavy;
-		equipButtons_[ CLASS_ENGINEER ]	= equipEngineer;
-		equipButtons_[ CLASS_MEDIC ]	= equipMedic;
-		equipButtons_[ CLASS_SNIPER ]	= equipSniper;
-		equipButtons_[ CLASS_SPY ]		= equipSpy;
+		equipButtons_[ CLASS_SCOUT ]	= IconButton::Create( equipTexture );
+		equipButtons_[ CLASS_SOLDIER ]	= IconButton::Create( equipTexture );
+		equipButtons_[ CLASS_PYRO ]		= IconButton::Create( equipTexture );
+		equipButtons_[ CLASS_DEMOMAN ]	= IconButton::Create( sortTexture );
+		equipButtons_[ CLASS_HEAVY ]	= IconButton::Create( sortTexture );
+		equipButtons_[ CLASS_ENGINEER ]	= IconButton::Create( sortTexture );
+		equipButtons_[ CLASS_MEDIC ]	= IconButton::Create( craftTexture );
+		equipButtons_[ CLASS_SNIPER ]	= IconButton::Create( craftTexture );
+		equipButtons_[ CLASS_SPY ]		= IconButton::Create( craftTexture );
 
 		// Create start up message.
 		loadProgress_ = CreateNotice( "Initializing item manager..." );
@@ -434,9 +416,9 @@ void ItemManager::UpdateItemDisplay( void )
 		itemDisplay_->SetItem( hovering->GetItem() );
 
 		// Display position: horizontally centered and below the slot.
-		float displayX = hovering->GetX() + hovering->GetWidth() / 2 - itemDisplay_->GetWidth() / 2;
-		float displayY = hovering->GetY() + hovering->GetHeight() + ITEM_DISPLAY_SPACING;
-		itemDisplay_->SetPosition( displayX, displayY );
+		float displayX = hovering->GetGlobalX() + hovering->GetWidth() / 2 - itemDisplay_->GetWidth() / 2;
+		float displayY = hovering->GetGlobalY() + hovering->GetHeight() + ITEM_DISPLAY_SPACING;
+		itemDisplay_->SetGlobalPosition( displayX, displayY );
 		ClampChild( itemDisplay_, ITEM_DISPLAY_SPACING );
 	}
 	else {
@@ -647,7 +629,7 @@ Notice* ItemManager::CreateNotice( const string& message )
 	// Set position.
 	float x = (float)(GetWidth() / 2) - (float)(newNotice->GetWidth() / 2);
 	float y = (float)(GetHeight() / 2) - (float)(newNotice->GetHeight() / 2);
-	newNotice->SetPosition( x, y );
+	newNotice->SetGlobalPosition( x, y );
 	newNotice->SetParent( this );
 
 	// Show popup.
@@ -669,7 +651,7 @@ Alert* ItemManager::CreateAlert( const string& message )
 	// Set position.
 	float alertX = (float)(GetWidth() / 2) - (newAlert->GetWidth() / 2);
 	float alertY = (float)(GetHeight() / 2) - (newAlert->GetHeight() / 2);
-	newAlert->SetPosition( alertX, alertY );
+	newAlert->SetGlobalPosition( alertX, alertY );
 	newAlert->SetParent( this );
 
 	// Show popup.
@@ -710,7 +692,7 @@ void ItemManager::CreateEquipSet( const Item *item )
 	}
 
 	equipSet_->Pack();
-	equipSet_->SetPosition( (GetWidth() - equipSet_->GetWidth()) / 2,
+	equipSet_->SetGlobalPosition( (GetWidth() - equipSet_->GetWidth()) / 2,
 		(GetHeight() - equipSet_->GetHeight()) / 2 );
 }
 

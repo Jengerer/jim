@@ -23,8 +23,8 @@ public:
 	virtual void OnDrag( const Mouse* mouse );
 	virtual void OnRelease( void );
 
-	virtual float GetX( void ) const;
-	virtual float GetY( void ) const;
+	virtual float GetGlobalX( void ) const;
+	virtual float GetGlobalY( void ) const;
 
 private:
 

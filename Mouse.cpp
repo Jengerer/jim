@@ -50,9 +50,9 @@ bool Mouse::IsTouching( const Component* component ) const
 	int y = GetY();
 
 	// Get object bounds.
-	int left = component->GetX();
+	int left = component->GetGlobalX();
 	int right = left + component->GetWidth();
-	int top = component->GetY();
+	int top = component->GetGlobalY();
 	int bottom = top + component->GetHeight();
 
 	// Check collision.

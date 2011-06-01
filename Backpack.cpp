@@ -38,7 +38,6 @@ Backpack::Backpack(
 	page_ = 1;
 
 	// Move to start.
-	SetPosition( x, y );
 	SetSize( parent->GetWidth(), parent->GetHeight() );
 }
 
@@ -301,7 +300,7 @@ void Backpack::FormatInventory( void )
 {
 	// Add slots to layout.
 	pages_->SetParent( this );
-	pages_->SetPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
+	pages_->SetLocalPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
 	pages_->SetSpacing( PAGE_SPACING );
 
 	int pages = inventory_->GetPageCount();
@@ -327,7 +326,7 @@ void Backpack::FormatInventory( void )
 	pages_->Pack();
 
 	// Position and add excluded.
-	excluded_->SetPosition( GetX() + BACKPACK_PADDING, GetHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
+	excluded_->SetLocalPosition( BACKPACK_PADDING, GetHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
 	excluded_->SetSpacing( SLOT_SPACING );
 
 	int length = inventory_->GetExcludedSize();
@@ -340,7 +339,8 @@ void Backpack::FormatInventory( void )
 
 	// Set primary camera target.
 	UpdateTarget();
-	cameraX_ = cameraDest_;
+	cameraX_ = cameraDest_; // TODO: This might be deprecated.
+	UpdatePosition();
 }
 
 void Backpack::SetNotificationQueue( NotificationQueue *notifications )
@@ -387,11 +387,12 @@ bool Backpack::OnMouseMoved( Mouse *mouse )
 		// Change page if at edges.
 		int time = GetTickCount();
 		if (time > pageDelay_) {
-			if (slot->GetX() == (GetWidth() - slot->GetWidth())) {
+			float slotX = slot->GetGlobalX();
+			if (slotX >= (GetWidth() - slot->GetWidth())) {
 				NextPage();
 				pageDelay_ = time + PAGE_CHANGE_DELAY;
 			}
-			else if (slot->GetX() == 0) {
+			else if (slotX == 0) {
 				PrevPage();
 				pageDelay_ = time + PAGE_CHANGE_DELAY;
 			}
@@ -488,17 +489,16 @@ bool Backpack::OnLeftReleased( Mouse *mouse )
 		selected_.clear();
 
 		// Go through visible pages.
-		deque<Component*> *pageComponents = pages_->GetChildren();
-		for each (Container *page in *pageComponents) {
+		deque<Component*> *pages = pages_->GetChildren();
+		for each (Container *page in *pages) {
 			if (IsVisible( page )) {
 				// Go through visible page columns.
-				deque<Component*> *columns = page->GetChildren();
-				for each (Container *column in *columns) {
-					if (IsVisible( column )) {
+				deque<Component*> *slots = page->GetChildren();
+				for each (Container *slot in *slots) {
+					if (IsVisible( slot )) {
 						// Go through slots in column.
-						deque<Component*> *slots = column->GetChildren();
-						for each (Component *rowSlot in *slots) {
-							Slot *slot = dynamic_cast<Slot*>(rowSlot);
+						deque<Component*> *slots = slot->GetChildren();
+						for each (Slot *slot in *slots) {
 							if (mouse->IsTouching( slot )) {
 								OnSlotReleased( slot );
 								dragged_ = nullptr;
@@ -531,7 +531,7 @@ void Backpack::OnSlotGrabbed( Mouse *mouse, Slot *slot )
 			Slot* dragging = new Slot( 
 				slot->GetIndex(), 
 				slot->GetItem() );
-			dragging->SetPosition( slot->GetX(), slot->GetY() );
+			dragging->SetGlobalPosition( slot->GetGlobalX(), slot->GetGlobalY() );
 			dragging->SetGroup( slot->GetGroup() );
 			dragging->SetParent( this );
 			Add( dragging );
@@ -736,7 +736,7 @@ void Backpack::UpdateTarget( void )
 {
 	deque<Component*>* pageColumns = pages_->GetChildren();
 	Component *cameraTarget = pageColumns->at( page_ - 1 );
-	cameraDest_ = cameraTarget->GetX() - pages_->GetX() - BACKPACK_PADDING;
+	cameraDest_ = cameraTarget->GetLocalX() - pages_->GetLocalX() - BACKPACK_PADDING;
 }
 
 void Backpack::NextPage( void )
@@ -779,5 +779,5 @@ void Backpack::MoveCamera( void )
 
 	// Now propel.
 	cameraX_ += cameraSpeed_;
-	pages_->SetX( -cameraX_ );
+	pages_->SetLocalPosition( -cameraX_, pages_->GetLocalY() );
 }

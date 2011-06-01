@@ -37,10 +37,12 @@ void GridLayout::Pack( void )
 	std::deque<Component*>::iterator i, end;
 	for (i = componentStack_.begin(), end = componentStack_.end(); i != end; ++i) {
 		Component *current = *i;
-		x = GetX() + (index % gridWidth_) * (componentWidth + spacing);
-		y = GetY() + (index / gridWidth_) * (componentHeight + spacing);
-		current->SetPosition( x, y );
+		x = (index % gridWidth_) * (componentWidth + spacing);
+		y = (index / gridWidth_) * (componentHeight + spacing);
+		current->SetLocalPosition( x, y );
 
 		++index;
 	}
+
+	UpdatePosition();
 }

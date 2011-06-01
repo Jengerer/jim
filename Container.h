@@ -19,6 +19,8 @@ public:
 
 	virtual void		OnDraw( DirectX *directX );
 	virtual void		Pack( void );
+	virtual void		SetGlobalPosition( float globalX, float globalY );
+	void				UpdatePosition( void );
 	virtual void		SetAlpha( int alpha );
 
 	// Relative position modifiers.

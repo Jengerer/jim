@@ -17,7 +17,7 @@ void Image::OnDraw( DirectX *directX )
 	if ( GetTexture() != nullptr ) {
 		directX->DrawTexture( 
 			GetTexture(), 
-			GetX(), GetY(), 
+			GetGlobalX(), GetGlobalY(), 
 			GetWidth(), GetHeight(), 
 			D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
 	}
