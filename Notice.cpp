@@ -17,25 +17,26 @@ Notice::~Notice()
 	// Notice is destroyed.
 }
 
+// TODO: All to components.
 void Notice::OnDraw( DirectX* directX )
 {
 	// Draw the stroke.
-	directX->DrawRoundedRect( GetX(), GetY(), 
+	directX->DrawRoundedRect( GetGlobalX(), GetGlobalY(), 
 		GetWidth(), GetHeight(), 
 		NOTICE_RADIUS, 
 		NOTICE_STROKE_COLOUR ) ;
 
 	// Draw inner rectangle.
 	directX->DrawRoundedRect(
-		GetX() + NOTICE_STROKE_WIDTH, 
-		GetY() + NOTICE_STROKE_WIDTH, 
+		GetGlobalX() + NOTICE_STROKE_WIDTH, 
+		GetGlobalY() + NOTICE_STROKE_WIDTH, 
 		GetWidth() - NOTICE_STROKE_WIDTH*2, 
 		GetHeight() - NOTICE_STROKE_WIDTH*2, 
 		NOTICE_RADIUS - NOTICE_STROKE_WIDTH, 
 		NOTICE_COLOUR );
 
-	long x = (long)GetX();
-	long y = (long)GetY();
+	long x = (long)GetGlobalX();
+	long y = (long)GetGlobalY();
 
 	// Center the text.
 	RECT rect;
@@ -58,11 +59,6 @@ void Notice::Pack( void )
 	int oldHeight = GetHeight();
 	int newHeight = (rect.bottom - rect.top) + NOTICE_PADDING*2 + NOTICE_STROKE_WIDTH*2;
 	SetSize( NOTICE_WIDTH, newHeight );
-
-	// Keep alignment.
-	float diffHeight = newHeight - oldHeight;
-	int newY = GetY() - diffHeight/2;
-	SetLocalPosition( GetX(), newY );
 }
 
 void Notice::SetMessage( const string& message )

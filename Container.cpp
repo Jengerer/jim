@@ -27,6 +27,22 @@ void Container::Pack( void )
 	// Optionally implemented.
 }
 
+void Container::SetGlobalPosition( float globalX, float globalY )
+{
+	Component::SetGlobalPosition( globalX, globalY );
+	UpdatePosition();
+}
+
+void Container::UpdatePosition( void )
+{
+	// Move children by local X.
+	deque<Component*>::iterator i, end;
+	for (i = componentStack_.begin(), end = componentStack_.end(); i != end; ++i) {
+		Component *component = *i;
+		component->SetGlobalPosition( GetGlobalX() + component->GetLocalX(), GetGlobalY() + component->GetLocalY() );
+	}
+}
+
 void Container::SetAlpha( int alpha )
 {
 	Component::SetAlpha( alpha );
@@ -68,23 +84,27 @@ void Container::ClampChild( Component *component, int padding ) const
 {
 	int localX = component->GetLocalX();
 	int localY = component->GetLocalY();
-	int rightBound = GetWidth() - component->GetWidth() - padding;
-	int bottomBound = GetHeight() - component->GetHeight() - padding;
 
 	// Clamp X position.
 	if ( localX < padding ) {
 		localX = padding;
 	}
-	else if ( localX > rightBound ) {
-		localX = rightBound;
+	else {
+		float rightBound = GetWidth() - component->GetWidth() - padding;
+		if ( localX > rightBound ) {
+			localX = rightBound;
+		}
 	}
 
 	// Clamp Y position.
 	if ( localY < padding ) {
-		localY = padding
+		localY = padding;
 	}
-	else if ( localY > bottomBound ) {
-		localY = bottomBound;
+	else {
+		int bottomBound = GetHeight() - component->GetHeight() - padding;
+		if ( localY > bottomBound ) {
+			localY = bottomBound;
+		}
 	}
 
 	component->SetLocalPosition( localX, localY );

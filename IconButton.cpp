@@ -28,6 +28,15 @@ void IconButton::SetIcon( Texture *texture )
 	}
 }
 
+IconButton* IconButton::Create( Texture *texture, float x, float y )
+{
+	// Create button and pack.
+	IconButton *button = new IconButton( texture, x, y );
+	button->Pack();
+
+	return button;
+}
+
 Image* IconButton::GetIcon( void ) const
 {
 	return icon_;

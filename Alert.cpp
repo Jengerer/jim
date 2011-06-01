@@ -27,9 +27,11 @@ void Alert::Pack()
 	SetSize( GetWidth(), GetHeight() + okButton_->GetHeight() + NOTICE_PADDING );
 	
 	// Center okay button under text.
-	okButton_->SetPosition( 
+	okButton_->SetLocalPosition( 
 		(GetWidth() - okButton_->GetWidth()) / 2.0f,
 		(GetHeight() - okButton_->GetHeight()) / 2.0f - NOTICE_PADDING - NOTICE_STROKE_WIDTH );
+
+	UpdatePosition();
 }
 
 void Alert::SetMessage( const string& message )

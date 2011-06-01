@@ -48,50 +48,58 @@ bool Draggable::OnLeftReleased( Mouse *mouse )
 // Purpose:	Returns proper X position based on whether it is
 //			being dragged right now.
 //=============================================================
-float Draggable::GetX( void ) const
+float Draggable::GetGlobalX( void ) const
 {
 	if (isDragging_) {
-		float x = mouse_->GetX() - offsetX_;
+		float x = mouse_->GetX() + offsetX_;
 
 		// Constrain position if we have a parent.
 		if (parent_ != nullptr) {
-			if ( x < parent_->GetX() ) {
-				x = parent_->GetX();
+			float leftBound = parent_->GetGlobalX();
+			if (x < leftBound) {
+				return leftBound;
 			}
-			else if ( x + GetWidth() > parent_->GetX() + parent_->GetWidth() ) {
-				x = parent_->GetX() + parent_->GetWidth() - GetWidth();
+			else {
+				float rightBound = parent_->GetGlobalX() + parent_->GetWidth() - GetWidth();
+				if (x > rightBound) {
+					return rightBound;
+				}
 			}
 		}
 
 		return x;
 	}
 
-	return Component::GetX();
+	return Component::GetGlobalX();
 }
 
 //=============================================================
 // Purpose:	Returns proper Y position based on whether it is
 //			being dragged right now.
 //=============================================================
-float Draggable::GetY( void ) const
+float Draggable::GetGlobalY( void ) const
 {
-	if (IsDragging()) {
-		float y = mouse_->GetY() - offsetY_;
+	if (isDragging_) {
+		float y = mouse_->GetY() + offsetY_;
 
 		// Constrain position if we have a parent.
 		if (parent_ != nullptr) {
-			if ( y < parent_->GetY() ) {
-				y = parent_->GetY();
+			float topBound = parent_->GetGlobalY();
+			if ( y < topBound ) {
+				return topBound;
 			}
-			else if ( y + GetHeight() > parent_->GetY() + parent_->GetHeight() ) {
-				y = parent_->GetY() + parent_->GetHeight() - GetHeight();
+			else {
+				float bottomBound = parent_->GetGlobalY() + parent_->GetHeight() - GetHeight();
+				if (y > bottomBound) {
+					return bottomBound;
+				}
 			}
 		}
 
 		return y;
 	}
 
-	return Component::GetY();
+	return Component::GetGlobalY();
 }
 
 //=============================================================
@@ -100,7 +108,7 @@ float Draggable::GetY( void ) const
 void Draggable::OnDrag( const Mouse* mouse )
 {
 	// Set offset to mouse.
-	SetOffset( mouse->GetX() - GetX(), mouse->GetY() - GetY() );
+	SetOffset( GetGlobalX() - mouse->GetX(), GetGlobalY() - mouse->GetY() );
 	SetDragging( true );
 	mouse_ = mouse;
 }
@@ -110,7 +118,7 @@ void Draggable::OnDrag( const Mouse* mouse )
 //=============================================================
 void Draggable::OnRelease( void )
 {
-	SetPosition( GetX(), GetY() );
+	SetGlobalPosition( GetGlobalX(), GetGlobalY() );
 	SetDragging( false );
 }
 
