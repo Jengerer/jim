@@ -3,7 +3,7 @@
 //=============================================================
 // Constructor
 //=============================================================
-Container::Container( float x, float y ) : Component( x, y )
+Container::Container( float localX, float localY ) : Component( localX, localY )
 {
 	// Container created.
 }
@@ -11,7 +11,7 @@ Container::Container( float x, float y ) : Component( x, y )
 //=============================================================
 // Destructor: removes and destroys all children.
 //=============================================================
-Container::~Container()
+Container::~Container( void )
 {
 	// Container destroyed.
 	deque<Component*>::iterator i;
@@ -30,17 +30,23 @@ void Container::Pack( void )
 void Container::SetGlobalPosition( float globalX, float globalY )
 {
 	Component::SetGlobalPosition( globalX, globalY );
-	UpdatePosition();
+	UpdateChildren();
 }
 
-void Container::UpdatePosition( void )
+void Container::UpdateChildren( void )
 {
-	// Move children by local X.
+	// Move children by local position.
 	deque<Component*>::iterator i, end;
 	for (i = componentStack_.begin(), end = componentStack_.end(); i != end; ++i) {
-		Component *component = *i;
-		component->SetGlobalPosition( GetGlobalX() + component->GetLocalX(), GetGlobalY() + component->GetLocalY() );
+		UpdateChild( *i );
 	}
+}
+
+void Container::UpdateChild( Component *child ) const
+{
+	child->SetGlobalPosition(
+		GetGlobalX() + child->GetLocalX(),
+		GetGlobalY() + child->GetLocalY() );
 }
 
 void Container::SetAlpha( int alpha )
@@ -80,7 +86,7 @@ bool Container::IsVisible( Component *component ) const
 // Purpose: Constrains a component's position based on the
 //			size and position of this container.
 //=============================================================
-void Container::ClampChild( Component *component, int padding ) const
+void Container::ClampChild( Component *component, float padding ) const
 {
 	int localX = component->GetLocalX();
 	int localY = component->GetLocalY();
@@ -113,11 +119,6 @@ void Container::ClampChild( Component *component, int padding ) const
 void Container::Add( Component* component )
 {
 	componentStack_.push_back( component );
-}
-
-void Container::AddBottom( Component* component )
-{
-	componentStack_.push_front( component );
 }
 
 //=============================================================

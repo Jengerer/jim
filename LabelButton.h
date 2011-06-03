@@ -2,9 +2,10 @@
 #define LABEL_BUTTON_H
 
 #include "IconButton.h"
+#include "IPrecachable.h"
 #include "Text.h"
 
-class LabelButton : public IconButton
+class LabelButton : public IconButton, public IPrecachable
 {
 	
 public:
@@ -20,6 +21,9 @@ public:
 	// Static loaders/releasers.
 	static void		Precache( DirectX *directX );
 	static void		Release( void );
+
+	// Static creator.
+	static LabelButton* Create( const string& label, Texture *icon = nullptr, float x = 0.0f, float y = 0.0f );
 
 public:
 

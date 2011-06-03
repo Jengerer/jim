@@ -959,6 +959,12 @@
     <ClInclude Include="Notification.h">
       <Filter>Header Files\UI Elements</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\IPrecachable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\IGeneratable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="steam\steam_api.lib">

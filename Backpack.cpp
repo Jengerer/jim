@@ -6,10 +6,17 @@
 
 // Navigation constants.
 const int	PAGE_CHANGE_DELAY	= 500;
+const int	BUTTON_SPACING		= 5;
 
 // Spring constants.
 const float SPRING_STRENGTH		= 0.1f;
 const float SPRING_DAMPING		= 0.7f;
+
+// Inventory attributes.
+const int PAGE_WIDTH			= 10;
+const int PAGE_HEIGHT			= 5;
+const int PAGE_COUNT			= 6;
+const int EXCLUDED_SIZE			= 5;
 
 Backpack::Backpack(
 	float x, float y,
@@ -17,13 +24,38 @@ Backpack::Backpack(
 {
 	// No inventory until size set.
 	inventory_ = nullptr;
-	
-	// Inventory formatting pointers.
-	pages_ = new HorizontalLayout();
-	pages_->SetParent( parent );
-	excluded_ = new HorizontalLayout();
-	Add( pages_ );
-	Add( excluded_ );
+
+	// Default attributes.
+	SetLoaded( false );
+	cameraSpeed_ = 0.0f;
+	page_ = 1;
+
+	// Create overall layout.
+	backpackLayout_ = new VerticalLayout();
+	backpackLayout_->SetSpacing( 10 );
+	backpackLayout_->SetAlignType( ALIGN_LEFT );
+	backpackLayout_->SetLocalPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
+	Add( backpackLayout_ );
+
+	// Generate default inventory size.
+	CreateInventory( PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT, EXCLUDED_SIZE );
+
+	// Lay out buttons.
+	buttonLayout_ = new HorizontalLayout();
+	buttonLayout_->SetSpacing( BUTTON_SPACING );
+	craftButton_ = LabelButton::Create( "craft" );
+	equipButton_ = LabelButton::Create( "equip" );
+	sortButton_ = LabelButton::Create( "sort" );
+	buttonLayout_->Add( craftButton_ );
+	buttonLayout_->Add( equipButton_ );
+	buttonLayout_->Add( sortButton_ );
+	buttonLayout_->Pack();
+
+	// Add all and pack.
+	backpackLayout_->Add( pages_ );
+	backpackLayout_->Add( buttonLayout_ );
+	backpackLayout_->Add( excluded_ );
+	Pack();
 
 	// Slot state information.
 	dragged_ = nullptr;
@@ -31,11 +63,6 @@ Backpack::Backpack(
 
 	// Set default notification queue.
 	SetNotificationQueue( nullptr );
-
-	// Starting attributes.
-	isLoaded_ = false;
-	cameraSpeed_ = 0;
-	page_ = 1;
 
 	// Move to start.
 	SetSize( parent->GetWidth(), parent->GetHeight() );
@@ -52,6 +79,20 @@ Backpack::~Backpack()
 	}
 }
 
+void Backpack::Pack( void )
+{
+	// Pack individual buttons.
+	equipButton_->Pack();
+	craftButton_->Pack();
+	sortButton_->Pack();
+
+	// Pack button layout.
+	buttonLayout_->Pack();
+
+	// Pack top layout (everything else already packed).
+	backpackLayout_->Pack();
+}
+
 void Backpack::LoadInterfaces( void )
 {
 	Steam::LoadInterfaces();
@@ -60,6 +101,17 @@ void Backpack::LoadInterfaces( void )
 void Backpack::CloseInterfaces( void )
 {
 	Steam::CloseInterfaces();
+}
+
+void Backpack::Precache( DirectX *directX )
+{
+	// Get button textures.
+	Texture *craftTexture = directX->GetTexture( "manager/gear" );
+	Texture *equipTexture = directX->GetTexture( "manager/equip" );
+	Texture *sortTexture = directX->GetTexture( "manager/sort" );
+	craftButton_->SetIcon( craftTexture );
+	equipButton_->SetIcon( equipTexture );
+	sortButton_->SetIcon( sortTexture );
 }
 
 void Backpack::HandleCallback( int id, void *callback )
@@ -299,6 +351,7 @@ void Backpack::LoadInventory( const string &jsonInventory )
 void Backpack::FormatInventory( void )
 {
 	// Add slots to layout.
+	pages_ = new HorizontalLayout();
 	pages_->SetParent( this );
 	pages_->SetLocalPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
 	pages_->SetSpacing( PAGE_SPACING );
@@ -326,6 +379,7 @@ void Backpack::FormatInventory( void )
 	pages_->Pack();
 
 	// Position and add excluded.
+	excluded_ = new HorizontalLayout();
 	excluded_->SetLocalPosition( BACKPACK_PADDING, GetHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
 	excluded_->SetSpacing( SLOT_SPACING );
 
@@ -339,8 +393,7 @@ void Backpack::FormatInventory( void )
 
 	// Set primary camera target.
 	UpdateTarget();
-	cameraX_ = cameraDest_; // TODO: This might be deprecated.
-	UpdatePosition();
+	UpdateChildren();
 }
 
 void Backpack::SetNotificationQueue( NotificationQueue *notifications )
@@ -490,21 +543,18 @@ bool Backpack::OnLeftReleased( Mouse *mouse )
 
 		// Go through visible pages.
 		deque<Component*> *pages = pages_->GetChildren();
-		for each (Container *page in *pages) {
+		for each (Component *pageComponent in *pages) {
+			Container *page = static_cast<Container*>(pageComponent);
 			if (IsVisible( page )) {
 				// Go through visible page columns.
 				deque<Component*> *slots = page->GetChildren();
-				for each (Container *slot in *slots) {
-					if (IsVisible( slot )) {
-						// Go through slots in column.
-						deque<Component*> *slots = slot->GetChildren();
-						for each (Slot *slot in *slots) {
-							if (mouse->IsTouching( slot )) {
-								OnSlotReleased( slot );
-								dragged_ = nullptr;
-								return true;
-							}
-						}
+				for each (Component *slotComponent in *slots) {
+					Slot *slot = static_cast<Slot*>(slotComponent);
+					// Go through slots in column.
+					if (mouse->IsTouching( slot )) {
+						OnSlotReleased( slot );
+						dragged_ = nullptr;
+						return true;
 					}
 				}
 			}
@@ -736,7 +786,7 @@ void Backpack::UpdateTarget( void )
 {
 	deque<Component*>* pageColumns = pages_->GetChildren();
 	Component *cameraTarget = pageColumns->at( page_ - 1 );
-	cameraDest_ = cameraTarget->GetLocalX() - pages_->GetLocalX() - BACKPACK_PADDING;
+	cameraDest_ = -cameraTarget->GetLocalX() - BACKPACK_PADDING;
 }
 
 void Backpack::NextPage( void )
@@ -759,7 +809,7 @@ void Backpack::PrevPage( void )
 
 void Backpack::HandleCamera( void )
 {
-	if (cameraX_ != cameraDest_) {
+	if (pages_->GetLocalX() != cameraDest_) {
 		MoveCamera();
 	}
 }
@@ -767,17 +817,21 @@ void Backpack::HandleCamera( void )
 void Backpack::MoveCamera( void )
 {
 	// Add elastic speed.
-	float cameraDistance = cameraDest_ - cameraX_;
+	float cameraDistance = cameraDest_ - pages_->GetLocalX();
 	cameraSpeed_ += cameraDistance*SPRING_STRENGTH;
 	cameraSpeed_ *= SPRING_DAMPING;
 
-	// Stop if slowing.
-	if (abs(cameraSpeed_) < 2 && abs(cameraDistance) < 1) {
-		cameraSpeed_ = 0;
-		cameraX_ = cameraDest_;
+	// Stop the camera if slowing and near destination.
+	float pagesX;
+	float pagesY = pages_->GetLocalY();
+	if (abs( cameraSpeed_ ) < 2.0f && abs( cameraDistance ) < 1.0f) {
+		cameraSpeed_ = 0.0f;
+		pagesX = cameraDest_;
+	}
+	else {
+		pagesX = pages_->GetLocalX() + cameraSpeed_;
 	}
 
-	// Now propel.
-	cameraX_ += cameraSpeed_;
-	pages_->SetLocalPosition( -cameraX_, pages_->GetLocalY() );
+	pages_->SetLocalPosition( pagesX, pagesY );
+	backpackLayout_->UpdateChild( pages_ );
 }

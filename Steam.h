@@ -1,31 +1,25 @@
 #pragma once
 
-#include <vector>
-
-#include "steam/SteamclientAPI.h"
-
-#include "Item.h"
 #include "Exception.h"
-
+#include "steam/SteamclientAPI.h"
 #include "protobuf/steammessages.pb.h"
 
-using namespace std;
-
+// Header for receiving protobuf messages.
 #pragma pack(push, 1)
-
 struct GCProtobufHeader_t
 {
 	uint32 m_EMsg;
 	uint32 m_cubProtobufHeader;
 };
-
 #pragma pack(pop)
 
 class Steam
 {
+
 public:
-	Steam();
-	virtual ~Steam();
+
+	Steam( void );
+	virtual ~Steam( void );
 
 	// Initializing and closing.
 	virtual void LoadInterfaces( void );
@@ -50,6 +44,7 @@ private:
 	uint64		GetTargetId( void ) const;
 
 private:
+
 	// Steam handles.
 	HSteamUser					hUser_;
 	HSteamPipe					hPipe_;
@@ -64,4 +59,5 @@ private:
 
 	// For function loading.
 	HMODULE						clientDll_;
+
 };

@@ -34,7 +34,7 @@ void VerticalLayout::Pack( void )
 		Component *component = *i;
 
 		// Set position aligned horizontally.
-		float posX;
+		float posX = 0.0f;
 		switch (GetAlignType()) {
 		case ALIGN_LEFT:
 			break;
@@ -56,6 +56,7 @@ void VerticalLayout::Pack( void )
 
 	// Update size.
 	SetSize( maxWidth, height );
+	UpdateChildren();
 }
 
 void VerticalLayout::SetAlignType( EHorizontalAlignType alignType )

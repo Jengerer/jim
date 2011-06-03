@@ -57,6 +57,7 @@ void HorizontalLayout::Pack( void )
 
 	// Update size.
 	SetSize( width, maxHeight );
+	UpdateChildren();
 }
 
 void HorizontalLayout::SetMinimumHeight( int minimumHeight )

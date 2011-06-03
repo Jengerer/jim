@@ -108,7 +108,6 @@ void Slot::UpdateSlot( void )
 
 	// Set the texture.
 	slotImage_->SetTexture( slotTexture );
-	UpdatePosition();
 }
 
 ESlotGroup Slot::GetGroup() const

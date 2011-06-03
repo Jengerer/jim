@@ -87,11 +87,6 @@ private:
 	Alert				*alert_;
 	Alert				*error_;
 
-	// Inventory buttons.
-	LabelButton			*equipButton_;
-	LabelButton			*craftButton_;
-	LabelButton			*sortButton_;
-
 	// Equipment management.
 	ToggleSet			*equipSet_;
 	ButtonMap			equipButtons_;

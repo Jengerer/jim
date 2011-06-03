@@ -7,6 +7,7 @@
 #include "GridLayout.h"
 #include "HorizontalLayout.h"
 #include "Inventory.h"
+#include "IPrecachable.h"
 #include "Menu.h"
 #include "NotificationQueue.h"
 #include "SerializedBuffer.h"
@@ -26,15 +27,23 @@ enum ESelectMode {
 	SELECT_MODE_MULTIPLE,
 };
 
-class Backpack: public Container, public Steam, public IMouseHandler
+// TODO: Make Steam singleton or a passed reference.
+class Backpack: public Container, public Steam, public IMouseHandler, public IPrecachable
 {
 public:
 	Backpack( float x, float y, Container* parent );
 	virtual ~Backpack();
 
+	// Container functions.
+	void			Pack( void );
+
 	// Resource and interface management.
 	virtual void	LoadInterfaces( void );
 	virtual void	CloseInterfaces( void );
+
+	// Precaching DirectX resources.
+	void			Precache( DirectX *directX );
+	void			Release( void );
 
 	// Steam message handling.
 	void			HandleCallback( int id, void *callback );
@@ -93,14 +102,22 @@ private:
 
 private:
 
+	// Inventory to display.
 	Inventory			*inventory_;
+
+	// Top level layouts.
+	VerticalLayout		*backpackLayout_;
+	HorizontalLayout	*buttonLayout_;
+	HorizontalLayout	*pages_;
+	HorizontalLayout	*excluded_;
+
+	// UI buttons.
+	LabelButton			*equipButton_;
+	LabelButton			*craftButton_;
+	LabelButton			*sortButton_;
 
 	// Queue to direct notifications to.
 	NotificationQueue	*notifications_;
-
-	// Layout objects.
-	HorizontalLayout	*pages_;
-	HorizontalLayout	*excluded_;
 
 	// Selection variables.
 	Slot				*dragged_;
@@ -114,6 +131,6 @@ private:
 	// Backpack navigation.
 	int					page_, excludedPage_;
 	int					pageDelay_;
-	float				cameraX_, cameraSpeed_, cameraDest_;
+	float				cameraSpeed_, cameraDest_;
 
 };

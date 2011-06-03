@@ -523,6 +523,15 @@ bool DirectX::BeginDraw( void )
 		return false;
 	}
 
+#if defined( _DEBUG )
+	if (GetAsyncKeyState( VK_UP ) & 0x8000) {
+		d3dDevice_->SetRenderState( D3DRS_FILLMODE, D3DFILL_WIREFRAME );
+	}
+	else if (GetAsyncKeyState( VK_DOWN ) & 0x8000) {
+		d3dDevice_->SetRenderState( D3DRS_FILLMODE, D3DFILL_SOLID );
+	}
+#endif
+
 	// Clear background.
 	d3dDevice_->Clear( 0, NULL, D3DCLEAR_TARGET, BACKGROUND_COLOUR, 1.0f, 0 );
 	HRESULT result = d3dDevice_->BeginScene();

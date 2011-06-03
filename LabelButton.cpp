@@ -47,3 +47,11 @@ void LabelButton::Release( void )
 		font_ = nullptr;
 	}
 }
+
+LabelButton* LabelButton::Create( const string& label, Texture *icon, float x, float y )
+{
+	LabelButton* labelButton = new LabelButton( label, icon, x, y );
+	labelButton->SetEnabled( true );
+	labelButton->Pack();
+	return labelButton;
+}
