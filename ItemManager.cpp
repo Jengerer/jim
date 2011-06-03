@@ -24,12 +24,6 @@ const float	APPLICATION_FRAMERATE	= 30.0f;
 const float APPLICATION_FRAMESPEED	= (1000.0f / APPLICATION_FRAMERATE);
 const int	APPLICATION_VERSION		= 1000;
 
-// Inventory attributes.
-#define PAGE_WIDTH				10
-#define PAGE_HEIGHT				5
-#define PAGE_COUNT				6
-#define EXCLUDED_SIZE			5
-
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
@@ -126,27 +120,8 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		// End drawing.
 		directX_->EndDraw();
 
-		// Get button textures.
-		Texture *craftTexture = directX_->GetTexture( "manager/gear" );
-		Texture *equipTexture = directX_->GetTexture( "manager/equip" );
-		Texture *sortTexture = directX_->GetTexture( "manager/sort" );
-
-		// Add all buttons to a layout.
-		HorizontalLayout *buttonLayout = new HorizontalLayout();
-		buttonLayout->SetSpacing( BUTTON_SPACING );
-		craftButton_ = CreateLabelButton( "craft", craftTexture, false );
-		equipButton_ = CreateLabelButton( "equip", equipTexture, false );
-		sortButton_ = CreateLabelButton( "sort", sortTexture, false );
-		buttonLayout->Add( craftButton_ );
-		buttonLayout->Add( equipButton_ );
-		buttonLayout->Add( sortButton_ );
-		buttonLayout->Pack();
-		buttonLayout->SetGlobalPosition( BACKPACK_PADDING, BUTTON_Y );
-		Add( buttonLayout );
-
 		// Create backpack.
 		backpack_ = new Backpack( 0.0f, 0.0f, this );
-		backpack_->CreateInventory( PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT, EXCLUDED_SIZE );
 		Add( backpack_ );
 
 		// Create item display.
@@ -155,21 +130,12 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// Create notification queue.
 		notifications_ = new NotificationQueue();
-		notifications_->SetGlobalPosition( GetWidth() - BACKPACK_PADDING, GetHeight() - BACKPACK_PADDING );
+		notifications_->SetLocalPosition( GetWidth() - BACKPACK_PADDING, GetHeight() - BACKPACK_PADDING );
 		backpack_->SetNotificationQueue( notifications_ );
 		Add( notifications_ );
 
 		// Create equip buttons.
 		equipSet_ = nullptr;
-		equipButtons_[ CLASS_SCOUT ]	= IconButton::Create( equipTexture );
-		equipButtons_[ CLASS_SOLDIER ]	= IconButton::Create( equipTexture );
-		equipButtons_[ CLASS_PYRO ]		= IconButton::Create( equipTexture );
-		equipButtons_[ CLASS_DEMOMAN ]	= IconButton::Create( sortTexture );
-		equipButtons_[ CLASS_HEAVY ]	= IconButton::Create( sortTexture );
-		equipButtons_[ CLASS_ENGINEER ]	= IconButton::Create( sortTexture );
-		equipButtons_[ CLASS_MEDIC ]	= IconButton::Create( craftTexture );
-		equipButtons_[ CLASS_SNIPER ]	= IconButton::Create( craftTexture );
-		equipButtons_[ CLASS_SPY ]		= IconButton::Create( craftTexture );
 
 		// Create start up message.
 		loadProgress_ = CreateNotice( "Initializing item manager..." );
@@ -259,29 +225,6 @@ bool ItemManager::OnLeftClicked( Mouse *mouse )
 				return true;
 			}
 		}
-
-		// Check backpack.
-		if (backpack_->OnLeftClicked(mouse)) {
-			slotVector* selected = backpack_->GetSelected();
-
-			// Set equip button state.
-			if (selected->size() == 1) {
-				Slot *slot = selected->at( 0 );
-				Item *item = slot->GetItem();
-				uint32 classes = item->GetEquipClasses();
-				equipButton_->SetEnabled( classes != 0 );
-			}
-			else {
-				equipButton_->SetEnabled( false );
-			}
-
-			// Set craft button state.
-			craftButton_->SetEnabled( selected->size() != 0 );
-			return true;
-		}
-
-		craftButton_->SetEnabled( false );
-		equipButton_->SetEnabled( false );
 	}
 	return false;
 }
@@ -310,7 +253,7 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 			return true;
 		}
 
-		// Now run buttons.
+		/*// Now run buttons.
 		if (craftButton_->IsEnabled() && mouse->IsTouching(craftButton_)) {
 			backpack_->CraftSelected();
 			craftButton_->SetEnabled( false );
@@ -334,7 +277,7 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 				backpack_->EquipItem( item, (EClassEquip)classFlags );
 				notifications_->AddNotification( item->GetName() + " has been equip-toggled.", item->GetTexture() );
 			}
-		}
+		}*/
 	}
 
 	return false;
@@ -649,8 +592,8 @@ Alert* ItemManager::CreateAlert( const string& message )
 	const char* msg = message.c_str();
 
 	// Set position.
-	float alertX = (float)(GetWidth() / 2) - (newAlert->GetWidth() / 2);
-	float alertY = (float)(GetHeight() / 2) - (newAlert->GetHeight() / 2);
+	float alertX = static_cast<float>(GetWidth() - newAlert->GetWidth()) / 2.0f;
+	float alertY = static_cast<float>(GetHeight() - newAlert->GetHeight()) / 2.0f;
 	newAlert->SetGlobalPosition( alertX, alertY );
 	newAlert->SetParent( this );
 

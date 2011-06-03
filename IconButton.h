@@ -13,7 +13,7 @@ public:
 	IconButton( Texture *icon, float x = 0.0f, float y = 0.0f );
 	virtual ~IconButton( void );
 
-	void				SetIcon( Texture *icon );
+	void SetIcon( Texture *icon );
 
 	static IconButton* Create( Texture *texture, float x = 0.0f, float y = 0.0f );
 

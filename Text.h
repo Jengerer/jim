@@ -4,7 +4,7 @@
 #include "Component.h"
 #include "Font.h"
 
-class Text : public Component
+class Text : public Component, public IGeneratable
 {
 
 public:
@@ -12,13 +12,14 @@ public:
 	Text( Font *font );
 	virtual ~Text( void );
 
+	virtual void	OnDraw( DirectX *directX );
+
 	void			SetText( const string& text );
 	const string&	GetText( void ) const;
 	void			SetColour( D3DCOLOR colour );
 	D3DCOLOR		GetColour( void ) const;
 
 	// Drawing functions.
-	virtual void	OnDraw( DirectX *directX );
 	Font*			GetFont( void ) const;
 	void			SetFont( Font *font );
 	virtual void	Pack( void );

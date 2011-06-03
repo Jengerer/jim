@@ -30,7 +30,6 @@ Notification::Notification( const string& message, Texture *texture )
 	layout_->SetLocalPosition( NOTIFICATION_PADDING, NOTIFICATION_PADDING );
 	layout_->Add( image_ );
 	layout_->Add( text_ );
-	Add( layout_ );
 
 	// Now set message, texture, and pack.
 	SetMessage( message );
@@ -46,7 +45,8 @@ Notification::Notification( const string& message, Texture *texture )
 		NOTIFICATION_STROKE_SIZE, 
 		NOTIFICATION_STROKE_COLOUR );
 	roundedRect_->SetLocalPosition( 0, 0 );
-	AddBottom( roundedRect_ );
+	Add( roundedRect_ );
+	Add( layout_ );
 }
 
 Notification::~Notification( void )

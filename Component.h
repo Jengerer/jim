@@ -1,12 +1,9 @@
 #pragma once
 
-#include <vector>
 #include "IDrawable.h"
 
-using namespace std;
-
 // Prototypes.
-class Component: public IDrawable
+class Component : public IDrawable
 {
 
 public:

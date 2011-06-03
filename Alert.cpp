@@ -31,7 +31,7 @@ void Alert::Pack()
 		(GetWidth() - okButton_->GetWidth()) / 2.0f,
 		(GetHeight() - okButton_->GetHeight()) / 2.0f - NOTICE_PADDING - NOTICE_STROKE_WIDTH );
 
-	UpdatePosition();
+	UpdateChildren();
 }
 
 void Alert::SetMessage( const string& message )

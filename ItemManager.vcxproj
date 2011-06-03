@@ -143,6 +143,8 @@
     <ClCompile Include="WrappedText.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\IGeneratable.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\IPrecachable.h" />
     <ClInclude Include="GridLayout.h" />
     <ClInclude Include="IconButton.h" />
     <ClInclude Include="LabelButton.h" />
