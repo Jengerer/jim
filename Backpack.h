@@ -37,17 +37,21 @@ public:
 	// Container functions.
 	void			Pack( void );
 
-	// Resource and interface management.
-	virtual void	LoadInterfaces( void );
-	virtual void	CloseInterfaces( void );
-
 	// Precaching DirectX resources.
 	void			Precache( DirectX *directX );
 	void			Release( void );
 
+	// Resource and interface management.
+	virtual void	LoadInterfaces( void );
+	virtual void	CloseInterfaces( void );
+
 	// Steam message handling.
 	void			HandleCallback( int id, void *callback );
 	void			HandleMessage( int id, void *message, uint32 size );
+
+	// Item actions.
+	void			CraftSelected( void );
+	void			UpdateButtons( void );
 
 	// Inventory resource handling.
 	void			CreateInventory( int width, int height, int pages, int excludedSize );
@@ -66,7 +70,6 @@ public:
 	void			UpdateItem( Item *item );
 	void			EquipItem( Item *item, uint32 classFlags );
 	void			UnequipItems( uint32 equipClass, EItemSlot slot );
-	void			CraftSelected( void );
 
 	// Selection handling.
 	void			SelectSlot( Slot *slot, ESelectType selectType );

@@ -965,6 +965,9 @@
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\IGeneratable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IPrecachable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="steam\steam_api.lib">

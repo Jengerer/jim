@@ -91,29 +91,10 @@ uint16 Item::GetIndex( void ) const
 
 void Item::SetIndex( uint16 position )
 {
-	// Remove new item flag.
-	SetNew( false );
-
-	uint32 tempFlags = GetFlags();
+	uint32 tempFlags = HasValidFlags() ? GetFlags() : FL_ITEM_VALID;
 	tempFlags &= FL_ITEM_NONPOSITION; // Remove current position.
 	tempFlags |= (position + 1) & FL_ITEM_POSITION; // Set new.
 	SetFlags( tempFlags );
-}
-
-bool Item::IsNew( void ) const
-{
-	return GetFlags() & FL_ITEM_NEW;
-}
-
-void Item::SetNew( bool isNew )
-{
-	uint32 tempFlags = GetFlags();
-	if (isNew) {
-		SetFlags( tempFlags | FL_ITEM_NEW );
-	}
-	else {
-		SetFlags( tempFlags & (FL_ITEM_ALL ^ FL_ITEM_NEW) );
-	}
 }
 
 bool Item::HasValidFlags( void ) const

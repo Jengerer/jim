@@ -14,8 +14,9 @@ Layout::~Layout( void )
 
 bool Layout::IsVisible( Component *component ) const
 {
-	if ( GetParent() != nullptr ) {
-		return parent_->IsVisible( component );
+	const Container *parent = GetParent();
+	if ( parent != nullptr ) {
+		return parent->IsVisible( component );
 	}
 
 	return Container::IsVisible( component );

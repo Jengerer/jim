@@ -48,7 +48,6 @@ public:
 	// Interface handling.
 	Notice*			CreateNotice( const string& message );
 	Alert*			CreateAlert( const string& message );
-	LabelButton*	CreateLabelButton( const string& label, Texture *icon, bool isEnabled );
 	void			CreateEquipSet( const Item *item );
 
 	// Item display.
@@ -67,7 +66,6 @@ private:
 	// User interface stacks.
 	deque<Popup*>	popupStack_;
 	vector<Popup*>	popupList_; // TODO: These might be dep'd.
-	vector<Button*>	buttonList_;
 
 	// Keyboard booleans.
 	bool			leftPressed_;

@@ -112,6 +112,12 @@ void Backpack::Precache( DirectX *directX )
 	craftButton_->SetIcon( craftTexture );
 	equipButton_->SetIcon( equipTexture );
 	sortButton_->SetIcon( sortTexture );
+	Pack();
+}
+
+void Backpack::Release( void )
+{
+	// Nothing that's not automatically released.
 }
 
 void Backpack::HandleCallback( int id, void *callback )
@@ -353,7 +359,6 @@ void Backpack::FormatInventory( void )
 	// Add slots to layout.
 	pages_ = new HorizontalLayout();
 	pages_->SetParent( this );
-	pages_->SetLocalPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
 	pages_->SetSpacing( PAGE_SPACING );
 
 	int pages = inventory_->GetPageCount();
@@ -380,7 +385,6 @@ void Backpack::FormatInventory( void )
 
 	// Position and add excluded.
 	excluded_ = new HorizontalLayout();
-	excluded_->SetLocalPosition( BACKPACK_PADDING, GetHeight() - SLOT_HEIGHT - BACKPACK_PADDING );
 	excluded_->SetSpacing( SLOT_SPACING );
 
 	int length = inventory_->GetExcludedSize();
@@ -430,22 +434,29 @@ void Backpack::MoveItem( Slot *source, Slot *destination ) {
 
 bool Backpack::OnMouseMoved( Mouse *mouse )
 {
-	// Mouse moved.
+	// Hover over buttons.
+	equipButton_->OnMouseMoved( mouse );
+	craftButton_->OnMouseMoved( mouse );
+	sortButton_->OnMouseMoved( mouse );
+
+	// Move dragged.
 	if (selected_.size() == 1 && dragged_ != nullptr) {
 		Slot* slot = selected_[0];
 
-		// No longer hovering.
+		// Update slot position since dragging.
+		slot->UpdateChildren();
 		SetHovering( nullptr );
 
 		// Change page if at edges.
 		int time = GetTickCount();
 		if (time > pageDelay_) {
-			float slotX = slot->GetGlobalX();
-			if (slotX >= (GetWidth() - slot->GetWidth())) {
+			float mouseX = mouse->GetX();
+			float backpackX = GetGlobalX();
+			if (mouseX >= backpackX + GetWidth()) {
 				NextPage();
 				pageDelay_ = time + PAGE_CHANGE_DELAY;
 			}
-			else if (slotX == 0) {
+			else if (mouseX <= backpackX) {
 				PrevPage();
 				pageDelay_ = time + PAGE_CHANGE_DELAY;
 			}
@@ -496,9 +507,6 @@ bool Backpack::OnLeftClicked( Mouse *mouse )
 					if (dragged_ == nullptr) {
 						OnSlotGrabbed( mouse, slot );
 					}
-					else {
-						OnSlotReleased( slot );
-					}
 
 					return true;
 				}
@@ -514,11 +522,15 @@ bool Backpack::OnLeftClicked( Mouse *mouse )
 			if (dragged_ == nullptr) {
 				OnSlotGrabbed( mouse, slot );
 			}
-			else {
-				OnSlotReleased( slot );
-			}
 			return true;
 		}
+	}
+
+	// Check buttons.
+	if (equipButton_->OnLeftClicked( mouse ) ||
+		craftButton_->OnLeftClicked( mouse ) ||
+		sortButton_->OnLeftClicked( mouse )) {
+			return true;
 	}
 
 	// Nothing hit, deselect all.
@@ -531,6 +543,12 @@ bool Backpack::OnLeftClicked( Mouse *mouse )
 
 bool Backpack::OnLeftReleased( Mouse *mouse )
 {
+	// Check buttons.
+	if (craftButton_->OnLeftReleased( mouse )) {
+		CraftSelected();
+		return true;
+	}
+
 	if (dragged_ != nullptr) {
 		// Move item back to slot.
 		Slot* selectedSlot = selected_[0];
@@ -595,7 +613,7 @@ void Backpack::OnSlotGrabbed( Mouse *mouse, Slot *slot )
 		}
 	}
 	else {
-		if (slot->GetItem() != 0) {
+		if (slot->GetItem() != nullptr) {
 			switch (slot->GetSelectType()) {
 			case SELECT_TYPE_NONE:
 				SelectSlot( slot, SELECT_TYPE_NORMAL );
@@ -678,21 +696,16 @@ void Backpack::SelectSlot( Slot* slot, ESelectType selectType )
 {
 	slot->SetSelectType( selectType );
 	selected_.push_back( slot );
+	UpdateButtons();
 }
 
 void Backpack::DeselectSlot( Slot* slot )
 {
+	// Deselect and remove from selected.
 	slot->SetSelectType( SELECT_TYPE_NONE );
-
-	// Remove from selected.
-	slotVector::iterator i;
-	for (i = selected_.begin(); i != selected_.end(); i++) {
-		Slot *current = *i;
-		if (current == slot) {
-			selected_.erase( i );
-			break;
-		}
-	}
+	slotVector::iterator i = find( selected_.begin(), selected_.end(), slot );
+	selected_.erase( i );
+	UpdateButtons();
 }
 
 void Backpack::DeselectAll( void )
@@ -744,6 +757,30 @@ void Backpack::CraftSelected( void )
 	}
 }
 
+void Backpack::UpdateButtons( void )
+{
+	// Adjust button states.
+	switch (selected_.size()) {
+	case 0:
+		equipButton_->SetEnabled( false );
+		craftButton_->SetEnabled( false );
+		break;
+	case 1:
+		{
+			// Check whether item is equippable.
+			Item *selected = selected_[0]->GetItem();
+			equipButton_->SetEnabled( selected->GetEquipClassCount() != 0 );
+			craftButton_->SetEnabled( true );
+		}
+
+		break;
+	default:
+		equipButton_->SetEnabled( false );
+		craftButton_->SetEnabled( true );
+		break;
+	}
+}
+
 void Backpack::UpdateItem( Item* item )
 {
 	// Generate message with new flags.
@@ -786,7 +823,7 @@ void Backpack::UpdateTarget( void )
 {
 	deque<Component*>* pageColumns = pages_->GetChildren();
 	Component *cameraTarget = pageColumns->at( page_ - 1 );
-	cameraDest_ = -cameraTarget->GetLocalX() - BACKPACK_PADDING;
+	cameraDest_ = -cameraTarget->GetLocalX();
 }
 
 void Backpack::NextPage( void )

@@ -24,8 +24,8 @@ void RoundedRectangleContainer::Pack( void )
 	Component *contained = GetContained();
 	contained->SetLocalPosition( padding, padding );
 	roundedRect_->SetSize(
-		contained->GetWidth() + (padding << 1),
-		contained->GetHeight() + (padding << 1) );
+		contained->GetWidth() + (padding * 2),
+		contained->GetHeight() + (padding * 2) );
 	SetSize( roundedRect_->GetWidth(), roundedRect_->GetHeight() );
 }
 
