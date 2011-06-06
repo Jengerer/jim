@@ -199,7 +199,7 @@ void Inventory::InsertItem( Item* item )
 {
 	// Check if we should/can place in inventory.
 	uint16 index = item->GetIndex();
-	if (item->HasValidFlags() && !item->IsNew() && CanMove( index )) {
+	if (item->HasValidFlags() && CanMove( index )) {
 		Slot* destination = GetInventorySlot( index );
 		destination->SetItem( item );
 		ToInventory( item );

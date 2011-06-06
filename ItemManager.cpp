@@ -122,6 +122,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// Create backpack.
 		backpack_ = new Backpack( 0.0f, 0.0f, this );
+		backpack_->Precache( directX_ );
 		Add( backpack_ );
 
 		// Create item display.
@@ -133,6 +134,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		notifications_->SetLocalPosition( GetWidth() - BACKPACK_PADDING, GetHeight() - BACKPACK_PADDING );
 		backpack_->SetNotificationQueue( notifications_ );
 		Add( notifications_ );
+		UpdateChild( notifications_ );
 
 		// Create equip buttons.
 		equipSet_ = nullptr;
@@ -218,12 +220,9 @@ bool ItemManager::OnLeftClicked( Mouse *mouse )
 			return true;
 		}
 
-		// Check, but don't register buttons.
-		vector<Button*>::iterator i;
-		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
-			if (mouse->IsTouching( *i )) {
-				return true;
-			}
+		// Click on backpack.
+		if (backpack_->OnLeftClicked( mouse )) {
+			return true;
 		}
 	}
 	return false;
@@ -252,32 +251,6 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 		if (backpack_->OnLeftReleased(mouse)) {
 			return true;
 		}
-
-		/*// Now run buttons.
-		if (craftButton_->IsEnabled() && mouse->IsTouching(craftButton_)) {
-			backpack_->CraftSelected();
-			craftButton_->SetEnabled( false );
-			equipButton_->SetEnabled( false );
-			return true;
-		}
-		else if (equipButton_->IsEnabled() && mouse->IsTouching(equipButton_)) {
-			slotVector* selected = backpack_->GetSelected();
-			Slot* slot = selected->at(0);
-			Item* item = slot->GetItem();
-			uint32 classFlags = item->GetEquipClasses();
-			uint8 classCount = item->GetEquipClassCount();
-			if (classCount > 1) {
-				// Show equip menu.
-				if (equipSet_ == nullptr) {
-					CreateEquipSet( item );
-				}
-			}
-			else {
-				// Class flags are the one class we can equip for.
-				backpack_->EquipItem( item, (EClassEquip)classFlags );
-				notifications_->AddNotification( item->GetName() + " has been equip-toggled.", item->GetTexture() );
-			}
-		}*/
 	}
 
 	return false;
@@ -285,34 +258,14 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 
 bool ItemManager::OnMouseMoved( Mouse *mouse )
 {
-	SetCursor( arrow_ );
-
 	// Pass message to highest popup.
 	if (!popupStack_.empty()) {
 		Popup* top = popupStack_.back();
 		top->OnMouseMoved( mouse );
 	}
 	else {
-		// Hover over buttons.
-		vector<Button*>::iterator i;
-		bool hitButton = false;
-		for (i = buttonList_.begin(); i != buttonList_.end(); i++) {
-			Button *button = *i;
-			if (button->IsEnabled() && button->OnMouseMoved( mouse )) {
-				hitButton = true;
-			}
-		}
-
-		if (hitButton) {
-			SetCursor( hand_ );
-		}
-
 		// Check backpack.
-		if (backpack_ && backpack_->OnMouseMoved(mouse)) {
-			if ( backpack_->IsHovering() ) {
-				SetCursor( hand_ );
-			}
-
+		if (backpack_ != nullptr && backpack_->OnMouseMoved(mouse)) {
 			return true;
 		}
 	}
@@ -361,7 +314,7 @@ void ItemManager::UpdateItemDisplay( void )
 		// Display position: horizontally centered and below the slot.
 		float displayX = hovering->GetGlobalX() + hovering->GetWidth() / 2 - itemDisplay_->GetWidth() / 2;
 		float displayY = hovering->GetGlobalY() + hovering->GetHeight() + ITEM_DISPLAY_SPACING;
-		itemDisplay_->SetGlobalPosition( displayX, displayY );
+		itemDisplay_->SetLocalPosition( displayX, displayY );
 		ClampChild( itemDisplay_, ITEM_DISPLAY_SPACING );
 	}
 	else {
@@ -605,17 +558,6 @@ Alert* ItemManager::CreateAlert( const string& message )
 	return newAlert;
 }
 
-LabelButton *ItemManager::CreateLabelButton( const string& label, Texture *icon, bool isEnabled )
-{
-	LabelButton *newButton = new LabelButton( label, icon );
-	newButton->SetEnabled( isEnabled );
-	newButton->Pack();
-
-	// Add to list.
-	buttonList_.push_back( newButton );
-	return newButton;
-}
-
 void ItemManager::CreateEquipSet( const Item *item )
 {
 	equipSet_ = new ToggleSet( "Equipped", "Unequipped" );
@@ -643,10 +585,10 @@ void ItemManager::HandlePopup( Popup *popup )
 {
 	switch (popup->GetState()) {
 		case POPUP_STATE_HIDDEN:
-			HidePopup(popup);
+			HidePopup( popup );
 			break;
 		case POPUP_STATE_KILLED:
-			RemovePopup(popup);
+			RemovePopup( popup );
 			break;
 	}
 }
@@ -660,12 +602,9 @@ void ItemManager::ShowPopup( Popup* popup )
 void ItemManager::HidePopup( Popup *popup )
 {
 	// Remove popup from stack.
-	deque<Popup*>::iterator popupIter;
-	for (popupIter = popupStack_.begin(); popupIter != popupStack_.end(); popupIter++) {
-		if (*popupIter == popup) {
-			popupStack_.erase(popupIter);
-			break;
-		}
+	deque<Popup*>::iterator popupIter = find( popupStack_.begin(), popupStack_.end(), popup );
+	if (popupIter != popupStack_.end()) {
+		popupStack_.erase( popupIter );
 	}
 }
 

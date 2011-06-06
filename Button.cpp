@@ -17,6 +17,7 @@ Button::Button( float x, float y ) : RoundedRectangleContainer( BUTTON_RADIUS, x
 	// Generate layout.
 	layout_ = new HorizontalLayout();
 	layout_->SetSpacing( BUTTON_SPACING );
+	layout_->SetAlignType( ALIGN_TOP );
 	Add( layout_ );
 	SetContained( layout_ );
 	SetPadding( BUTTON_PADDING );
@@ -77,12 +78,12 @@ bool Button::OnMouseMoved( Mouse *mouse )
 
 bool Button::OnLeftClicked( Mouse *mouse )
 {
-	return mouse->IsTouching( this );
+	return IsEnabled() && mouse->IsTouching( this );
 }
 
 bool Button::OnLeftReleased( Mouse *mouse )
 {
-	return mouse->IsTouching( this );
+	return IsEnabled() && mouse->IsTouching( this );
 }
 
 void Button::SetHovering( bool isHovering )

@@ -17,7 +17,7 @@
 
 Font *Notification::font_ = nullptr;
 
-Notification::Notification( const string& message, Texture *texture )
+Notification::Notification( const string& message, Texture *texture ) : RoundedRectangleContainer( NOTIFICATION_RADIUS )
 {
 	// Create icon and text objects.
 	text_ = new WrappedText( font_, NOTIFICATION_TEXT_WIDTH );
@@ -27,26 +27,19 @@ Notification::Notification( const string& message, Texture *texture )
 	// Add them to the layout.
 	layout_ = new HorizontalLayout();
 	layout_->SetSpacing( NOTIFICATION_SPACING );
-	layout_->SetLocalPosition( NOTIFICATION_PADDING, NOTIFICATION_PADDING );
+	layout_->SetAlignType( ALIGN_TOP );
 	layout_->Add( image_ );
 	layout_->Add( text_ );
+	Add( layout_ );
+	SetContained( layout_ );
+	SetPadding( NOTIFICATION_PADDING );
+	SetColour( NOTIFICATION_COLOUR );
+	SetStroke( NOTIFICATION_STROKE_SIZE, NOTIFICATION_STROKE_COLOUR );
 
 	// Now set message, texture, and pack.
 	SetMessage( message );
 	SetTexture( texture );
 	Pack();
-
-	// Create rounded rectangle.
-	roundedRect_ = new RoundedRectangle( 
-		GetWidth(), GetHeight(), 
-		NOTIFICATION_RADIUS, 
-		NOTIFICATION_COLOUR );
-	roundedRect_->SetStroke( 
-		NOTIFICATION_STROKE_SIZE, 
-		NOTIFICATION_STROKE_COLOUR );
-	roundedRect_->SetLocalPosition( 0, 0 );
-	Add( roundedRect_ );
-	Add( layout_ );
 }
 
 Notification::~Notification( void )
@@ -58,9 +51,7 @@ void Notification::Pack( void )
 {
 	// Pack layout, add padding.
 	layout_->Pack();
-	SetSize( 
-		layout_->GetWidth() + NOTIFICATION_PADDING * 2,
-		layout_->GetHeight() + NOTIFICATION_PADDING * 2 );
+	RoundedRectangleContainer::Pack();
 }
 
 void Notification::SetTexture( Texture *texture )

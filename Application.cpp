@@ -6,9 +6,7 @@ Application::Application( int width, int height )
 	// Uncreated members null.
 	directX_ = nullptr;
 	mouse_ = nullptr;
-	arrow_ = nullptr;
-	hand_ = nullptr;
-
+	
 	// Add mouse keys by default.
 	AddKey( VK_LBUTTON );
 
@@ -27,11 +25,7 @@ void Application::LoadInterfaces( const char* title, HINSTANCE instance )
 	// Get DirectX running.
 	directX_ = new DirectX(	instance, title, GetWidth(), GetHeight() );
 	directX_->LoadInterfaces();
-
-	// Create mouse objects and cursors.
 	mouse_ = new Mouse( directX_ );
-	arrow_ = LoadCursor( nullptr, IDC_ARROW );
-	hand_ = LoadCursor( nullptr, IDC_HAND );
 }
 
 void Application::CloseInterfaces( void )

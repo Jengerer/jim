@@ -5,7 +5,7 @@
 #include "IPrecachable.h"
 #include "Text.h"
 
-class LabelButton : public IconButton, public IPrecachable
+class LabelButton : public IconButton
 {
 	
 public:

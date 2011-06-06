@@ -35,7 +35,7 @@ enum EItemSlot {
 // Inventory flags.
 #define FL_ITEM_ALL			0xFFFFFFFF
 #define FL_ITEM_VALID		0x80000000
-#define FL_ITEM_NEW			0x40000000
+#define FL_ITEM_NEW			0x00000000
 #define FL_ITEM_POSITION	0x0000FFFF
 #define FL_ITEM_NONPOSITION	(FL_ITEM_ALL ^ FL_ITEM_POSITION)
 

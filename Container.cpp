@@ -1,5 +1,7 @@
 #include "Container.h"
 
+#include <algorithm>
+
 //=============================================================
 // Constructor
 //=============================================================
@@ -65,12 +67,14 @@ void Container::SetAlpha( int alpha )
 //=============================================================
 bool Container::WithinBounds( Component *component ) const
 {
-	float localX = component->GetLocalX();
-	float localY = component->GetLocalY();
-	return (localX >= -component->GetWidth()) && 
-		(localY >= -component->GetHeight()) && 
-		(localX <= GetWidth()) && 
-		(localY <= GetHeight());
+	float childX = component->GetGlobalX();
+	float childY = component->GetGlobalY();
+	float parentX = GetGlobalX();
+	float parentY = GetGlobalY();
+	return (childX > parentX - component->GetWidth()) && 
+		(childX < parentX + GetWidth()) && 
+		(childY > parentY - component->GetHeight()) && 
+		(childY < parentY + GetHeight());
 }
 
 //=============================================================
@@ -114,6 +118,7 @@ void Container::ClampChild( Component *component, float padding ) const
 	}
 
 	component->SetLocalPosition( localX, localY );
+	UpdateChild( component );
 }
 
 void Container::Add( Component* component )
@@ -127,15 +132,9 @@ void Container::Add( Component* component )
 //=============================================================
 void Container::Remove( Component* component )
 {
-	deque<Component*>::iterator i = componentStack_.begin();
-	while ( i != componentStack_.end() ) {
-		Component* current = *i;
-		if (current == component) {
-			componentStack_.erase( i );
-			break;
-		}
-
-		i++;
+	deque<Component*>::iterator i = find( componentStack_.begin(), componentStack_.end(), component );
+	if (i != componentStack_.end()) {
+		componentStack_.erase( i );
 	}
 }
 

@@ -39,6 +39,7 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 	textLayout_->Add( infoText_ );
 
 	// Pack so we can create a temporary rectangle.
+	Add( textLayout_ );
 	SetContained( textLayout_ );
 	Pack();
 }
@@ -66,6 +67,7 @@ void ItemDisplay::Pack( void )
 	infoText_->Pack();
 	textLayout_->Pack();
 	RoundedRectangleContainer::Pack();
+	UpdateChildren();
 }
 
 const Item* ItemDisplay::GetItem( void ) const
@@ -111,6 +113,9 @@ void ItemDisplay::SetItem( const Item *item )
 			// Build information text.
 			stringstream infoStream;
 			infoStream << "LEVEL " << (uint16)item->GetLevel();
+#if defined( _DEBUG )
+			infoStream << "\nFLAGS: " << hex << item->GetFlags();
+#endif
 			infoText_->SetText( infoStream.str() );
 			Pack();
 		}

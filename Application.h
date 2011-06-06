@@ -56,10 +56,6 @@ protected:
 	DirectX		*directX_;
 	Mouse		*mouse_;
 
-	HCURSOR		arrow_;
-	HCURSOR		hand_;
-	HCURSOR		drag_;
-
 private:
 
 	EApplicationState	state_;

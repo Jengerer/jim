@@ -5,11 +5,11 @@
 #include "Font.h"
 #include "HorizontalLayout.h"
 #include "Image.h"
-#include "RoundedRectangle.h"
+#include "RoundedRectangleContainer.h"
 #include "Texture.h"
 #include "WrappedText.h"
 
-class Notification : public Container
+class Notification : public RoundedRectangleContainer
 {
 	
 public:

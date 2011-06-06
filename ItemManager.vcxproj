@@ -147,6 +147,7 @@
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\IPrecachable.h" />
     <ClInclude Include="GridLayout.h" />
     <ClInclude Include="IconButton.h" />
+    <ClInclude Include="IPrecachable.h" />
     <ClInclude Include="LabelButton.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="RoundedRectangleContainer.h" />

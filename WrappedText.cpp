@@ -32,7 +32,6 @@ void WrappedText::Pack( void )
 	SetSize( GetTextWidth(), resultSize.bottom - resultSize.top );
 }
 
-
 int WrappedText::GetTextWidth( void ) const
 {
 	return textWidth_;

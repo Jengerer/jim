@@ -47,8 +47,6 @@ public:
 	const string&	GetName( void ) const;
 	uint16			GetIndex( void ) const ;
 	void			SetIndex( uint16 position );
-	bool			IsNew( void ) const;
-	void			SetNew( bool isNew );
 	bool			HasValidFlags( void ) const;
 	void			SetCustomName( const string& name );
 	const string&	GetCustomName( void ) const;
