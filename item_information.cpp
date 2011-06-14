@@ -1,4 +1,4 @@
-#include "CItemInformation.h"
+#include "item_information.h"
 
 CItemInformation::CItemInformation(
 	const string& name,

@@ -1,4 +1,4 @@
-#include "VerticalLayout.h"
+#include "vertical_layout.h"
 
 VerticalLayout::VerticalLayout( void )
 {

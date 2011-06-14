@@ -1,4 +1,4 @@
-#include "RoundedRectangle.h"
+#include "rounded_rectangle.h"
 
 #define COLOUR_WHITE D3DCOLOR_XRGB( 255, 255, 255 )
 

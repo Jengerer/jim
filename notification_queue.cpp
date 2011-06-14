@@ -1,4 +1,4 @@
-#include "NotificationQueue.h"
+#include "notification_queue.h"
 
 #define NOTIFICATION_ALPHA_SPEED	20
 #define NOTIFICATION_QUEUE_DELAY	1500

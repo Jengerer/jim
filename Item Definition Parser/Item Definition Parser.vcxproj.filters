@@ -27,10 +27,10 @@
     <ClInclude Include="KeyValueParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Hashtable.h">
+    <ClInclude Include="..\ItemShared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ItemShared.h">
+    <ClInclude Include="..\hash_table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,10 +44,10 @@
     <ClCompile Include="..\Curl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Hashtable.cpp">
+    <ClCompile Include="KeyValueParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KeyValueParser.cpp">
+    <ClCompile Include="..\hash_table.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

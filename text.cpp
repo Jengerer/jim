@@ -1,4 +1,4 @@
-#include "Text.h"
+#include "text.h"
 
 #define WHITE D3DCOLOR_XRGB( 255, 255, 255 )
 

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Container.h"
-#include "DirectX.h"
-#include "Font.h"
-#include "Item.h"
-#include "RoundedRectangleContainer.h"
-#include "Text.h"
-#include "WrappedText.h"
-#include "VerticalLayout.h"
+#include "container.h"
+#include "directx.h"
+#include "font.h"
+#include "item.h"
+#include "rounded_container.h"
+#include "text.h"
+#include "wrapped_text.h"
+#include "vertical_layout.h"
 
 #define ITEM_DISPLAY_PADDING		10
 #define ITEM_DISPLAY_SPACING		5

@@ -1,9 +1,9 @@
 #ifndef ICON_BUTTON_H
 #define ICON_BUTTON_H
 
-#include "Button.h"
-#include "Image.h"
-#include "Texture.h"
+#include "button.h"
+#include "image.h"
+#include "texture.h"
 
 class IconButton : public Button
 {

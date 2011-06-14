@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Component.h"
-#include "DirectX.h"
-#include "Draggable.h"
-#include "Image.h"
-#include "Item.h"
-#include "RoundedRectangle.h"
-#include "Text.h"
-#include "Texture.h"
+#include "component.h"
+#include "directx.h"
+#include "draggable.h"
+#include "image.h"
+#include "item.h"
+#include "rounded_rectangle.h"
+#include "text.h"
+#include "texture.h"
 
 // Slot selection type for manager handling.
 enum ESelectType {

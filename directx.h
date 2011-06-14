@@ -5,11 +5,11 @@
 #include <sstream>
 #include <map>
 
-#include "Curl.h"
-#include "Texture.h"
-#include "Exception.h"
-#include "Window.h"
-#include "Font.h"
+#include "curl.h"
+#include "texture.h"
+#include "exception.h"
+#include "window.h"
+#include "font.h"
 
 using namespace std;
 

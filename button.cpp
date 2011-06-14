@@ -1,4 +1,4 @@
-#include "Button.h"
+#include "button.h"
 
 Font*		Button::font_ = nullptr;
 

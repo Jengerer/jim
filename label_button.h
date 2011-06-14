@@ -1,9 +1,9 @@
 #ifndef LABEL_BUTTON_H
 #define LABEL_BUTTON_H
 
-#include "IconButton.h"
-#include "IPrecachable.h"
-#include "Text.h"
+#include "icon_button.h"
+#include "iprecachable.h"
+#include "text.h"
 
 class LabelButton : public IconButton
 {

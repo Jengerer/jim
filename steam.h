@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Exception.h"
+#include "exception.h"
 #include "steam/SteamclientAPI.h"
 #include "protobuf/steammessages.pb.h"
 

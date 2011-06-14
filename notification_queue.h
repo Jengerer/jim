@@ -4,11 +4,11 @@
 #include <queue>
 #include <windows.h>
 
-#include "Container.h"
-#include "DirectX.h"
-#include "IMouseHandler.h"
-#include "Notification.h"
-#include "Texture.h"
+#include "container.h"
+#include "directx.h"
+#include "imouse_handler.h"
+#include "notification.h"
+#include "texture.h"
 
 class NotificationQueue : public Container, public IMouseHandler
 {

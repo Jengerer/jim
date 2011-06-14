@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "application.h"
 
 /* Application constructor. */
 Application::Application( int width, int height )

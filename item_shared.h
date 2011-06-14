@@ -1,7 +1,7 @@
 #ifndef ITEM_DEFINITIONS_H
 #define ITEM_DEFINITIONS_H
 
-#include "Texture.h"
+#include "texture.h"
 
 // TODO: Maybe an enum doesn't make sense.
 enum EClassEquip {

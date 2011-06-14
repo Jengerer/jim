@@ -1,4 +1,4 @@
-#include "Font.h"
+#include "font.h"
 
 Font::Font( ID3DXFont *d3dFont )
 {

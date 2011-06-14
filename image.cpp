@@ -1,4 +1,4 @@
-#include "Image.h"
+#include "image.h"
 
 Image::Image( float x, float y, Texture *texture ): Component( x, y )
 {

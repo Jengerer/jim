@@ -10,9 +10,9 @@
 #include "steam/SteamTypes.h"
 #include "steam/UserItemsCommon.h"
 
-#include "Exception.h"
-#include "CItemInformation.h"
-#include "Texture.h"
+#include "exception.h"
+#include "item_information.h"
+#include "texture.h"
 
 // Using int32 so we can have -1 index for fallback.
 // TODO: Keep it as uint16, but store a static fallback definition.

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Texture.h"
-#include "Exception.h"
+#include "texture.h"
+#include "exception.h"
 
 #include <hash_map>
 #include <string>

@@ -1,7 +1,7 @@
 #ifndef PRECACHABLE_H
 #define PRECACHABLE_H
 
-#include "DirectX.h"
+#include "directx.h"
 
 class IPrecachable
 {

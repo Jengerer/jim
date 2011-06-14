@@ -1,7 +1,7 @@
 #ifndef WRAPPED_TEXT_H
 #define WRAPPED_TEXT_H
 
-#include "Text.h"
+#include "text.h"
 
 class WrappedText : public Text
 {

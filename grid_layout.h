@@ -1,7 +1,7 @@
 #ifndef GRID_LAYOUT_H
 #define GRID_LAYOUT_H
 
-#include "Layout.h"
+#include "layout.h"
 
 class GridLayout : public Layout
 {

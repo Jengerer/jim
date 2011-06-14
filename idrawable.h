@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DirectX.h"
+#include "directx.h"
 
 class IDrawable
 {

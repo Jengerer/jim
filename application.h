@@ -4,12 +4,12 @@
 #include <sstream>
 #include <vector>
 
-#include "KeyboardHandler.h"
-#include "IMouseHandler.h"
-#include "Container.h"
-#include "DirectX.h"
-#include "Window.h"
-#include "Mouse.h"
+#include "keyboard_handler.h"
+#include "imouse_handler.h"
+#include "container.h"
+#include "directx.h"
+#include "window.h"
+#include "mouse.h"
 
 using namespace std;
 

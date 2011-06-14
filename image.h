@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.h"
+#include "component.h"
 
 class Image: public Component
 {

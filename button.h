@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Container.h"
-#include "Font.h"
-#include "IMouseHandler.h"
-#include "Mouse.h"
-#include "RoundedRectangleContainer.h"
-#include "HorizontalLayout.h"
+#include "container.h"
+#include "font.h"
+#include "imouse_handler.h"
+#include "mouse.h"
+#include "rounded_container.h"
+#include "horizontal_layout.h"
 
 class Button: public RoundedRectangleContainer, public IMouseHandler
 {

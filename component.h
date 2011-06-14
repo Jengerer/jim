@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IDrawable.h"
+#include "idrawable.h"
 
 // Prototypes.
 class Component : public IDrawable

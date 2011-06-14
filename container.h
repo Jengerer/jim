@@ -1,7 +1,7 @@
 #pragma once
 
 #include <deque>
-#include "Component.h"
+#include "component.h"
 
 class Container : public Component
 {

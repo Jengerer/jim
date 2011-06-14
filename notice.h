@@ -1,8 +1,8 @@
 #ifndef NOTICE_H
 #define NOTICE_H
 
-#include "IDrawable.h"
-#include "Popup.h"
+#include "idrawable.h"
+#include "popup.h"
 
 #define NOTICE_WIDTH			300
 #define NOTICE_RADIUS			10

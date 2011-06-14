@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Container.h"
-#include "LabelButton.h"
-#include "Notice.h"
-#include "Mouse.h"
+#include "container.h"
+#include "label_button.h"
+#include "notice.h"
+#include "mouse.h"
 
 class Alert: public Notice
 {

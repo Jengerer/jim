@@ -1,7 +1,7 @@
 #ifndef MOUSE_HANDLER_H
 #define MOUSE_HANDLER_H
 
-#include "Mouse.h"
+#include "mouse.h"
 
 class IMouseHandler
 {

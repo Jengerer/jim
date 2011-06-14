@@ -1,4 +1,4 @@
-#include "Item.h"
+#include "item.h"
 
 InformationMap *Item::definitions = nullptr;
 

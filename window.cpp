@@ -1,4 +1,4 @@
-#include "Window.h"
+#include "window.h"
 
 // Prototype for window handling.
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

@@ -1,8 +1,8 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
-#include "Window.h"
-#include "Component.h"
+#include "window.h"
+#include "component.h"
 
 using namespace std;
 

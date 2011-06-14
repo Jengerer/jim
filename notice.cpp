@@ -1,4 +1,4 @@
-#include "Notice.h"
+#include "notice.h"
 
 // Static members.
 Font*		Notice::font_	= nullptr;

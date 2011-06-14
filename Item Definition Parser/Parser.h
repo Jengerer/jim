@@ -6,6 +6,6 @@
 #include <json/json.h>
 #include <boost/regex.hpp>
 
-#include "Curl.h"
+#include "curl.h"
 #include "KeyValueParser.h"
-#include "../ItemShared.h"
+#include "../item_shared.h"

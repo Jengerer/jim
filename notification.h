@@ -1,13 +1,13 @@
 #ifndef NOTIFICATION_H
 #define NOTIFICATION_H
 
-#include "Container.h"
-#include "Font.h"
-#include "HorizontalLayout.h"
-#include "Image.h"
-#include "RoundedRectangleContainer.h"
-#include "Texture.h"
-#include "WrappedText.h"
+#include "container.h"
+#include "font.h"
+#include "horizontal_layout.h"
+#include "image.h"
+#include "rounded_container.h"
+#include "texture.h"
+#include "wrapped_text.h"
 
 class Notification : public RoundedRectangleContainer
 {

@@ -3,8 +3,8 @@
 #include <vector>
 #include <map>
 
-#include "Item.h"
-#include "Slot.h"
+#include "item.h"
+#include "slot.h"
 
 typedef Slot* slotArray;
 typedef vector<Slot*> slotVector;
