@@ -1,4 +1,4 @@
-#include "WrappedText.h"
+#include "wrapped_text.h"
 
 WrappedText::WrappedText( Font *font, int textWidth ) : Text( font )
 {

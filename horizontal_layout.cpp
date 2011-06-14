@@ -1,4 +1,4 @@
-#include "HorizontalLayout.h"
+#include "horizontal_layout.h"
 
 HorizontalLayout::HorizontalLayout( void )
 {

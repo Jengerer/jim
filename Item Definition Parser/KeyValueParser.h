@@ -5,8 +5,8 @@
 #include <vector>
 #include <cctype>
 #include <boost/regex.hpp>
-#include "Hashtable.h"
-#include "Exception.h"
+#include "hash_table.h"
+#include "exception.h"
 
 using namespace std;
 

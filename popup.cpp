@@ -1,4 +1,4 @@
-#include "Popup.h"
+#include "popup.h"
 
 Popup::Popup( float x, float y ) : Draggable( x, y )
 {

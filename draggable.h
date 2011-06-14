@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Container.h"
-#include "IMouseHandler.h"
+#include "container.h"
+#include "imouse_handler.h"
 
 class Draggable: public Container, public IMouseHandler
 {

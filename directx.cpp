@@ -1,4 +1,4 @@
-#include "DirectX.h"
+#include "directx.h"
 
 const D3DCOLOR WHITE_COLOUR = D3DCOLOR_ARGB( 255, 255, 255, 255 );
 const D3DCOLOR BACKGROUND_COLOUR = D3DCOLOR_ARGB( 255, 43, 39, 37 );

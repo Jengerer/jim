@@ -1,4 +1,4 @@
-#include "Hashtable.h"
+#include "hash_table.h"
 
 Hashtable::Hashtable()
 {

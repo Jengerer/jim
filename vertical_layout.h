@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Layout.h"
-#include "Component.h"
+#include "layout.h"
+#include "component.h"
 
 enum EHorizontalAlignType {
 	ALIGN_LEFT,

@@ -1,4 +1,4 @@
-#include "Inventory.h"
+#include "inventory.h"
 
 Inventory::Inventory( 
 	int width, int height, 

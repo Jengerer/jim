@@ -1,4 +1,4 @@
-#include "Slot.h"
+#include "slot.h"
 
 #define SLOT_PADDING 5
 #define SLOT_RADIUS 5

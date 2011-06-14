@@ -3,16 +3,16 @@
 #include <json/json.h>
 #include <string>
 
-#include "Container.h"
-#include "GridLayout.h"
-#include "HorizontalLayout.h"
-#include "Inventory.h"
-#include "IPrecachable.h"
-#include "Menu.h"
-#include "NotificationQueue.h"
-#include "SerializedBuffer.h"
-#include "Steam.h"
-#include "VerticalLayout.h"
+#include "container.h"
+#include "grid_layout.h"
+#include "horizontal_layout.h"
+#include "inventory.h"
+#include "iprecachable.h"
+#include "menu.h"
+#include "notification_queue.h"
+#include "serialized_buffer.h"
+#include "steam.h"
+#include "vertical_layout.h"
 
 #define BACKPACK_PADDING		25
 #define BACKPACK_PADDING_TOP	50

@@ -1,11 +1,11 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "Button.h"
-#include "LabelButton.h"
-#include "Popup.h"
-#include "RoundedRectangle.h"
-#include "VerticalLayout.h"
+#include "button.h"
+#include "label_button.h"
+#include "popup.h"
+#include "rounded_rectangle.h"
+#include "vertical_layout.h"
 
 #define MENU_PADDING			10
 #define MENU_SPACING			10

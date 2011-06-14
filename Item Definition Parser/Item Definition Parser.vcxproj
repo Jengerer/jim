@@ -88,7 +88,7 @@
   <ItemGroup>
     <ClInclude Include="..\Curl.h" />
     <ClInclude Include="..\Exception.h" />
-    <ClInclude Include="..\Hashtable.h" />
+    <ClInclude Include="..\hash_table.h" />
     <ClInclude Include="..\ItemShared.h" />
     <ClInclude Include="KeyValueParser.h" />
     <ClInclude Include="Parser.h" />
@@ -96,7 +96,7 @@
   <ItemGroup>
     <ClCompile Include="..\Curl.cpp" />
     <ClCompile Include="..\Exception.cpp" />
-    <ClCompile Include="..\Hashtable.cpp" />
+    <ClCompile Include="..\hash_table.cpp" />
     <ClCompile Include="KeyValueParser.cpp" />
     <ClCompile Include="Parser.cpp" />
   </ItemGroup>

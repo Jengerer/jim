@@ -1,4 +1,4 @@
-#include "Curl.h"
+#include "curl.h"
 
 Curl::Curl()
 {

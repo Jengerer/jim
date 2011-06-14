@@ -1,4 +1,4 @@
-#include "LabelButton.h"
+#include "label_button.h"
 
 #define LABEL_BUTTON_FONT_NAME		"TF2 Build"
 #define LABEL_BUTTON_FONT_SIZE		20

@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "Component.h"
-#include "Container.h"
+#include "component.h"
+#include "container.h"
 
 // Abstract class to format elements within a container.
 class Layout: public Container

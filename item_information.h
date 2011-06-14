@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "ItemShared.h"
-#include "Texture.h"
+#include "item_shared.h"
+#include "texture.h"
 
 #include "steam/SteamTypes.h"
 

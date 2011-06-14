@@ -1,7 +1,7 @@
 #pragma once
 
 #include <d3d9.h>
-#include "Exception.h"
+#include "exception.h"
 
 class Window
 {

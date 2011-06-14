@@ -1,4 +1,4 @@
-#include "IconButton.h"
+#include "icon_button.h"
 
 #define ICON_SIZE	20
 

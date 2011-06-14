@@ -1,4 +1,4 @@
-#include "ToggleSet.h"
+#include "toggle_set.h"
 
 #define TOGGLE_SET_SPACING			10
 #define TOGGLE_SET_PADDING			10

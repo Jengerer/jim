@@ -1,4 +1,4 @@
-#include "GridLayout.h"
+#include "grid_layout.h"
 
 GridLayout::GridLayout( int gridWidth )
 {

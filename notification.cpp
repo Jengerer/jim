@@ -1,4 +1,4 @@
-#include "Notification.h"
+#include "notification.h"
 
 #define NOTIFICATION_ICON_SIZE		48
 #define NOTIFICATION_TEXT_WIDTH		160

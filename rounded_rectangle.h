@@ -1,8 +1,8 @@
 #ifndef ROUNDED_RECTANGLE_H
 #define ROUNDED_RECTANGLE_H
 
-#include "Component.h"
-#include "DirectX.h"
+#include "component.h"
+#include "directx.h"
 
 enum EStrokeType {
 	STROKE_TYPE_OUTER,

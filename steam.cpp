@@ -1,5 +1,5 @@
-#include "Steam.h"
-#include "SerializedBuffer.h"
+#include "steam.h"
+#include "serialized_buffer.h"
 
 #include "protobuf/base_gcmessages.pb.h"
 #include "protobuf/gcsdk_gcmessages.pb.h"

@@ -1,4 +1,4 @@
-#include "Exception.h"
+#include "exception.h"
 
 Exception::Exception( const string& message )
 {

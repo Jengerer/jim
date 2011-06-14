@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <string>
 
-#include "DirectX.h"
+#include "directx.h"
 
 using namespace std;
 

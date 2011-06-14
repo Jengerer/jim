@@ -1,4 +1,4 @@
-#include "Alert.h"
+#include "alert.h"
 
 Alert::Alert( const string& message ) : Notice( message )
 {

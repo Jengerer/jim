@@ -1,4 +1,4 @@
-#include "RoundedRectangleContainer.h"
+#include "rounded_container.h"
 
 #define ROUNDED_RECTANGLE_DEFAULT_COLOUR	D3DCOLOR_XRGB( 255, 255, 255 )
 

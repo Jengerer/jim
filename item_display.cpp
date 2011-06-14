@@ -1,4 +1,4 @@
-#include "ItemDisplay.h"
+#include "item_display.h"
 
 #define ITEM_DISPLAY_TITLE_FONT_FACE		"TF2 Build"
 #define ITEM_DISPLAY_TITLE_FONT_SIZE		17

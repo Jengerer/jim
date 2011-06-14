@@ -1,8 +1,8 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "Component.h"
-#include "Font.h"
+#include "component.h"
+#include "font.h"
 
 class Text : public Component//, public IGeneratable
 {

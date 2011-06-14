@@ -3,16 +3,16 @@
 
 #include <vector>
 
-#include "Button.h"
-#include "Font.h"
-#include "GridLayout.h"
-#include "HorizontalLayout.h"
-#include "LabelButton.h"
-#include "Layout.h"
-#include "Popup.h"
-#include "RoundedRectangle.h"
-#include "Text.h"
-#include "VerticalLayout.h"
+#include "button.h"
+#include "font.h"
+#include "grid_layout.h"
+#include "horizontal_layout.h"
+#include "label_button.h"
+#include "layout.h"
+#include "popup.h"
+#include "rounded_rectangle.h"
+#include "text.h"
+#include "vertical_layout.h"
 
 typedef vector<Button*> ButtonList;
 

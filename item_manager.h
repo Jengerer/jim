@@ -1,16 +1,16 @@
 #ifndef ITEM_MANAGER_H
 #define ITEM_MANAGER_H
 
-#include "Alert.h"
-#include "Application.h"
-#include "Backpack.h"
-#include "Button.h"
-#include "ItemDisplay.h"
-#include "LabelButton.h"
-#include "Notice.h"
-#include "NotificationQueue.h"
-#include "Notification.h"
-#include "ToggleSet.h"
+#include "alert.h"
+#include "application.h"
+#include "backpack.h"
+#include "button.h"
+#include "item_display.h"
+#include "label_button.h"
+#include "notice.h"
+#include "notification_queue.h"
+#include "notification.h"
+#include "toggle_set.h"
 
 #define BUTTON_SPACING	5
 #define BUTTON_Y		380
