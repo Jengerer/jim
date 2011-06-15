@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <crtdbg.h>
+#include <math.h>
 
 #include "protobuf/base_gcmessages.pb.h"
 #include "protobuf/steammessages.pb.h"
@@ -84,6 +85,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	error_ = nullptr;
 	backpack_ = nullptr;
 	itemDisplay_ = nullptr;
+	loadProgress_ = nullptr;
 
 	// Listen for input keys.
 	AddKey( VK_LEFT );
@@ -103,16 +105,18 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 	// Start up DirectX and window.
 	Application::LoadInterfaces( APPLICATION_TITLE, instance );
 
-	// Start drawing to generate textures.
-	directX_->BeginDraw();
-
 	// Necessary to display progress/status.
 	Notice::Precache( directX_ );
+	LabelButton::Precache( directX_ );
 
 	try {
+		throw Exception( "LOL U GAY NGIGA" );
+
+		// Start drawing to generate textures.
+		directX_->BeginDraw();
+
 		// Precache secondary resources.
 		ItemDisplay::Precache( directX_ );
-		LabelButton::Precache( directX_ );
 		Notification::Precache( directX_ );
 		Slot::Precache( directX_ );
 		ToggleSet::Precache( directX_ );
@@ -523,16 +527,11 @@ Notice* ItemManager::CreateNotice( const string& message )
 	Add( newNotice );
 
 	// Set position.
-	float x = (float)(GetWidth() / 2) - (float)(newNotice->GetWidth() / 2);
-	float y = (float)(GetHeight() / 2) - (float)(newNotice->GetHeight() / 2);
+	float x = floor((GetWidth() - newNotice->GetWidth()) / 2.0f);
+	float y = floor((GetHeight() - newNotice->GetHeight()) / 2.0f);
 	newNotice->SetGlobalPosition( x, y );
 	newNotice->SetParent( this );
-
-	// Show popup.
 	ShowPopup( newNotice );
-
-	// Add and return.
-	popupList_.push_back( newNotice );
 	return newNotice;
 }
 
@@ -545,16 +544,11 @@ Alert* ItemManager::CreateAlert( const string& message )
 	const char* msg = message.c_str();
 
 	// Set position.
-	float alertX = static_cast<float>(GetWidth() - newAlert->GetWidth()) / 2.0f;
-	float alertY = static_cast<float>(GetHeight() - newAlert->GetHeight()) / 2.0f;
+	float alertX = floor((GetWidth() - newAlert->GetWidth()) / 2.0f);
+	float alertY = floor((GetHeight() - newAlert->GetHeight()) / 2.0f);
 	newAlert->SetGlobalPosition( alertX, alertY );
 	newAlert->SetParent( this );
-
-	// Show popup.
 	ShowPopup( newAlert );
-
-	// Add and return.
-	popupList_.push_back( newAlert );
 	return newAlert;
 }
 
@@ -602,7 +596,7 @@ void ItemManager::ShowPopup( Popup* popup )
 void ItemManager::HidePopup( Popup *popup )
 {
 	// Remove popup from stack.
-	deque<Popup*>::iterator popupIter = find( popupStack_.begin(), popupStack_.end(), popup );
+	std::vector<Popup*>::iterator popupIter = find( popupStack_.begin(), popupStack_.end(), popup );
 	if (popupIter != popupStack_.end()) {
 		popupStack_.erase( popupIter );
 	}

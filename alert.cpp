@@ -4,8 +4,7 @@ Alert::Alert( const string& message ) : Notice( message )
 {
 	// Make OK button.
 	okButton_ = new LabelButton( "okay", nullptr );
-	okButton_->Pack();
-	Add( okButton_ );
+	content_->Add( okButton_ );
 	Pack();
 }
 
@@ -14,24 +13,10 @@ Alert::~Alert( void)
 	// Button removed as component.
 }
 
-void Alert::OnDraw( DirectX *directX )
-{
-	// Draw like our parent.
-	Notice::OnDraw( directX );
-	okButton_->OnDraw( directX );
-}
-
 void Alert::Pack()
 {
+	okButton_->Pack();
 	Notice::Pack();
-	SetSize( GetWidth(), GetHeight() + okButton_->GetHeight() + NOTICE_PADDING );
-	
-	// Center okay button under text.
-	okButton_->SetLocalPosition( 
-		(GetWidth() - okButton_->GetWidth()) / 2.0f,
-		(GetHeight() - okButton_->GetHeight()) / 2.0f - NOTICE_PADDING - NOTICE_STROKE_WIDTH );
-
-	UpdateChildren();
 }
 
 void Alert::SetMessage( const string& message )

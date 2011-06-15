@@ -36,7 +36,7 @@ void RoundedRectangle::OnDraw( DirectX *directX )
 	directX->DrawTexture(
 		roundedRect_,
 		textureX, textureY,
-		GetWidth(), GetHeight(),
+		roundedRect_->GetWidth(), roundedRect_->GetHeight(),
 		D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
 }
 
@@ -73,49 +73,34 @@ void RoundedRectangle::Generate( DirectX *directX )
 	roundedRect_ = directX->CreateTexture( "rounded_rect", rectWidth, rectHeight );
 	directX->SetRenderTarget( roundedRect_ );
 	directX->SetProjectionSize( rectWidth, rectHeight );
-		
-	// Draw stroke, if exists.
-	EStrokeType strokeType = GetStrokeType();
+
+	// Adjust radius of inner and outer based on stroke type.
+	int innerRadius = radius_;
+	int outerRadius = radius_;
 	int strokeSize = GetStrokeSize();
-	if (GetStrokeSize() != 0) {
-		switch (strokeType) {
-		case STROKE_TYPE_OUTER:
-			directX->DrawRoundedRect(
-				0, 0,
-				GetWidth() + (strokeSize << 1),
-				GetHeight() + (strokeSize << 1),
-				radius_ + strokeSize,
-				GetStrokeColour() );
-			break;
-		case STROKE_TYPE_INNER:
-			directX->DrawRoundedRect(
-				0, 0,
-				GetWidth(), GetHeight(),
-				radius_,
-				GetStrokeColour() );
-			break;
-		}
+	EStrokeType strokeType = GetStrokeType();
+	if (strokeType == STROKE_TYPE_OUTER) {
+		outerRadius += strokeSize;
+	}
+	else {
+		innerRadius -= strokeSize;
+	}
+
+	// Draw outer rectangle if needed.
+	if (strokeSize != 0) {
+		directX->DrawRoundedRect(
+			0, 0,
+			rectWidth, rectHeight,
+			outerRadius,
+			GetStrokeColour() );
 	}
 
 	// Draw inner rectangle.
-	switch (strokeType) {
-	case STROKE_TYPE_OUTER:
-		directX->DrawRoundedRect(
-			strokeSize, strokeSize,
-			GetWidth(),
-			GetHeight(),
-			radius_,
-			GetColour() );
-		break;
-	case STROKE_TYPE_INNER:
-		directX->DrawRoundedRect(
-			strokeSize, strokeSize,
-			GetWidth() - (strokeSize << 1),
-			GetHeight() - (strokeSize << 1),
-			radius_ - strokeSize,
-			GetColour() );
-		break;
-	}
+	directX->DrawRoundedRect(
+		strokeSize, strokeSize,
+		rectWidth - strokeSize * 2, rectHeight - strokeSize * 2,
+		innerRadius,
+		GetColour() );
 
 	directX->ResetRenderTarget();
 	directX->SetProjectionSize( directX->GetWidth(), directX->GetHeight() );

@@ -64,8 +64,7 @@ private:
 	Backpack*		backpack_;
 
 	// User interface stacks.
-	deque<Popup*>	popupStack_;
-	vector<Popup*>	popupList_; // TODO: These might be dep'd.
+	std::vector<Popup*>	popupStack_;
 
 	// Keyboard booleans.
 	bool			leftPressed_;

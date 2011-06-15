@@ -24,9 +24,6 @@ void Draggable::OnDraw( DirectX *directX )
 	Container::OnDraw( directX );
 }
 
-//=============================================================
-// Purpose: Updates position of component when mouse moves.
-//=============================================================
 bool Draggable::OnMouseMoved( Mouse *mouse )
 {
 	return IsDragging();
