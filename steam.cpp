@@ -11,9 +11,9 @@ void* (*Steam_FreeLastCallback) (HSteamPipe hSteamPipe);
 Steam::Steam( void )
 {
 	// Set to null.
-	steamClient_	= 0;
-	hPipe_ = 0;
-	hUser_ = 0;
+	steamClient_	= nullptr;
+	hPipe_			= 0;
+	hUser_			= 0;
 }
 
 Steam::~Steam( void )
@@ -31,92 +31,96 @@ void Steam::LoadInterfaces( void )
 	char steamPath[512];
 	HKEY hkRegistry;
 
-	if (RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Valve\\Steam\\", 0, KEY_QUERY_VALUE, &hkRegistry ) == ERROR_SUCCESS)
-	{
-		// Clear the string.
-		memset( steamPath, 0, 512 );
-
-		DWORD regType, regSize=511;
-		if (RegQueryValueEx( hkRegistry, "InstallPath", 0, &regType, (unsigned char *)steamPath, &regSize ) == ERROR_SUCCESS)
+	if (RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Valve\\Steam\\", 0, KEY_QUERY_VALUE, &hkRegistry ) == ERROR_SUCCESS) {
+		DWORD regType, regSize;
+		if (RegQueryValueEx( hkRegistry, "InstallPath", 0, &regType, (unsigned char *)steamPath, &regSize ) == ERROR_SUCCESS) {
 			SetDllDirectory( steamPath );
-		else
+		} 
+		else {
 			throw Exception( "Failed to get Steam install path from registry." );
-	} else
-	{
+		}
+	}
+	else {
 		throw Exception( "Failed to get Steam install path from registry." );
 	}
 
 	//Load the library.
 	clientDll_ = LoadLibrary( "steamclient.dll" );
-	if ( !clientDll_ )
+	if ( clientDll_ == nullptr ) {
 		throw Exception( "Failed to load steamclient.dll from Steam install path." );
+	}
 
 	//Now define the functions.
-	if (!Steam_BGetCallback)
-		Steam_BGetCallback = (bool* (*)(HSteamPipe, CallbackMsg_t *, HSteamCall *))GetProcAddress( clientDll_, "Steam_BGetCallback" );
+	Steam_BGetCallback = (bool* (*)(HSteamPipe, CallbackMsg_t *, HSteamCall *))GetProcAddress( clientDll_, "Steam_BGetCallback" );
+	if (Steam_BGetCallback == nullptr) {
+		throw Exception( "Failed to get Steam_BGetCallback from Steam library." );
+	}
 
-	if (!Steam_FreeLastCallback)
-		Steam_FreeLastCallback = (void* (*)(HSteamPipe))GetProcAddress( clientDll_, "Steam_FreeLastCallback" );
+	Steam_FreeLastCallback = (void* (*)(HSteamPipe))GetProcAddress( clientDll_, "Steam_FreeLastCallback" );
+	if (Steam_FreeLastCallback == nullptr) {
+		throw Exception( "Failed to get Steam_FreeLastCallback from Steam library." );
+	}
 
 	//Now load the API.
 	CSteamAPILoader apiLoader;
 
 	CreateInterfaceFn clientFactory = apiLoader.Load();
-	if (clientFactory == NULL)
+	if (clientFactory == nullptr) {
 		throw Exception( "Failed to load Steam API from factory." );
+	}
 
 	steamClient_ = (ISteamClient008*)clientFactory( STEAMCLIENT_INTERFACE_VERSION_008, 0 );
-	if (!steamClient_)
+	if (steamClient_ == nullptr) {
 		throw Exception( "Failed to create Steam client interface." );
+	}
 
 	//Down to to the nitty-gritty. Start 'er up!
-	if (!SteamAPI_Init())
+	if (!SteamAPI_Init()) {
 		throw Exception( "Failed to initialize Steam API. Make sure Steam is running and try again." );
+	}
 
 	hPipe_ = steamClient_->CreateSteamPipe();
-	hUser_ = steamClient_->ConnectToGlobalUser(hPipe_);
+	hUser_ = steamClient_->ConnectToGlobalUser( hPipe_ );
 
 	// Make sure we've got a user.
-	if (hUser_ == 0)
+	if (hUser_ == 0) {
 		throw Exception( "Failed to connect to global user." );
+	}
 
 	// Make sure we're logged on correctly.
 	steamUser_ = (ISteamUser012*)steamClient_->GetISteamUser(
 		hUser_,
 		hPipe_,
 		STEAMUSER_INTERFACE_VERSION_012 );
-	if (!steamUser_->LoggedOn()) {
+	if (steamUser_ == nullptr || !steamUser_->LoggedOn()) {
 		throw Exception( "You are not properly logged into Steam." );
 	}
 
 	gameCoordinator_ = (ISteamGameCoordinator001*)steamClient_->GetISteamGenericInterface(
 		hUser_, hPipe_,
 		STEAMGAMECOORDINATOR_INTERFACE_VERSION_001 );
-
-	if (!gameCoordinator_)
+	if (gameCoordinator_ == nullptr) {
 		throw Exception( "Failed to get ISteamGameCoordinator interface." );
+	}
 }
 
 void Steam::CloseInterfaces( void )
 {
-	if (steamClient_)
-	{
-		//Release user.
-		if (hUser_) {
+	if (steamClient_ != nullptr) {
+		if (hUser_ != 0) {
 			steamClient_->ReleaseUser( hPipe_, hUser_ );
 			hUser_ = 0;
 		}
 
-		//Release pipe.
-		if (hPipe_) {
+		if (hPipe_ != 0) {
 			steamClient_->ReleaseSteamPipe( hPipe_ );
 			hPipe_ = 0;
 		}
 	}
 
-	if (clientDll_) {
+	if (clientDll_ != nullptr) {
 		FreeLibrary( clientDll_ );
-		clientDll_ = 0;
+		clientDll_ = nullptr;
 	}
 
 	// Finally, shut down API.

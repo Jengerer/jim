@@ -13,7 +13,6 @@ public:
 	Alert( const string& message );
 	virtual ~Alert( void );
 
-	void			OnDraw( DirectX* directX );
 	virtual void	Pack( void );
 	virtual void	SetMessage( const string& message );
 	const Button*	GetButton( void ) const;
