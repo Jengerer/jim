@@ -22,7 +22,6 @@ public:
 	virtual bool	OnLeftReleased( Mouse *mouse );
 	virtual bool	OnMouseMoved( Mouse *mouse );
 
-
 private:
 
 	Button*			okButton_;

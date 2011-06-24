@@ -21,6 +21,9 @@ public:
 	void			SetState( EPopupState state );
 	EPopupState		GetState( void ) const;
 
+	// Position alignment.
+	void			CenterTo( Container* parent );
+
 private:
 	EPopupState		state_;
 };
