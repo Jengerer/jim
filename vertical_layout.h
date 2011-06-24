@@ -14,8 +14,7 @@ class VerticalLayout : public Layout
 
 public:
 
-	VerticalLayout( void );
-	virtual ~VerticalLayout( void );
+	VerticalLayout( unsigned int spacing = 0, EHorizontalAlignType alignType = ALIGN_CENTER );
 
 	// Packs elements into a horizontal layout.
 	virtual void Pack( void );

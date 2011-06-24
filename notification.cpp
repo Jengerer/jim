@@ -17,28 +17,35 @@
 
 Font *Notification::font_ = nullptr;
 
-Notification::Notification( const string& message, Texture *texture ) : RoundedRectangleContainer( NOTIFICATION_RADIUS )
+Notification::Notification( const string& message, Texture *texture ) : RoundedRectangleContainer( NOTIFICATION_RADIUS, NOTIFICATION_PADDING )
 {
-	// Create icon and text objects.
 	text_ = new WrappedText( font_, NOTIFICATION_TEXT_WIDTH );
 	text_->SetColour( NOTIFICATION_FONT_COLOUR );
-	image_ = new Image( 0, 0, texture );
 
-	// Add them to the layout.
 	layout_ = new HorizontalLayout();
 	layout_->SetSpacing( NOTIFICATION_SPACING );
-	layout_->SetAlignType( ALIGN_TOP );
-	layout_->Add( image_ );
-	layout_->Add( text_ );
+	layout_->SetAlignType( ALIGN_MIDDLE );
 	Add( layout_ );
-	SetContained( layout_ );
-	SetPadding( NOTIFICATION_PADDING );
-	SetColour( NOTIFICATION_COLOUR );
-	SetStroke( NOTIFICATION_STROKE_SIZE, NOTIFICATION_STROKE_COLOUR );
+	SetContent( layout_ );
+
+	// Only add image if there is one.
+	image_ = nullptr;
+	if (texture != nullptr) {
+		image_ = new Image( texture );
+		image_->SetSize( NOTIFICATION_ICON_SIZE, NOTIFICATION_ICON_SIZE );
+		layout_->Add( image_ );
+	}
+
+	layout_->Add( text_ );
+
+	// Set rectangle attributes.
+	RoundedRectangle* roundedRect = GetRoundedRectangle();
+	roundedRect->SetColour( NOTIFICATION_COLOUR );
+	roundedRect->SetStroke( NOTIFICATION_STROKE_SIZE, NOTIFICATION_STROKE_COLOUR );
+	roundedRect->RemoveTexture();
 
 	// Now set message, texture, and pack.
 	SetMessage( message );
-	SetTexture( texture );
 	Pack();
 }
 
@@ -52,17 +59,6 @@ void Notification::Pack( void )
 	// Pack layout, add padding.
 	layout_->Pack();
 	RoundedRectangleContainer::Pack();
-}
-
-void Notification::SetTexture( Texture *texture )
-{
-	image_->SetTexture( texture );
-	if (texture != nullptr) {
-		image_->SetSize( NOTIFICATION_ICON_SIZE, NOTIFICATION_ICON_SIZE );
-	}
-	else {
-		image_->SetSize( 0, 0 );
-	}
 }
 
 void Notification::SetMessage( const string& message )

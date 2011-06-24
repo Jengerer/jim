@@ -1,7 +1,7 @@
 #pragma once
 
 #include "container.h"
-#include "label_button.h"
+#include "button.h"
 #include "notice.h"
 #include "mouse.h"
 
@@ -25,6 +25,6 @@ public:
 
 private:
 
-	LabelButton *okButton_;
+	Button*			okButton_;
 
 };

@@ -10,7 +10,7 @@ const bool NOTICE_FONT_BOLDED			= false;
 
 // Notice specifications.
 const unsigned int NOTICE_TEXT_WIDTH	= 300;
-const unsigned int NOTICE_RADIUS		= 10;
+const unsigned int NOTICE_RADIUS		= 5;
 const unsigned int NOTICE_PADDING		= 20;
 const int NOTICE_SPACING				= 10;
 const unsigned int NOTICE_STROKE_WIDTH	= 5;
@@ -20,17 +20,19 @@ const D3DCOLOR NOTICE_COLOUR			= D3DCOLOR_XRGB( 42, 39, 37 );
 Notice::Notice( const string& message ) : Popup( 0.0f, 0.0f )
 {
 	// Create rounded container.
-	roundedContainer_ = new RoundedRectangleContainer( NOTICE_RADIUS );
-	roundedContainer_->SetPadding( NOTICE_PADDING );
-	roundedContainer_->SetStroke( NOTICE_STROKE_WIDTH, NOTICE_STROKE_COLOUR );
-	roundedContainer_->SetColour( NOTICE_COLOUR );
+	roundedContainer_ = new RoundedRectangleContainer( NOTICE_RADIUS, NOTICE_PADDING );
+	RoundedRectangle *roundedRect = roundedContainer_->GetRoundedRectangle();
+	roundedRect->SetStroke( NOTICE_STROKE_WIDTH, NOTICE_STROKE_COLOUR );
+	roundedRect->SetStrokeType( STROKE_TYPE_OUTER );
+	roundedRect->SetColour( NOTICE_COLOUR );
+	roundedRect->RemoveTexture();
 	Add( roundedContainer_ );
 
 	// Create layout for container.
 	content_ = new VerticalLayout();
 	content_->SetSpacing( NOTICE_SPACING );
 	roundedContainer_->Add( content_ );
-	roundedContainer_->SetContained( content_ );
+	roundedContainer_->SetContent( content_ );
 
 	// Add default text to layout.
 	text_ = new WrappedText( font_, NOTICE_TEXT_WIDTH );
@@ -50,13 +52,16 @@ void Notice::Pack( void )
 	text_->Pack();
 	content_->Pack();
 	roundedContainer_->Pack();
+	roundedContainer_->SetLocalPosition( -roundedContainer_->GetWidth() / 2.0f, -roundedContainer_->GetHeight() / 2.0f );
 	SetSize( roundedContainer_->GetWidth(), roundedContainer_->GetHeight() );
+	UpdateChildren();
 }
 
 void Notice::SetMessage( const string& message )
 {
 	message_ = message;
 	text_->SetText( message );
+	Pack();
 }
 
 void Notice::AppendMessage( const string& message )

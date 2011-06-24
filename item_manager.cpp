@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 #include <math.h>
+#include <json/json.h>
 
 #include "protobuf/base_gcmessages.pb.h"
 #include "protobuf/steammessages.pb.h"
@@ -87,6 +88,9 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	itemDisplay_ = nullptr;
 	loadProgress_ = nullptr;
 
+	// Set default running function.
+	SetThink( &ItemManager::Loading );
+
 	// Listen for input keys.
 	AddKey( VK_LEFT );
 	AddKey( VK_RIGHT );
@@ -107,11 +111,9 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 	// Necessary to display progress/status.
 	Notice::Precache( directX_ );
-	LabelButton::Precache( directX_ );
+	Button::Precache( directX_ );
 
 	try {
-		throw Exception( "LOL U GAY NGIGA" );
-
 		// Start drawing to generate textures.
 		directX_->BeginDraw();
 
@@ -151,15 +153,11 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		LoadDefinitions();
 
 		// We should be good to go!
-		SetState( APPLICATION_STATE_RUN );
+		loadProgress_->SetMessage( "Waiting for Steam inventory message..." );
 	}
 	catch (Exception& loadException) {
 		error_ = CreateAlert( *loadException.getMessage() );
-		SetState( APPLICATION_STATE_EXIT );
 	}
-
-	// Safely finished, remove status.
-	RemovePopup( loadProgress_ );
 }
 
 void ItemManager::CloseInterfaces( void )
@@ -185,7 +183,7 @@ void ItemManager::CloseInterfaces( void )
 
 	// Free cached resources.
 	ItemDisplay::Release();
-	LabelButton::Release();
+	Button::Release();
 	Notice::Release();
 	Notification::Release();
 	Slot::Release();
@@ -198,15 +196,35 @@ void ItemManager::CloseInterfaces( void )
 void ItemManager::RunApplication( void )
 {
 	Application::RunApplication();
-	if (GetState() == APPLICATION_STATE_RUN) {
-		HandleCallbacks();
-		backpack_->HandleCamera();
-		notifications_->UpdateNotifications();
-		UpdateItemDisplay();
-	}
-
-	// Redraw screen.
+	DoThink();
 	DrawFrame();
+}
+
+void ItemManager::SetThink( void (ItemManager::*thinkFunction)( void ) )
+{
+	thinkFunction_ = thinkFunction;
+}
+
+void ItemManager::DoThink()
+{
+	(this->*thinkFunction_)();
+}
+
+void ItemManager::Loading()
+{
+	HandleCallbacks();
+	if (backpack_->IsLoaded()) {
+		SetThink( &ItemManager::Running );
+		RemovePopup( loadProgress_ );
+	}
+}
+
+void ItemManager::Running()
+{
+	HandleCallbacks();
+	backpack_->HandleCamera();
+	notifications_->UpdateNotifications();
+	UpdateItemDisplay();
 }
 
 bool ItemManager::OnLeftClicked( Mouse *mouse )
@@ -335,16 +353,28 @@ void ItemManager::LoadDefinitions( void )
 	DrawFrame();
 
 	// Load the item definitions.
-	string itemDefinitions = directX_->read( "http://www.jengerer.com/itemManager/itemDefinitions.json" );
+	string itemDefinitions;
+	try {
+		itemDefinitions = directX_->read( "http://www.jengerer.com/itemManager/item_definitions.json" );
+	}
+	catch (Exception& ex) {
+		throw Exception( "Failed to retrieve item definitions from server." );
+	}
 
 	// Begin parsing.
 	Json::Reader	reader;
 	Json::Value		root;
-	if (!reader.parse(itemDefinitions, root, false))
+	if (!reader.parse( itemDefinitions, root, false) ) {
 		throw Exception("Failed to parse item definitions.");
+	}
 
+	if (!root.isMember( "items" )) {
+		throw Exception( "Unexpected definition format. Element 'items' not found." );
+	}
+
+	Json::Value		items = root.get( "items", root );
 	Item::definitions = new InformationMap();
-	for (Json::ValueIterator i = root.begin(); i != root.end(); i++) {
+	for (Json::ValueIterator i = items.begin(); i != items.end(); ++i) {
 		Json::Value thisItem = *i;
 		
 		bool hasKeys = thisItem.isMember("index") &&
@@ -357,14 +387,14 @@ void ItemManager::LoadDefinitions( void )
 		}
 
 		// Get strings.
-		string index	= thisItem.get( "index", root ).asString();
+		uint32 index	= thisItem.get( "index", root ).asUInt();
 		string name		= thisItem.get( "name", root ).asString();
 		string image	= thisItem.get( "image", root ).asString();
-		EItemSlot slot	= (EItemSlot)thisItem.get( "slot", root ).asUInt();
+		EItemSlot slot	= static_cast<EItemSlot>(thisItem.get( "slot", root ).asUInt());
 		uint32 classes	= thisItem.get( "classes", root ).asUInt();
 
 		// Make sure there's a file.
-		if (image.length() == 0) {
+		if (image.empty()) {
 			image = "backpack/unknown_item";
 		}
 
@@ -385,8 +415,7 @@ void ItemManager::LoadDefinitions( void )
 			slot );
 
 		// Parse item type and insert.
-		int32 typeIndex = atoi( index.c_str() );
-		InformationPair infoPair( typeIndex, itemInformation );
+		InformationPair infoPair( index, itemInformation );
 		Item::definitions->insert( infoPair );
 	}
 
@@ -527,8 +556,8 @@ Notice* ItemManager::CreateNotice( const string& message )
 	Add( newNotice );
 
 	// Set position.
-	float x = floor((GetWidth() - newNotice->GetWidth()) / 2.0f);
-	float y = floor((GetHeight() - newNotice->GetHeight()) / 2.0f);
+	float x = floor(GetWidth() / 2.0f);
+	float y = floor(GetHeight() / 2.0f);
 	newNotice->SetGlobalPosition( x, y );
 	newNotice->SetParent( this );
 	ShowPopup( newNotice );
@@ -544,8 +573,8 @@ Alert* ItemManager::CreateAlert( const string& message )
 	const char* msg = message.c_str();
 
 	// Set position.
-	float alertX = floor((GetWidth() - newAlert->GetWidth()) / 2.0f);
-	float alertY = floor((GetHeight() - newAlert->GetHeight()) / 2.0f);
+	float alertX = floor(GetWidth() / 2.0f);
+	float alertY = floor(GetHeight()  / 2.0f);
 	newAlert->SetGlobalPosition( alertX, alertY );
 	newAlert->SetParent( this );
 	ShowPopup( newAlert );

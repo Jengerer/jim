@@ -34,12 +34,12 @@ Text *Slot::equippedText_ = nullptr;
 Slot::Slot( int index, Item* item )
 {
 	// Create slot image.
-	slotImage_ = new Image( 0, 0, emptySlot_->GetTexture() );
+	slotImage_ = new Image( emptySlot_->GetTexture() );
 	slotImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
 	Add( slotImage_ );
 
 	// Create item image.
-	itemImage_ = new Image( (SLOT_WIDTH - ITEM_SIZE) / 2.0f, 0 );
+	itemImage_ = new Image( nullptr, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, 0 );
 	itemImage_->SetSize( ITEM_SIZE, ITEM_SIZE );
 	Add( itemImage_ );
 

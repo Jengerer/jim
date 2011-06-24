@@ -10,8 +10,6 @@ Application::Application( int width, int height )
 	// Add mouse keys by default.
 	AddKey( VK_LBUTTON );
 
-	// We're just beginning, so much to do!
-	SetState( APPLICATION_STATE_START );
 	SetSize( width, height );
 }
 
@@ -44,16 +42,6 @@ void Application::ExitApplication()
 Window* Application::GetWindow() const
 {
 	return directX_;
-}
-
-void Application::SetState( EApplicationState state )
-{
-	state_ = state;
-}
-
-EApplicationState Application::GetState( void ) const
-{
-	return state_;
 }
 
 void Application::RunApplication( void )

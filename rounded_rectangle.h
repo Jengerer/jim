@@ -22,6 +22,7 @@ public:
 
 	void			SetStroke( int size, D3DCOLOR colour );
 	void			SetStrokeType( EStrokeType strokeType );
+	D3DCOLOR		GetColour( void ) const;
 	void			SetColour( D3DCOLOR colour );
 	virtual void	SetSize( int width, int height );
 	void			SetCornerRadius( int radius );
@@ -37,7 +38,6 @@ private:
 	void		UnsetTexture( void );
 
 	// Private getters.
-	D3DCOLOR	GetColour( void ) const;
 	D3DCOLOR	GetStrokeColour( void ) const;
 	int			GetStrokeSize( void ) const;
 	EStrokeType	GetStrokeType( void ) const;

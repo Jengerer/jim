@@ -13,12 +13,6 @@
 
 using namespace std;
 
-enum EApplicationState {
-	APPLICATION_STATE_START,
-	APPLICATION_STATE_RUN,
-	APPLICATION_STATE_EXIT
-};
-
 #define NUM_KEYCODES 255
 
 // Main class that's the base of all applications.
@@ -36,10 +30,6 @@ public:
 	void			DrawFrame( void );
 	Window*			GetWindow( void ) const;
 
-	// Sets the state of the application.
-	void				SetState( EApplicationState state );
-	EApplicationState	GetState( void ) const;
-
 	// Main running functions.
 	virtual void	RunApplication( void );
 
@@ -55,9 +45,5 @@ protected:
 
 	DirectX		*directX_;
 	Mouse		*mouse_;
-
-private:
-
-	EApplicationState	state_;
 
 };

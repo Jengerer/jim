@@ -19,7 +19,8 @@ enum EClassEquip {
 };
 
 enum EItemSlot {
-	SLOT_INVALID = 0,
+	SLOT_NONE = 0,
+	SLOT_INVALID,
 	SLOT_PRIMARY,
 	SLOT_SECONDARY,
 	SLOT_MELEE,

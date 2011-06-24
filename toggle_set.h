@@ -7,7 +7,6 @@
 #include "font.h"
 #include "grid_layout.h"
 #include "horizontal_layout.h"
-#include "label_button.h"
 #include "layout.h"
 #include "popup.h"
 #include "rounded_rectangle.h"
@@ -49,7 +48,8 @@ private:
 
 protected:
 
-	static Font *titleFont_;
+	static Font* titleFont_;
+	static Font* buttonFont_;
 
 private:
 

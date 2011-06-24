@@ -17,11 +17,10 @@
 Font *ItemDisplay::nameFont_ = nullptr;
 Font *ItemDisplay::infoFont_ = nullptr;
 
-ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIUS )
+ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_PADDING )
 {
 	SetAlpha( 0 );
-	SetPadding( ITEM_DISPLAY_PADDING );
-	SetColour( ITEM_DISPLAY_COLOUR );
+	GetRoundedRectangle()->SetColour( ITEM_DISPLAY_COLOUR );
 	SetItem( nullptr );
 
 	// Create text objects.
@@ -40,7 +39,7 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 
 	// Pack so we can create a temporary rectangle.
 	Add( textLayout_ );
-	SetContained( textLayout_ );
+	SetContent( textLayout_ );
 	Pack();
 }
 

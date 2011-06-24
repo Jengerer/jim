@@ -99,7 +99,7 @@ string Curl::read( const string& url )
 	//Get it!
 	CURLcode result = curl_easy_perform( curl_ );
 	if (result != CURLE_OK)
-		throw Exception( "Failed to perform file read." );
+		throw Exception( "Failed to read contents of page." );
 
 	//Now get the string.
 	string output = readFile.memory;

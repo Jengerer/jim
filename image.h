@@ -7,8 +7,7 @@ class Image: public Component
 
 public:
 
-	Image( float x, float y, Texture *texture = nullptr );
-	virtual ~Image( void );
+	Image( Texture* texture, float localX = 0.0f, float localY = 0.0f );
 
 	virtual void	OnDraw( DirectX *directX );
 	void			SetTexture( Texture *texture );

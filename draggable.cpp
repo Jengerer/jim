@@ -26,7 +26,12 @@ void Draggable::OnDraw( DirectX *directX )
 
 bool Draggable::OnMouseMoved( Mouse *mouse )
 {
-	return IsDragging();
+	if (isDragging_) {
+		UpdateChildren();
+		return true;
+	}
+
+	return false;
 }
 
 bool Draggable::OnLeftClicked( Mouse *mouse )

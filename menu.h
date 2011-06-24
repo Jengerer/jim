@@ -2,7 +2,6 @@
 #define MENU_H
 
 #include "button.h"
-#include "label_button.h"
 #include "popup.h"
 #include "rounded_rectangle.h"
 #include "vertical_layout.h"
@@ -23,8 +22,8 @@ public:
 	virtual ~Menu( void);
 
 	// Menu handling functions.
-	LabelButton*	AddOption( const string& caption, Texture *texture = nullptr );
-	LabelButton*	GetClicked( void ) const;
+	Button*	AddOption( const string& caption );
+	Button*	GetClicked( void ) const;
 
 	// Drawing functions.
 	virtual void	Pack( void );
@@ -36,14 +35,14 @@ public:
 
 private:
 
-	void			SetClicked( LabelButton *clicked );
+	void			SetClicked( Button *clicked );
 
 private:
 
 	RoundedRectangle		*roundedRect_;
 	VerticalLayout			*layout_;
-	LabelButton*			clicked_;
-	vector<LabelButton*>	options_;
+	Button*			clicked_;
+	vector<Button*>	options_;
 
 };
 
