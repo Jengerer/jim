@@ -11,7 +11,7 @@ class Layout: public Container
 
 public:
 
-	Layout( void );
+	Layout( unsigned int spacing = 0 );
 	virtual ~Layout( void );
 
 	// Format the elements into the appropriate layout.

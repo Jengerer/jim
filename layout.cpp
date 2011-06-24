@@ -1,10 +1,10 @@
 #include "layout.h"
 
-Layout::Layout( void )
+Layout::Layout( unsigned int spacing )
 {
 	// Layout created.
 	SetParent( nullptr );
-	SetSpacing( 0 );
+	SetSpacing( spacing );
 }
 
 Layout::~Layout( void )

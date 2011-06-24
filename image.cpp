@@ -1,22 +1,16 @@
 #include "image.h"
 
-Image::Image( float x, float y, Texture *texture ): Component( x, y )
+Image::Image( Texture* texture, float localX, float localY ): Component( localX, localY )
 {
 	SetTexture( texture );
-	SetSize( 0, 0 );
-}
-
-Image::~Image( void )
-{
-	// Image destroyed.
 }
 
 void Image::OnDraw( DirectX *directX )
 {
 	// Draw texture.
-	if ( GetTexture() != nullptr ) {
-		directX->DrawTexture( 
-			GetTexture(), 
+	if (texture_ != nullptr) {
+		directX->DrawTexture(
+			texture_,
 			GetGlobalX(), GetGlobalY(), 
 			GetWidth(), GetHeight(), 
 			D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );

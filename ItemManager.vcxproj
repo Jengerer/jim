@@ -111,7 +111,6 @@
     <ClCompile Include="grid_layout.cpp" />
     <ClCompile Include="hash_table.cpp" />
     <ClCompile Include="horizontal_layout.cpp" />
-    <ClCompile Include="icon_button.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="inventory.cpp" />
     <ClCompile Include="item.cpp" />
@@ -119,7 +118,6 @@
     <ClCompile Include="item_information.cpp" />
     <ClCompile Include="item_manager.cpp" />
     <ClCompile Include="keyboard_handler.cpp" />
-    <ClCompile Include="label_button.cpp" />
     <ClCompile Include="layout.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="mouse.cpp" />
@@ -157,7 +155,6 @@
     <ClInclude Include="grid_layout.h" />
     <ClInclude Include="hash_table.h" />
     <ClInclude Include="horizontal_layout.h" />
-    <ClInclude Include="icon_button.h" />
     <ClInclude Include="idrawable.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="imouse_handler.h" />
@@ -169,7 +166,6 @@
     <ClInclude Include="item_manager.h" />
     <ClInclude Include="item_shared.h" />
     <ClInclude Include="keyboard_handler.h" />
-    <ClInclude Include="label_button.h" />
     <ClInclude Include="layout.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="mouse.h" />
@@ -410,7 +406,6 @@
     <Library Include="steam\steam_api.lib" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="SampleShader.fx" />
     <None Include="steam\steamworks.vcproj" />
     <None Include="jimIcon.ico" />
   </ItemGroup>

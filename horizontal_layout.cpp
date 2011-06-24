@@ -1,15 +1,10 @@
 #include "horizontal_layout.h"
 
-HorizontalLayout::HorizontalLayout( void )
+HorizontalLayout::HorizontalLayout( unsigned int spacing, EVerticalAlignType alignType ) : Layout( spacing )
 {
 	// HorizontalLayout created.
+	SetAlignType( alignType );
 	SetMinimumHeight( 0 );
-	SetAlignType( ALIGN_MIDDLE );
-}
-
-HorizontalLayout::~HorizontalLayout( void )
-{
-	// HorizontalLayout destroyed.
 }
 
 void HorizontalLayout::Pack( void )

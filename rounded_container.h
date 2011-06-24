@@ -2,6 +2,7 @@
 #define ROUNDED_RECTANGLE_CONTAINER_H
 
 #include "container.h"
+#include "horizontal_layout.h"
 #include "rounded_rectangle.h"
 
 // A new record! Longest class name in the project!
@@ -10,32 +11,22 @@ class RoundedRectangleContainer : public Container
 
 public:
 
-	RoundedRectangleContainer( unsigned int radius, float x = 0.0f, float y = 0.0f );
-	virtual ~RoundedRectangleContainer( void );
+	RoundedRectangleContainer( unsigned int radius, unsigned int padding, float localX = 0.0f, float localY = 0.0f );
 
-	virtual void		Pack( void );
+	// Container functions.
+	virtual void		Pack();
 
-	// Container setting functions.
-	void				SetContained( Component *component );
-
-	// RoundedRectangle settings.
-	void				SetColour( D3DCOLOR colour );
-	void				SetStroke( unsigned int size, D3DCOLOR colour );
-	void				SetStrokeType( EStrokeType strokeType );
-	void				SetRadius( unsigned int radius );
+	// Content and rectangle.
+	void				SetContent( Component* content );
+	RoundedRectangle*	GetRoundedRectangle() const;
 
 	// Attribute function settings.
 	void				SetPadding( unsigned int padding );
 
 private:
 
-	Component*			GetContained( void ) const;
-	unsigned int		GetPadding( void ) const;
-
-private:
-
-	RoundedRectangle	*roundedRect_;
-	Component			*contained_;
+	RoundedRectangle*	roundedRect_;
+	Component*			content_;
 	unsigned int		padding_;
 
 };

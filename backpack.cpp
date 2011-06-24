@@ -1,5 +1,7 @@
 #include "backpack.h"
 
+#include <json/json.h>
+
 #include "protobuf/base_gcmessages.pb.h"
 #include "protobuf/gcsdk_gcmessages.pb.h"
 #include "protobuf/steammessages.pb.h"
@@ -43,13 +45,6 @@ Backpack::Backpack(
 	// Lay out buttons.
 	buttonLayout_ = new HorizontalLayout();
 	buttonLayout_->SetSpacing( BUTTON_SPACING );
-	craftButton_ = LabelButton::Create( "craft" );
-	equipButton_ = LabelButton::Create( "equip" );
-	sortButton_ = LabelButton::Create( "sort" );
-	buttonLayout_->Add( craftButton_ );
-	buttonLayout_->Add( equipButton_ );
-	buttonLayout_->Add( sortButton_ );
-	buttonLayout_->Pack();
 
 	// Add all and pack.
 	backpackLayout_->Add( pages_ );
@@ -81,11 +76,6 @@ Backpack::~Backpack()
 
 void Backpack::Pack( void )
 {
-	// Pack individual buttons.
-	equipButton_->Pack();
-	craftButton_->Pack();
-	sortButton_->Pack();
-
 	// Pack button layout.
 	buttonLayout_->Pack();
 
@@ -109,15 +99,22 @@ void Backpack::Precache( DirectX *directX )
 	Texture *craftTexture = directX->GetTexture( "manager/gear" );
 	Texture *equipTexture = directX->GetTexture( "manager/equip" );
 	Texture *sortTexture = directX->GetTexture( "manager/sort" );
-	craftButton_->SetIcon( craftTexture );
-	equipButton_->SetIcon( equipTexture );
-	sortButton_->SetIcon( sortTexture );
+
+	// Create icons.
+	craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
+	equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
+	sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
+	
+	// Add to layout.
+	buttonLayout_->Add( craftButton_ );
+	buttonLayout_->Add( equipButton_ );
+	buttonLayout_->Add( sortButton_ );
 	Pack();
 }
 
 void Backpack::Release( void )
 {
-	// Nothing that's not automatically released.
+	// Nothing.
 }
 
 void Backpack::HandleCallback( int id, void *callback )
@@ -444,7 +441,7 @@ bool Backpack::OnMouseMoved( Mouse *mouse )
 		Slot* slot = selected_[0];
 
 		// Update slot position since dragging.
-		slot->UpdateChildren();
+		slot->OnMouseMoved( mouse );
 		SetHovering( nullptr );
 
 		// Change page if at edges.

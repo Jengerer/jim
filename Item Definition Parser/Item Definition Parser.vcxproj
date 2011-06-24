@@ -86,19 +86,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Curl.h" />
-    <ClInclude Include="..\Exception.h" />
-    <ClInclude Include="..\hash_table.h" />
-    <ClInclude Include="..\ItemShared.h" />
-    <ClInclude Include="KeyValueParser.h" />
-    <ClInclude Include="Parser.h" />
+    <ClInclude Include="..\curl.h" />
+    <ClInclude Include="..\exception.h" />
+    <ClInclude Include="parser.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Curl.cpp" />
-    <ClCompile Include="..\Exception.cpp" />
-    <ClCompile Include="..\hash_table.cpp" />
-    <ClCompile Include="KeyValueParser.cpp" />
-    <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="..\curl.cpp" />
+    <ClCompile Include="..\exception.cpp" />
+    <ClCompile Include="parser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

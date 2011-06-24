@@ -1,6 +1,5 @@
 #pragma once
 
-#include <json/json.h>
 #include <string>
 
 #include "container.h"
@@ -14,13 +13,11 @@
 #include "steam.h"
 #include "vertical_layout.h"
 
-#define BACKPACK_PADDING		25
-#define BACKPACK_PADDING_TOP	50
+const int BACKPACK_PADDING		= 25;
+const int BACKPACK_PADDING_TOP	= 50;
 
-#define SLOT_SPACING			5
-#define PAGE_SPACING			BACKPACK_PADDING * 2
-
-#define EXCLUDED_Y				415
+const int SLOT_SPACING			= 5;
+const int PAGE_SPACING			= BACKPACK_PADDING * 2;
 
 enum ESelectMode {
 	SELECT_MODE_SINGLE,
@@ -31,7 +28,7 @@ enum ESelectMode {
 class Backpack: public Container, public Steam, public IMouseHandler, public IPrecachable
 {
 public:
-	Backpack( float x, float y, Container* parent );
+	Backpack( float localX, float localY, Container* parent );
 	virtual ~Backpack();
 
 	// Container functions.
@@ -115,9 +112,9 @@ private:
 	HorizontalLayout	*excluded_;
 
 	// UI buttons.
-	LabelButton			*equipButton_;
-	LabelButton			*craftButton_;
-	LabelButton			*sortButton_;
+	Button				*equipButton_;
+	Button				*craftButton_;
+	Button				*sortButton_;
 
 	// Queue to direct notifications to.
 	NotificationQueue	*notifications_;

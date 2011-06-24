@@ -1,22 +1,28 @@
 #include "toggle_set.h"
 
-#define TOGGLE_SET_SPACING			10
-#define TOGGLE_SET_PADDING			10
-#define TOGGLE_SET_GRID_WIDTH		3
+const unsigned int TOGGLE_SET_SPACING		= 10;
+const unsigned int TOGGLE_SET_PADDING		= 10;
+const unsigned int TOGGLE_SET_GRID_WIDTH	= 3;
 
-#define TOGGLE_SET_RADIUS			10
-#define TOGGLE_SET_COLOUR			D3DCOLOR_XRGB( 42, 39, 37 )
-#define TOGGLE_SET_STROKE_COLOUR	D3DCOLOR_RGBA( 255, 255, 255, 150 )
-#define TOGGLE_SET_STROKE_SIZE		5
+const unsigned int TOGGLE_SET_RADIUS		= 10;
+const D3DCOLOR TOGGLE_SET_COLOUR			= D3DCOLOR_XRGB( 42, 39, 37 );
+const D3DCOLOR TOGGLE_SET_STROKE_COLOUR		= D3DCOLOR_RGBA( 255, 255, 255, 150 );
+const unsigned int TOGGLE_SET_STROKE_SIZE	= 5;
 
-#define TOGGLE_SET_FONT_FACE		"TF2 Build"
-#define TOGGLE_SET_FONT_SIZE		18
-#define TOGGLE_SET_FONT_COLOUR		D3DCOLOR_XRGB( 255, 255, 255 )
-#define TOGGLE_SET_FONT_BOLDED		false
+const char* TOGGLE_SET_FONT_FACE			= "TF2 Build";
+const unsigned int TOGGLE_SET_FONT_SIZE		= 18;
+const D3DCOLOR TOGGLE_SET_FONT_COLOUR		= D3DCOLOR_XRGB( 255, 255, 255 );
+const bool TOGGLE_SET_FONT_BOLDED			= false;
 
-#define TOGGLE_SET_MIN_WIDTH		150
+const char* TOGGLE_SET_BUTTON_FONT_FACE			= "TF2 Build";
+const unsigned int TOGGLE_SET_BUTTON_FONT_SIZE	= 16;
+const D3DCOLOR TOGGLE_SET_BUTTON_FONT_COLOUR	= D3DCOLOR_XRGB( 42, 39, 37 );
+const bool TOGGLE_SET_BUTTON_FONT_BOLDED		= false;
 
-Font *ToggleSet::titleFont_ = nullptr;
+const unsigned int TOGGLE_SET_MIN_WIDTH		= 150;
+
+Font* ToggleSet::titleFont_ = nullptr;
+Font* ToggleSet::buttonFont_ = nullptr;
 
 ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB, float x, float y ) : Popup( x, y )
 {
@@ -36,9 +42,9 @@ ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB, float x, f
 	Add( roundedRect_ );
 
 	// Create okay and cancel buttons.
-	okayButton_ = new LabelButton( "okay", nullptr );
+	okayButton_ = Button::CreateLabelButton( "okay", buttonFont_ );
+	cancelButton_ = Button::CreateLabelButton( "cancel", buttonFont_ );
 	okayButton_->Pack();
-	cancelButton_ = new LabelButton( "cancel", nullptr );
 	cancelButton_->Pack();
 
 	// Create layouts.
@@ -232,6 +238,11 @@ void ToggleSet::Precache( DirectX *directX )
 		TOGGLE_SET_FONT_FACE, 
 		TOGGLE_SET_FONT_SIZE, 
 		TOGGLE_SET_FONT_BOLDED );
+
+	buttonFont_ = directX->CreateFontA(
+		TOGGLE_SET_BUTTON_FONT_FACE,
+		TOGGLE_SET_BUTTON_FONT_SIZE,
+		TOGGLE_SET_BUTTON_FONT_BOLDED );
 }
 
 void ToggleSet::Release( void )
@@ -239,5 +250,10 @@ void ToggleSet::Release( void )
 	if (titleFont_ != nullptr) {
 		delete titleFont_;
 		titleFont_ = nullptr;
+	}
+
+	if (buttonFont_ != nullptr) {
+		delete buttonFont_;
+		buttonFont_ = nullptr;
 	}
 }

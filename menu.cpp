@@ -23,10 +23,9 @@ Menu::~Menu( void )
 	// Menu destroyed.
 }
 
-LabelButton* Menu::AddOption( const string& caption, Texture *texture )
+Button* Menu::AddOption( const string& caption )
 {
-	LabelButton *button = new LabelButton( caption, texture );
-	button->SetIcon( texture );
+	Button* button = Button::CreateLabelButton( caption );
 
 	// Add to layout and list.
 	options_.push_back( button );
@@ -35,7 +34,7 @@ LabelButton* Menu::AddOption( const string& caption, Texture *texture )
 	return button;
 }
 
-LabelButton* Menu::GetClicked( void ) const
+Button* Menu::GetClicked( void ) const
 {
 	return clicked_;
 }
@@ -51,8 +50,8 @@ void Menu::Pack( void )
 bool Menu::OnMouseMoved( Mouse *mouse )
 {
 	// Pass message to buttons.
-	vector<LabelButton*>::iterator i;
-	for (i = options_.begin(); i != options_.end(); i++) {
+	vector<Button*>::iterator i, end;
+	for (i = options_.begin(), end = options_.end(); i != end; ++i) {
 		Button *button = *i;
 		button->OnMouseMoved( mouse );
 	}
@@ -74,9 +73,9 @@ bool Menu::OnLeftClicked( Mouse *mouse )
 bool Menu::OnLeftReleased( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
-		vector<LabelButton*>::iterator i;
+		vector<Button*>::iterator i;
 		for (i = options_.begin(); i != options_.end(); i++) {
-			LabelButton *button = *i;
+			Button *button = *i;
 
 			// Set selected button, and go inactive.
 			if (mouse->IsTouching( button )) {
@@ -92,7 +91,7 @@ bool Menu::OnLeftReleased( Mouse *mouse )
 	return false;
 }
 
-void Menu::SetClicked( LabelButton *clicked )
+void Menu::SetClicked( Button *clicked )
 {
 	clicked_ = clicked;
 }

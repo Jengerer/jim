@@ -1,22 +1,17 @@
 #include "vertical_layout.h"
 
-VerticalLayout::VerticalLayout( void )
+VerticalLayout::VerticalLayout( unsigned int spacing, EHorizontalAlignType alignType ) : Layout( spacing )
 {
+	SetAlignType( alignType );
 	SetMinimumWidth( 0 );
-	SetAlignType( ALIGN_CENTER );
-}
-
-VerticalLayout::~VerticalLayout( void )
-{
-	// VerticalLayout destroyed.
 }
 
 void VerticalLayout::Pack( void )
 {
 	// First get maximum width.
 	int maxWidth = 0;
-	deque<Component*>::const_iterator i;
-	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
+	deque<Component*>::const_iterator i, end;
+	for (i = componentStack_.begin(), end = componentStack_.end(); i != end; ++i) {
 		Component *component = *i;
 		int width = component->GetWidth();
 		if (width > maxWidth) {
@@ -30,7 +25,7 @@ void VerticalLayout::Pack( void )
 
 	// Now pack.
 	int height = 0;
-	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
+	for (i = componentStack_.begin(); i != end; i++) {
 		Component *component = *i;
 
 		// Set position aligned horizontally.

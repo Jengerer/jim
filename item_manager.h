@@ -6,7 +6,7 @@
 #include "backpack.h"
 #include "button.h"
 #include "item_display.h"
-#include "label_button.h"
+#include "button.h"
 #include "notice.h"
 #include "notification_queue.h"
 #include "notification.h"
@@ -31,7 +31,12 @@ public:
 	void LoadDefinitions( void );
 	void LoadItemsFromWeb( void );
 
-	void RunApplication( void );
+	// Application running functions.
+	void RunApplication();
+	void SetThink( void (ItemManager::*thinkFunction)( void ) );
+	void DoThink();
+	void Loading();
+	void Running();
 
 	// Steam handling.
 	void HandleCallbacks( void );
@@ -62,17 +67,13 @@ public:
 private:
 	// Application interfaces.
 	Backpack*		backpack_;
+	void (ItemManager::*thinkFunction_)( void );
 
 	// User interface stacks.
 	std::vector<Popup*>	popupStack_;
 
-	// Keyboard booleans.
-	bool			leftPressed_;
-	bool			rightPressed_;
-	bool			enterPressed_;
-
 	// Display for item information.
-	ItemDisplay		*itemDisplay_;
+	ItemDisplay			*itemDisplay_;
 
 	// Progress notice.
 	Notice				*loadProgress_;

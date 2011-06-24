@@ -2,14 +2,22 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <json/json.h>
-
-using namespace std;
-
-Hashtable *itemDefinitions = NULL, *langDefinitions = NULL;
 
 void loadDefinitions();
 void exitApplication();
+
+Json::Value GetMember( Json::Value& value, const string& member )
+{
+	Json::Value defaultValue;
+	if (!value.isMember( member )) {
+		// TODO: member_not_found exception.
+		throw Exception( "Unexpected definition format. Element '" + member + "' not found." );
+	}
+
+	return value.get( member, defaultValue );
+}
 
 int main()
 {
@@ -17,6 +25,7 @@ int main()
 		loadDefinitions();
 	}
 	catch (Exception defineException) {
+		cout << "FAILED!\n";
 		cout << "Exception: " << *defineException.getMessage() << endl;
 	}
 
@@ -30,246 +39,167 @@ int main()
 
 void loadDefinitions()
 {
-	cout << "Starting item definition parser." << endl;
+	cout << "Starting item definition parser.\n";
 
+	cout << "Opening connection interface... ";
 	Curl* curl = new Curl();
+	cout << "OK!\n";
 
-	string itemDefinition, langDefinition;
-	
-	// Download API definitions.
-	cout << "Opening item definitions... ";
-	itemDefinition = curl->read( "http://api.steampowered.com/ITFItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=vdf" );
-	cout << "loaded!" << endl;
+	cout << "Reading item definitions... ";
+	string itemDefinition = curl->read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
+	cout << "OK!\n";
 
-	// Download language definitions.
-	cout << "Opening language definitions... ";
-	langDefinition = curl->read( "http://www.jengerer.com/itemManager/tf_english.txt" );
-	cout << "loaded!" << endl;
+	cout << "Parsing item definitions... ";
 
-	// Spacing!
-	cout << endl;
-
-	try {
-		cout << "Parsing item definitions... ";
-		itemDefinitions = KeyValueParser::Parse( itemDefinition );
-		cout << "done!" << endl;
-
-		cout << "Parsing language definitions... ";
-		langDefinitions = KeyValueParser::Parse( langDefinition );
-		cout << "done!" << endl;
-	}
-	catch (Exception parseException) {
-		throw Exception("Failed to parse items and language: " + *parseException.getMessage());
+	Json::Reader reader;
+	Json::Value definitionRoot;
+	if (!reader.parse( itemDefinition, definitionRoot, false )) {
+		throw Exception( "Failed to parse item definition file." );
 	}
 
-	Hashtable *resultTable, *itemsTable, *definitionsTable;
-	Hashtable *langTable, *tokenTable;
+	cout << "OK!\n";
+	cout << "Generating definitions... ";
 
-	try {
-		resultTable = itemDefinitions->getTable( "result");
-		itemsTable = resultTable->getTable( "items" );
-		definitionsTable = itemsTable->getTable( "item" );
-	}
-	catch (Exception tableException) {
-		throw Exception("Unexpected format for item definitions. Key '" + *tableException.getMessage() + "' not found.");
-	}
+	Json::Value result = GetMember( definitionRoot, "result" );
+	Json::Value items = GetMember( result, "items" );
 
-	try {
-		langTable = langDefinitions->getTable("lang");
-		tokenTable = langTable->getTable("Tokens");
-	}
-	catch (Exception tableException) {
-		throw Exception("Unexpected format for language definitions. Key '" + *tableException.getMessage() + "' not found.");
-	}
+	// Create JSON output variables.
+	Json::Value itemsOutput;
 
-	Json::Value root;
-	Json::StyledWriter jsonWriter;
+	for (Json::ValueIterator i = items.begin(); i != items.end(); ++i) {
+		Json::Value item = *i;
 
-	// Handle items.
-	stringMap::iterator hashIterator, itemIterator, nameIterator;
-	for (hashIterator = definitionsTable->begin(); hashIterator != definitionsTable->end(); hashIterator++)
-	{
-		Hashtable* thisTable = NULL;
-		try
-		{
-			thisTable = boost::any_cast<Hashtable*>(hashIterator->second);
-		} catch (const boost::bad_any_cast &)
-		{
-			throw Exception( "Failed to get table, unexpected variable type received." );
+		// Check that all necessary attributes exist.
+		unsigned int defindex	= GetMember( item, "defindex" ).asUInt();
+		string item_name		= GetMember( item, "item_name" ).asString();
+		string item_slot		= GetMember( item, "item_slot" ).asString();
+		string image_inventory	= GetMember( item, "image_inventory" ).asString();
+		string image_url		= GetMember( item, "image_url" ).asString();
+
+		if (image_inventory.empty() || image_url.empty()) {
+			image_inventory = "backpack/unknown_item";
+			image_url = "http://www.jengerer.com/itemManager/imgFiles/backpack/unknown_item.png";
 		}
 
-		// Try get the item name.
-		string *itemName, *realName, *itemIndex, *slotName, *texturePath, *textureUrl;
-		try
-		{
-			itemName = thisTable->getString("item_name");
-			itemIndex = thisTable->getString("defindex");
-			slotName = thisTable->getString("item_slot");
-			texturePath = thisTable->getString("image_inventory");
-			textureUrl = thisTable->getString("image_url");
-		} catch (Exception tableException)
-		{
-			throw Exception("Unexpected format for item definitions. Found item with no '" + *tableException.getMessage() + "' value.");
+		if (!curl->download( image_url, "imgFiles/" + image_inventory + ".png" )) {
+			throw Exception( "Failed to download file '" + image_url + "'." );
 		}
 
-		if (texturePath->empty()) {
-			*texturePath = "backpack/unknown_item";
-			*textureUrl = "http://www.jengerer.com/itemManager/imgFiles/backpack/unknown_item.png";
-		}
-
-		if (!curl->download(*textureUrl, "imgFiles/" + *texturePath + ".png")) {
-			*texturePath = "backpack/unknown_item";
-		}
-
-		boost::regex langToken("#(.*)");
-		boost::cmatch regexMatches;
-		if (!boost::regex_match(itemName->c_str(), regexMatches, langToken))
-			throw Exception( "Unexpected format for item definitions. Tokened name didn't match token format." );
-
-		*itemName = regexMatches[1];
-
-		try
-		{
-			realName = tokenTable->getString(*itemName);
-		} catch (Exception& tableException)
-		{
-			printf("Couldn't find language translation of item %s name '%s'.\n", itemIndex->c_str(), tableException.getMessage()->c_str());
-			realName = itemName;
-		}
-
-		Json::Value thisObject;
-		thisObject["index"] = *itemIndex;
-		thisObject["name"] = *realName;
-		thisObject["image"] = *texturePath;
+		Json::Value thisItem;
+		thisItem["index"] = defindex;
+		thisItem["image"] = image_inventory;
+		thisItem["name"] = item_name;
 
 		// Create slot.
 		EItemSlot itemSlot;
-		if (*slotName == "invalid") {
+		if (item_slot.empty()) {
+			itemSlot = SLOT_NONE;
+		}
+		else if (item_slot == "invalid") {
 			itemSlot = SLOT_INVALID;
 		}
-		else if (*slotName == "primary") {
+		else if (item_slot == "primary") {
 			itemSlot = SLOT_PRIMARY;
 		}
-		else if (*slotName == "secondary") {
+		else if (item_slot == "secondary") {
 			itemSlot = SLOT_SECONDARY;
 		}
-		else if (*slotName == "melee") {
+		else if (item_slot == "melee") {
 			itemSlot = SLOT_MELEE;
 		}
-		else if (*slotName == "pda") {
+		else if (item_slot == "pda") {
 			itemSlot = SLOT_PDA;
 		}
-		else if (*slotName == "pda2") {
+		else if (item_slot == "pda2") {
 			itemSlot = SLOT_PDA2;
 		}
-		else if (*slotName == "building") {
+		else if (item_slot == "building") {
 			itemSlot = SLOT_BUILDING;
 		}
-		else if (*slotName == "head") {
+		else if (item_slot == "head") {
 			itemSlot = SLOT_HEAD;
 		}
-		else if (*slotName == "misc") {
+		else if (item_slot == "misc") {
 			itemSlot = SLOT_MISC;
 		}
-		else if (*slotName == "action") {
+		else if (item_slot == "action") {
 			itemSlot = SLOT_ACTION;
 		}
-		else if (*slotName == "grenade") {
+		else if (item_slot == "grenade") {
 			itemSlot = SLOT_GRENADE;
 		}
 		else {
 			throw Exception( "Failed to parse item definition. Unexpected item slot type found." );
 		}
-		thisObject["slot"] = itemSlot;
 
-		unsigned int allClasses = CLASS_ALL;
-		Hashtable *usedByTable = NULL, *classTable = NULL;
-		try
-		{
-			usedByTable = thisTable->getTable("used_by_classes");
-		} catch (Exception tableException)
-		{
-			// Item is used by all classes.
-			thisObject["classes"] = allClasses;
+		thisItem["slot"] = itemSlot;
+
+		// Get classes, if they exist.
+		if (!item.isMember( "used_by_classes" )) {
+			thisItem["classes"] = CLASS_ALL;
 		}
-
-		if (usedByTable != nullptr) {
-			try {
-				classTable = usedByTable->getTable("class");
-			}
-			catch (Exception classException) {
-				throw Exception("Unexpected definition format. " + *realName + " has class usage, but no classes defined.");
-			}
-
-			stringMap::iterator i;
+		else {
 			unsigned int classFlags = CLASS_NONE;
-			for (i = classTable->begin(); i != classTable->end(); i++) {
-				string *className = nullptr;
-				try {
-					className = boost::any_cast<string*>(i->second);
-				}
-				catch (boost::bad_any_cast&) {
-					throw Exception( "Failed to parse class usage." );
-				}
+			Json::Value classes = GetMember( item, "used_by_classes" );
+			for (Json::ValueIterator i = classes.begin(); i != classes.end(); i++) {
+				string className = (*i).asString();
 
 				// Add all classes.
-				if (*className == "Scout")
-					classFlags |= CLASS_SCOUT;
-				if (*className == "Soldier")
-					classFlags |= CLASS_SOLDIER;
-				if (*className == "Pyro")
-					classFlags |= CLASS_PYRO;
-				if (*className == "Demoman")
-					classFlags |= CLASS_DEMOMAN;
-				if (*className == "Heavy")
-					classFlags |= CLASS_HEAVY;
-				if (*className == "Engineer")
-					classFlags |= CLASS_ENGINEER;
-				if (*className == "Medic")
-					classFlags |= CLASS_MEDIC;
-				if (*className == "Sniper")
-					classFlags |= CLASS_SNIPER;
-				if (*className == "Spy")
-					classFlags |= CLASS_SPY;
+				if (!className.empty()) {
+					if (className == "Scout")
+						classFlags |= CLASS_SCOUT;
+					else if (className == "Soldier")
+						classFlags |= CLASS_SOLDIER;
+					else if (className == "Pyro")
+						classFlags |= CLASS_PYRO;
+					else if (className == "Demoman")
+						classFlags |= CLASS_DEMOMAN;
+					else if (className == "Heavy")
+						classFlags |= CLASS_HEAVY;
+					else if (className == "Engineer")
+						classFlags |= CLASS_ENGINEER;
+					else if (className == "Medic")
+						classFlags |= CLASS_MEDIC;
+					else if (className == "Sniper")
+						classFlags |= CLASS_SNIPER;
+					else if (className == "Spy")
+						classFlags |= CLASS_SPY;
+					else
+						throw Exception( "Unexpected class name '" + className + "' found." );
+				}
 			}
 
-			thisObject["classes"] = classFlags;
+			thisItem["classes"] = classFlags;
 		}
 
-		root.append( thisObject );
+		itemsOutput.append( thisItem );
 	}
 
-	// Add definition for unknown item.
-	Json::Value unknownItem;
-	unknownItem["index"] = "-1";
-	unknownItem["name"] = "Unknown Item";
-	unknownItem["slot"] = SLOT_INVALID;
-	unknownItem["image"] = "backpack/unknown_item";
-	unknownItem["classes"] = 0;
+	cout << "OK!\n";
 
-	// Set -1 to be unknown index.
-	root.append( unknownItem );
 
-	ofstream jsonOutput( "itemDefinitions.json" );
-	if (!jsonOutput) {
-		throw Exception( "Couldn't write to file." );
+	cout << "Generating output file... ";
+
+	// Create root object, add items object.
+	Json::Value outputRoot;
+	outputRoot["items"] = itemsOutput;
+
+	// Print root to file.
+	Json::StyledWriter writer;
+	ofstream outputStream;
+	outputStream.open( "item_definitions.json" );
+	if (outputStream.bad()) {
+		throw Exception( "Failed to open output file to write." );
 	}
+	outputStream << writer.write( outputRoot );
+	outputStream.close();
 
-	string jsonText = jsonWriter.write( root );
-	jsonOutput << jsonText;
-	jsonOutput.close();
-
-	cout << "Wrote to file successfully." << endl;
+	cout << "OK!\n";
+	cout << "Item definitions generated successfully!\n";
 }
 
 void exitApplication()
 {
 	cout << "Deallocating memory stored in tables... ";
-	// Erase all tables.
-	delete itemDefinitions;
-	delete langDefinitions;
-
-	itemDefinitions = NULL;
-	langDefinitions = NULL;
 	cout << "done!" << endl;
 }

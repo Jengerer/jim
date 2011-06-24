@@ -12,8 +12,10 @@ class Button: public RoundedRectangleContainer, public IMouseHandler
 
 public:
 
-	Button( float x = 0.0f, float y = 0.0f );
-	virtual ~Button( void );
+	Button( float localX = 0.0f, float localY = 0.0f );
+
+	// Button content handling.
+	Layout*			GetContentLayout() const;
 
 	// Updating colour based on state.
 	virtual void	Pack( void );
@@ -28,17 +30,23 @@ public:
 	virtual bool	OnLeftClicked( Mouse *mouse );
 	virtual bool	OnLeftReleased( Mouse *mouse );
 
+	bool			IsHovering( void ) const;
+
+	static void		Precache( DirectX *directX );
+	static void		Release();
+
+	static Button*	CreateIconButton( Texture *texture );
+	static Button*	CreateLabelButton( const string& label, Font* font = defaultFont_ );
+	static Button*	CreateIconLabelButton( Texture *texture, const string& label, Font* font = defaultFont_ );
+
 private:
 
 	void			SetHovering( bool isHovering );
-	bool			IsHovering( void ) const;
-
-protected:
-
-	static Font			*font_;
-	HorizontalLayout	*layout_;
 
 private:
+
+	static Font			*defaultFont_;
+	HorizontalLayout	*layout_;
 
 	bool				isHovering_;
 	bool				isEnabled_;

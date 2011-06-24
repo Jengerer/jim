@@ -18,8 +18,6 @@ public:
 	virtual ~Notification( void );
 
 	virtual void	Pack( void );
-
-	void			SetTexture( Texture *texture );
 	void			SetMessage( const string& message );
 
 	static void		Precache( DirectX *directX );

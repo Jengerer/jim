@@ -14,8 +14,7 @@ class HorizontalLayout: public Layout
 
 public:
 
-	HorizontalLayout( void );
-	virtual ~HorizontalLayout( void );
+	HorizontalLayout( unsigned int spacing = 0, EVerticalAlignType alignType = ALIGN_MIDDLE );
 
 	// Packs elements into a horizontal layout.
 	virtual void Pack( void );
