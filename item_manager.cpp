@@ -154,6 +154,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// We should be good to go!
 		loadProgress_->SetMessage( "Waiting for Steam inventory message..." );
+		loadProgress_->CenterTo( this );
 	}
 	catch (Exception& loadException) {
 		error_ = CreateAlert( *loadException.getMessage() );
@@ -256,9 +257,7 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 	// Check top popup.
 	if (!popupStack_.empty()) {
 		Popup *top = popupStack_.back();
-		if (mouse->IsTouching( top )) {
-			top->OnLeftReleased( mouse );
-		}
+		top->OnLeftReleased( mouse );
 
 		// Check if the popup has been closed.
 		if (top == error_ && top->GetState() == POPUP_STATE_KILLED) {
@@ -350,6 +349,7 @@ void ItemManager::LoadDefinitions( void )
 {
 	// Set the message and redraw.
 	loadProgress_->SetMessage("Loading item definitions...");
+	loadProgress_->CenterTo( this );
 	DrawFrame();
 
 	// Load the item definitions.
@@ -421,12 +421,14 @@ void ItemManager::LoadDefinitions( void )
 
 	// Set the message and redraw.
 	loadProgress_->SetMessage("Item definitions successfully loaded!");
+	loadProgress_->CenterTo( this );
 	DrawFrame();
 }
 
 void ItemManager::LoadItemsFromWeb( void )
 {
 	loadProgress_->AppendMessage("\n\nLoading items...");
+	loadProgress_->CenterTo( this );
 	DrawFrame();
 
 	uint64 userId = backpack_->GetSteamId();
@@ -447,6 +449,7 @@ void ItemManager::LoadItemsFromWeb( void )
 
 	// Show success.
 	loadProgress_->SetMessage("Items successfully loaded!");
+	loadProgress_->CenterTo( this );
 	DrawFrame();
 
 	backpack_->SetLoaded( true );
@@ -556,10 +559,11 @@ Notice* ItemManager::CreateNotice( const string& message )
 	Add( newNotice );
 
 	// Set position.
-	float x = floor(GetWidth() / 2.0f);
-	float y = floor(GetHeight() / 2.0f);
-	newNotice->SetGlobalPosition( x, y );
+	float noticeX = floor((GetWidth() - newNotice->GetWidth()) / 2.0f);
+	float noticeY = floor((GetHeight() - newNotice->GetHeight())  / 2.0f);
+	newNotice->SetLocalPosition( noticeX, noticeY );
 	newNotice->SetParent( this );
+	UpdateChild( newNotice );
 	ShowPopup( newNotice );
 	return newNotice;
 }
@@ -573,10 +577,11 @@ Alert* ItemManager::CreateAlert( const string& message )
 	const char* msg = message.c_str();
 
 	// Set position.
-	float alertX = floor(GetWidth() / 2.0f);
-	float alertY = floor(GetHeight()  / 2.0f);
+	float alertX = floor((GetWidth() - newAlert->GetWidth()) / 2.0f);
+	float alertY = floor((GetHeight() - newAlert->GetHeight())  / 2.0f);
 	newAlert->SetGlobalPosition( alertX, alertY );
 	newAlert->SetParent( this );
+	UpdateChild( newAlert );
 	ShowPopup( newAlert );
 	return newAlert;
 }

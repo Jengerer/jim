@@ -36,7 +36,10 @@ bool Draggable::OnMouseMoved( Mouse *mouse )
 
 bool Draggable::OnLeftClicked( Mouse *mouse )
 {
-	OnDrag( mouse );
+	if (mouse->IsTouching( this )) {
+		OnDrag( mouse );
+	}
+
 	return true;
 }
 

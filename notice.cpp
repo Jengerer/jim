@@ -52,7 +52,6 @@ void Notice::Pack( void )
 	text_->Pack();
 	content_->Pack();
 	roundedContainer_->Pack();
-	roundedContainer_->SetLocalPosition( -roundedContainer_->GetWidth() / 2.0f, -roundedContainer_->GetHeight() / 2.0f );
 	SetSize( roundedContainer_->GetWidth(), roundedContainer_->GetHeight() );
 	UpdateChildren();
 }
