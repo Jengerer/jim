@@ -43,10 +43,10 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Program Files\protobuf-2.4.1\src;$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProgramFiles)\JsonCpp\libs\Release\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Release\;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Program Files\protobuf-2.4.1\vsprojects\Debug;$(ProgramFiles)\JsonCpp\libs\Debug\;$(ProgramFiles)\Boost\stage\lib\;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProgramFiles)\protobuf-2.4.1\src;$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\boost_1_46_1\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProgramFiles)\protobuf-2.4.1\src;$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\boost_1_46_1;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProgramFiles)\protobuf-2.4.1\vsprojects\Release;$(ProgramFiles)\JsonCpp\libs\Release\;$(ProgramFiles)\Boost\boost_1_46_1\lib;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Release\;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProgramFiles)\protobuf-2.4.1\vsprojects\Debug;$(ProgramFiles)\JsonCpp\libs\Debug\;$(ProgramFiles)\Boost\boost_1_46_1\lib;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -76,15 +76,16 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>steam/steam_api.lib;d3d9.lib;d3dx9.lib;libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>libprotobuf.lib;steam/steam_api.lib;d3d9.lib;d3dx9.lib;libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -97,6 +98,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.cpp" />
     <ClCompile Include="alert.cpp" />
     <ClCompile Include="application.cpp" />
     <ClCompile Include="backpack.cpp" />
@@ -141,6 +143,7 @@
     <ClCompile Include="wrapped_text.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.h" />
     <ClInclude Include="alert.h" />
     <ClInclude Include="application.h" />
     <ClInclude Include="backpack.h" />

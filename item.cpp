@@ -1,6 +1,7 @@
 #include "item.h"
 
-InformationMap *Item::definitions = nullptr;
+// Static map.
+information_map Item::definitions;
 
 Item::Item(
 	uint64 uniqueId,
@@ -31,14 +32,14 @@ Item::~Item( void )
 void Item::GetItemInformation( void )
 {
 	// Attempt to find item information.
-	InformationMap::iterator i = definitions->find( GetTypeIndex() );
-	if (i != definitions->end()) {
+	information_map::iterator i = definitions.find( GetTypeIndex() );
+	if (i != definitions.end()) {
 		information_ = i->second;
 	}
 	else {
 		// Fall back to default.
-		i = definitions->find( -1 );
-		if (i != definitions->end()) {
+		i = definitions.find( -1 );
+		if (i != definitions.end()) {
 			information_ = i->second;
 		}
 		else {
@@ -99,7 +100,7 @@ void Item::SetIndex( uint16 position )
 
 bool Item::HasValidFlags( void ) const
 {
-	return GetFlags() & FL_ITEM_VALID;
+	return (GetFlags() & 0xF0000000) == FL_ITEM_VALID;
 }
 
 void Item::SetCustomName( const string& name )
