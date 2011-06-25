@@ -1,6 +1,6 @@
 #include "item_information.h"
 
-CItemInformation::CItemInformation(
+ItemInformation::ItemInformation(
 	const string& name,
 	Texture *texture,
 	uint32 classFlags,
@@ -12,47 +12,47 @@ CItemInformation::CItemInformation(
 	SetSlot( slot );
 }
 
-CItemInformation::~CItemInformation( void )
+ItemInformation::~ItemInformation( void )
 {
 	// Item information destroyed.
 }
 
-const string& CItemInformation::GetName( void ) const
+const string& ItemInformation::GetName( void ) const
 {
 	return name_;
 }
 
-Texture* CItemInformation::GetTexture( void ) const
+Texture* ItemInformation::GetTexture( void ) const
 {
 	return texture_;
 }
 
-uint32 CItemInformation::GetClassFlags( void ) const
+uint32 ItemInformation::GetClassFlags( void ) const
 {
 	return classFlags_;
 }
 
-uint8 CItemInformation::GetClassCount( void ) const
+uint8 ItemInformation::GetClassCount( void ) const
 {
 	return classCount_;
 }
 
-EItemSlot CItemInformation::GetSlot( void ) const
+EItemSlot ItemInformation::GetSlot( void ) const
 {
 	return slot_;
 }
 
-void CItemInformation::SetName( const string& name )
+void ItemInformation::SetName( const string& name )
 {
 	name_ = name;
 }
 
-void CItemInformation::SetTexture( Texture *texture )
+void ItemInformation::SetTexture( Texture *texture )
 {
 	texture_ = texture;
 }
 
-void CItemInformation::SetClassFlags( uint32 classFlags )
+void ItemInformation::SetClassFlags( uint32 classFlags )
 {
 	classFlags_ = classFlags;
 
@@ -67,7 +67,7 @@ void CItemInformation::SetClassFlags( uint32 classFlags )
 	}
 }
 
-void CItemInformation::SetSlot( EItemSlot slot )
+void ItemInformation::SetSlot( EItemSlot slot )
 {
 	slot_ = slot;
 }

@@ -156,6 +156,9 @@
     <ClCompile Include="mouse.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="steam\AppsCommon.h">
@@ -937,6 +940,9 @@
     </ClInclude>
     <ClInclude Include="mouse.h">
       <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.h">
+      <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

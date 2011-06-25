@@ -12,12 +12,10 @@
 
 #include "exception.h"
 #include "item_information.h"
+#include "item_shared.h"
 #include "texture.h"
 
-// Using int32 so we can have -1 index for fallback.
-// TODO: Keep it as uint16, but store a static fallback definition.
-typedef std::map<int32, CItemInformation*>	InformationMap;
-typedef std::pair<int32, CItemInformation*>	InformationPair;
+typedef std::map<int, ItemInformation*> information_map;
 
 class Item
 {
@@ -73,8 +71,9 @@ private:
 
 public:
 
-	// Item information map.
-	static InformationMap *definitions;
+	// Using int32 so we can have -1 index for fallback.
+	// TODO: Keep it as uint16, but store a static fallback definition.
+	static information_map	definitions;
 
 private:
 
@@ -90,6 +89,6 @@ private:
 	string					customName_;
 
 	// Item definition information.
-	const CItemInformation	*information_;
+	const ItemInformation	*information_;
 
 };

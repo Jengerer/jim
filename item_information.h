@@ -8,17 +8,17 @@
 
 #include "steam/SteamTypes.h"
 
-class CItemInformation
+class ItemInformation
 {
 
 public:
 
-	CItemInformation(
+	ItemInformation(
 		const string& name,
 		Texture *texture,
 		uint32 classFlags,
 		EItemSlot slot );
-	~CItemInformation( void );
+	~ItemInformation( void );
 
 	const string&	GetName( void ) const;
 	Texture*		GetTexture( void ) const;

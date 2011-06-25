@@ -5,12 +5,16 @@
 #include "application.h"
 #include "backpack.h"
 #include "button.h"
+#include "definition_loader.h"
 #include "item_display.h"
-#include "button.h"
 #include "notice.h"
 #include "notification_queue.h"
 #include "notification.h"
 #include "toggle_set.h"
+
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
 #define BUTTON_SPACING	5
 #define BUTTON_Y		380
@@ -28,6 +32,7 @@ public:
 	void CloseInterfaces( void );
 
 	// Inventory and definition loading.
+	void LoadResources( void );
 	void LoadDefinitions( void );
 	void LoadItemsFromWeb( void );
 
@@ -37,6 +42,7 @@ public:
 	void DoThink();
 	void Loading();
 	void Running();
+	void Exiting();
 
 	// Steam handling.
 	void HandleCallbacks( void );
@@ -68,6 +74,9 @@ private:
 	// Application interfaces.
 	Backpack*		backpack_;
 	void (ItemManager::*thinkFunction_)( void );
+
+	// Threaded loader for resources.
+	DefinitionLoader*	definitionLoader_;
 
 	// User interface stacks.
 	std::vector<Popup*>	popupStack_;

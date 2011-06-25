@@ -13,7 +13,7 @@
 #define MENU_STROKE_COLOUR		D3DCOLOR_ARGB( 255, 255, 255, 50 )
 #define MENU_BACKGROUND_COLOUR	D3DCOLOR_XRGB( 42, 39, 37 )
 
-class Menu: public Popup, public IMouseHandler
+class Menu: public Popup
 {
 
 public:

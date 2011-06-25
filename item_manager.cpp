@@ -87,6 +87,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	backpack_ = nullptr;
 	itemDisplay_ = nullptr;
 	loadProgress_ = nullptr;
+	definitionLoader_ = nullptr;
 
 	// Set default running function.
 	SetThink( &ItemManager::Loading );
@@ -146,18 +147,15 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		equipSet_ = nullptr;
 
 		// Create start up message.
-		loadProgress_ = CreateNotice( "Initializing item manager..." );
+		loadProgress_ = CreateNotice( "Initializing Steam interfaces..." );
 
 		// Attempt to load Steam and definitions.
 		backpack_->LoadInterfaces();
 		LoadDefinitions();
-
-		// We should be good to go!
-		loadProgress_->SetMessage( "Waiting for Steam inventory message..." );
-		loadProgress_->CenterTo( this );
 	}
 	catch (Exception& loadException) {
 		error_ = CreateAlert( *loadException.getMessage() );
+		SetThink( &ItemManager::Exiting );
 	}
 }
 
@@ -169,17 +167,18 @@ void ItemManager::CloseInterfaces( void )
 		mouse_ = nullptr;
 	}
 
-	// Delete item information.
-	if (Item::definitions != nullptr) {
-		// Free all allocated resources.
-		InformationMap::iterator i;
-		for (i = Item::definitions->begin(); i != Item::definitions->end(); i++) {
-			delete i->second;
-		}
+	// Delete loader thread.
+	if (definitionLoader_ != nullptr) {
+		definitionLoader_->End();
+		delete definitionLoader_;
+		definitionLoader_ = nullptr;
+	}
 
-		// Now just remove the table.
-		delete Item::definitions;
-		Item::definitions = nullptr;
+	// Erase item definitions.
+	information_map::iterator i;
+	while ((i = Item::definitions.begin()) != Item::definitions.end()) {
+		delete i->second;
+		Item::definitions.erase( i );
 	}
 
 	// Free cached resources.
@@ -213,10 +212,29 @@ void ItemManager::DoThink()
 
 void ItemManager::Loading()
 {
-	HandleCallbacks();
-	if (backpack_->IsLoaded()) {
-		SetThink( &ItemManager::Running );
-		RemovePopup( loadProgress_ );
+	if (definitionLoader_ != nullptr) {
+		switch (definitionLoader_->GetState()) {
+		case LOADING_STATE_START:
+			error_ = CreateAlert( "Definition loader was not started." );
+			SetThink( &ItemManager::Exiting );
+			break;
+		case LOADING_STATE_ERROR:
+			error_ = CreateAlert( definitionLoader_->GetErrorMsg() );
+			SetThink( &ItemManager::Exiting );
+			break;
+		case LOADING_STATE_FINISHED:
+			loadProgress_->SetMessage( "Waiting for Steam message." );
+			delete definitionLoader_;
+			definitionLoader_ = nullptr;
+			break;
+		}
+	}
+	else {
+		HandleCallbacks();
+		if (backpack_->IsLoaded()) {
+			SetThink( &ItemManager::Running );
+			RemovePopup( loadProgress_ );
+		}
 	}
 }
 
@@ -226,6 +244,11 @@ void ItemManager::Running()
 	backpack_->HandleCamera();
 	notifications_->UpdateNotifications();
 	UpdateItemDisplay();
+}
+
+void ItemManager::Exiting()
+{
+	// Just wait for exit.
 }
 
 bool ItemManager::OnLeftClicked( Mouse *mouse )
@@ -296,6 +319,10 @@ bool ItemManager::OnMouseMoved( Mouse *mouse )
 
 void ItemManager::HandleKeyboard( void )
 {
+	if (IsKeyPressed( VK_ESCAPE )) {
+		ExitApplication();
+	}
+
 	if (!popupStack_.empty()) {
 		Popup *top = popupStack_.back();
 		if (IsKeyPressed( VK_RETURN )) {
@@ -306,20 +333,15 @@ void ItemManager::HandleKeyboard( void )
 		}
 	}
 	else {
-		if (IsKeyPressed( VK_ESCAPE )) {
-			ExitApplication();
-		}
-		else {
-			if (backpack_ && backpack_->IsLoaded()) {
-				// Toggle between single and multiple selection.
-				backpack_->SetSelectMode( IsKeyPressed( VK_LCONTROL ) ? SELECT_MODE_MULTIPLE : SELECT_MODE_SINGLE );
+		if (backpack_ && backpack_->IsLoaded()) {
+			// Toggle between single and multiple selection.
+			backpack_->SetSelectMode( IsKeyPressed( VK_LCONTROL ) ? SELECT_MODE_MULTIPLE : SELECT_MODE_SINGLE );
 
-				if (IsKeyClicked( VK_LEFT )) {
-					backpack_->PrevPage();
-				}
-				else if (IsKeyClicked( VK_RIGHT )) {
-					backpack_->NextPage();
-				}
+			if (IsKeyClicked( VK_LEFT )) {
+				backpack_->PrevPage();
+			}
+			else if (IsKeyClicked( VK_RIGHT )) {
+				backpack_->NextPage();
 			}
 		}
 	}
@@ -350,79 +372,10 @@ void ItemManager::LoadDefinitions( void )
 	// Set the message and redraw.
 	loadProgress_->SetMessage("Loading item definitions...");
 	loadProgress_->CenterTo( this );
-	DrawFrame();
 
-	// Load the item definitions.
-	string itemDefinitions;
-	try {
-		itemDefinitions = directX_->read( "http://www.jengerer.com/itemManager/item_definitions.json" );
-	}
-	catch (Exception& ex) {
-		throw Exception( "Failed to retrieve item definitions from server." );
-	}
-
-	// Begin parsing.
-	Json::Reader	reader;
-	Json::Value		root;
-	if (!reader.parse( itemDefinitions, root, false) ) {
-		throw Exception("Failed to parse item definitions.");
-	}
-
-	if (!root.isMember( "items" )) {
-		throw Exception( "Unexpected definition format. Element 'items' not found." );
-	}
-
-	Json::Value		items = root.get( "items", root );
-	Item::definitions = new InformationMap();
-	for (Json::ValueIterator i = items.begin(); i != items.end(); ++i) {
-		Json::Value thisItem = *i;
-		
-		bool hasKeys = thisItem.isMember("index") &&
-			thisItem.isMember("name") &&
-			thisItem.isMember("slot") &&
-			thisItem.isMember("image");
-
-		if (!hasKeys) {
-			throw Exception("Failed to parse item definitions. One or more missing members from item entry.");
-		}
-
-		// Get strings.
-		uint32 index	= thisItem.get( "index", root ).asUInt();
-		string name		= thisItem.get( "name", root ).asString();
-		string image	= thisItem.get( "image", root ).asString();
-		EItemSlot slot	= static_cast<EItemSlot>(thisItem.get( "slot", root ).asUInt());
-		uint32 classes	= thisItem.get( "classes", root ).asUInt();
-
-		// Make sure there's a file.
-		if (image.empty()) {
-			image = "backpack/unknown_item";
-		}
-
-		// Attempt to load the texture.
-		Texture *texture = nullptr;
-		try {
-			texture = directX_->GetTexture( image );
-		}
-		catch (Exception &textureException) {
-			throw textureException;
-		}
-
-		// Generate information object.
-		CItemInformation *itemInformation = new CItemInformation(
-			name,
-			texture,
-			classes,
-			slot );
-
-		// Parse item type and insert.
-		InformationPair infoPair( index, itemInformation );
-		Item::definitions->insert( infoPair );
-	}
-
-	// Set the message and redraw.
-	loadProgress_->SetMessage("Item definitions successfully loaded!");
-	loadProgress_->CenterTo( this );
-	DrawFrame();
+	// Set up loader.
+	definitionLoader_ = new DefinitionLoader( directX_, "http://www.jengerer.com/itemManager/item_definitions.json" );
+	definitionLoader_->Begin();
 }
 
 void ItemManager::LoadItemsFromWeb( void )

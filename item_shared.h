@@ -3,7 +3,6 @@
 
 #include "texture.h"
 
-// TODO: Maybe an enum doesn't make sense.
 enum EClassEquip {
 	CLASS_NONE		= 0x00000000,
 	CLASS_SCOUT		= 0x00010000,
