@@ -7,6 +7,8 @@
 
 #include <string>
 
+#include <json/json.h>
+
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -15,6 +17,7 @@ enum ELoadingState
 	LOADING_STATE_START,
 	LOADING_STATE_RUNNING,
 	LOADING_STATE_ERROR,
+	LOADING_STATE_CLEANUP,
 	LOADING_STATE_FINISHED
 };
 
@@ -32,12 +35,19 @@ public:
 	// Getting definition loader states.
 	ELoadingState GetState() const;
 	const string& GetErrorMsg() const;
+	float GetProgress() const;
 
 private:
 
 	void Load();
+	void Cleanup();
+
+	Json::Value GetMember( Json::Value& root, const string& member );
+
 	void SetState( ELoadingState state );
 	void SetError( const string& errorMsg );
+	void SetErrorMsg( const string& errorMsg );
+	void SetProgress( float progress );
 
 private:
 
@@ -50,7 +60,14 @@ private:
 	boost::shared_ptr<boost::thread>	thread_;
 	boost::mutex						mutex_;
 
+	// Parsing members.
+	Json::Value							root_;
+	std::map<string, EItemSlot>			slotTypes_;
+	std::map<string, EClassEquip>		classTypes_;
+
 	// State members.
+	size_t								loaded_;
+	float								progress_;
 	ELoadingState						state_;
 	string								errorMsg_;
 	

@@ -18,7 +18,10 @@ public:
 	virtual bool OnLeftClicked( Mouse *mouse );
 	virtual bool OnLeftReleased( Mouse *mouse );
 
-	void SetParent( Container *container );
+	bool				HasParent() const;
+	const Container*	GetParent() const;
+	void				SetParent( const Container* container );
+
 	bool IsDragging( void ) const;
 	virtual void OnDrag( const Mouse* mouse );
 	virtual void OnRelease( void );
@@ -34,8 +37,8 @@ private:
 
 private:
 
-	const Mouse		*mouse_;
-	Container*		parent_;
+	const Mouse			*mouse_;
+	const Container*	parent_;
 
 	bool			isDragging_;
 	float			offsetX_, offsetY_;
