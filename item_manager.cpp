@@ -213,19 +213,37 @@ void ItemManager::DoThink()
 void ItemManager::Loading()
 {
 	if (definitionLoader_ != nullptr) {
-		switch (definitionLoader_->GetState()) {
+		switch (definitionLoader_->GetState()){
 		case LOADING_STATE_START:
 			error_ = CreateAlert( "Definition loader was not started." );
 			SetThink( &ItemManager::Exiting );
 			break;
+
+		case LOADING_STATE_RUNNING:
+			{
+				stringstream loadPercentage;
+				loadPercentage << "Loading and downloading item definition resources... (" << floor(definitionLoader_->GetProgress() * 100.0f) << "%)";
+				loadProgress_->SetMessage( loadPercentage.str() );
+			}
+			break;
+
 		case LOADING_STATE_ERROR:
+			// Remove threaded loader.
+			definitionLoader_->End();
+			delete definitionLoader_;
+			definitionLoader_ = nullptr;
+
 			error_ = CreateAlert( definitionLoader_->GetErrorMsg() );
 			SetThink( &ItemManager::Exiting );
 			break;
+
 		case LOADING_STATE_FINISHED:
-			loadProgress_->SetMessage( "Waiting for Steam message." );
+			// Remove threaded loader.
+			definitionLoader_->End();
 			delete definitionLoader_;
 			definitionLoader_ = nullptr;
+
+			loadProgress_->SetMessage( "Waiting for Steam message..." );
 			break;
 		}
 	}
@@ -371,7 +389,6 @@ void ItemManager::LoadDefinitions( void )
 {
 	// Set the message and redraw.
 	loadProgress_->SetMessage("Loading item definitions...");
-	loadProgress_->CenterTo( this );
 
 	// Set up loader.
 	definitionLoader_ = new DefinitionLoader( directX_, "http://www.jengerer.com/itemManager/item_definitions.json" );
@@ -381,7 +398,6 @@ void ItemManager::LoadDefinitions( void )
 void ItemManager::LoadItemsFromWeb( void )
 {
 	loadProgress_->AppendMessage("\n\nLoading items...");
-	loadProgress_->CenterTo( this );
 	DrawFrame();
 
 	uint64 userId = backpack_->GetSteamId();
@@ -402,7 +418,6 @@ void ItemManager::LoadItemsFromWeb( void )
 
 	// Show success.
 	loadProgress_->SetMessage("Items successfully loaded!");
-	loadProgress_->CenterTo( this );
 	DrawFrame();
 
 	backpack_->SetLoaded( true );
@@ -512,11 +527,7 @@ Notice* ItemManager::CreateNotice( const string& message )
 	Add( newNotice );
 
 	// Set position.
-	float noticeX = floor((GetWidth() - newNotice->GetWidth()) / 2.0f);
-	float noticeY = floor((GetHeight() - newNotice->GetHeight())  / 2.0f);
-	newNotice->SetLocalPosition( noticeX, noticeY );
 	newNotice->SetParent( this );
-	UpdateChild( newNotice );
 	ShowPopup( newNotice );
 	return newNotice;
 }
@@ -526,15 +537,9 @@ Alert* ItemManager::CreateAlert( const string& message )
 	Alert* newAlert = new Alert( message );
 	Add( newAlert );
 
-	const string* str = &message;
-	const char* msg = message.c_str();
-
 	// Set position.
-	float alertX = floor((GetWidth() - newAlert->GetWidth()) / 2.0f);
-	float alertY = floor((GetHeight() - newAlert->GetHeight())  / 2.0f);
-	newAlert->SetGlobalPosition( alertX, alertY );
+	newAlert->CenterTo( this );
 	newAlert->SetParent( this );
-	UpdateChild( newAlert );
 	ShowPopup( newAlert );
 	return newAlert;
 }

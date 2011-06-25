@@ -100,10 +100,13 @@ void Backpack::Precache( DirectX *directX )
 	Texture *equipTexture = directX->GetTexture( "manager/equip" );
 	Texture *sortTexture = directX->GetTexture( "manager/sort" );
 
-	// Create icons.
+	// Create buttons.
 	craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
 	equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
 	sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
+	craftButton_->SetEnabled( false );
+	equipButton_->SetEnabled( false );
+	sortButton_->SetEnabled( false );
 	
 	// Add to layout.
 	buttonLayout_->Add( craftButton_ );

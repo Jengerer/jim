@@ -171,7 +171,7 @@ void DirectX::ReleaseTextures( void )
 	}
 }
 
-Texture* DirectX::CreateTexture( const string& name, int width, int height )
+Texture* DirectX::CreateTexture( int width, int height )
 {
 	// Create empty texture.
 	IDirect3DTexture9* emptyTexture = nullptr;
@@ -195,7 +195,7 @@ Texture* DirectX::CreateTexture( const string& name, int width, int height )
 	newInformation.Format = D3DFMT_A8R8G8B8;
 
 	// Generate texture object and initialize.
-	Texture *newTexture = new Texture( name );
+	Texture *newTexture = new Texture();
 	newTexture->SetTexture( emptyTexture, newInformation );
 	return newTexture;
 }
@@ -229,19 +229,35 @@ void DirectX::ResetRenderTarget( void )
 
 Texture* DirectX::GetTexture( const string& filename )
 {
+	string defaultUrl = "http://www.jengerer.com/itemManager/imgFiles/" + filename + ".png";
+	return GetTexture( filename, defaultUrl );
+}
+
+Texture* DirectX::GetTexture( const string& filename, const string& url )
+{
 	// Check if the texture exists already.
 	TextureMap::iterator i = textures_->find( filename );
 	if (i != textures_->end()) {
 		return i->second;
 	}
 
-	// Create and load.
-	Texture* texture = new Texture( filename );
-	LoadTexture( texture );
+	Texture* texture = new Texture( filename, url );
+	try {
+		LoadTexture( texture );
+	}
+	catch (Exception&) {
+		// Try to download the texture.
+		string path = "imgFiles/" + filename + ".png";
+		if (!download( url, path )) {
+			string errorMessage = "Failed to load texture:\n" + path;
+			throw Exception( errorMessage );
+		}
+
+		LoadTexture( texture );
+	}
 
 	// Insert and return.
-	TexturePair texturePair( filename, texture );
-	textures_->insert( texturePair );
+	(*textures_)[filename] = texture;
 	return texture;
 }
 
@@ -255,26 +271,11 @@ void DirectX::LoadTexture( Texture *texture )
 	IDirect3DTexture9	*d3dTexture;
 	D3DXIMAGE_INFO		info;
 
-	string path = "imgFiles/" + texture->GetTextureFilename() + ".png";
+	string filename = texture->GetFilename();
+	string path = "imgFiles/" + filename + ".png";
 	HRESULT result = D3DXGetImageInfoFromFile( path.c_str(), &info );
 	if ( FAILED( result ) ) {
-		// Make sure image directory exists.
-		if (GetFileAttributes( "imgFiles" ) == INVALID_FILE_ATTRIBUTES) {
-			CreateDirectory( "imgFiles", 0 );
-		}
-
-		// Try to download the texture.
-		string fileURL = "http://www.jengerer.com/itemManager/" + path;
-		if (!download( fileURL, path )) {
-			string errorMessage = "Failed to load texture:\n" + path;
-			throw Exception( errorMessage );
-		}
-
-		result = D3DXGetImageInfoFromFile( path.c_str(), &info );
-		if ( FAILED( result ) ) {
-			string errorMessage = "Failed to load texture:\n" + path;
-			throw Exception( errorMessage );
-		}
+		throw Exception( "Failed to load image information:\n" + filename );
 	}
 
 	// Load the texture.
@@ -292,8 +293,7 @@ void DirectX::LoadTexture( Texture *texture )
 		NULL, NULL,
 		&d3dTexture );
 	if ( FAILED( result ) ) {
-		string errorMessage = "Failed to load texture:\n" + path;
-		throw Exception( errorMessage );
+		throw Exception( "Failed to load texture:\n" + filename );
 	}
 
 	// Finally, load the texture in.

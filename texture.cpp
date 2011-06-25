@@ -1,9 +1,14 @@
 #include "texture.h"
 
-Texture::Texture( const string& filename )
+Texture::Texture()
 {
 	SetTexture( nullptr );
-	SetTextureFilename( filename );
+}
+Texture::Texture( const string& filename, const string &url )
+{
+	SetTexture( nullptr );
+	SetFilename( filename );
+	SetUrl( url );
 }
 
 Texture::~Texture()
@@ -12,12 +17,22 @@ Texture::~Texture()
 	ReleaseTexture();
 }
 
-void Texture::SetTextureFilename( const string& filename )
+void Texture::SetUrl( const string& url )
+{
+	url_ = url;
+}
+
+void Texture::SetFilename( const string& filename )
 {
 	filename_ = filename;
 }
 
-const string& Texture::GetTextureFilename( void ) const
+const string& Texture::GetUrl() const
+{
+	return url_;
+}
+
+const string& Texture::GetFilename( void ) const
 {
 	return filename_;
 }

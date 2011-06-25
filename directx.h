@@ -54,10 +54,10 @@ public:
 	void		FreeTextures( void );
 	void		ReleaseTextures( void );
 	Texture*	GetTexture( const string& filename );
-	void		LoadTexture( Texture* texture );
+	Texture*	GetTexture( const string& filename, const string& url );
 
 	// Texture drawing and rendering.
-	Texture*	CreateTexture( const string& name, int width, int height );
+	Texture*	CreateTexture( int width, int height );
 	void		SetRenderTarget( Texture *texture );
 	void		ResetRenderTarget( void );
 
@@ -80,6 +80,10 @@ public:
 	bool		CheckDevice( void );
 	bool		BeginDraw( void );
 	void		EndDraw( void );
+
+private:
+
+	void		LoadTexture( Texture* texture );
 
 private:
 

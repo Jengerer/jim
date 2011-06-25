@@ -19,7 +19,7 @@ EPopupState Popup::GetState( void ) const
 	return state_;
 }
 
-void Popup::CenterTo( Container* parent )
+void Popup::CenterTo( const Container* parent )
 {
 	SetLocalPosition( 
 		floor((parent->GetWidth() - GetWidth()) / 2.0f),

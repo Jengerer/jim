@@ -127,11 +127,17 @@ void Draggable::OnRelease( void )
 	SetDragging( false );
 }
 
-//=============================================================
-// Purpose:	Sets the container the position is being
-//			constrained by.
-//=============================================================
-void Draggable::SetParent( Container *container )
+const Container* Draggable::GetParent() const
+{
+	return parent_;
+}
+
+bool Draggable::HasParent() const
+{
+	return parent_ != nullptr;
+}
+
+void Draggable::SetParent( const Container* container )
 {
 	parent_ = container;
 }

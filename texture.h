@@ -6,17 +6,19 @@
 
 using namespace std;
 
+// TODO: Create a parent class that doesn't require filename.
 class Texture
 {
 
 public:
 
-	Texture( const string& filename );
+	Texture();
+	Texture( const string& filename, const string& url );
 	~Texture( void );
 
 	// Handling resources.
-	void				SetTextureFilename( const string& filename );
-	const string&		GetTextureFilename( void ) const;
+	const string&		GetUrl() const;
+	const string&		GetFilename( void ) const;
 	void				SetTexture( IDirect3DTexture9 *texture );
 	void				SetTexture( IDirect3DTexture9 *texture, const D3DXIMAGE_INFO& info );
 	IDirect3DTexture9*	GetTexture( void );
@@ -30,8 +32,14 @@ public:
 
 private:
 
+	void				SetUrl( const string& url );
+	void				SetFilename( const string& filename );
+
+private:
+
 	IDirect3DTexture9	*texture_;
 	string				filename_;
+	string				url_;
 	D3DXIMAGE_INFO		info_;
 
 };

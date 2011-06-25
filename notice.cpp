@@ -61,6 +61,11 @@ void Notice::SetMessage( const string& message )
 	message_ = message;
 	text_->SetText( message );
 	Pack();
+
+	// Reposition automatically if parent exists.
+	if ( HasParent() ) {
+		CenterTo( GetParent() );
+	}
 }
 
 void Notice::AppendMessage( const string& message )

@@ -70,7 +70,7 @@ void RoundedRectangle::Generate( DirectX *directX )
 		rectWidth += GetStrokeSize() << 1;
 		rectHeight += GetStrokeSize() << 1;
 	}
-	roundedRect_ = directX->CreateTexture( "rounded_rect", rectWidth, rectHeight );
+	roundedRect_ = directX->CreateTexture( rectWidth, rectHeight );
 	directX->SetRenderTarget( roundedRect_ );
 	directX->SetProjectionSize( rectWidth, rectHeight );
 

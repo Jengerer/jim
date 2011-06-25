@@ -1,13 +1,14 @@
 #include "definition_loader.h"
 
-#include <algorithm>
-#include <json/json.h>
-
 DefinitionLoader::DefinitionLoader( DirectX *directX, const string& definitionUrl )
 {
 	stop_ = false;
+	loaded_ = 0;
+
 	directX_ = directX;
 	definitionUrl_ = definitionUrl;
+
+	SetProgress( 0.0f );
 	SetState( LOADING_STATE_START );
 }
 
@@ -27,80 +28,132 @@ void DefinitionLoader::End()
 
 void DefinitionLoader::Load()
 {
+	// Create slot name map.
+	slotTypes_[""]			= SLOT_NONE;
+	slotTypes_["invalid"]	= SLOT_INVALID;
+	slotTypes_["primary"]	= SLOT_PRIMARY;
+	slotTypes_["secondary"]	= SLOT_SECONDARY;
+	slotTypes_["melee"]		= SLOT_MELEE;
+	slotTypes_["pda"]		= SLOT_PDA;
+	slotTypes_["pda2"]		= SLOT_PDA2;
+	slotTypes_["building"]	= SLOT_BUILDING;
+	slotTypes_["head"]		= SLOT_HEAD;
+	slotTypes_["misc"]		= SLOT_MISC;
+	slotTypes_["action"]	= SLOT_ACTION;
+	slotTypes_["grenade"]	= SLOT_GRENADE;
+
+	// Create class map.
+	classTypes_[""]			= CLASS_NONE;
+	classTypes_["Scout"]	= CLASS_SCOUT;
+	classTypes_["Soldier"]	= CLASS_SOLDIER;
+	classTypes_["Pyro"]		= CLASS_PYRO;
+	classTypes_["Demoman"]	= CLASS_DEMOMAN;
+	classTypes_["Heavy"]	= CLASS_HEAVY;
+	classTypes_["Engineer"]	= CLASS_ENGINEER;
+	classTypes_["Medic"]	= CLASS_MEDIC;
+	classTypes_["Sniper"]	= CLASS_SNIPER;
+	classTypes_["Spy"]		= CLASS_SPY;
+
 	try {
-		// Load the item definitions.
-		string itemDefinitions;
+		// Get definition file.
+		string itemDefinition;
 		try {
-			itemDefinitions = directX_->read( definitionUrl_ );
+			itemDefinition = directX_->read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
 		}
 		catch (Exception&) {
-			throw Exception( "Failed to retrieve item definitions from server." );
+			throw Exception( "Failed to read item definition file from Steam Web API." );
 		}
 
-		// Begin parsing.
-		Json::Value	root;
+		// Parse definition file.
 		Json::Reader reader;
-		if (!reader.parse( itemDefinitions, root, false )) {
-			throw Exception("Failed to parse item definitions.");
+		if (!reader.parse( itemDefinition, root_, false )) {
+			throw Exception( "Failed to parse item definition file." );
 		}
 
-		if (!root.isMember( "items" )) {
-			throw Exception( "Unexpected definition format. Element 'items' not found." );
+		Json::Value& items = root_["result"]["items"];
+		if (items == Json::Value::null) {
+			throw Exception( "Unexpected definition format, expected result.items." );
 		}
 
-		Json::Value items = root.get( "items", root );
 		for (Json::ValueIterator i = items.begin(); i != items.end(); ++i) {
-			if (!stop_) {
-				Json::Value thisItem = *i;
+			Json::Value item = *i;
 
-				// TODO: Put member_not_found exception and catch specific name.
-				if (!(thisItem.isMember("index") && thisItem.isMember("name") &&
-					thisItem.isMember("slot") && thisItem.isMember("image"))) {
-					throw Exception("Failed to parse item definitions. One or more missing members from item entry.");
-				}
+			// Check that all necessary attributes exist.
+			unsigned int defindex	= GetMember( item, "defindex" ).asUInt();
+			string item_name		= GetMember( item, "item_name" ).asString();
+			string slot_name		= GetMember( item, "item_slot" ).asString();
+			string image_inventory	= GetMember( item, "image_inventory" ).asString();
+			string image_url		= GetMember( item, "image_url" ).asString();
 
-				// Get strings.
-				uint32 index	= thisItem.get( "index", root ).asUInt();
-				string name		= thisItem.get( "name", root ).asString();
-				string image	= thisItem.get( "image", root ).asString();
-				EItemSlot slot	= static_cast<EItemSlot>(thisItem.get( "slot", root ).asUInt());
-				uint32 classes	= thisItem.get( "classes", root ).asUInt();
-
-				// Lock before we check and load.
-				boost::mutex::scoped_lock lock( mutex_ );
-
-				// Don't reload.
-				information_map::iterator j = Item::definitions.find( index );
-				if (j != Item::definitions.end()) {
-					continue;
-				}
-
-				// Attempt to load the texture.
-				Texture *texture = nullptr;
-				try {
-					texture = directX_->GetTexture( image );
-				}
-				catch (Exception &textureException) {
-					throw textureException;
-				}
-
-				// Generate information object.
-				ItemInformation *itemInformation = new ItemInformation(
-					name,
-					texture,
-					classes,
-					slot );
-
-				// Parse item type and insert.
-				Item::definitions[index] = itemInformation;
+			if (image_inventory.empty()) {
+				image_inventory = "backpack/unknown_item";
+				image_url = "http://www.jengerer.com/itemManager/imgFiles/unknown_item.png";
 			}
+
+			EItemSlot item_slot;
+			std::map<string, EItemSlot>::iterator j = slotTypes_.find( slot_name );
+			if (j == slotTypes_.end()) {
+				throw Exception( "Failed to parse item definitions. Unexpected item slot type '" + slot_name + "' found." );
+			}
+			item_slot = j->second;
+
+			// Get classes, if they exist.
+			unsigned int item_classes = CLASS_ALL;
+			if (item.isMember( "used_by_classes" )) {
+				item_classes = CLASS_NONE;
+				Json::Value classes = item["used_by_classes"];
+				for (size_t i = 0; i < classes.size(); i++) {
+					string class_name = classes[i].asString();
+
+					std::map<string, EClassEquip>::iterator k = classTypes_.find( class_name );
+					if (k == classTypes_.end()) {
+						throw Exception( "Failed to parse item definitions. Unexpected class type '" + class_name + "' found." );
+					}
+
+					item_classes |= k->second;
+				}
+			}
+
+			Texture *texture = directX_->GetTexture( image_inventory, image_url );
+
+			// Generate information object.
+			ItemInformation *itemInformation = new ItemInformation(
+				item_name,
+				texture,
+				item_classes,
+				item_slot );
+
+			// Parse item type and insert.
+			Item::definitions[defindex] = itemInformation;
+
+			// Update progress.
+			loaded_++;
+			SetProgress( static_cast<float>(loaded_) / static_cast<float>(items.size()) );
 		}
-		
+
+		Cleanup();
 		SetState( LOADING_STATE_FINISHED );
 	}
 	catch (Exception& exception) {
+		Cleanup();
 		SetError( *exception.getMessage() );
 	}
+}
+
+void DefinitionLoader::Cleanup()
+{
+	root_.clear();
+	slotTypes_.clear();
+	classTypes_.clear();
+}
+
+Json::Value DefinitionLoader::GetMember( Json::Value& root, const string& member )
+{
+	if (!root.isMember( member )) {
+		throw Exception( "Unexpected definition format, key '" + member + "' not found." );
+	}
+
+	return root[member];
 }
 
 ELoadingState DefinitionLoader::GetState() const
@@ -113,6 +166,11 @@ const string& DefinitionLoader::GetErrorMsg() const
 	return errorMsg_;
 }
 
+float DefinitionLoader::GetProgress() const
+{
+	return progress_;
+}
+
 void DefinitionLoader::SetState( ELoadingState state )
 {
 	state_ = state;
@@ -120,6 +178,17 @@ void DefinitionLoader::SetState( ELoadingState state )
 
 void DefinitionLoader::SetError( const string& errorMsg )
 {
+	SetProgress( 0.0f );
 	SetState( LOADING_STATE_ERROR );
+	SetErrorMsg( errorMsg );
+}
+
+void DefinitionLoader::SetErrorMsg( const string& errorMsg )
+{
 	errorMsg_ = errorMsg;
+}
+
+void DefinitionLoader::SetProgress( float progress )
+{
+	progress_ = progress;
 }
