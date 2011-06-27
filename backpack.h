@@ -25,7 +25,7 @@ enum ESelectMode {
 };
 
 // TODO: Make Steam singleton or a passed reference.
-class Backpack: public Container, public Steam, public IMouseHandler, public IPrecachable
+class Backpack: public Container, public IMouseHandler, public IPrecachable
 {
 public:
 	Backpack( float localX, float localY, Container* parent );

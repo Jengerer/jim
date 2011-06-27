@@ -75,9 +75,6 @@
     <ClCompile Include="serialized_buffer.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="slot.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="steam.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -157,6 +154,12 @@
       <Filter>source\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="slot.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_view.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -854,9 +857,6 @@
     <ClInclude Include="serialized_buffer.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="slot.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="steam.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -942,6 +942,15 @@
       <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_view.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\iinventory_listener.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

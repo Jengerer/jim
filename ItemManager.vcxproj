@@ -99,6 +99,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.cpp" />
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_view.cpp" />
     <ClCompile Include="alert.cpp" />
     <ClCompile Include="application.cpp" />
     <ClCompile Include="backpack.cpp" />
@@ -144,6 +145,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\iinventory_listener.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot.h" />
     <ClInclude Include="alert.h" />
     <ClInclude Include="application.h" />
     <ClInclude Include="backpack.h" />
@@ -182,7 +185,7 @@
     <ClInclude Include="rounded_container.h" />
     <ClInclude Include="rounded_rectangle.h" />
     <ClInclude Include="serialized_buffer.h" />
-    <ClInclude Include="slot.h" />
+    <ClInclude Include="slot_view.h" />
     <ClInclude Include="steam.h" />
     <ClInclude Include="steam\AppsCommon.h" />
     <ClInclude Include="steam\BillingCommon.h" />
