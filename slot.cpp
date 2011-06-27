@@ -1,33 +1,5 @@
 #include "slot.h"
 
-#define SLOT_PADDING 5
-#define SLOT_RADIUS 5
-
-#define SLOT_STROKE_WIDTH			2
-#define SLOT_STROKE_NORMAL_COLOUR	D3DCOLOR_XRGB( 248, 212, 0 )
-#define SLOT_STROKE_VINTAGE_COLOUR	D3DCOLOR_XRGB( 69, 97, 141 )
-#define SLOT_STROKE_GENUINE_COLOUR	D3DCOLOR_XRGB( 75, 115, 83 )
-
-#define SLOT_SELECTED_COLOUR		D3DCOLOR_XRGB( 108, 96, 83 )
-#define SLOT_NORMAL_COLOUR			D3DCOLOR_XRGB( 60, 53, 46 )
-
-#define EQUIPPED_FONT_FACE			"TF2 Build"
-#define EQUIPPED_FONT_SIZE			10
-#define EQUIPPED_FONT_BOLDED		false
-
-#define ITEM_SIZE 60
-
-RoundedRectangle	*Slot::emptySlot_		= nullptr;
-RoundedRectangle	*Slot::normalSlot_		= nullptr;
-RoundedRectangle	*Slot::normalSelected_	= nullptr;
-RoundedRectangle	*Slot::vintageSlot_		= nullptr;
-RoundedRectangle	*Slot::vintageSelected_	= nullptr;
-RoundedRectangle	*Slot::genuineSlot_		= nullptr;
-RoundedRectangle	*Slot::genuineSelected_	= nullptr;
-
-Font *Slot::equippedFont_ = nullptr;
-Text *Slot::equippedText_ = nullptr;
-
 //=============================================================
 // Constructor
 //=============================================================
@@ -133,14 +105,6 @@ Item* Slot::GetItem( void ) const
 void Slot::SetItem( Item* item )
 {
 	item_ = item;
-	if (item != nullptr) {
-		// Only update index if inventory slot.
-		if (GetGroup() == GROUP_INVENTORY) {
-			item->SetIndex( GetIndex() );
-		}
-	}
-
-	UpdateSlot();
 }
 
 //=============================================================
@@ -157,113 +121,4 @@ int Slot::GetIndex( void ) const
 void Slot::SetIndex( int index )
 {
 	index_ = index;
-}
-
-ESelectType Slot::GetSelectType( void ) const
-{
-	return selectType_;
-}
-
-void Slot::SetSelectType( ESelectType selectType )
-{
-	selectType_ = selectType;
-
-	switch (selectType) {
-	case SELECT_TYPE_DRAG:
-		SetAlpha( 200 );
-		break;
-	default:
-		SetAlpha( 255 );
-		break;
-	}
-
-	UpdateSlot();
-}
-
-void Slot::Precache( DirectX *directX )
-{
-	emptySlot_			= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
-	normalSlot_			= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
-	normalSelected_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
-	vintageSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
-	vintageSelected_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
-	genuineSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
-	genuineSelected_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
-
-	// Set up attributes.
-	normalSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
-	normalSlot_->SetStrokeType( STROKE_TYPE_INNER );
-	normalSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
-	normalSelected_->SetStrokeType( STROKE_TYPE_INNER );
-	vintageSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
-	vintageSlot_->SetStrokeType( STROKE_TYPE_INNER );
-	vintageSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
-	vintageSelected_->SetStrokeType( STROKE_TYPE_INNER );
-	genuineSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
-	genuineSlot_->SetStrokeType( STROKE_TYPE_INNER );
-	genuineSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
-	genuineSelected_->SetStrokeType( STROKE_TYPE_INNER );
-
-	// Generate them.
-	emptySlot_->Generate( directX );
-	normalSlot_->Generate( directX );
-	normalSelected_->Generate( directX );
-	vintageSlot_->Generate( directX );
-	vintageSelected_->Generate( directX );
-	genuineSlot_->Generate( directX );
-	genuineSelected_->Generate( directX );
-
-	// Create equipped font.
-	equippedFont_ = directX->CreateFont( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE, EQUIPPED_FONT_BOLDED );
-	equippedText_ = new Text( equippedFont_ );
-	equippedText_->SetText( "EQUIPPED" );
-	equippedText_->Pack();
-}
-
-void Slot::Release( void )
-{
-	if (emptySlot_ != nullptr) {
-		delete emptySlot_;
-		emptySlot_ = nullptr;
-	}
-
-	if (normalSlot_ != nullptr) {
-		delete normalSlot_;
-		emptySlot_ = nullptr;
-	}
-
-	if (normalSelected_ != nullptr) {
-		delete normalSelected_;
-		normalSelected_ = nullptr;
-	}
-
-	if (vintageSlot_ != nullptr) {
-		delete vintageSlot_;
-		vintageSlot_ = nullptr;
-	}
-
-	if (vintageSelected_ != nullptr) {
-		delete vintageSelected_;
-		vintageSelected_ = nullptr;
-	}
-
-	if (genuineSlot_ != nullptr) {
-		delete genuineSlot_;
-		genuineSlot_ = nullptr;
-	}
-
-	if (genuineSelected_ != nullptr) {
-		delete genuineSelected_;
-		genuineSelected_ = nullptr;
-	}
-
-	if (equippedFont_ != nullptr) {
-		delete equippedFont_;
-		equippedFont_ = nullptr;
-	}
-
-	if (equippedText_ != nullptr) {
-		delete equippedText_;
-		equippedText_ = nullptr;
-	}
 }
