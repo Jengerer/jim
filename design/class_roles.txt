@@ -1,0 +1,77 @@
+Item: has item attributes, stores index.
+	All item attribute functions and secondaries.
+
+Slot: has an optional item.
+
+	Item* GetItem() const;
+	void SetItem( Item* item );
+	unsigned int GetIndex() const;
+	void SetIndex( unsigned int index );
+	
+SlotView:
+
+	Slot* GetSlot() const;
+	void OnDraw( DirectX* directX );
+	void SetSelected( bool isSelected );
+
+SlotArray: contains a set of slots.
+
+	Slot* GetSlotByItem( Item* item );
+	Slot* GetSlotByIndex( unsigned int index );
+	virtual void Move( Slot* source, Slot* destination );
+	bool IsSlotEmpty( unsigned int index );
+	bool IsValidIndex( unsigned int index );
+	void AddSlots( unsigned int numSlots );
+	void RemoveItem( Item* item );
+	
+InventorySlotArray: extends SlotArray, adds index updating.
+
+	void Insert( Item* item );
+	void Move( Slot* source, Slot* destination );
+		Updates the index of the item in each slot after moving.
+	
+Inventory: manages items between inventory and excluded arrays.
+
+	void Insert( Item* item );
+	void Remove( Item* item );
+	Slot* FindSlotByItem( unsigned int id ) const;
+	
+	SlotArray* GetInventoryArray() const;
+	SlotArray* GetExcludedArray() const;
+	
+	void ResolveExcluded(); // Goes through all slots in excluded_ and attempts to insert them.
+	void UpdateExcluded(); // Iterates through excludedItems and sets them to slots.
+
+	SlotArray*		inventory_;
+	SlotArray*		excluded_;
+	vector<Item*>	excludedItems_;
+	
+SlotGridView: displays inventory and excluded.
+
+	Slot* GetTouchingSlot( Mouse* mouse );
+
+SlotGridPages: displays multiple grid pages.
+
+	void SetSpacing( unsigned int spacing );
+	vector<SlotGridView*> gridPages;
+	
+Backpack: extends Steam, generates layouts for inventory and excluded items, handles carrying.
+	
+	// Generate if needed, then return.
+	SlotGridPages*	GetInventoryPages() const;
+	SlotGridView*	GetExcludedGrid() const;
+	
+	void HandleCallback( ... );
+	void HandleMessage( ... );
+	void UpdateItem( Item* item );
+	
+	void SlotGrabbed( Slot* source );
+	void SlotReleased( Slot* destination ); // Only call for release on inventory slots. Check if can be inserted, insert, and if was inserted into inventory, move.
+	
+	const vector<Slot*>& GetSelected();
+	
+	Inventory*			inventory_;
+	SlotGridPages*		inventoryPages_ = nullptr;
+	SlotGridView*		excludedSlots_ = nullptr;
+	vector<SlotView*>	selected_;
+	SlotView*			dragging_;
