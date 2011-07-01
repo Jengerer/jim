@@ -10,16 +10,17 @@
 #include "notice.h"
 #include "notification_queue.h"
 #include "notification.h"
+#include "steam.h"
 #include "toggle_set.h"
+#include "vertical_layout.h"
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#define BUTTON_SPACING	5
-#define BUTTON_Y		380
+#include <vector>
 
-typedef std::map<EClassEquip, Button*> ButtonMap;
+const unsigned int BUTTON_SPACING = 5;
 
 class ItemManager: public Application
 {
@@ -36,6 +37,9 @@ public:
 	void LoadDefinitions( void );
 	void LoadItemsFromWeb( void );
 
+	// User interface handling.
+	void CreateLayout();
+
 	// Application running functions.
 	void RunApplication();
 	void SetThink( void (ItemManager::*thinkFunction)( void ) );
@@ -46,7 +50,8 @@ public:
 
 	// Steam handling.
 	void HandleCallbacks( void );
-	void HandleMessages( void );
+	void HandleMessage( uint32 id, void* message, size_t size );
+	void HandleProtobuf( uint32 id, void* message, size_t size );
 
 	// Input handling.
 	void HandleKeyboard( void );
@@ -56,33 +61,44 @@ public:
 	virtual bool OnLeftReleased( Mouse *mouse );
 	virtual bool OnMouseMoved( Mouse *mouse );
 
+	// Popup handling.
+	void OnPopupClicked( Popup* popup );
+	void OnPopupReleased( Popup* popup );
+
 	// Interface handling.
-	Notice*			CreateNotice( const string& message );
-	Alert*			CreateAlert( const string& message );
-	void			CreateEquipSet( const Item *item );
+	Notice*	CreateNotice( const string& message );
+	Alert*	CreateAlert( const string& message );
 
 	// Item display.
-	void	UpdateItemDisplay( void );
+	void UpdateItemDisplay( void );
 
-	// Popup handlign.
-	void	ShowPopup( Popup *popup );
-	void	HidePopup( Popup *popup );
-	void	HandlePopup( Popup *popup );
-	void	RemovePopup( Popup* popup );
+	// Popup handling.
+	void ShowPopup( Popup* popup );
+	void HidePopup( Popup* popup );
+	void RemovePopup( Popup* popup );
+	void HandlePopup( Popup* popup );
 
 private:
+
 	// Application interfaces.
-	Backpack*		backpack_;
+	Steam*				steam_;
+	Backpack*			backpack_;
+
+	// User interface members.
+	SlotGridPages*		pagesView_;
+	SlotGridView*		excludedView_;
+
+	// Running think function.
 	void (ItemManager::*thinkFunction_)( void );
 
 	// Threaded loader for resources.
 	DefinitionLoader*	definitionLoader_;
 
 	// User interface stacks.
-	std::vector<Popup*>	popupStack_;
+	std::vector<Popup*>	popups_;
 
 	// Display for item information.
-	ItemDisplay			*itemDisplay_;
+	ItemDisplay*		itemDisplay_;
 
 	// Progress notice.
 	Notice				*loadProgress_;
@@ -94,9 +110,6 @@ private:
 	Alert				*alert_;
 	Alert				*error_;
 
-	// Equipment management.
-	ToggleSet			*equipSet_;
-	ButtonMap			equipButtons_;
 };
 
 #endif // ITEM_MANAGER_H

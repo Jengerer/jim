@@ -38,15 +38,20 @@ bool Draggable::OnLeftClicked( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
 		OnDrag( mouse );
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 bool Draggable::OnLeftReleased( Mouse *mouse )
 {
-	OnRelease();
-	return true;
+	if (mouse->IsTouching( this )) {
+		OnRelease();
+		return true;
+	}
+
+	return false;
 }
 
 //=============================================================

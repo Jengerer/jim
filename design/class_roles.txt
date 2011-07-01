@@ -42,8 +42,8 @@ Inventory: manages items between inventory and excluded arrays.
 	void ResolveExcluded(); // Goes through all slots in excluded_ and attempts to insert them.
 	void UpdateExcluded(); // Iterates through excludedItems and sets them to slots.
 
-	SlotArray*		inventory_;
-	SlotArray*		excluded_;
+	SlotArray*	inventory_;
+	SlotArray*	excluded_;
 	vector<Item*>	excludedItems_;
 	
 SlotGridView: displays inventory and excluded.
@@ -70,8 +70,8 @@ Backpack: extends Steam, generates layouts for inventory and excluded items, han
 	
 	const vector<Slot*>& GetSelected();
 	
-	Inventory*			inventory_;
+	Inventory*		inventory_;
 	SlotGridPages*		inventoryPages_ = nullptr;
 	SlotGridView*		excludedSlots_ = nullptr;
 	vector<SlotView*>	selected_;
-	SlotView*			dragging_;
+	SlotView*		dragging_;

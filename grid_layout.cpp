@@ -1,8 +1,9 @@
 #include "grid_layout.h"
 
-GridLayout::GridLayout( int gridWidth )
+GridLayout::GridLayout( int gridWidth, unsigned int spacing )
 {
 	gridWidth_ = gridWidth;
+	SetSpacing( spacing );
 }
 
 GridLayout::~GridLayout( void )

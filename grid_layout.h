@@ -8,7 +8,7 @@ class GridLayout : public Layout
 
 public:
 
-	GridLayout( int gridWidth );
+	GridLayout( int gridWidth, unsigned int spacing );
 	virtual ~GridLayout( void );
 
 	virtual void Pack( void );

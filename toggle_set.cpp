@@ -19,7 +19,7 @@ const unsigned int TOGGLE_SET_BUTTON_FONT_SIZE	= 16;
 const D3DCOLOR TOGGLE_SET_BUTTON_FONT_COLOUR	= D3DCOLOR_XRGB( 42, 39, 37 );
 const bool TOGGLE_SET_BUTTON_FONT_BOLDED		= false;
 
-const unsigned int TOGGLE_SET_MIN_WIDTH		= 150;
+const unsigned int TOGGLE_SET_MIN_WIDTH			= 150;
 
 Font* ToggleSet::titleFont_ = nullptr;
 Font* ToggleSet::buttonFont_ = nullptr;

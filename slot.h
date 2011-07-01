@@ -10,22 +10,22 @@ public:
 	Slot( int index );
 
 	// Item functions.
-	bool		HasItem( void ) const;
-	Item*		GetItem( void ) const;
-	void		SetItem( Item* item );
+	bool	HasItem( void ) const;
+	Item*	GetItem( void ) const;
+	void	SetItem( Item* item );
 
-	int			GetIndex( void ) const;
-	void		SetIndex( int index );
+	// Slot indexing.
+	unsigned int	GetIndex( void ) const;
+
+private:
+
+	void			SetIndex( unsigned int index );
 
 private:
 
 	// Item stored here.
-	Item*				item_;
-
-	// Information about slot.
-	int					index_;
-	ESlotGroup			group_;
-	ESelectType			selectType_;
+	Item*			item_;
+	unsigned int	index_;
 
 };
 

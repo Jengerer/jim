@@ -8,7 +8,7 @@ Alert::Alert( const string& message ) : Notice( message )
 	Pack();
 }
 
-Alert::~Alert( void)
+Alert::~Alert()
 {
 	// Button removed as component.
 }
@@ -32,9 +32,8 @@ const Button* Alert::GetButton( void ) const
 bool Alert::OnMouseMoved( Mouse *mouse )
 {
 	// Parent behaviour.
-	Notice::OnMouseMoved( mouse );
 	okButton_->OnMouseMoved( mouse );
-	return true;
+	return Notice::OnMouseMoved( mouse );
 }
 
 bool Alert::OnLeftClicked( Mouse *mouse )

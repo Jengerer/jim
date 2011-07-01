@@ -99,6 +99,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.cpp" />
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.cpp" />
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_view.cpp" />
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_vector.cpp" />
     <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_view.cpp" />
     <ClCompile Include="alert.cpp" />
     <ClCompile Include="application.cpp" />
@@ -146,7 +149,11 @@
   <ItemGroup>
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.h" />
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\iinventory_listener.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\imouse_handler.h" />
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_view.h" />
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_vector.h" />
     <ClInclude Include="alert.h" />
     <ClInclude Include="application.h" />
     <ClInclude Include="backpack.h" />
@@ -163,7 +170,6 @@
     <ClInclude Include="horizontal_layout.h" />
     <ClInclude Include="idrawable.h" />
     <ClInclude Include="image.h" />
-    <ClInclude Include="imouse_handler.h" />
     <ClInclude Include="inventory.h" />
     <ClInclude Include="iprecachable.h" />
     <ClInclude Include="item.h" />

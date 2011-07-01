@@ -103,7 +103,6 @@ void RoundedRectangle::Generate( DirectX *directX )
 		GetColour() );
 
 	directX->ResetRenderTarget();
-	directX->SetProjectionSize( directX->GetWidth(), directX->GetHeight() );
 }
 
 Texture *RoundedRectangle::GetTexture( void ) const

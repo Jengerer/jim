@@ -22,22 +22,22 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="source\protobufs">
-      <UniqueIdentifier>{a628c3dd-565f-4484-b1de-6ecfd708f51d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="source\ui">
       <UniqueIdentifier>{22d41e19-ad81-4eb8-b7cc-97a77123162d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\protobufs">
+      <UniqueIdentifier>{a628c3dd-565f-4484-b1de-6ecfd708f51d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="protobuf\gcsdk_gcmessages.pb.cc">
-      <Filter>source\protobufs</Filter>
+      <Filter>resources\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\base_gcmessages.pb.cc">
-      <Filter>source\protobufs</Filter>
+      <Filter>resources\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\steammessages.pb.cc">
-      <Filter>source\protobufs</Filter>
+      <Filter>resources\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="application.cpp">
       <Filter>source</Filter>
@@ -160,6 +160,15 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_view.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_vector.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_view.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -893,9 +902,6 @@
     <ClInclude Include="image.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="imouse_handler.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="idrawable.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
@@ -952,6 +958,18 @@
     </ClInclude>
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\iinventory_listener.h">
       <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_vector.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_view.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\imouse_handler.h">
+      <Filter>headers\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
