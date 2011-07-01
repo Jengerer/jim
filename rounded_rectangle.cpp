@@ -102,6 +102,7 @@ void RoundedRectangle::Generate( DirectX *directX )
 		innerRadius,
 		GetColour() );
 
+	directX->ResetProjectionSize();
 	directX->ResetRenderTarget();
 }
 
