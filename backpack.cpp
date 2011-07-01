@@ -7,93 +7,25 @@
 #include "protobuf/steammessages.pb.h"
 
 // Navigation constants.
-const int	PAGE_CHANGE_DELAY	= 500;
-const int	BUTTON_SPACING		= 5;
+const int PAGE_CHANGE_DELAY	= 500;
+const int BUTTON_SPACING	= 5;
 
 // Spring constants.
-const float SPRING_STRENGTH		= 0.1f;
-const float SPRING_DAMPING		= 0.7f;
+const float SPRING_STRENGTH	= 0.1f;
+const float SPRING_DAMPING	= 0.7f;
 
-// Inventory attributes.
-const int PAGE_WIDTH			= 10;
-const int PAGE_HEIGHT			= 5;
-const int PAGE_COUNT			= 6;
-const int EXCLUDED_SIZE			= 5;
+const int BACKPACK_PADDING		= 25;
+const int BACKPACK_PADDING_TOP	= 50;
 
-Backpack::Backpack(
-	float x, float y,
-	Container* parent ): Container( x, y )
+const int SLOT_SPACING			= 5;
+const int PAGE_SPACING			= BACKPACK_PADDING * 2;
+
+Backpack::Backpack( unsigned int inventorySize, unsigned int excludedSize ) : Inventory( inventorySize, excludedSize )
 {
-	// No inventory until size set.
-	inventory_ = nullptr;
-
-	// Default attributes.
 	SetLoaded( false );
-	cameraSpeed_ = 0.0f;
-	page_ = 1;
-
-	// Create overall layout.
-	backpackLayout_ = new VerticalLayout();
-	backpackLayout_->SetSpacing( 10 );
-	backpackLayout_->SetAlignType( ALIGN_LEFT );
-	backpackLayout_->SetLocalPosition( BACKPACK_PADDING, BACKPACK_PADDING_TOP );
-	Add( backpackLayout_ );
-
-	// Generate default inventory size.
-	CreateInventory( PAGE_WIDTH, PAGE_HEIGHT, PAGE_COUNT, EXCLUDED_SIZE );
-
-	// Lay out buttons.
-	buttonLayout_ = new HorizontalLayout();
-	buttonLayout_->SetSpacing( BUTTON_SPACING );
-
-	// Add all and pack.
-	backpackLayout_->Add( pages_ );
-	backpackLayout_->Add( buttonLayout_ );
-	backpackLayout_->Add( excluded_ );
-	Pack();
-
-	// Slot state information.
-	dragged_ = nullptr;
-	SetHovering( nullptr );
-
-	// Set default notification queue.
-	SetNotificationQueue( nullptr );
-
-	// Move to start.
-	SetSize( parent->GetWidth(), parent->GetHeight() );
 }
 
-Backpack::~Backpack()
-{
-	RemoveSlots();
-	CloseInterfaces();
-
-	if (inventory_ != nullptr) {
-		delete inventory_;
-		inventory_ = nullptr;
-	}
-}
-
-void Backpack::Pack( void )
-{
-	// Pack button layout.
-	buttonLayout_->Pack();
-
-	// Pack top layout (everything else already packed).
-	backpackLayout_->Pack();
-}
-
-void Backpack::LoadInterfaces( void )
-{
-	Steam::LoadInterfaces();
-}
-
-void Backpack::CloseInterfaces( void )
-{
-	Steam::CloseInterfaces();
-}
-
-void Backpack::Precache( DirectX *directX )
+/* void Backpack::Precache( DirectX *directX )
 {
 	// Get button textures.
 	Texture *craftTexture = directX->GetTexture( "manager/gear" );
@@ -113,79 +45,11 @@ void Backpack::Precache( DirectX *directX )
 	buttonLayout_->Add( equipButton_ );
 	buttonLayout_->Add( sortButton_ );
 	Pack();
-}
+} */
 
-void Backpack::Release( void )
-{
-	// Nothing.
-}
-
-void Backpack::HandleCallback( int id, void *callback )
-{
-}
-
-void Backpack::HandleMessage( int id, void *message, uint32 size )
+/* void Backpack::HandleMessage( int id, void *message, uint32 size )
 {
 	switch (id) {
-	case SOMsgCacheSubscribed_t::k_iMessage:
-		{
-			if ( IsLoaded() ) {
-				return;
-			}
-
-			CMsgSOCacheSubscribed subscribedMsg;
-			subscribedMsg.ParseFromArray( message, size );
-								
-			// TODO: Check for other users' backpack.
-			for (int i = 0; i < subscribedMsg.objects_size(); i++) {
-				CMsgSOCacheSubscribed_SubscribedType subscribedType = subscribedMsg.objects( i );
-				switch ( subscribedType.type_id() ) {
-				case 1:
-					{
-						if ( GetSteamId() == subscribedMsg.owner() ) {
-							for (int i = 0; i < subscribedType.object_data_size(); i++) {
-								CSOEconItem econItem;
-								econItem.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
-								Item *item = new Item(
-									econItem.id(),
-									econItem.def_index(),
-									econItem.level(),
-									(EItemQuality)econItem.quality(),
-									econItem.quantity(),
-									econItem.inventory() );
-
-								if (econItem.has_custom_name()) {
-									item->SetCustomName( econItem.custom_name() );
-								}
-
-								inventory_->InsertItem( item );
-							}
-						}
-
-						break;
-					}
-				case 7:
-					{
-						if ( subscribedMsg.owner() == GetSteamId() ) {
-							for (int i = 0; i < subscribedType.object_data_size(); i++) {
-								CSOEconGameAccountClient gameAccountClient;
-								gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
-								inventory_->AddSlots( gameAccountClient.additional_backpack_slots() );
-							}
-						}
-
-						break;
-					}
-				}
-
-			}
-
-			SetLoaded( true );
-			inventory_->UpdateExcluded();
-			notifications_->AddNotification( "Backpack successfully loaded from Steam.", nullptr );
-			break;
-		}
-
 	case SOMsgCreate_t::k_iMessage:
 		{
 			// Get object created.
@@ -270,15 +134,10 @@ void Backpack::HandleMessage( int id, void *message, uint32 size )
 			break;
 		}
 	}
-}
+} */
 
-void Backpack::CreateInventory( int width, int height, int pages, int excludedSize )
-{
-	inventory_ = new Inventory( width, height, pages, excludedSize );
-	FormatInventory();
-}
 
-void Backpack::LoadInventory( const string &jsonInventory )
+/* void Backpack::LoadInventory( const string &jsonInventory )
 {	
 	// Begin inventory parsing.
 	Json::Reader	reader;
@@ -352,57 +211,21 @@ void Backpack::LoadInventory( const string &jsonInventory )
 	}
 
 	inventory_->UpdateExcluded();
+} */
+
+
+SlotGridPages* Backpack::CreateInventoryView( unsigned int width, unsigned int height ) const
+{
+	SlotGridPages* inventoryView = new SlotGridPages( inventory_,
+		width, height,
+		PAGE_SPACING, SLOT_SPACING );
+	return inventoryView;
 }
 
-void Backpack::FormatInventory( void )
+SlotGridView* Backpack::CreateExcludedView() const
 {
-	// Add slots to layout.
-	pages_ = new HorizontalLayout();
-	pages_->SetParent( this );
-	pages_->SetSpacing( PAGE_SPACING );
-
-	int pages = inventory_->GetPageCount();
-	int pageWidth = inventory_->GetWidth();
-	int pageCapacity = inventory_->GetPageSize();
-	for (int i = 0; i < pages; i++) {
-		// Add a column per page.
-		GridLayout *page = new GridLayout( pageWidth );
-		page->SetSpacing( SLOT_SPACING );
-		page->SetParent( this );
-
-		// Split the page into two.
-		for (int j = 0; j < pageCapacity; j++) {
-			int index = j + (i * pageCapacity);
-			Slot* slot = inventory_->GetInventorySlot( index );
-			page->Add( slot );
-		}
-		
-		page->Pack();
-		pages_->Add( page );
-	}
-
-	pages_->Pack();
-
-	// Position and add excluded.
-	excluded_ = new HorizontalLayout();
-	excluded_->SetSpacing( SLOT_SPACING );
-
-	int length = inventory_->GetExcludedSize();
-	for (int i = 0; i < length; i++) {
-		Slot* slot = inventory_->GetExcludedSlot( i );
-		excluded_->Add( slot );
-	}
-
-	excluded_->Pack();
-
-	// Set primary camera target.
-	UpdateTarget();
-	UpdateChildren();
-}
-
-void Backpack::SetNotificationQueue( NotificationQueue *notifications )
-{
-	notifications_ = notifications;
+	SlotGridView* excludedView = new SlotGridView( excluded_->GetSlotCount(), SLOT_SPACING );
+	return excludedView;
 }
 
 bool Backpack::IsLoaded( void ) const
@@ -415,309 +238,7 @@ void Backpack::SetLoaded( bool isLoaded )
 	isLoaded_ = isLoaded;
 }
 
-void Backpack::MoveItem( Slot *source, Slot *destination ) {
-	// Avoid redundancy.
-	if (source == destination) {
-		return;
-	}
-
-	Item* sourceItem = source->GetItem();
-	Item* destItem = destination->GetItem();
-
-	// Update items.
-	inventory_->MoveItem( source, destination );
-	UpdateItem( sourceItem ); // Definitely not null.
-	if (destItem != nullptr) {
-		UpdateItem( destItem );
-	}
-}
-
-bool Backpack::OnMouseMoved( Mouse *mouse )
-{
-	// Hover over buttons.
-	equipButton_->OnMouseMoved( mouse );
-	craftButton_->OnMouseMoved( mouse );
-	sortButton_->OnMouseMoved( mouse );
-
-	// Move dragged.
-	if (selected_.size() == 1 && dragged_ != nullptr) {
-		Slot* slot = selected_[0];
-
-		// Update slot position since dragging.
-		slot->OnMouseMoved( mouse );
-		SetHovering( nullptr );
-
-		// Change page if at edges.
-		int time = GetTickCount();
-		if (time > pageDelay_) {
-			float mouseX = mouse->GetX();
-			float backpackX = GetGlobalX();
-			if (mouseX >= backpackX + GetWidth()) {
-				NextPage();
-				pageDelay_ = time + PAGE_CHANGE_DELAY;
-			}
-			else if (mouseX <= backpackX) {
-				PrevPage();
-				pageDelay_ = time + PAGE_CHANGE_DELAY;
-			}
-		}
-
-		return true;
-	}
-
-	// Go through visible pages.
-	deque<Component*> *pages = pages_->GetChildren();
-	for each (Container *page in *pages) {
-		if (IsVisible( page )) {
-			// Go through visible page columns.
-			deque<Component*> *slots = page->GetChildren();
-			for each (Slot *slot in *slots) {
-				if (mouse->IsTouching( slot )) {
-					SetHovering( slot->HasItem() ? slot : nullptr );
-					return true;
-				}
-			}
-		}
-	}
-
-	// Check excluded.
-	int length = inventory_->GetExcludedSize();
-	for (int i = 0; i < length; i++) {
-		Slot *slot = inventory_->GetExcludedSlot( i );
-		if (mouse->IsTouching( slot )) {
-			SetHovering( slot->HasItem() ? slot : nullptr );
-			return true;
-		}
-	}
-
-	SetHovering( nullptr );
-	return false;
-}
-
-bool Backpack::OnLeftClicked( Mouse *mouse )
-{
-	// Go through visible pages.
-	deque<Component*> *pages = pages_->GetChildren();
-	for each (Container *page in *pages) {
-		if (IsVisible( page )) {
-			// Go through visible page columns.
-			deque<Component*> *slots = page->GetChildren();
-			for each (Slot *slot in *slots) {
-				if (mouse->IsTouching( slot )) {
-					if (dragged_ == nullptr) {
-						OnSlotGrabbed( mouse, slot );
-					}
-
-					return true;
-				}
-			}
-		}
-	}
-
-	// Check excluded.
-	int length = inventory_->GetExcludedSize();
-	for (int i = 0; i < length; i++) {
-		Slot *slot = inventory_->GetExcludedSlot( i );
-		if (mouse->IsTouching( slot )) {
-			if (dragged_ == nullptr) {
-				OnSlotGrabbed( mouse, slot );
-			}
-			return true;
-		}
-	}
-
-	// Check buttons.
-	if (equipButton_->OnLeftClicked( mouse ) ||
-		craftButton_->OnLeftClicked( mouse ) ||
-		sortButton_->OnLeftClicked( mouse )) {
-			return true;
-	}
-
-	// Nothing hit, deselect all.
-	if (selectMode_ != SELECT_MODE_MULTIPLE) {
-		DeselectAll();
-	}
-
-	return false;
-}
-
-bool Backpack::OnLeftReleased( Mouse *mouse )
-{
-	// Check buttons.
-	if (craftButton_->OnLeftReleased( mouse )) {
-		CraftSelected();
-		return true;
-	}
-
-	if (dragged_ != nullptr) {
-		// Move item back to slot.
-		Slot* selectedSlot = selected_[0];
-		dragged_->SetItem( selectedSlot->GetItem() );
-
-		// Remove dummy slot.
-		Remove( selectedSlot );
-		delete selectedSlot;
-		selected_.clear();
-
-		// Go through visible pages.
-		deque<Component*> *pages = pages_->GetChildren();
-		for each (Component *pageComponent in *pages) {
-			Container *page = static_cast<Container*>(pageComponent);
-			if (IsVisible( page )) {
-				// Go through visible page columns.
-				deque<Component*> *slots = page->GetChildren();
-				for each (Component *slotComponent in *slots) {
-					Slot *slot = static_cast<Slot*>(slotComponent);
-					// Go through slots in column.
-					if (mouse->IsTouching( slot )) {
-						OnSlotReleased( slot );
-						dragged_ = nullptr;
-						return true;
-					}
-				}
-			}
-		}
-
-		// Dragged was not moved.
-		SelectSlot( dragged_, SELECT_TYPE_NORMAL );
-		dragged_ = nullptr;
-		return true;
-	}
-
-	return false;
-}
-
-void Backpack::OnSlotGrabbed( Mouse *mouse, Slot *slot )
-{
-	// Clear selected.
-	if (selectMode_ == SELECT_MODE_SINGLE) {
-		DeselectAll();
-		if (slot->GetItem() != nullptr) {
-			dragged_ = slot;
-
-			// Create a dummy slot to drag the item.
-			Slot* dragging = new Slot( 
-				slot->GetIndex(), 
-				slot->GetItem() );
-			dragging->SetGlobalPosition( slot->GetGlobalX(), slot->GetGlobalY() );
-			dragging->SetGroup( slot->GetGroup() );
-			dragging->SetParent( this );
-			Add( dragging );
-		
-			// Remove item from slot.
-			slot->SetItem( nullptr );
-
-			// Start dragging.
-			dragging->OnDrag( mouse );
-			SelectSlot( dragging, SELECT_TYPE_DRAG );
-		}
-	}
-	else {
-		if (slot->GetItem() != nullptr) {
-			switch (slot->GetSelectType()) {
-			case SELECT_TYPE_NONE:
-				SelectSlot( slot, SELECT_TYPE_NORMAL );
-				break;
-			default:
-				DeselectSlot( slot );
-				break;
-			}
-		}
-	}
-}
-
-void Backpack::OnSlotReleased( Slot *slot )
-{
-	// Skip if returning or excluded.
-	if (!slot->HasItem() || dragged_->GetGroup() == GROUP_INVENTORY) {
-		// Move to slot if able.
-		MoveItem( dragged_, slot );
-		SelectSlot( slot, SELECT_TYPE_NORMAL );
-	}
-	else {
-		// Set to regular select.
-		SelectSlot( dragged_, SELECT_TYPE_NORMAL );
-	}
-}
-
-void Backpack::RemoveSlots( void ) {
-	if (pages_ != nullptr) {
-		deque<Component*> *pages = pages_->GetChildren();
-		for each (Container *page in *pages) {
-			page->RemoveAll();
-		}
-	}
-
-	if (excluded_ != nullptr) {
-		excluded_->RemoveAll();
-	}
-}
-
-void Backpack::EquipItem( Item *item, uint32 classFlags ) {
-	if (item->IsEquipped( classFlags )) {
-		item->SetEquip( classFlags, false );
-	}
-	else {
-		UnequipItems( classFlags, item->GetEquipSlot() );
-		item->SetEquip( classFlags, true );
-	}
-
-	UpdateItem( item );
-}
-
-void Backpack::UnequipItems( uint32 equipClass, EItemSlot slot ) {
-	const itemMap* inventoryItems = inventory_->GetInventoryItems();
-	itemMap::const_iterator i;
-	for (i = inventoryItems->begin(); i != inventoryItems->end(); i++) {
-		Item *item = i->second;
-		if (item->IsEquipped( equipClass )) {
-			if (item->GetEquipSlot() == slot) {
-				item->SetEquip( equipClass , false );
-				UpdateItem( item );
-				break;
-			}
-		}
-	}
-
-	const itemMap *excludedItems = inventory_->GetExcludedItems();
-	for (i = excludedItems->begin(); i != excludedItems->end(); i++) {
-		Item *item = i->second;
-		if (item->IsEquipped( equipClass )) {
-			if (item->GetEquipSlot() == slot) {
-				item->SetEquip( equipClass , false );
-				UpdateItem( item );
-				break;
-			}
-		}
-	}
-}
-
-void Backpack::SelectSlot( Slot* slot, ESelectType selectType )
-{
-	slot->SetSelectType( selectType );
-	selected_.push_back( slot );
-	UpdateButtons();
-}
-
-void Backpack::DeselectSlot( Slot* slot )
-{
-	// Deselect and remove from selected.
-	slot->SetSelectType( SELECT_TYPE_NONE );
-	slotVector::iterator i = find( selected_.begin(), selected_.end(), slot );
-	selected_.erase( i );
-	UpdateButtons();
-}
-
-void Backpack::DeselectAll( void )
-{
-	// Deselect all.
-	while (!selected_.empty()) {
-		Slot *slot = selected_.back();
-		DeselectSlot( slot );
-	}
-}
-
-void Backpack::CraftSelected( void )
+/*void Backpack::CraftSelected( void )
 {
 	// Number of items to craft.
 	uint16 itemCount = selected_.size();
@@ -755,33 +276,9 @@ void Backpack::CraftSelected( void )
 		SendMessage( GCCraft_t::k_iMessage, message, messageSize );
 		free( message );
 	}
-}
+}*/
 
-void Backpack::UpdateButtons( void )
-{
-	// Adjust button states.
-	switch (selected_.size()) {
-	case 0:
-		equipButton_->SetEnabled( false );
-		craftButton_->SetEnabled( false );
-		break;
-	case 1:
-		{
-			// Check whether item is equippable.
-			Item *selected = selected_[0]->GetItem();
-			equipButton_->SetEnabled( selected->GetEquipClassCount() != 0 );
-			craftButton_->SetEnabled( true );
-		}
-
-		break;
-	default:
-		equipButton_->SetEnabled( false );
-		craftButton_->SetEnabled( true );
-		break;
-	}
-}
-
-void Backpack::UpdateItem( Item* item )
+/*void Backpack::UpdateItem( Item* item )
 {
 	// Generate message with new flags.
 	// TODO: See if we can use protobufs here before old messages are deprecated.
@@ -792,66 +289,9 @@ void Backpack::UpdateItem( Item* item )
 
 	// Send it.
 	SendMessage( GCSetItemPosition_t::k_iMessage, &message, sizeof( message ) );
-}
+}*/
 
-slotVector* Backpack::GetSelected( void )
-{
-	return &selected_;
-}
-
-void Backpack::SetSelectMode( ESelectMode selectMode)
-{
-	selectMode_ = selectMode;
-}
-
-bool Backpack::IsHovering( void ) const
-{
-	return (hovered_ != nullptr) && (hovered_->GetItem() != nullptr);
-}
-
-const Slot* Backpack::GetHovering( void ) const
-{
-	return hovered_;
-}
-
-void Backpack::SetHovering( const Slot *slot )
-{
-	hovered_ = slot;
-}
-
-void Backpack::UpdateTarget( void )
-{
-	deque<Component*>* pageColumns = pages_->GetChildren();
-	Component *cameraTarget = pageColumns->at( page_ - 1 );
-	cameraDest_ = -cameraTarget->GetLocalX();
-}
-
-void Backpack::NextPage( void )
-{
-	if (page_ < inventory_->GetPageCount()) {
-		page_++;
-	}
-
-	UpdateTarget();
-}
-
-void Backpack::PrevPage( void )
-{
-	if (page_ > 1) {
-		page_--;
-	}
-
-	UpdateTarget();
-}
-
-void Backpack::HandleCamera( void )
-{
-	if (pages_->GetLocalX() != cameraDest_) {
-		MoveCamera();
-	}
-}
-
-void Backpack::MoveCamera( void )
+/*void Backpack::MoveCamera( void )
 {
 	// Add elastic speed.
 	float cameraDistance = cameraDest_ - pages_->GetLocalX();
@@ -871,4 +311,4 @@ void Backpack::MoveCamera( void )
 
 	pages_->SetLocalPosition( pagesX, pagesY );
 	backpackLayout_->UpdateChild( pages_ );
-}
+}*/

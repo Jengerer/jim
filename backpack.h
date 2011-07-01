@@ -1,136 +1,29 @@
-#pragma once
+#ifndef BACKPACK_H
+#define BACKPACK_H
 
-#include <string>
-
-#include "container.h"
-#include "grid_layout.h"
-#include "horizontal_layout.h"
 #include "inventory.h"
-#include "iprecachable.h"
-#include "menu.h"
-#include "notification_queue.h"
-#include "serialized_buffer.h"
-#include "steam.h"
-#include "vertical_layout.h"
+#include "slot_grid_pages.h"
+#include "slot_grid_view.h"
 
-const int BACKPACK_PADDING		= 25;
-const int BACKPACK_PADDING_TOP	= 50;
-
-const int SLOT_SPACING			= 5;
-const int PAGE_SPACING			= BACKPACK_PADDING * 2;
-
-enum ESelectMode {
-	SELECT_MODE_SINGLE,
-	SELECT_MODE_MULTIPLE,
-};
-
-// TODO: Make Steam singleton or a passed reference.
-class Backpack: public Container, public IMouseHandler, public IPrecachable
+class Backpack: public Inventory
 {
+
 public:
-	Backpack( float localX, float localY, Container* parent );
-	virtual ~Backpack();
 
-	// Container functions.
-	void			Pack( void );
+	Backpack( unsigned int inventorySize, unsigned int excludedSlots );
 
-	// Precaching DirectX resources.
-	void			Precache( DirectX *directX );
-	void			Release( void );
-
-	// Resource and interface management.
-	virtual void	LoadInterfaces( void );
-	virtual void	CloseInterfaces( void );
-
-	// Steam message handling.
-	void			HandleCallback( int id, void *callback );
-	void			HandleMessage( int id, void *message, uint32 size );
-
-	// Item actions.
-	void			CraftSelected( void );
-	void			UpdateButtons( void );
-
-	// Inventory resource handling.
-	void			CreateInventory( int width, int height, int pages, int excludedSize );
-	void			LoadInventory( const string& jsonInventory );
-	void			FormatInventory( void );
-
-	// Notification handling.
-	void			SetNotificationQueue( NotificationQueue *notifications );
+	SlotGridPages*	CreateInventoryView( unsigned int width, unsigned int height ) const;
+	SlotGridView*	CreateExcludedView() const;
 
 	// Has backpack been loaded yet?
-	bool			IsLoaded( void ) const;
-	void			SetLoaded( bool isLoaded );
-
-	// Item handling.
-	virtual void	MoveItem( Slot *source, Slot *destination );
-	void			UpdateItem( Item *item );
-	void			EquipItem( Item *item, uint32 classFlags );
-	void			UnequipItems( uint32 equipClass, EItemSlot slot );
-
-	// Selection handling.
-	void			SelectSlot( Slot *slot, ESelectType selectType );
-	slotVector*		GetSelected( void );
-	void			DeselectSlot( Slot *slot );
-	void			DeselectAll( void );
-	void			SetSelectMode( ESelectMode selectMode );
-
-	// Item hovering handler.
-	bool			IsHovering( void ) const;
-	const Slot*		GetHovering( void ) const;
-
-	// Mouse handling.
-	virtual bool	OnMouseMoved( Mouse *mouse );
-	virtual bool	OnLeftClicked( Mouse *mouse );
-	virtual bool	OnLeftReleased( Mouse *mouse );
-
-	// Slot handling functions.
-	void			RemoveSlots( void );
-	void			OnSlotGrabbed( Mouse *mouse, Slot *slot );
-	void			OnSlotReleased( Slot *slot );
-
-	// Page viewing functions.
-	void			NextPage( void );
-	void			PrevPage( void );
-	void			MoveCamera( void );
-	void			HandleCamera( void );
-	void			UpdateTarget( void );
+	bool	IsLoaded( void ) const;
+	void	SetLoaded( bool isLoaded );
 
 private:
-
-	void			SetHovering( const Slot* slot );
-
-private:
-
-	// Inventory to display.
-	Inventory			*inventory_;
-
-	// Top level layouts.
-	VerticalLayout		*backpackLayout_;
-	HorizontalLayout	*buttonLayout_;
-	HorizontalLayout	*pages_;
-	HorizontalLayout	*excluded_;
-
-	// UI buttons.
-	Button				*equipButton_;
-	Button				*craftButton_;
-	Button				*sortButton_;
-
-	// Queue to direct notifications to.
-	NotificationQueue	*notifications_;
-
-	// Selection variables.
-	Slot				*dragged_;
-	const Slot			*hovered_;
-	slotVector			selected_;
-	ESelectMode			selectMode_;
 
 	// Is backpack loaded yet?
 	bool				isLoaded_;
 
-	// Backpack navigation.
-	int					page_, excludedPage_;
-	int					pageDelay_;
-	float				cameraSpeed_, cameraDest_;
-
 };
+
+#endif // BACKPACK_H

@@ -39,42 +39,59 @@ const char* EQUIPPED_FONT_FACE					= "TF2 Build";
 const unsigned int EQUIPPED_FONT_SIZE			= 10;
 const bool EQUIPPED_FONT_BOLDED					= false;
 
-SlotView::SlotView( const Slot* slot )
+SlotView::SlotView( Slot* slot )
 {
 	slot_ = slot;
-	slotImage_ = new Image( emptySlot_->GetTexture() );
+	SetSelected( false );
+
+	// Add images.
+	slotImage_ = new Image( emptySlot_->GetTexture(), 0.0f, 0.0f );
 	slotImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
 	itemImage_ = new Image( nullptr, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, 0.0f );
 	itemImage_->SetSize( ITEM_SIZE, ITEM_SIZE );
 	Add( slotImage_ );
 	Add( itemImage_ );
-
-	SetSelected( false );
+	SetSize( SLOT_WIDTH, SLOT_HEIGHT );
 }
 
-void SlotView::UpdateView()
+void SlotView::Update()
 {
-	Texture* slotTexture = emptySlot_->GetTexture();
+	// Get rounded rectangle.
+	RoundedRectangle* whichRect = emptySlot_;
+	Texture* itemTexture = nullptr;
 	if (slot_->HasItem()) {
 		Item* item = slot_->GetItem();
-		switch( item->GetQuality() ) {
+		itemTexture = item->GetTexture();
+
+		bool isSelected = IsSelected();
+		switch(item->GetQuality()) {
 		case EItemQuality::k_EItemQuality_Unique:
-			slotTexture = (IsSelected() ? vintageSelected_ : vintageSlot_)->GetTexture();
+			whichRect = isSelected ? vintageSelected_ : vintageSlot_;
 			break;
+
 		case EItemQuality::k_EItemQuality_Common:
-			slotTexture = (IsSelected() ? genuineSelected_ : genuineSlot_)->GetTexture();
+			whichRect = isSelected ? vintageSelected_ : vintageSlot_;
 			break;
+
 		default:
-			slotTexture = (IsSelected() ? normalSelected_ : normalSlot_)->GetTexture();
+			whichRect = isSelected ? normalSelected_ : normalSlot_;
 			break;
 		}
 	}
-	slotImage_->SetTexture( slotTexture );
 
-	// Set alpha based on dragging.
-	unsigned int alpha = IsDragging() ? DRAG_ALPHA : 255;
-	slotImage_->SetAlpha( alpha );
-	itemImage_->SetAlpha( alpha );
+	itemImage_->SetTexture( itemTexture );
+	slotImage_->SetTexture( whichRect->GetTexture() );
+}
+
+void SlotView::OnDraw( DirectX* directX )
+{
+	Update();
+	Container::OnDraw( directX );
+}
+
+Slot* SlotView::GetSlot() const
+{
+	return slot_;
 }
 
 void SlotView::SetSelected( bool isSelected )
@@ -91,33 +108,41 @@ void SlotView::Precache( DirectX* directX )
 {
 	// Create rounded rectangles.
 	emptySlot_			= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
+
 	normalSlot_			= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
 	normalSelected_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
+
 	vintageSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
 	vintageSelected_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
+
 	genuineSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
 	genuineSelected_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
 
 	// Set up attributes.
 	normalSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
 	normalSlot_->SetStrokeType( STROKE_TYPE_INNER );
-	normalSelected_->SetStroke( SLOT_STROKE_WIDH,T SLOT_STROKE_NORMAL_COLOUR );
+	normalSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
 	normalSelected_->SetStrokeType( STROKE_TYPE_INNER );
+
 	vintageSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
 	vintageSlot_->SetStrokeType( STROKE_TYPE_INNER );
 	vintageSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
 	vintageSelected_->SetStrokeType( STROKE_TYPE_INNER );
+
 	genuineSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
 	genuineSlot_->SetStrokeType( STROKE_TYPE_INNER );
 	genuineSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
 	genuineSelected_->SetStrokeType( STROKE_TYPE_INNER );
 
-	// Generate them.
+	// Generate all rectangles.
 	emptySlot_->Generate( directX );
+
 	normalSlot_->Generate( directX );
 	normalSelected_->Generate( directX );
+
 	vintageSlot_->Generate( directX );
 	vintageSelected_->Generate( directX );
+
 	genuineSlot_->Generate( directX );
 	genuineSelected_->Generate( directX );
 

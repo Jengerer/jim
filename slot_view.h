@@ -9,15 +9,19 @@
 #include "slot.h"
 #include "text.h"
 
-class SlotView : public Draggable
+class SlotView: public Container
 {
 
 public:
 
-	SlotView( const Slot* slot );
+	SlotView( Slot* slot );
 
-	// Sets which slot texture is drawn.
-	void UpdateView();
+	// Over-ridden drawing function.
+	void Update();
+	void OnDraw( DirectX* directX );
+
+	// Getting the slot.
+	Slot* GetSlot() const;
 
 	// Select type.
 	void SetSelected( bool isSelected );
@@ -43,11 +47,11 @@ private:
 
 private:
 
-	Image*		slotImage_;
-	Image*		itemImage_;
+	Image*	slotImage_;
+	Image*	itemImage_;
 
-	const Slot*	slot_;
-	bool isSelected_;
+	Slot*	slot_;
+	bool	isSelected_;
 
 };
 

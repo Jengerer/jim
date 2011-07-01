@@ -1,85 +1,63 @@
 #pragma once
 
 #include <vector>
-#include <map>
 
 #include "item.h"
 #include "slot.h"
-
-typedef Slot* slotArray;
-typedef vector<Slot*> slotVector;
-typedef pair<const uint64, Item*> itemPair;
-typedef map<uint64, Item*> itemMap;
+#include "slot_vector.h"
 
 class Inventory
 {
 public:
-	Inventory(
-		int width, int height, 
-		int pages, int excludedWidth );
+
+	Inventory( unsigned int inventorySize, unsigned int excludedSize );
 	virtual ~Inventory();
 
-	int		GetWidth( void ) const;
-	int		GetHeight( void ) const;
-	int		GetPageCount( void ) const;
-	int		GetPageSize( void ) const;
-	int		GetInventorySize( void ) const;
-	int		GetExcludedSize( void ) const;
+	// Size getters.
+	unsigned int GetInventorySize() const;
+	unsigned int GetExcludedSize() const;
 
-	// Slot/item getters.
-	Slot*		GetInventorySlot( int index ) const;
-	Slot*		GetExcludedSlot( int index ) const;
-	Item*		GetItemByUniqueId( uint64 id );
-
-	const itemMap*	GetInventoryItems( void ) const;
-	const itemMap*	GetExcludedItems( void ) const;
+	// Item handling.
+	Item*	GetItemByUniqueId( uint64 uniqueId, bool shouldRemove = false );
+	void	InsertItem( Item* item );
+	void	RemoveItem( uint64 uniqueId );
+	void	RemoveItems();
 
 	// Slot resource functions.
-	void	CreateSlots( void );
-	void	AddSlots( unsigned int numSlots );
-	void	RemoveSlots( void );
-	void	EmptySlots( void );
+	void	AddSlots( unsigned int slots );
+	void	EmptySlots();
 
-	// Get excluded page.
-	int		GetExcludedPage( void ) const;
-	void	SetExcludedPage( int page );
+	// Handling excluded items.
+	void	SetExcludedPage( unsigned int excludedPage );
 	void	UpdateExcluded( void );
 	void	ResolveExcluded( void );
-
-	// Item resource functions.
-	void	InsertItem( Item *item );
-	void	RemoveItem( uint64 uniqueId );
-	void	ClearItems( void );
 
 	// Item list maintenance.
 	void	ToInventory( Item *item );
 	void	ToExcluded( Item *item );
 
-	// Item slot handling.
-	void	MoveItem( Slot *source, Slot *destination );
-	bool	IsValidIndex( uint16 index ) const;
-	bool	CanMove( uint16 index ) const;
-
 private:
 
-	// Dimension changes, should only be done within member functions.
-	void	SetWidth( int width );
-	void	SetHeight( int height );
-	void	SetPageCount( int pageCount );
+	void	CreateSlots();
+	void	RemoveSlots();
 
-private:
-	// Inventory attributes.
-	int		width_, height_, pages_;
-	int		excludedWidth_;
-
-	// Excluded page view.
-	int		excludedPage_;
-
-	// Item vectors.
-	itemMap		inventoryItems_;
-	itemMap		excludedItems_;
+protected:
 
 	// Slot arrays.
-	slotArray	inventorySlots_;
-	slotArray	excludedSlots_;
+	SlotVector*		inventory_;
+	SlotVector*		excluded_;
+
+private:
+
+	// Inventory attributes.
+	unsigned int	inventorySize_;
+	unsigned int	excludedSize_;
+
+	// Scrolling through excluded.
+	unsigned int	excludedPage_;
+
+	// Item vectors.
+	vector<Item*>	inventoryItems_;
+	vector<Item*>	excludedItems_;
+
 };
