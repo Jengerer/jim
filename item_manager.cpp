@@ -352,9 +352,15 @@ void ItemManager::HandleKeyboard( void )
 	if (IsKeyPressed( VK_ESCAPE )) {
 		ExitApplication();
 	}
-	else if (IsKeyPressed( VK_LEFT )) {
+	else if (IsKeyClicked( VK_RIGHT )) {
 		if (pagesView_ != nullptr) {
 			pagesView_->NextPage();
+			pagesView_->UpdateView();
+		}
+	}
+	else if (IsKeyClicked( VK_LEFT )) {
+		if (pagesView_ != nullptr) {
+			pagesView_->PreviousPage();
 			pagesView_->UpdateView();
 		}
 	}

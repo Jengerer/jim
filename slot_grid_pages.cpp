@@ -4,6 +4,7 @@ SlotGridPages::SlotGridPages( const SlotVector* slots,
 	unsigned int width, unsigned int height,
 	unsigned int pageSpacing, unsigned int slotSpacing )
 {
+	page_ = 0;
 	pagesLayout_ = new HorizontalLayout( pageSpacing, ALIGN_TOP );
 	pagesLayout_->SetParent( this );
 
@@ -74,10 +75,8 @@ void SlotGridPages::PreviousPage()
 
 void SlotGridPages::UpdateView()
 {
-	pagesLayout_->SetLocalPosition( pagesLayout_->GetLocalX() - 10, 0.0f );
-	UpdateChild( pagesLayout_ );/*
 	if (page_ < slotGridViews_.size()) {
 		pagesLayout_->SetLocalPosition( -slotGridViews_[page_]->GetLocalX(), 0.0f );
 		UpdateChild( pagesLayout_ );
-	}*/
+	}
 }
