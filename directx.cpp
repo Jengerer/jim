@@ -221,6 +221,11 @@ void DirectX::SetRenderTarget( Texture *texture )
 	targetSurface->Release();
 }
 
+void DirectX::ResetProjectionSize()
+{
+	SetProjectionSize( GetWidth(), GetHeight() );
+}
+
 void DirectX::ResetRenderTarget( void )
 {
 	// Set to back buffer.
