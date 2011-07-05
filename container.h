@@ -1,6 +1,7 @@
-#pragma once
+#ifndef CONTAINER_H
+#define CONTAINER_H
 
-#include <deque>
+#include <vector>
 #include "component.h"
 
 class Container : public Component
@@ -8,30 +9,26 @@ class Container : public Component
 
 public:
 
-	Container( float localX = 0.0f, float localY = 0.0f );
-	virtual ~Container( void );
+	Container( float x = 0.0f, float y = 0.0f );
+	virtual ~Container();
 
 	// Container resource handling.
-	virtual void		Add( Component *component );
-	virtual void		Remove( Component *component );
-	virtual void		RemoveAll( void );
-	deque<Component*>*	GetChildren( void );
+	virtual void	Add( Component *component );
+	virtual void	Remove( Component *component );
 
 	// Drawing functions.
-	virtual void		OnDraw( DirectX *directX );
-	virtual void		SetAlpha( int alpha );
+	virtual void	Draw( DirectX *directX );
+	virtual void	SetAlpha( int alpha );
 
 	// Local/global child position handling.
-	virtual void		Pack( void );
-	void				UpdateChildren( void );
-	void				UpdateChild( Component *child ) const;
-	virtual void		SetGlobalPosition( float globalX, float globalY );
-	void				ClampChild( Component *component, float padding = 0.0f ) const;
-	virtual bool		IsVisible( Component *component ) const;
-	virtual bool		WithinBounds( Component *component ) const;
+	void			ClampChild( Component *child, float padding = 0.0f ) const;
+	virtual bool	IsVisible( Component* child ) const;
+	virtual bool	WithinBounds( Component* child ) const;
 
 protected:
 
-	deque<Component*>	componentStack_;
+	std::vector<Component*>	components_;
 
 };
+
+#endif // CONTAINER_H

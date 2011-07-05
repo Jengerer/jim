@@ -9,7 +9,7 @@ public:
 
 	Image( Texture* texture, float localX = 0.0f, float localY = 0.0f );
 
-	virtual void	OnDraw( DirectX *directX );
+	virtual void	Draw( DirectX *directX );
 	void			SetTexture( Texture *texture );
 
 private:

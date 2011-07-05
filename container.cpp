@@ -1,5 +1,4 @@
 #include "container.h"
-
 #include <algorithm>
 
 //=============================================================
@@ -16,46 +15,49 @@ Container::Container( float localX, float localY ) : Component( localX, localY )
 Container::~Container( void )
 {
 	// Container destroyed.
-	deque<Component*>::iterator i;
-	while (!componentStack_.empty()) {
-		Component* component = componentStack_.back();
-		Remove( component );
-		delete component;
+	std::vector<Component*>::iterator i;
+	for (i = components_.begin(); i != components_.end(); i = components_.erase( i )) {
+		delete *i;
 	}
 }
 
-void Container::Pack( void )
+void Container::Add( Component* component )
 {
-	// Optionally implemented.
+	components_.push_back( component );
 }
 
-void Container::SetGlobalPosition( float globalX, float globalY )
+//=============================================================
+// Purpose: Removes a child from the container, but does
+//			NOT destroy it.
+//=============================================================
+void Container::Remove( Component* component )
 {
-	Component::SetGlobalPosition( globalX, globalY );
-	UpdateChildren();
-}
-
-void Container::UpdateChildren( void )
-{
-	// Move children by local position.
-	deque<Component*>::iterator i, end;
-	for (i = componentStack_.begin(), end = componentStack_.end(); i != end; ++i) {
-		UpdateChild( *i );
+	vector<Component*>::iterator i = find( components_.begin(), components_.end(), component );
+	if (i != components_.end()) {
+		components_.erase( i );
 	}
 }
 
-void Container::UpdateChild( Component *child ) const
+//=============================================================
+// Purpose: Draws all children.
+//=============================================================
+void Container::Draw( DirectX *directX )
 {
-	child->SetGlobalPosition(
-		GetGlobalX() + child->GetLocalX(),
-		GetGlobalY() + child->GetLocalY() );
+	// Draw all children.
+	std::vector<Component*>::iterator i, end;
+	for (i = components_.begin(), end = components_.end(); i != end; ++i) {
+		Component* child = *i;
+		if (IsVisible( child )) {
+			child->Draw( directX );
+		}
+	}
 }
 
 void Container::SetAlpha( int alpha )
 {
 	Component::SetAlpha( alpha );
-	deque<Component*>::iterator i;
-	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
+	vector<Component*>::iterator i, end;
+	for (i = components_.begin(), end = components_.end(); i != end; ++i) {
 		Component *component = *i;
 		component->SetAlpha( alpha );
 	}
@@ -67,10 +69,10 @@ void Container::SetAlpha( int alpha )
 //=============================================================
 bool Container::WithinBounds( Component *component ) const
 {
-	float childX = component->GetGlobalX();
-	float childY = component->GetGlobalY();
-	float parentX = GetGlobalX();
-	float parentY = GetGlobalY();
+	float childX = component->GetX();
+	float childY = component->GetY();
+	float parentX = GetX();
+	float parentY = GetY();
 	return (childX > parentX - component->GetWidth()) && 
 		(childX < parentX + GetWidth()) && 
 		(childY > parentY - component->GetHeight()) && 
@@ -92,73 +94,36 @@ bool Container::IsVisible( Component *component ) const
 //=============================================================
 void Container::ClampChild( Component *component, float padding ) const
 {
-	int localX = component->GetLocalX();
-	int localY = component->GetLocalY();
+	float childX = component->GetX();
+	float childY = component->GetY();
+	float parentX = GetX();
+	float parentY = GetY();
+	
+	// Generate bounds.
+	float leftBound = parentX + padding;
+	float topBound = parentY + padding;
 
 	// Clamp X position.
-	if ( localX < padding ) {
-		localX = padding;
+	if (childX < leftBound) {
+		childX = leftBound;
 	}
 	else {
-		float rightBound = GetWidth() - component->GetWidth() - padding;
-		if ( localX > rightBound ) {
-			localX = rightBound;
+		float rightBound = parentX + GetWidth() - component->GetWidth() - padding;
+		if (childX > rightBound) {
+			childX = rightBound;
 		}
 	}
 
 	// Clamp Y position.
-	if ( localY < padding ) {
-		localY = padding;
+	if (childY < topBound) {
+		childY = topBound;
 	}
 	else {
-		int bottomBound = GetHeight() - component->GetHeight() - padding;
-		if ( localY > bottomBound ) {
-			localY = bottomBound;
+		int bottomBound = parentY + GetHeight() - component->GetHeight() - padding;
+		if (childY > bottomBound) {
+			childY = bottomBound;
 		}
 	}
 
-	component->SetLocalPosition( localX, localY );
-	UpdateChild( component );
-}
-
-void Container::Add( Component* component )
-{
-	componentStack_.push_back( component );
-}
-
-//=============================================================
-// Purpose: Removes a child from the container, but does
-//			NOT destroy it.
-//=============================================================
-void Container::Remove( Component* component )
-{
-	deque<Component*>::iterator i = find( componentStack_.begin(), componentStack_.end(), component );
-	if (i != componentStack_.end()) {
-		componentStack_.erase( i );
-	}
-}
-
-// TODO: Maybe make it recurse on child containers.
-void Container::RemoveAll( void )
-{
-	componentStack_.clear();
-}
-
-deque<Component*>* Container::GetChildren()
-{
-	return &componentStack_;
-}
-
-//=============================================================
-// Purpose: Draws all children.
-//=============================================================
-void Container::OnDraw( DirectX *directX )
-{
-	// Draw all children.
-	for (int i = 0; i < componentStack_.size(); i++) {
-		Component *component = componentStack_.at( i );
-		if (IsVisible( component )) {
-			component->OnDraw( directX );
-		}
-	}
+	component->SetPosition( childX, childY );
 }

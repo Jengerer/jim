@@ -17,7 +17,7 @@ RoundedRectangle::~RoundedRectangle( void )
 	RemoveTexture();
 }
 
-void RoundedRectangle::OnDraw( DirectX *directX )
+void RoundedRectangle::Draw( DirectX *directX )
 {
 	// Check if we need to redraw.
 	if (roundedRect_ == nullptr) {
@@ -25,8 +25,8 @@ void RoundedRectangle::OnDraw( DirectX *directX )
 	}
 
 	// Draw texture.
-	float textureX = GetGlobalX();
-	float textureY = GetGlobalY();
+	float textureX = GetX();
+	float textureY = GetY();
 	if (GetStrokeType() == STROKE_TYPE_OUTER) {
 		int strokeSize = GetStrokeSize();
 		textureX -= strokeSize;

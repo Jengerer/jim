@@ -160,8 +160,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// Create notification queue.
 		notifications_ = new NotificationQueue();
-		notifications_->SetLocalPosition( GetWidth() - PADDING, GetHeight() - PADDING );
-		UpdateChild( notifications_ );
+		notifications_->SetPosition( GetWidth() - PADDING, GetHeight() - PADDING );
 		Add( notifications_ );
 
 		// Create start up message.

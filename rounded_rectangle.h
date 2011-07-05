@@ -18,7 +18,7 @@ public:
 	RoundedRectangle( int width, int height, int radius, D3DCOLOR colour );
 	virtual ~RoundedRectangle( void );
 
-	virtual void	OnDraw( DirectX *directX );
+	virtual void	Draw( DirectX *directX );
 
 	void			SetStroke( int size, D3DCOLOR colour );
 	void			SetStrokeType( EStrokeType strokeType );

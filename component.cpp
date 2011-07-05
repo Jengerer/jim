@@ -1,9 +1,9 @@
 #include "component.h"
 
-Component::Component( float localX, float localY )
+Component::Component( float x, float y )
 {
-	SetLocalPosition( localX, localY );
-	SetGlobalPosition( localX, localY );
+	SetPosition( x, y );
+	SetSize( 0, 0 );
 	SetAlpha( 255 );
 }
 
@@ -12,16 +12,10 @@ Component::~Component( void )
 	// Component is destroyed.
 }
 
-void Component::SetGlobalPosition( float globalX, float globalY )
+void Component::SetPosition( float x, float y )
 {
-	globalX_ = globalX;
-	globalY_ = globalY;
-}
-
-void Component::SetLocalPosition( float localX, float localY )
-{
-	localX_ = localX;
-	localY_ = localY;
+	x_ = x;
+	y_ = y;
 }
 
 int Component::GetWidth( void ) const
@@ -40,38 +34,30 @@ void Component::SetSize( int width, int height )
 	height_ = height;
 }
 
-float Component::GetGlobalX( void ) const
+float Component::GetX() const
 {
-	return globalX_;
+	return x_;
 }
 
-float Component::GetGlobalY( void ) const
+float Component::GetY() const
 {
-	return globalY_;
+	return y_;
 }
 
-float Component::GetLocalX( void ) const
+void Component::SetAlpha( unsigned int alpha )
 {
-	return localX_;
-}
-
-float Component::GetLocalY( void ) const
-{
-	return localY_;
-}
-
-void Component::SetAlpha( int alpha )
-{
-	alpha_ = alpha;
-	if (alpha_ > 255) {
+	if (alpha > 255) {
 		alpha_ = 255;
 	}
-	else if (alpha_ < 0) {
+	else if (alpha < 0) {
 		alpha_ = 0;
+	}
+	else {
+		alpha_ = alpha;
 	}
 }
 
-int Component::GetAlpha( void ) const
+unsigned int Component::GetAlpha( void ) const
 {
 	return alpha_;
 }

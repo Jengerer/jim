@@ -9,12 +9,12 @@ Menu::Menu( void )
 	// Create rounded rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
 	roundedRect_->SetStroke( MENU_STROKE_SIZE, MENU_STROKE_COLOUR );
-	roundedRect_->SetLocalPosition( 0, 0 );
+	SetConstraint( roundedRect_, 0.0f, 0.0f );
 	Add( roundedRect_ );
 
 	// Create layout.
 	layout_ = new VerticalLayout();
-	layout_->SetLocalPosition( MENU_PADDING, MENU_PADDING );
+	SetConstraint( layout_, MENU_PADDING, MENU_PADDING );
 	Add( layout_ );
 }
 

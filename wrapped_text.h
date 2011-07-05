@@ -11,7 +11,7 @@ public:
 	WrappedText( Font *font, int textWidth );
 	virtual ~WrappedText( void );
 
-	virtual void	OnDraw( DirectX *directX );
+	virtual void	Draw( DirectX *directX );
 	virtual void	Pack( void );
 
 	int				GetTextWidth( void ) const;

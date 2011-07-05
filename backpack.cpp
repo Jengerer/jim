@@ -216,15 +216,16 @@ Backpack::Backpack( unsigned int inventorySize, unsigned int excludedSize ) : In
 
 SlotGridPages* Backpack::CreateInventoryView( unsigned int width, unsigned int height ) const
 {
-	SlotGridPages* inventoryView = new SlotGridPages( inventory_,
-		width, height,
+	SlotGridPages* inventoryView = new SlotGridPages( width, height,
 		PAGE_SPACING, SLOT_SPACING );
+	inventoryView->AddPages( inventory_ );
 	return inventoryView;
 }
 
 SlotGridView* Backpack::CreateExcludedView() const
 {
 	SlotGridView* excludedView = new SlotGridView( excluded_->GetSlotCount(), SLOT_SPACING );
+	excludedView->AddSlots( excluded_ );
 	return excludedView;
 }
 

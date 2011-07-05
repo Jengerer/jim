@@ -34,14 +34,14 @@ D3DCOLOR Text::GetColour( void ) const
 	return colour_;
 }
 
-void Text::OnDraw( DirectX *directX )
+void Text::Draw( DirectX *directX )
 {
-	float globalX = GetGlobalX();
-	float globalY = GetGlobalY();
+	float x = GetX();
+	float y = GetY();
 	RECT textRect = {
-		globalX, globalY,
-		globalX + GetWidth(),
-		globalY + GetHeight() 
+		x, y,
+		x + GetWidth(),
+		y + GetHeight() 
 	};
 
 	font_->drawText( text_, &textRect, 0, ((GetAlpha() & 0xff) << 24) | (GetColour() & 0xFFFFFF) );

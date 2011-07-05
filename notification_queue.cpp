@@ -16,12 +16,12 @@ NotificationQueue::~NotificationQueue( void )
 	// Notification destroyed.
 }
 
-void NotificationQueue::OnDraw( DirectX *directX )
+void NotificationQueue::Draw( DirectX *directX )
 {
 	// Draw top notification.
 	if ( HasNotification() ) {
 		Notification *top = GetCurrentNotification();
-		top->OnDraw( directX );
+		top->Draw( directX );
 	}
 }
 
@@ -93,8 +93,7 @@ void NotificationQueue::SetNextNotification( void )
 	// Get and set new.
 	if ( HasMoreNotifications() ) {
 		current_ = notificationQueue_.front();
-		current_->SetLocalPosition( -current_->GetWidth(), -current_->GetHeight() );
-		UpdateChild( current_ );
+		SetConstraint( current_, -current_->GetWidth(), -current_->GetHeight() );
 		notificationQueue_.pop();
 		nextTime_ = GetTickCount() + NOTIFICATION_QUEUE_DELAY;
 	}

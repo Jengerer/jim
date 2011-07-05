@@ -57,7 +57,7 @@ void Application::DrawFrame( void )
 {
 	// Start redraw.
 	if ( directX_->BeginDraw() ) {
-		OnDraw( directX_ );
+		Draw( directX_ );
 		directX_->EndDraw();
 	}
 	else {

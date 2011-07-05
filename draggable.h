@@ -1,9 +1,10 @@
-#pragma once
+#ifndef DRAGGABLE_H
+#define DRAGGABLE_H
 
-#include "container.h"
+#include "constrained_container.h"
 #include "imouse_handler.h"
 
-class Draggable: public Container, public IMouseHandler
+class Draggable: public ConstrainedContainer, public IMouseHandler
 {
 
 public:
@@ -11,7 +12,7 @@ public:
 	Draggable( float x = 0.0f, float y = 0.0f );
 	virtual ~Draggable( void );
 
-	virtual void OnDraw( DirectX *directX );
+	virtual void Draw( DirectX *directX );
 
 	// Mouse handling.
 	virtual bool OnMouseMoved( Mouse *mouse );
@@ -23,11 +24,11 @@ public:
 	void				SetParent( const Container* container );
 
 	bool IsDragging( void ) const;
-	virtual void OnDrag( const Mouse* mouse );
-	virtual void OnRelease( void );
+	virtual void BeginDragging( const Mouse* mouse );
+	virtual void EndDragging( void );
 
-	virtual float GetGlobalX( void ) const;
-	virtual float GetGlobalY( void ) const;
+	virtual float GetX( void ) const;
+	virtual float GetY( void ) const;
 
 private:
 
@@ -40,7 +41,9 @@ private:
 	const Mouse			*mouse_;
 	const Container*	parent_;
 
-	bool			isDragging_;
-	float			offsetX_, offsetY_;
+	bool				isDragging_;
+	float				offsetX_, offsetY_;
 
 };
+
+#endif // DRAGGABLE_H
