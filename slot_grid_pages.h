@@ -1,20 +1,20 @@
 #ifndef SLOT_GRID_PAGES_H
 #define SLOT_GRID_PAGES_H
 
+#include "constrained_container.h"
 #include "horizontal_layout.h"
 #include "mouse.h"
 #include "slot_grid_view.h"
 #include "slot_vector.h"
 
-class SlotGridPages : public Container
+class SlotGridPages : public ConstrainedContainer
 {
 public:
 
-	SlotGridPages( const SlotVector* slots,
-		unsigned int width, 
-		unsigned int height,
-		unsigned int pageSpacing,
-		unsigned int slotSpacing );
+	SlotGridPages( unsigned int pageWidth, unsigned int pageHeight,
+		unsigned int pageSpacing, unsigned int slotSpacing );
+
+	void AddPages( const SlotVector* slots );
 
 	void Pack();
 
@@ -26,6 +26,12 @@ public:
 	virtual void UpdateView();
 
 private:
+
+	// Dimension attributes.
+	unsigned int			pageWidth_;
+	unsigned int			pageHeight_;
+	unsigned int			pageSpacing_;
+	unsigned int			slotSpacing_;
 
 	unsigned int			page_;
 	HorizontalLayout*		pagesLayout_;

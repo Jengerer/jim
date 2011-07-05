@@ -2,15 +2,14 @@
 #define NOTIFICATION_QUEUE_H
 
 #include <queue>
-#include <windows.h>
 
-#include "container.h"
+#include "constrained_container.h"
 #include "directx.h"
 #include "imouse_handler.h"
 #include "notification.h"
 #include "texture.h"
 
-class NotificationQueue : public Container, public IMouseHandler
+class NotificationQueue : public ConstrainedContainer, public IMouseHandler
 {
 
 public:
@@ -19,7 +18,7 @@ public:
 	virtual ~NotificationQueue( void );
 
 	// Drawing and container functions.
-	virtual void	OnDraw( DirectX* directX );
+	virtual void	Draw( DirectX* directX );
 
 	// Updating notification state.
 	void			UpdateNotifications( void );

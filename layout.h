@@ -1,12 +1,11 @@
-#pragma once
-
-#include <vector>
+#ifndef LAYOUT_H
+#define LAYOUT_H
 
 #include "component.h"
-#include "container.h"
+#include "constrained_container.h"
 
 // Abstract class to format elements within a container.
-class Layout: public Container
+class Layout: public ConstrainedContainer
 {
 
 public:
@@ -34,3 +33,5 @@ private:
 	int				spacing_;
 
 };
+
+#endif // LAYOUT_H

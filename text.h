@@ -12,7 +12,7 @@ public:
 	Text( Font *font );
 	virtual ~Text( void );
 
-	virtual void	OnDraw( DirectX *directX );
+	virtual void	Draw( DirectX *directX );
 
 	void			SetText( const string& text );
 	const string&	GetText( void ) const;

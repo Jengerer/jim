@@ -27,6 +27,7 @@ Notice::Notice( const string& message ) : Popup( 0.0f, 0.0f )
 	roundedRect->SetColour( NOTICE_COLOUR );
 	roundedRect->RemoveTexture();
 	Add( roundedContainer_ );
+	SetConstraint( roundedContainer_, 0.0f, 0.0f );
 
 	// Create layout for container.
 	content_ = new VerticalLayout();
@@ -53,7 +54,6 @@ void Notice::Pack( void )
 	content_->Pack();
 	roundedContainer_->Pack();
 	SetSize( roundedContainer_->GetWidth(), roundedContainer_->GetHeight() );
-	UpdateChildren();
 }
 
 void Notice::SetMessage( const string& message )

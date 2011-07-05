@@ -1,15 +1,15 @@
 #ifndef SLOT_VIEW_H
 #define SLOT_VIEW_H
 
+#include "constrained_container.h"
 #include "directx.h"
-#include "draggable.h"
 #include "image.h"
 #include "item.h"
 #include "rounded_rectangle.h"
 #include "slot.h"
 #include "text.h"
 
-class SlotView: public Container
+class SlotView: public ConstrainedContainer
 {
 
 public:
@@ -18,7 +18,7 @@ public:
 
 	// Over-ridden drawing function.
 	void Update();
-	void OnDraw( DirectX* directX );
+	void Draw( DirectX* directX );
 
 	// Getting the slot.
 	Slot* GetSlot() const;

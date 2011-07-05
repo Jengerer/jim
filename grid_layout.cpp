@@ -13,19 +13,19 @@ GridLayout::~GridLayout( void )
 
 void GridLayout::Pack( void )
 {
-	if (componentStack_.empty()) {
+	if (components_.empty()) {
 		SetSize( 0, 0 );
 		return;
 	}
 
 	// Base component sizes on first element.
-	Component *first = componentStack_.front();
+	Component *first = components_.front();
 	int componentWidth = first->GetWidth();
 	int componentHeight = first->GetHeight();
 	int spacing = GetSpacing();
 
 	// Grid height is components / width, + 1 if remainder.
-	size_t numComponents = componentStack_.size();
+	size_t numComponents = components_.size();
 	int gridHeight = numComponents / gridWidth_ + (numComponents % gridWidth_ == 0 ? 0 : 1);
 
 	// Calculate width and height.
@@ -35,15 +35,13 @@ void GridLayout::Pack( void )
 
 	size_t index = 0;
 	float x, y;
-	std::deque<Component*>::iterator i, end;
-	for (i = componentStack_.begin(), end = componentStack_.end(); i != end; ++i) {
+	std::vector<Component*>::iterator i, end;
+	for (i = components_.begin(), end = components_.end(); i != end; ++i) {
 		Component *current = *i;
 		x = static_cast<float>((index % gridWidth_) * (componentWidth + spacing));
 		y = static_cast<float>((index / gridWidth_) * (componentHeight + spacing));
-		current->SetLocalPosition( x, y );
+		SetConstraint( current, x, y );
 
 		++index;
 	}
-
-	UpdateChildren();
 }

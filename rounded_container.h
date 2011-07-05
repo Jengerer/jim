@@ -1,12 +1,12 @@
 #ifndef ROUNDED_RECTANGLE_CONTAINER_H
 #define ROUNDED_RECTANGLE_CONTAINER_H
 
-#include "container.h"
+#include "constrained_container.h"
 #include "horizontal_layout.h"
 #include "rounded_rectangle.h"
 
 // A new record! Longest class name in the project!
-class RoundedRectangleContainer : public Container
+class RoundedRectangleContainer : public ConstrainedContainer
 {
 
 public:

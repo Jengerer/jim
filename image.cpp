@@ -5,13 +5,13 @@ Image::Image( Texture* texture, float localX, float localY ): Component( localX,
 	SetTexture( texture );
 }
 
-void Image::OnDraw( DirectX *directX )
+void Image::Draw( DirectX *directX )
 {
 	// Draw texture.
 	if (texture_ != nullptr) {
 		directX->DrawTexture(
 			texture_,
-			GetGlobalX(), GetGlobalY(), 
+			GetX(), GetY(),
 			GetWidth(), GetHeight(), 
 			D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
 	}

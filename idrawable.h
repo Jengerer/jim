@@ -7,6 +7,6 @@ class IDrawable
 
 public:
 
-	virtual void OnDraw( DirectX* directX ) = 0;
+	virtual void Draw( DirectX* directX ) = 0;
 
 };

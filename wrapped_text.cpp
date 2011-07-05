@@ -11,13 +11,13 @@ WrappedText::~WrappedText( void )
 	// Wrapped text destroyed.
 }
 
-void WrappedText::OnDraw( DirectX *directX )
+void WrappedText::Draw( DirectX *directX )
 {
+	float x = GetX();
+	float y = GetY();
 	RECT textRect = {
-		GetGlobalX(),
-		GetGlobalY(),
-		GetGlobalX() + GetWidth(),
-		GetGlobalY() + GetHeight()
+		x, y,
+		x + GetWidth(), y + GetHeight()
 	};
 
 	font_->drawText( GetText(), &textRect, GetTextFormatting(), ((GetAlpha() & 0xff) << 24) | (GetColour() & 0xFFFFFF) );

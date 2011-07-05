@@ -10,8 +10,8 @@ void VerticalLayout::Pack( void )
 {
 	// First get maximum width.
 	int maxWidth = 0;
-	deque<Component*>::const_iterator i, end;
-	for (i = componentStack_.begin(), end = componentStack_.end(); i != end; ++i) {
+	std::vector<Component*>::const_iterator i, end;
+	for (i = components_.begin(), end = components_.end(); i != end; ++i) {
 		Component *component = *i;
 		int width = component->GetWidth();
 		if (width > maxWidth) {
@@ -25,7 +25,7 @@ void VerticalLayout::Pack( void )
 
 	// Now pack.
 	int height = 0;
-	for (i = componentStack_.begin(); i != end; i++) {
+	for (i = components_.begin(); i != end; i++) {
 		Component *component = *i;
 
 		// Set position aligned horizontally.
@@ -40,18 +40,18 @@ void VerticalLayout::Pack( void )
 			posX = (maxWidth - component->GetWidth());
 			break;
 		}
-		component->SetLocalPosition( posX, height );
+
+		SetConstraint( component, posX, height );
 
 		// Push width by component width and spacing (if not last).
 		height += component->GetHeight();
-		if ( component != componentStack_.back() ) {
+		if ( component != components_.back() ) {
 			height += GetSpacing();
 		}
 	}
 
 	// Update size.
 	SetSize( maxWidth, height );
-	UpdateChildren();
 }
 
 void VerticalLayout::SetAlignType( EHorizontalAlignType alignType )

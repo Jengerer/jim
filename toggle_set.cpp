@@ -38,8 +38,8 @@ ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB, float x, f
 	// Create rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, TOGGLE_SET_RADIUS, TOGGLE_SET_COLOUR );
 	roundedRect_->SetStroke( TOGGLE_SET_STROKE_SIZE, TOGGLE_SET_STROKE_COLOUR );
-	roundedRect_->SetLocalPosition( 0, 0 );
 	Add( roundedRect_ );
+	SetConstraint( roundedRect_, 0.0f, 0.0f );
 
 	// Create okay and cancel buttons.
 	okayButton_ = Button::CreateLabelButton( "okay", buttonFont_ );
@@ -65,13 +65,13 @@ ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB, float x, f
 	setLayout_ = new VerticalLayout();
 	setLayout_->SetSpacing( TOGGLE_SET_SPACING );
 	setLayout_->SetAlignType( ALIGN_CENTER );
-	setLayout_->SetLocalPosition( TOGGLE_SET_PADDING, TOGGLE_SET_PADDING );
 	setLayout_->Add( titleSetA_ );
 	setLayout_->Add( layoutSetA_ );
 	setLayout_->Add( titleSetB_ );
 	setLayout_->Add( layoutSetB_ );
 	setLayout_->Add( buttonLayout_ );
 	Add( setLayout_ );
+	SetConstraint( setLayout_, TOGGLE_SET_PADDING, TOGGLE_SET_PADDING );
 
 	Pack();
 }

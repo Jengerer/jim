@@ -171,6 +171,9 @@
     <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="constrained_container.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="steam\AppsCommon.h">
@@ -969,6 +972,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\imouse_handler.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="constrained_container.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
   </ItemGroup>

@@ -174,7 +174,7 @@ void Inventory::ToInventory( Item *item )
 		excludedItems_.erase( i );
 	}
 
-	excludedItems_.push_back( item );
+	inventoryItems_.push_back( item );
 }
 
 // NOTE: Should call UpdateExcluded after using this.

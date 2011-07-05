@@ -45,12 +45,16 @@ SlotView::SlotView( Slot* slot )
 	SetSelected( false );
 
 	// Add images.
-	slotImage_ = new Image( emptySlot_->GetTexture(), 0.0f, 0.0f );
+	slotImage_ = new Image( emptySlot_->GetTexture() );
 	slotImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
-	itemImage_ = new Image( nullptr, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, 0.0f );
-	itemImage_->SetSize( ITEM_SIZE, ITEM_SIZE );
 	Add( slotImage_ );
+	SetConstraint( slotImage_, 0.0f, 0.0f );
+
+	itemImage_ = new Image( nullptr );
+	itemImage_->SetSize( ITEM_SIZE, ITEM_SIZE );
 	Add( itemImage_ );
+	SetConstraint( itemImage_, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, 0.0f );
+
 	SetSize( SLOT_WIDTH, SLOT_HEIGHT );
 }
 
@@ -83,10 +87,10 @@ void SlotView::Update()
 	slotImage_->SetTexture( whichRect->GetTexture() );
 }
 
-void SlotView::OnDraw( DirectX* directX )
+void SlotView::Draw( DirectX* directX )
 {
 	Update();
-	Container::OnDraw( directX );
+	Container::Draw( directX );
 }
 
 Slot* SlotView::GetSlot() const

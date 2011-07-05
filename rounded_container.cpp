@@ -3,23 +3,21 @@
 const D3DCOLOR ROUNDED_RECTANGLE_DEFAULT_COLOUR = D3DCOLOR_XRGB( 255, 255, 255 );
 
 
-RoundedRectangleContainer::RoundedRectangleContainer( unsigned int radius, unsigned int padding, float localX, float localY ) : Container( localX, localY )
+RoundedRectangleContainer::RoundedRectangleContainer( unsigned int radius, unsigned int padding, float x, float y ) : ConstrainedContainer( x, y )
 {
 	SetPadding( padding );
 
 	// Create rounded rectangle.
-	roundedRect_ = new RoundedRectangle( padding_, padding_, radius, ROUNDED_RECTANGLE_DEFAULT_COLOUR );
+	roundedRect_ = new RoundedRectangle( 
+		padding_ * 2, padding_ * 2, 
+		radius, ROUNDED_RECTANGLE_DEFAULT_COLOUR );
 	Add( roundedRect_ );
-
-	// Create content container.
-	content_ = new HorizontalLayout();
-	Add( content_ );
+	SetConstraint( roundedRect_, 0.0f, 0.0f );
 }
 
 void RoundedRectangleContainer::Pack( void )
 {
-	// Inset content by padding.
-	content_->SetLocalPosition( padding_, padding_ );
+	SetConstraint( content_, padding_, padding_ );
 
 	// Set rectangle size.
 	int rectWidth = content_->GetWidth() + (padding_ * 2);

@@ -11,8 +11,8 @@ void HorizontalLayout::Pack( void )
 {
 	// First get maximum height.
 	int maxHeight = 0;
-	deque<Component*>::const_iterator i;
-	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
+	vector<Component*>::const_iterator i;
+	for (i = components_.begin(); i != components_.end(); i++) {
 		Component *component = *i;
 		int height = component->GetHeight();
 		if (height > maxHeight) {
@@ -26,7 +26,7 @@ void HorizontalLayout::Pack( void )
 
 	// Now pack.
 	float width = 0.0f;
-	for (i = componentStack_.begin(); i != componentStack_.end(); i++) {
+	for (i = components_.begin(); i != components_.end(); i++) {
 		Component *component = *i;
 
 		// Set position aligned vertically.
@@ -42,18 +42,18 @@ void HorizontalLayout::Pack( void )
 			posY += static_cast<float>(maxHeight - component->GetHeight());
 			break;
 		}
-		component->SetLocalPosition( width, posY );
+
+		SetConstraint( component, width, posY );
 
 		// Push width by component width and spacing (if not last).
 		width += static_cast<float>(component->GetWidth());
-		if ( component != componentStack_.back() ) {
+		if ( component != components_.back() ) {
 			width += static_cast<float>(GetSpacing());
 		}
 	}
 
 	// Update size.
 	SetSize( width, maxHeight );
-	UpdateChildren();
 }
 
 void HorizontalLayout::SetMinimumHeight( int minimumHeight )

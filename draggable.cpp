@@ -3,9 +3,10 @@
 //=============================================================
 // Constructor
 //=============================================================
-Draggable::Draggable( float x, float y ) : Container( x, y )
+Draggable::Draggable( float x, float y ) : ConstrainedContainer( x, y )
 {
-	Initialize();
+	SetParent( nullptr );
+	SetDragging( false );
 }
 
 Draggable::~Draggable( void )
@@ -13,21 +14,18 @@ Draggable::~Draggable( void )
 	// Draggable destroyed.
 }
 
-void Draggable::Initialize( void )
+void Draggable::Draw( DirectX *directX )
 {
-	SetParent( nullptr );
-	SetDragging( false );
-}
-
-void Draggable::OnDraw( DirectX *directX )
-{
-	Container::OnDraw( directX );
+	Container::Draw( directX );
 }
 
 bool Draggable::OnMouseMoved( Mouse *mouse )
 {
 	if (isDragging_) {
-		UpdateChildren();
+		SetPosition( mouse->GetX() + offsetX_, mouse->GetY() + offsetY_ );
+		if (HasParent()) {
+			GetParent()->ClampChild( this );
+		}
 		return true;
 	}
 
@@ -37,7 +35,7 @@ bool Draggable::OnMouseMoved( Mouse *mouse )
 bool Draggable::OnLeftClicked( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
-		OnDrag( mouse );
+		BeginDragging( mouse );
 		return true;
 	}
 
@@ -47,7 +45,7 @@ bool Draggable::OnLeftClicked( Mouse *mouse )
 bool Draggable::OnLeftReleased( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
-		OnRelease();
+		EndDragging();
 		return true;
 	}
 
@@ -58,67 +56,27 @@ bool Draggable::OnLeftReleased( Mouse *mouse )
 // Purpose:	Returns proper X position based on whether it is
 //			being dragged right now.
 //=============================================================
-float Draggable::GetGlobalX( void ) const
+float Draggable::GetX( void ) const
 {
-	if (isDragging_) {
-		float x = mouse_->GetX() + offsetX_;
-
-		// Constrain position if we have a parent.
-		if (parent_ != nullptr) {
-			float leftBound = parent_->GetGlobalX();
-			if (x < leftBound) {
-				return leftBound;
-			}
-			else {
-				float rightBound = parent_->GetGlobalX() + parent_->GetWidth() - GetWidth();
-				if (x > rightBound) {
-					return rightBound;
-				}
-			}
-		}
-
-		return x;
-	}
-
-	return Component::GetGlobalX();
+	return Component::GetX();
 }
 
 //=============================================================
 // Purpose:	Returns proper Y position based on whether it is
 //			being dragged right now.
 //=============================================================
-float Draggable::GetGlobalY( void ) const
+float Draggable::GetY( void ) const
 {
-	if (isDragging_) {
-		float y = mouse_->GetY() + offsetY_;
-
-		// Constrain position if we have a parent.
-		if (parent_ != nullptr) {
-			float topBound = parent_->GetGlobalY();
-			if ( y < topBound ) {
-				return topBound;
-			}
-			else {
-				float bottomBound = parent_->GetGlobalY() + parent_->GetHeight() - GetHeight();
-				if (y > bottomBound) {
-					return bottomBound;
-				}
-			}
-		}
-
-		return y;
-	}
-
-	return Component::GetGlobalY();
+	return Component::GetY();
 }
 
 //=============================================================
 // Purpose:	Enables dragging and sets offset to mouse.
 //=============================================================
-void Draggable::OnDrag( const Mouse* mouse )
+void Draggable::BeginDragging( const Mouse* mouse )
 {
 	// Set offset to mouse.
-	SetOffset( GetGlobalX() - mouse->GetX(), GetGlobalY() - mouse->GetY() );
+	SetOffset( GetX() - mouse->GetX(), GetY() - mouse->GetY() );
 	SetDragging( true );
 	mouse_ = mouse;
 }
@@ -126,9 +84,8 @@ void Draggable::OnDrag( const Mouse* mouse )
 //=============================================================
 // Purpose: Sets current position and disables dragging.
 //=============================================================
-void Draggable::OnRelease( void )
+void Draggable::EndDragging( void )
 {
-	SetGlobalPosition( GetGlobalX(), GetGlobalY() );
 	SetDragging( false );
 }
 
