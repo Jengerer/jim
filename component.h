@@ -20,8 +20,8 @@ public:
 	virtual float	GetY() const;
 
 	// Visibility functions.
-	virtual void	SetAlpha( unsigned int alpha );
-	unsigned int	GetAlpha( void ) const;
+	virtual void	SetAlpha( int alpha );
+	int	GetAlpha( void ) const;
 
 	// Size functions.
 	virtual void	SetSize( int width, int height );
@@ -34,7 +34,7 @@ private:
 	float y_;
 	float width_;
 	float height_;
-	unsigned int alpha_;
+	int alpha_;
 
 };
 

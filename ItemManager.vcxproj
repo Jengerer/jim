@@ -98,6 +98,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="steam_item_handler.cpp" />
     <ClCompile Include="constrained_container.cpp" />
     <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.cpp" />
     <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.cpp" />
@@ -148,6 +149,7 @@
     <ClCompile Include="wrapped_text.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="steam_item_handler.h" />
     <ClInclude Include="constrained_container.h" />
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.h" />
     <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\iinventory_listener.h" />
@@ -420,6 +422,7 @@
     <Library Include="steam\steam_api.lib" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Jengerer%27s Item Manager\Item Manager\tint.fx" />
     <None Include="steam\steamworks.vcproj" />
     <None Include="jimIcon.ico" />
   </ItemGroup>

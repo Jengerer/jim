@@ -127,28 +127,28 @@ void Steam::CloseInterfaces( void )
 	SteamAPI_Shutdown();
 }
 
-bool Steam::GetCallback( CallbackMsg_t* tCallback )
+bool Steam::GetCallback( CallbackMsg_t* tCallback ) const
 {
 	HSteamCall steamCall;
 	return Steam_BGetCallback( hPipe_, tCallback, &steamCall );
 }
 
-void Steam::ReleaseCallback( void )
+void Steam::ReleaseCallback( void ) const
 {
 	Steam_FreeLastCallback( hPipe_ );
 }
 
-bool Steam::HasMessage( uint32* messageSize )
+bool Steam::HasMessage( uint32* messageSize ) const
 {
 	return gameCoordinator_->IsMessageAvailable( messageSize );
 }
 
-void Steam::GetMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize )
+void Steam::GetMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const
 {
 	gameCoordinator_->RetrieveMessage( id, buffer, size, realSize );
 }
 
-void Steam::SendMessage( uint32 id, void* buffer, uint32 size )
+void Steam::SendMessage( uint32 id, void* buffer, uint32 size ) const
 {
 	// Check if we need a protobuf header sent.
 	if ((id & 0x80000000) != 0) {

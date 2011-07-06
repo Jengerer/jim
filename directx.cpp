@@ -36,7 +36,7 @@ void DirectX::LoadInterfaces( void )
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
 		getHandle(),
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
 		&params_,
 		&d3dDevice_);
 	if ( FAILED( result ) ) {
@@ -61,7 +61,7 @@ void DirectX::LoadInterfaces( void )
 	CreateTextureBuffer();
 
 	result = d3dDevice_->GetBackBuffer( 0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer_ );
-	if ( FAILED( result ) ) {
+	if (FAILED( result )) {
 		throw Exception( "Failed to get back buffer surface." );
 	}
 
@@ -75,6 +75,8 @@ void DirectX::LoadInterfaces( void )
 	// Set render and stage states.
 	d3dDevice_->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE );
 	d3dDevice_->SetRenderState( D3DRS_LIGHTING, FALSE );
+	
+	d3dDevice_->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
 
 	// Set alpha blending modes.
 	d3dDevice_->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
@@ -335,7 +337,7 @@ void DirectX::CreateDiffuseBuffer( void )
 	// Create vertex buffer.
 	HRESULT result = d3dDevice_->CreateVertexBuffer(
 		4 * sizeof(DiffuseVertex),
-		D3DUSAGE_WRITEONLY,
+		D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY,
 		D3D9T_DIFFUSEVERTEX,
 		D3DPOOL_DEFAULT,
 		&diffuseBuffer_,
@@ -380,7 +382,7 @@ void DirectX::CreateTextureBuffer( void )
 	// Create vertex buffer.
 	HRESULT result = d3dDevice_->CreateVertexBuffer(
 		4 * sizeof(TextureVertex),
-		D3DUSAGE_WRITEONLY,
+		D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY,
 		D3D9T_TEXTUREVERTEX,
 		D3DPOOL_DEFAULT,
 		&textureBuffer_,
@@ -456,7 +458,7 @@ void DirectX::DrawColouredQuad( float x, float y, int width, int height, D3DCOLO
 	// Change diffuse colour.
 	// TODO: Need better way of changing colour. This is too expensive.
 	DiffuseVertex *diffuseVertices = nullptr;
-	diffuseBuffer_->Lock( 0, 4 * sizeof( TextureVertex ), (void**)&diffuseVertices, 0 );
+	diffuseBuffer_->Lock( 0, 4 * sizeof( DiffuseVertex ), (void**)&diffuseVertices, 0 );
 	diffuseVertices[0].colour	= diffuseVertices[1].colour
 								= diffuseVertices[2].colour
 								= diffuseVertices[3].colour

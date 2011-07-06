@@ -15,9 +15,9 @@ public:
 	virtual void Draw( DirectX *directX );
 
 	// Mouse handling.
-	virtual bool OnMouseMoved( Mouse *mouse );
-	virtual bool OnLeftClicked( Mouse *mouse );
-	virtual bool OnLeftReleased( Mouse *mouse );
+	virtual bool MouseMoved( Mouse *mouse );
+	virtual bool MouseClicked( Mouse *mouse );
+	virtual bool MouseReleased( Mouse *mouse );
 
 	bool				HasParent() const;
 	const Container*	GetParent() const;

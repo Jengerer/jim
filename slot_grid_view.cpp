@@ -27,13 +27,13 @@ void SlotGridView::AddSlots( const SlotVector* slots, unsigned int startIndex, u
 	Pack();
 }
 
-Slot* SlotGridView::GetTouchingSlot( Mouse* mouse ) const
+SlotView* SlotGridView::GetTouchingSlot( Mouse* mouse ) const
 {
 	vector<SlotView*>::const_iterator i, end;
 	for (i = slotViews_.begin(), end = slotViews_.end(); i != end; ++i) {
 		SlotView* slotView = *i;
 		if (mouse->IsTouching( slotView )) {
-			return slotView->GetSlot();
+			return slotView;
 		}
 	}
 

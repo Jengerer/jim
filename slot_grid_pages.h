@@ -18,7 +18,7 @@ public:
 
 	void Pack();
 
-	Slot* GetTouchingSlot( Mouse* mouse ) const;
+	SlotView* GetTouchingSlot( Mouse* mouse ) const;
 	SlotGridView* GetCurrentPage() const;
 
 	void NextPage();

@@ -10,7 +10,7 @@
 #include "notice.h"
 #include "notification_queue.h"
 #include "notification.h"
-#include "steam.h"
+#include "steam_item_handler.h"
 #include "toggle_set.h"
 #include "vertical_layout.h"
 
@@ -25,6 +25,7 @@ const unsigned int BUTTON_SPACING = 5;
 class ItemManager: public Application
 {
 public:
+
 	ItemManager( void );
 	virtual ~ItemManager( void );
 
@@ -36,9 +37,6 @@ public:
 	void LoadResources( void );
 	void LoadDefinitions( void );
 	void LoadItemsFromWeb( void );
-
-	// User interface handling.
-	void CreateLayout();
 
 	// Application running functions.
 	void RunApplication();
@@ -57,9 +55,13 @@ public:
 	void HandleKeyboard( void );
 
 	// Mouse input handling.
-	virtual bool OnLeftClicked( Mouse *mouse );
-	virtual bool OnLeftReleased( Mouse *mouse );
-	virtual bool OnMouseMoved( Mouse *mouse );
+	virtual bool MouseClicked( Mouse *mouse );
+	virtual bool MouseReleased( Mouse *mouse );
+	virtual bool MouseMoved( Mouse *mouse );
+
+	// Slot selection handling.
+	void SlotClicked( SlotView* slotView );
+	void SlotReleased( SlotView* slotView );
 
 	// Popup handling.
 	void OnPopupClicked( Popup* popup );
@@ -81,12 +83,19 @@ public:
 private:
 
 	// Application interfaces.
-	Steam*				steam_;
+	SteamItemHandler*	steamItems_;
 	Backpack*			backpack_;
 
 	// User interface members.
-	SlotGridPages*		pagesView_;
+	SlotGridPages*		inventoryView_;
 	SlotGridView*		excludedView_;
+	Button*				craftButton_;
+	Button*				equipButton_;
+	Button*				sortButton_;
+
+	// Item selection handling.
+	SlotView*			dragSlot_;
+	vector<SlotView*>	selected_;
 
 	// Running think function.
 	void (ItemManager::*thinkFunction_)( void );

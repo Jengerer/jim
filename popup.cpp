@@ -1,6 +1,6 @@
 #include "popup.h"
 
-Popup::Popup( float x, float y ) : Draggable( x, y )
+Popup::Popup( float x, float y ) : ConstrainedContainer( x, y )
 {
 }
 
@@ -17,6 +17,21 @@ void Popup::SetState( EPopupState state )
 EPopupState Popup::GetState( void ) const
 {
 	return state_;
+}
+
+bool Popup::MouseClicked( Mouse* mouse )
+{
+	return mouse->IsTouching( this );
+}
+
+bool Popup::MouseReleased( Mouse* mouse )
+{
+	return mouse->IsTouching( this );
+}
+
+bool Popup::MouseMoved( Mouse* mouse )
+{
+	return mouse->IsTouching( this );
 }
 
 void Popup::CenterTo( const Container* parent )

@@ -22,6 +22,7 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 	SetAlpha( 0 );
 	GetRoundedRectangle()->SetColour( ITEM_DISPLAY_COLOUR );
 	SetItem( nullptr );
+	SetActive( false );
 
 	// Create text objects.
 	nameText_ = new WrappedText( nameFont_, ITEM_DISPLAY_WIDTH );
@@ -44,6 +45,43 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 
 ItemDisplay::~ItemDisplay( void )
 {
+}
+
+void ItemDisplay::UpdateDisplay()
+{
+	// Alter display based on quality.
+	string namePrefix;
+	D3DCOLOR nameColour;
+	switch (item_->GetQuality()) {
+	case EItemQuality::k_EItemQuality_Common:
+		namePrefix = "Genuine";
+		nameColour = ITEM_DISPLAY_GENUINE_COLOUR;
+		break;
+
+	case EItemQuality::k_EItemQuality_Unique:
+		namePrefix = "Vintage";
+		nameColour = ITEM_DISPLAY_VINTAGE_COLOUR;
+		break;
+
+	default:
+		nameColour = ITEM_DISPLAY_NORMAL_COLOUR;
+		break;
+	}
+
+	// Set quality colour and prefix.
+	nameText_->SetColour( nameColour );
+	SetName( item_->HasCustomName() ? item_->GetCustomName() : namePrefix + ' ' + item_->GetName() );
+
+	// Build information text.
+	stringstream infoStream;
+	infoStream << "LEVEL " << static_cast<uint16>(item_->GetLevel());
+
+#if defined( _DEBUG )
+	infoStream << "\nFLAGS: " << hex << item_->GetFlags();
+#endif
+
+	infoText_->SetText( infoStream.str() );
+	Pack();
 }
 
 void ItemDisplay::UpdateAlpha( void )
@@ -78,43 +116,10 @@ void ItemDisplay::SetItem( const Item *item )
 		item_ = item;
 		if (item != nullptr) {
 			SetActive( true );
-
-			// Alter display based on quality.
-			string namePrefix;
-			D3DCOLOR nameColour;
-			switch (item->GetQuality()) {
-			case EItemQuality::k_EItemQuality_Common:
-				namePrefix = "Genuine";
-				nameColour = ITEM_DISPLAY_GENUINE_COLOUR;
-				break;
-
-			case EItemQuality::k_EItemQuality_Unique:
-				namePrefix = "Vintage";
-				nameColour = ITEM_DISPLAY_VINTAGE_COLOUR;
-				break;
-
-			default:
-				nameColour = ITEM_DISPLAY_NORMAL_COLOUR;
-				break;
-			}
-
-			// Set quality colour and prefix.
-			nameText_->SetColour( nameColour );
-			if (item->HasCustomName()) {
-				SetName( item->GetCustomName() );
-			}
-			else {
-				SetName( namePrefix + ' ' + item->GetName() );
-			}
-
-			// Build information text.
-			stringstream infoStream;
-			infoStream << "LEVEL " << (uint16)item->GetLevel();
-#if defined( _DEBUG )
-			infoStream << "\nFLAGS: " << hex << item->GetFlags();
-#endif
-			infoText_->SetText( infoStream.str() );
-			Pack();
+			UpdateDisplay();
+		}
+		else {
+			SetActive( false );
 		}
 	}
 }

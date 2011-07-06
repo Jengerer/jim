@@ -156,39 +156,34 @@ bool ToggleSet::InSet( const ButtonList *set, Button *button ) const
 	return false;
 }
 
-bool ToggleSet::OnMouseMoved( Mouse *mouse )
+bool ToggleSet::MouseMoved( Mouse *mouse )
 {
 	// Pass message to children.
 	ButtonList::iterator i, end;
 	for (i = buttonSetA_.begin(), end = buttonSetA_.end(); i != end; ++i) {
 		Button *button = *i;
-		button->OnMouseMoved( mouse );
+		button->MouseMoved( mouse );
 	}
 
 	for (i = buttonSetB_.begin(), end = buttonSetB_.end(); i != end; ++i) {
 		Button *button = *i;
-		button->OnMouseMoved( mouse );
+		button->MouseMoved( mouse );
 	}
 
-	okayButton_->OnMouseMoved( mouse );
-	cancelButton_->OnMouseMoved( mouse );
+	okayButton_->MouseMoved( mouse );
+	cancelButton_->MouseMoved( mouse );
 
 	return true;
 }
 
-bool ToggleSet::OnLeftClicked( Mouse *mouse )
+bool ToggleSet::MouseClicked( Mouse *mouse )
 {
-	if (mouse->IsTouching( this )) {
-		return Draggable::OnLeftClicked( mouse );
-	}
-
 	SetState( POPUP_STATE_KILLED );
 	return false;
 }
 
-bool ToggleSet::OnLeftReleased( Mouse *mouse )
+bool ToggleSet::MouseReleased( Mouse *mouse )
 {
-	Draggable::OnLeftReleased( mouse );
 	if (!mouse->IsTouching( this )) {
 		return false;
 	}

@@ -239,59 +239,6 @@ void Backpack::SetLoaded( bool isLoaded )
 	isLoaded_ = isLoaded;
 }
 
-/*void Backpack::CraftSelected( void )
-{
-	// Number of items to craft.
-	uint16 itemCount = selected_.size();
-
-	if (itemCount > 0) {
-		// Allocate and set.
-		unsigned int messageSize = sizeof( struct GCCraft_t ) + sizeof( uint64 ) * itemCount;
-		void* message = malloc( messageSize );
-		memset( message, 0xff, messageSize );
-
-		// Values to fill in.
-		uint16 id = 1;
-
-		// TODO: Warn user about untradable items.
-		SerializedBuffer serialBuffer( message );
-		serialBuffer.write( &id, sizeof( id ) );
-		serialBuffer.push( 16 * sizeof( char ) );
-		serialBuffer.push( sizeof( uint16 ) );
-		serialBuffer.write( &itemCount, sizeof( itemCount ) );
-	
-		// Write all item IDs.
-		for (int i = 0; i < itemCount; i++) {
-			Slot *slot = selected_[i];
-			Item *item = slot->GetItem();
-
-			// Get ID and write.
-			uint64 itemId = item->GetUniqueId();
-			serialBuffer.write( &itemId, sizeof( itemId ) );
-		}
-
-		// Deselect everything.
-		DeselectAll();
-
-		// Send message.
-		SendMessage( GCCraft_t::k_iMessage, message, messageSize );
-		free( message );
-	}
-}*/
-
-/*void Backpack::UpdateItem( Item* item )
-{
-	// Generate message with new flags.
-	// TODO: See if we can use protobufs here before old messages are deprecated.
-	GCSetItemPosition_t message;
-	memset( &message, 0xFF, sizeof( message ) );
-	message.itemID = item->GetUniqueId();
-	message.position = item->GetFlags();
-
-	// Send it.
-	SendMessage( GCSetItemPosition_t::k_iMessage, &message, sizeof( message ) );
-}*/
-
 /*void Backpack::MoveCamera( void )
 {
 	// Add elastic speed.

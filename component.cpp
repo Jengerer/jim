@@ -44,7 +44,7 @@ float Component::GetY() const
 	return y_;
 }
 
-void Component::SetAlpha( unsigned int alpha )
+void Component::SetAlpha( int alpha )
 {
 	if (alpha > 255) {
 		alpha_ = 255;
@@ -57,7 +57,7 @@ void Component::SetAlpha( unsigned int alpha )
 	}
 }
 
-unsigned int Component::GetAlpha( void ) const
+int Component::GetAlpha( void ) const
 {
 	return alpha_;
 }

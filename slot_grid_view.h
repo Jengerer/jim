@@ -17,7 +17,7 @@ public:
 	void AddSlots( const SlotVector* slots );
 	void AddSlots( const SlotVector* slots, unsigned int startIndex, unsigned int endIndex );
 
-	Slot* GetTouchingSlot( Mouse* mouse ) const;
+	SlotView* GetTouchingSlot( Mouse* mouse ) const;
 
 private:
 

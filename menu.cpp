@@ -47,19 +47,19 @@ void Menu::Pack( void )
 	SetSize( roundedRect_->GetWidth(), roundedRect_->GetHeight() );
 }
 
-bool Menu::OnMouseMoved( Mouse *mouse )
+bool Menu::MouseMoved( Mouse *mouse )
 {
 	// Pass message to buttons.
 	vector<Button*>::iterator i, end;
 	for (i = options_.begin(), end = options_.end(); i != end; ++i) {
 		Button *button = *i;
-		button->OnMouseMoved( mouse );
+		button->MouseMoved( mouse );
 	}
 
 	return true;
 }
 
-bool Menu::OnLeftClicked( Mouse *mouse )
+bool Menu::MouseClicked( Mouse *mouse )
 {
 	SetClicked( nullptr );
 	if ( !mouse->IsTouching( this ) ) {
@@ -70,7 +70,7 @@ bool Menu::OnLeftClicked( Mouse *mouse )
 	return true;
 }
 
-bool Menu::OnLeftReleased( Mouse *mouse )
+bool Menu::MouseReleased( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
 		vector<Button*>::iterator i;

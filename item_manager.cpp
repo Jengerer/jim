@@ -103,7 +103,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	itemDisplay_ = nullptr;
 
 	// Slot views.
-	pagesView_ = nullptr;
+	inventoryView_ = nullptr;
 	excludedView_ = nullptr;
 
 	// Threaded loader.
@@ -111,7 +111,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	loadProgress_ = nullptr;
 
 	// Create Steam interface.
-	steam_ = new Steam();
+	steamItems_ = new SteamItemHandler();
 
 	// Create backpack.
 	backpack_ = new Backpack( PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT, EXCLUDED_SIZE );
@@ -124,7 +124,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	AddKey( VK_RIGHT );
 	AddKey( VK_ESCAPE );
 	AddKey( VK_RETURN );
-	AddKey( VK_LCONTROL );
+	AddKey( VK_CONTROL );
 }
 
 ItemManager::~ItemManager( void )
@@ -154,6 +154,42 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		// End drawing.
 		directX_->EndDraw();
 
+		// Create layout.
+		VerticalLayout* layout = new VerticalLayout( SPACING, ALIGN_LEFT );
+
+		// Create views.
+		inventoryView_ = backpack_->CreateInventoryView( PAGE_WIDTH, PAGE_HEIGHT );
+		excludedView_ = backpack_->CreateExcludedView();
+
+		// Create button layout.
+		Texture *craftTexture = directX_->GetTexture( "manager/gear" );
+		Texture *equipTexture = directX_->GetTexture( "manager/equip" );
+		Texture *sortTexture = directX_->GetTexture( "manager/sort" );
+
+		// Create buttons.
+		craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
+		equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
+		sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
+		craftButton_->SetEnabled( false );
+		equipButton_->SetEnabled( false );
+		sortButton_->SetEnabled( false );
+	
+		// Add to layout.
+		HorizontalLayout* buttonLayout = new HorizontalLayout( BUTTON_SPACING );
+		buttonLayout->Add( craftButton_ );
+		buttonLayout->Add( equipButton_ );
+		buttonLayout->Add( sortButton_ );
+		buttonLayout->Pack();
+
+		// Organize layout.
+		layout->Add( inventoryView_ );
+		layout->Add( buttonLayout );
+		layout->Add( excludedView_ );
+		layout->Pack();
+		layout->SetPosition( (GetWidth() - layout->GetWidth()) / 2.0f, 
+			(GetHeight() - layout->GetHeight()) / 2.0f );
+		Add( layout );
+
 		// Create item display.
 		itemDisplay_ = new ItemDisplay();
 		Add( itemDisplay_ );
@@ -165,7 +201,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// Create start up message.
 		loadProgress_ = CreateNotice( "Initializing Steam interfaces..." );
-		steam_->LoadInterfaces();
+		steamItems_->LoadInterfaces();
 
 		// Attempt to load Steam and definitions.
 		LoadDefinitions();
@@ -178,13 +214,21 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 void ItemManager::CloseInterfaces( void )
 {
-	// Delete the mouse.
 	if (mouse_ != nullptr) {
 		delete mouse_;
 		mouse_ = nullptr;
 	}
 
-	// Delete loader thread.
+	if (steamItems_ != nullptr) {
+		delete steamItems_;
+		steamItems_ = nullptr;
+	}
+
+	if (backpack_ != nullptr) {
+		delete backpack_;
+		backpack_ = nullptr;
+	}
+
 	if (definitionLoader_ != nullptr) {
 		definitionLoader_->End();
 		delete definitionLoader_;
@@ -192,10 +236,8 @@ void ItemManager::CloseInterfaces( void )
 	}
 
 	// Erase item definitions.
-	information_map::iterator i;
-	while ((i = Item::definitions.begin()) != Item::definitions.end()) {
+	for (auto i = Item::definitions.begin(); i != Item::definitions.end(); i = Item::definitions.erase( i )) {
 		delete i->second;
-		Item::definitions.erase( i );
 	}
 
 	// Free cached resources.
@@ -208,15 +250,6 @@ void ItemManager::CloseInterfaces( void )
 
 	// Free all protobuf library resources.
 	google::protobuf::ShutdownProtobufLibrary();
-}
-
-void ItemManager::CreateLayout()
-{
-	VerticalLayout* layout = new VerticalLayout( SPACING, ALIGN_LEFT );
-	pagesView_ = backpack_->CreateInventoryView( PAGE_WIDTH, PAGE_HEIGHT );
-	layout->Add( pagesView_ );
-	layout->Pack();
-	Add( layout );
 }
 
 void ItemManager::RunApplication( void )
@@ -250,6 +283,7 @@ void ItemManager::Loading()
 				stringstream loadPercentage;
 				loadPercentage << "Loading and downloading item definition resources... (" << floor(definitionLoader_->GetProgress() * 100.0f) << "%)";
 				loadProgress_->SetMessage( loadPercentage.str() );
+				loadProgress_->CenterTo( this );
 			}
 			break;
 
@@ -276,9 +310,8 @@ void ItemManager::Loading()
 	else {
 		HandleCallbacks();
 		if (backpack_->IsLoaded()) {
-			CreateLayout();
 			SetThink( &ItemManager::Running );
-			HidePopup( loadProgress_ );
+			RemovePopup( loadProgress_ );
 		}
 	}
 }
@@ -295,31 +328,61 @@ void ItemManager::Exiting()
 	// Just wait for exit.
 }
 
-bool ItemManager::OnLeftClicked( Mouse *mouse )
+bool ItemManager::MouseClicked( Mouse *mouse )
 {
 	// Mouse clicked.
 	if (!popups_.empty()) {
 		Popup* top = popups_.back();
-		if (top->OnLeftClicked( mouse )) {
+		if (top->MouseClicked( mouse )) {
 			return true;
 		}
 
 		return false;
 	}
+	else {
+		bool touchedView = true;
+		SlotView* slotView = nullptr;
+		if (mouse->IsTouching( inventoryView_ )) {
+			slotView = inventoryView_->GetTouchingSlot( mouse );
+		}
+		else if (mouse->IsTouching( excludedView_ )) {
+			slotView = excludedView_->GetTouchingSlot( mouse );
+		}
 
-	// Check notification.
-	if (notifications_->OnLeftClicked( mouse )) {
-		return true;
+		if (touchedView) {
+			if (slotView != nullptr && slotView->GetSlot()->HasItem()) {
+				SlotClicked( slotView );
+				return true;
+			}
+		}
+		else {
+			// TODO: Set a 'clicked target' pointer so we can't just release on button and trigger.
+			if (mouse->IsTouching( craftButton_ )) {
+				return true;
+			}
+			else if (mouse->IsTouching( equipButton_ )) {
+				return true;
+			}
+			else if (mouse->IsTouching( sortButton_ )) {
+				return true;
+			}
+			else if (notifications_->MouseClicked( mouse )) {
+				return true;
+			}
+		}
+
+		// Deselect all, nothing clicked.
+		steamItems_->DeselectAll();
 	}
 
 	return false;
 }
 
-bool ItemManager::OnLeftReleased( Mouse *mouse )
+bool ItemManager::MouseReleased( Mouse *mouse )
 {
 	if (!popups_.empty()) {
 		Popup *top = popups_.back();
-		if (top->OnLeftReleased( mouse )) {
+		if (top->MouseReleased( mouse )) {
 			// Check for error.
 			if (top == error_ && top->GetState() == POPUP_STATE_KILLED) {
 				ExitApplication();
@@ -335,33 +398,62 @@ bool ItemManager::OnLeftReleased( Mouse *mouse )
 	return false;
 }
 
-bool ItemManager::OnMouseMoved( Mouse *mouse )
+bool ItemManager::MouseMoved( Mouse *mouse )
 {
+	// Reset item display.
+	itemDisplay_->SetItem( nullptr );
+
 	// Pass message to highest popup.
 	if (!popups_.empty()) {
 		Popup* top = popups_.back();
-		top->OnMouseMoved( mouse );
+		top->MouseMoved( mouse );
+	}
+	else {
+		SlotView* slotView = nullptr;
+		if (mouse->IsTouching( inventoryView_ )) {
+			slotView = inventoryView_->GetTouchingSlot( mouse );
+		}
+		else if (mouse->IsTouching( excludedView_ )) {
+			slotView = excludedView_->GetTouchingSlot( mouse );
+		}
+		else {
+			return false;
+		}
+
+		if (slotView != nullptr) {
+			Slot* slot = slotView->GetSlot();
+			if (slot->HasItem()) {
+				itemDisplay_->SetItem( slot->GetItem() );
+				itemDisplay_->SetPosition( 
+					slotView->GetX() + (slotView->GetWidth() - itemDisplay_->GetWidth()) / 2.0f,
+					slotView->GetY() + slotView->GetHeight() + ITEM_DISPLAY_SPACING );
+				ClampChild( itemDisplay_, ITEM_DISPLAY_PADDING );
+			}
+		}
+
+		return true;
 	}
 
 	return false;
+}
+
+void ItemManager::SlotClicked( SlotView* slotView )
+{
+	Slot* slot = slotView->GetSlot();
+	if (slot->HasItem()) {
+		if (steamItems_->IsSelected( slotView )) {
+			steamItems_->Deselect( slotView );
+		}
+		else {
+			steamItems_->Select( slotView );
+		}
+	}
 }
 
 void ItemManager::HandleKeyboard( void )
 {
 	if (IsKeyPressed( VK_ESCAPE )) {
 		ExitApplication();
-	}
-	else if (IsKeyClicked( VK_RIGHT )) {
-		if (pagesView_ != nullptr) {
-			pagesView_->NextPage();
-			pagesView_->UpdateView();
-		}
-	}
-	else if (IsKeyClicked( VK_LEFT )) {
-		if (pagesView_ != nullptr) {
-			pagesView_->PreviousPage();
-			pagesView_->UpdateView();
-		}
 	}
 	else {
 		if (!popups_.empty()) {
@@ -373,6 +465,23 @@ void ItemManager::HandleKeyboard( void )
 				}
 			}
 		}
+		else {
+			if (IsKeyClicked( VK_CONTROL )) {
+				steamItems_->SetSelectMode( SELECT_MODE_MULTIPLE );
+			}
+			else if (this->IsKeyReleased( VK_CONTROL )) {
+				steamItems_->SetSelectMode( SELECT_MODE_SINGLE );
+			}
+	
+			if (IsKeyClicked( VK_RIGHT )) {
+				inventoryView_->NextPage();
+				inventoryView_->UpdateView();
+			}
+			else if (IsKeyClicked( VK_LEFT )) {
+				inventoryView_->PreviousPage();
+				inventoryView_->UpdateView();
+			}
+		}		
 	}
 }
 
@@ -396,7 +505,7 @@ void ItemManager::LoadItemsFromWeb( void )
 	loadProgress_->AppendMessage("\n\nLoading items...");
 	DrawFrame();
 
-	uint64 userId = steam_->GetSteamId();
+	uint64 userId = steamItems_->GetSteamId();
 	stringstream urlStream;
 	urlStream << "http://api.steampowered.com/ITFItems_440/GetPlayerItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&SteamID=" << userId << "&format=json";
 	string apiUrl = urlStream.str();
@@ -422,21 +531,21 @@ void ItemManager::LoadItemsFromWeb( void )
 
 void ItemManager::HandleCallbacks( void ) {
 	CallbackMsg_t callback;
-	if ( steam_->GetCallback( &callback ) ) {
+	if ( steamItems_->GetCallback( &callback ) ) {
 		switch (callback.m_iCallback) {
 		case GCMessageAvailable_t::k_iCallback:
 			{
 				GCMessageAvailable_t *message = (GCMessageAvailable_t *)callback.m_pubParam;
 				
 				uint32 size;
-				if ( steam_->HasMessage( &size ) )
+				if ( steamItems_->HasMessage( &size ) )
 				{
 					uint32 id, realSize = 0;
 
 					// Retrieve the message.
 					// WARNING: Do NOT use return before calling free on buffer.
 					void* buffer = malloc( size );
-					steam_->GetMessage( &id, buffer, size, &realSize );
+					steamItems_->GetMessage( &id, buffer, size, &realSize );
 
 					// Filter protobuf messages.
 					if ((id & 0x80000000) != 0) {
@@ -456,7 +565,7 @@ void ItemManager::HandleCallbacks( void ) {
 						// Check if we can set target ID.
 						// TODO: Maybe move all this horseshit into Steam.
 						if ( headerMsg.has_job_id_source() ) {
-							steam_->SetTargetId( headerMsg.job_id_source() );
+							steamItems_->SetTargetId( headerMsg.job_id_source() );
 						}
 
 						uint32 bodySize = size - sizeof( GCProtobufHeader_t ) - headerSize;
@@ -474,7 +583,7 @@ void ItemManager::HandleCallbacks( void ) {
 			}
 		}
 
-		steam_->ReleaseCallback();
+		steamItems_->ReleaseCallback();
 	} 
 }
 
@@ -511,7 +620,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 				switch (subscribedType.type_id()) {
 				case 1:
 					{
-						if (steam_->GetSteamId() == subscribedMsg.owner()) {
+						if (steamItems_->GetSteamId() == subscribedMsg.owner()) {
 							for (int i = 0; i < subscribedType.object_data_size(); i++) {
 								CSOEconItem econItem;
 								econItem.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
@@ -534,7 +643,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 					}
 				case 7:
 					{
-						if (steam_->GetSteamId() == subscribedMsg.owner()) {
+						if (steamItems_->GetSteamId() == subscribedMsg.owner()) {
 							for (int i = 0; i < subscribedType.object_data_size(); i++) {
 								CSOEconGameAccountClient gameAccountClient;
 								gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
@@ -565,7 +674,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			string responseString = responseMsg.SerializeAsString();
 
 			// Send and free.
-			steam_->SendMessage( k_EMsgGCStartupCheckResponse | 0x80000000, (void*)responseString.c_str(), responseString.size() );
+			steamItems_->SendMessage( k_EMsgGCStartupCheckResponse | 0x80000000, (void*)responseString.c_str(), responseString.size() );
 		}
 		break;
 
@@ -576,7 +685,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 		}
 
 	default:
-		// steam_->HandleMessage( id & 0x0FFFFFFF, headerBuffer.here(), bodySize );
+		// steamItems_->HandleMessage( id & 0x0FFFFFFF, headerBuffer.here(), bodySize );
 		break;
 	}
 }
@@ -585,7 +694,6 @@ Notice* ItemManager::CreateNotice( const string& message )
 {
 	Notice* notice = new Notice( message );
 	notice->CenterTo( this );
-	notice->SetParent( this );
 	ShowPopup( notice );
 	return notice;
 }
@@ -594,7 +702,6 @@ Alert* ItemManager::CreateAlert( const string& message )
 {
 	Alert* alert = new Alert( message );
 	alert->CenterTo( this );
-	alert->SetParent( this );
 	ShowPopup( alert );
 	return alert;
 }
@@ -608,10 +715,10 @@ void ItemManager::ShowPopup( Popup* popup )
 
 void ItemManager::HidePopup( Popup* popup )
 {
+	Remove( popup );
 	vector<Popup*>::iterator i = find( popups_.begin(), popups_.end(), popup );
 	if (i != popups_.end()) {
 		popups_.erase( i );
-		Remove( popup );
 	}
 }
 
