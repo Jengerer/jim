@@ -53,7 +53,7 @@ void SlotGridPages::Pack()
 	SetSize( width, height );
 }
 
-Slot* SlotGridPages::GetTouchingSlot( Mouse* mouse ) const
+SlotView* SlotGridPages::GetTouchingSlot( Mouse* mouse ) const
 {
 	SlotGridView* currentPage = GetCurrentPage();
 	return currentPage->GetTouchingSlot( mouse );
@@ -85,6 +85,7 @@ void SlotGridPages::PreviousPage()
 void SlotGridPages::UpdateView()
 {
 	if (page_ < slotGridViews_.size()) {
-		pagesLayout_->SetPosition( pagesLayout_->GetX() - slotGridViews_[page_]->GetX(), 0.0f );
+		float offsetX = pagesLayout_->GetX() - GetCurrentPage()->GetX();
+		SetConstraint( pagesLayout_, offsetX, 0.0f );
 	}
 }

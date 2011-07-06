@@ -84,7 +84,7 @@ bool Button::IsEnabled() const
 	return isEnabled_;
 }
 
-bool Button::OnMouseMoved( Mouse *mouse )
+bool Button::MouseMoved( Mouse *mouse )
 {
 	// Mouse moved.
 	bool isHovering = mouse->IsTouching( this );
@@ -92,12 +92,12 @@ bool Button::OnMouseMoved( Mouse *mouse )
 	return isHovering;
 }
 
-bool Button::OnLeftClicked( Mouse *mouse )
+bool Button::MouseClicked( Mouse *mouse )
 {
 	return IsEnabled() && mouse->IsTouching( this );
 }
 
-bool Button::OnLeftReleased( Mouse *mouse )
+bool Button::MouseReleased( Mouse *mouse )
 {
 	return IsEnabled() && mouse->IsTouching( this );
 }

@@ -42,13 +42,13 @@ void NotificationQueue::UpdateNotifications( void )
 	}
 }
 
-bool NotificationQueue::OnMouseMoved( Mouse *mouse )
+bool NotificationQueue::MouseMoved( Mouse *mouse )
 {
 	// Mouse moved.
 	return false;
 }
 
-bool NotificationQueue::OnLeftClicked( Mouse *mouse )
+bool NotificationQueue::MouseClicked( Mouse *mouse )
 {
 	// Left clicked.
 	if (HasNotification()) {
@@ -62,7 +62,7 @@ bool NotificationQueue::OnLeftClicked( Mouse *mouse )
 	return false;
 }
 
-bool NotificationQueue::OnLeftReleased( Mouse *mouse )
+bool NotificationQueue::MouseReleased( Mouse *mouse )
 {
 	// Left released.
 	return false;

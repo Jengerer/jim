@@ -19,7 +19,7 @@ void Draggable::Draw( DirectX *directX )
 	Container::Draw( directX );
 }
 
-bool Draggable::OnMouseMoved( Mouse *mouse )
+bool Draggable::MouseMoved( Mouse *mouse )
 {
 	if (isDragging_) {
 		SetPosition( mouse->GetX() + offsetX_, mouse->GetY() + offsetY_ );
@@ -32,7 +32,7 @@ bool Draggable::OnMouseMoved( Mouse *mouse )
 	return false;
 }
 
-bool Draggable::OnLeftClicked( Mouse *mouse )
+bool Draggable::MouseClicked( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
 		BeginDragging( mouse );
@@ -42,7 +42,7 @@ bool Draggable::OnLeftClicked( Mouse *mouse )
 	return false;
 }
 
-bool Draggable::OnLeftReleased( Mouse *mouse )
+bool Draggable::MouseReleased( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
 		EndDragging();

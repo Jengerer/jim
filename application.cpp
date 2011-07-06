@@ -69,16 +69,16 @@ void Application::UpdateMouse( void )
 {
 	// Update mouse regardless of focus.
 	mouse_->Poll();
-	OnMouseMoved( mouse_ );
+	MouseMoved( mouse_ );
 
 	// Skip if not in focus.
 	if ( GetFocus() == GetWindow()->getHandle() ) {
 		// Handle mouse events.
 		if ( IsKeyClicked( VK_LBUTTON ) )  {
-			OnLeftClicked( mouse_ );
+			MouseClicked( mouse_ );
 		}
 		else if ( IsKeyReleased( VK_LBUTTON ) ) {
-			OnLeftReleased( mouse_ );
+			MouseReleased( mouse_ );
 		}
 	}
 }

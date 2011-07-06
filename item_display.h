@@ -26,8 +26,9 @@ public:
 	virtual ~ItemDisplay( void );
 
 	// Drawing functions.
-	void			UpdateAlpha( void );
-	virtual void	Pack( void );
+	void			UpdateDisplay();
+	void			UpdateAlpha();
+	virtual void	Pack();
 
 	// Item functions.
 	const Item*		GetItem( void ) const;

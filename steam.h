@@ -26,11 +26,11 @@ public:
 	virtual void CloseInterfaces( void );
 
 	// Callback and message handling.
-	bool		GetCallback( CallbackMsg_t* callback );
-	void		ReleaseCallback( void );
-	bool		HasMessage( uint32* size );
-	void		GetMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize );
-	void		SendMessage( unsigned int id, void* buffer, uint32 size );
+	bool		GetCallback( CallbackMsg_t* callback ) const;
+	void		ReleaseCallback( void ) const;
+	bool		HasMessage( uint32* size ) const;
+	void		GetMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const;
+	void		SendMessage( unsigned int id, void* buffer, uint32 size ) const;
 
 	// Steam getters.
 	uint64		GetSteamId( void ) const;

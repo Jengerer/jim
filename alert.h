@@ -18,9 +18,9 @@ public:
 	const Button*	GetButton( void ) const;
 
 	// Mouse handling.
-	virtual bool	OnLeftClicked( Mouse *mouse );
-	virtual bool	OnLeftReleased( Mouse *mouse );
-	virtual bool	OnMouseMoved( Mouse *mouse );
+	virtual bool	MouseClicked( Mouse *mouse );
+	virtual bool	MouseReleased( Mouse *mouse );
+	virtual bool	MouseMoved( Mouse *mouse );
 
 private:
 

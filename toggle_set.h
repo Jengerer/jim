@@ -34,9 +34,9 @@ public:
 	bool	InSetA( Button *button ) const;
 	bool	InSetB( Button *button ) const;
 
-	virtual bool OnMouseMoved( Mouse *mouse );
-	virtual bool OnLeftClicked( Mouse *mouse );
-	virtual bool OnLeftReleased( Mouse *mouse );
+	virtual bool MouseMoved( Mouse *mouse );
+	virtual bool MouseClicked( Mouse *mouse );
+	virtual bool MouseReleased( Mouse *mouse );
 
 	static void Precache( DirectX *directX );
 	static void Release( void );

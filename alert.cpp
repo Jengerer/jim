@@ -29,35 +29,27 @@ const Button* Alert::GetButton( void ) const
 	return okButton_;
 }
 
-bool Alert::OnMouseMoved( Mouse *mouse )
+bool Alert::MouseMoved( Mouse *mouse )
 {
 	// Parent behaviour.
-	okButton_->OnMouseMoved( mouse );
-	return Notice::OnMouseMoved( mouse );
+	okButton_->MouseMoved( mouse );
+	return Notice::MouseMoved( mouse );
 }
 
-bool Alert::OnLeftClicked( Mouse *mouse )
+bool Alert::MouseClicked( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
-		if (!mouse->IsTouching( okButton_ )) {
-			Draggable::OnLeftClicked( mouse );
-		}
-
 		return true;
 	}
 
 	return false;
 }
 
-bool Alert::OnLeftReleased( Mouse *mouse )
+bool Alert::MouseReleased( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
-		// Now set state if we're terminated.
-		if (mouse->IsTouching( okButton_ )) {
+		if (okButton_->MouseReleased( mouse )) {
 			SetState( POPUP_STATE_KILLED );
-		}
-		else {
-			Draggable::OnLeftReleased( mouse );
 		}
 
 		return true;
