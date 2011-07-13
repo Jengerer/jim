@@ -22,6 +22,16 @@ void SteamItemHandler::Deselect( SlotView* slotView )
 	slotView->SetSelected( false );
 }
 
+void SteamItemHandler::ToggleSelect( SlotView* slotView )
+{
+	if (IsSelected( slotView )) {
+		Deselect( slotView );
+	}
+	else {
+		Select( slotView );
+	}
+}
+
 void SteamItemHandler::DeselectAll()
 {
 	for (auto i = selected_.begin(); i != selected_.end(); i = selected_.erase( i )) {

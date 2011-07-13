@@ -21,6 +21,7 @@ public:
 	// Selection handling.
 	void Select( SlotView* slotView );
 	void Deselect( SlotView* slotView );
+	void ToggleSelect( SlotView* slotView );
 	void DeselectAll();
 	bool IsSelected( SlotView* select ) const;
 	size_t GetSelectedCount() const;

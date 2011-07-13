@@ -106,6 +106,10 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	inventoryView_ = nullptr;
 	excludedView_ = nullptr;
 
+	// Dragged slot.
+	dragged_ = new Slot( 0 );
+	draggedView_ = nullptr;
+
 	// Threaded loader.
 	definitionLoader_ = nullptr;
 	loadProgress_ = nullptr;
@@ -304,6 +308,7 @@ void ItemManager::Loading()
 			definitionLoader_ = nullptr;
 
 			loadProgress_->SetMessage( "Waiting for Steam message..." );
+			loadProgress_->CenterTo( this );
 			break;
 		}
 	}
@@ -336,21 +341,24 @@ bool ItemManager::MouseClicked( Mouse *mouse )
 		if (top->MouseClicked( mouse )) {
 			return true;
 		}
-
-		return false;
 	}
 	else {
 		bool touchedView = true;
 		SlotView* slotView = nullptr;
+
+		// Attempt to get a slot.
 		if (mouse->IsTouching( inventoryView_ )) {
 			slotView = inventoryView_->GetTouchingSlot( mouse );
 		}
 		else if (mouse->IsTouching( excludedView_ )) {
 			slotView = excludedView_->GetTouchingSlot( mouse );
 		}
+		else {
+			touchedView = false;
+		}
 
 		if (touchedView) {
-			if (slotView != nullptr && slotView->GetSlot()->HasItem()) {
+			if (slotView != nullptr) {
 				SlotClicked( slotView );
 				return true;
 			}
@@ -391,8 +399,16 @@ bool ItemManager::MouseReleased( Mouse *mouse )
 			HandlePopup( top );
 			return true;
 		}
+	}
+	else {
+		if (mouse->IsTouching( inventoryView_ )) {
+			SlotView* touchedSlot = inventoryView_->GetTouchingSlot( mouse );
+			if (touchedSlot != nullptr && touchedSlot->GetSlot()->HasItem()) {
+				SlotReleased( touchedSlot );
+			}
 
-		return false;
+			return true;
+		}
 	}
 
 	return false;
@@ -441,13 +457,33 @@ void ItemManager::SlotClicked( SlotView* slotView )
 {
 	Slot* slot = slotView->GetSlot();
 	if (slot->HasItem()) {
-		if (steamItems_->IsSelected( slotView )) {
-			steamItems_->Deselect( slotView );
-		}
-		else {
-			steamItems_->Select( slotView );
+		switch (steamItems_->GetSelectMode()) {
+
+		case SELECT_MODE_SINGLE:
+			{
+				assert( draggedView_ == nullptr );
+
+				// Create dragged slot.
+				draggedView_ = new SlotView( dragged_ );
+				draggedView_->SetPosition( slotView->GetX(), slotView->GetY() );
+
+				// Empty target and set dragged.
+				dragged_->SetItem( slot->GetItem() );
+				slot->SetItem( nullptr );
+				Add( draggedView_ );
+				break;
+			}
+
+		case SELECT_MODE_MULTIPLE:
+			steamItems_->ToggleSelect( slotView );
+			break;
+
 		}
 	}
+}
+
+void ItemManager::SlotReleased( SlotView* slotView )
+{
 }
 
 void ItemManager::HandleKeyboard( void )

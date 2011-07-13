@@ -100,11 +100,11 @@
   <ItemGroup>
     <ClCompile Include="steam_item_handler.cpp" />
     <ClCompile Include="constrained_container.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_view.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_vector.cpp" />
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_view.cpp" />
+    <ClCompile Include="definition_loader.cpp" />
+    <ClCompile Include="slot_grid_pages.cpp" />
+    <ClCompile Include="slot_grid_view.cpp" />
+    <ClCompile Include="slot_vector.cpp" />
+    <ClCompile Include="slot_view.cpp" />
     <ClCompile Include="alert.cpp" />
     <ClCompile Include="application.cpp" />
     <ClCompile Include="backpack.cpp" />
@@ -151,13 +151,13 @@
   <ItemGroup>
     <ClInclude Include="steam_item_handler.h" />
     <ClInclude Include="constrained_container.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\iinventory_listener.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\imouse_handler.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_view.h" />
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_vector.h" />
+    <ClInclude Include="definition_loader.h" />
+    <ClInclude Include="iinventory_listener.h" />
+    <ClInclude Include="imouse_handler.h" />
+    <ClInclude Include="slot.h" />
+    <ClInclude Include="slot_grid_pages.h" />
+    <ClInclude Include="slot_grid_view.h" />
+    <ClInclude Include="slot_vector.h" />
     <ClInclude Include="alert.h" />
     <ClInclude Include="application.h" />
     <ClInclude Include="backpack.h" />
@@ -422,7 +422,7 @@
     <Library Include="steam\steam_api.lib" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Jengerer%27s Item Manager\Item Manager\tint.fx" />
+    <None Include="tint.fx" />
     <None Include="steam\steamworks.vcproj" />
     <None Include="jimIcon.ico" />
   </ItemGroup>
