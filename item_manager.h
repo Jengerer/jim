@@ -27,24 +27,24 @@ class ItemManager: public Application
 public:
 
 	ItemManager( void );
-	virtual ~ItemManager( void );
+	virtual ~ItemManager();
 
 	// Starting up.
 	void LoadInterfaces( HINSTANCE instance );
-	void CloseInterfaces( void );
+	void CloseInterfaces();
 
 	// Inventory and definition loading.
-	void LoadResources( void );
-	void LoadDefinitions( void );
-	void LoadItemsFromWeb( void );
+	void LoadResources();
+	void LoadDefinitions();
+	void LoadItemsFromWeb();
 
 	// Application running functions.
 	void RunApplication();
 	void SetThink( void (ItemManager::*thinkFunction)( void ) );
-	void DoThink();
-	void Loading();
-	void Running();
-	void Exiting();
+	void DoThink( void );
+	void Loading( void );
+	void Running( void );
+	void Exiting( void );
 
 	// Steam handling.
 	void HandleCallbacks( void );
@@ -94,8 +94,8 @@ private:
 	Button*				sortButton_;
 
 	// Item selection handling.
-	SlotView*			dragSlot_;
-	vector<SlotView*>	selected_;
+	Slot*				dragged_;
+	SlotView*			draggedView_;
 
 	// Running think function.
 	void (ItemManager::*thinkFunction_)( void );

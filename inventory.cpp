@@ -145,7 +145,7 @@ void Inventory::UpdateExcluded( void )
 	for (unsigned int slotIndex = 0; excluded_->IsValidIndex( slotIndex ); ++slotIndex) {
 		Slot* slot = excluded_->GetSlotByIndex( slotIndex );
 		if (itemIndex < excludedItems_.size()) {
-			slot->SetItem( itemIndex < excludedItems_.size() ? excludedItems_[itemIndex] : nullptr );
+			slot->SetItem( itemIndex < excludedItems_.size() ? excludedItems_[itemIndex++] : nullptr );
 		}
 	}
 }
