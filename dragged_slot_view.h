@@ -1,0 +1,31 @@
+#ifndef DRAGGED_SLOT_VIEW_H
+#define DRAGGED_SLOT_VIEW_H
+
+#include "imouse_handler.h"
+#include "slot.h"
+#include "slot_view.h"
+
+class DraggedSlotView: public SlotView, public IMouseHandler
+{
+
+public:
+
+	DraggedSlotView( Slot* slot );
+	virtual ~DraggedSlotView();
+
+	bool MouseClicked( Mouse* mouse );
+	bool MouseReleased( Mouse* mouse );
+	bool MouseMoved( Mouse* mouse );
+
+	void DragSlot( Slot* slot );
+	Item* ReleaseSlot();
+	void SetOffset( float offsetX, float offsetY );
+
+private:
+
+	float offsetX_;
+	float offsetY_;
+
+};
+
+#endif // DRAGGED_SLOT_VIEW_H

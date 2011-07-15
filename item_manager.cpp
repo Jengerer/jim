@@ -39,7 +39,7 @@ const int EXCLUDED_SIZE		= 5;
 const unsigned int PADDING	= 20;
 const unsigned int SPACING	= 10;
 
-LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch (message) {
 	case WM_DESTROY:
@@ -47,7 +47,7 @@ LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	return DefWindowProc(hWnd, message, wParam, lParam);
+	return DefWindowProc( hWnd, message, wParam, lParam );
 }
 
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -107,7 +107,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	excludedView_ = nullptr;
 
 	// Dragged slot.
-	dragged_ = new Slot( 0 );
+	dragTarget_ = nullptr;
 	draggedView_ = nullptr;
 
 	// Threaded loader.
@@ -292,12 +292,13 @@ void ItemManager::Loading()
 			break;
 
 		case LOADING_STATE_ERROR:
+			// Show error first.
+			error_ = CreateAlert( definitionLoader_->GetErrorMsg() );
+
 			// Remove threaded loader.
 			definitionLoader_->End();
 			delete definitionLoader_;
 			definitionLoader_ = nullptr;
-
-			error_ = CreateAlert( definitionLoader_->GetErrorMsg() );
 			SetThink( &ItemManager::Exiting );
 			break;
 
@@ -343,8 +344,12 @@ bool ItemManager::MouseClicked( Mouse *mouse )
 		}
 	}
 	else {
-		bool touchedView = true;
+		if (draggedView_ != nullptr) {
+			return true;
+		}
+
 		SlotView* slotView = nullptr;
+		bool touchedView = true;
 
 		// Attempt to get a slot.
 		if (mouse->IsTouching( inventoryView_ )) {
@@ -359,11 +364,11 @@ bool ItemManager::MouseClicked( Mouse *mouse )
 
 		if (touchedView) {
 			if (slotView != nullptr) {
-				SlotClicked( slotView );
+				SlotClicked( slotView, mouse );
 				return true;
 			}
 		}
-		else {
+		else if (!touchedView) {
 			// TODO: Set a 'clicked target' pointer so we can't just release on button and trigger.
 			if (mouse->IsTouching( craftButton_ )) {
 				return true;
@@ -380,7 +385,9 @@ bool ItemManager::MouseClicked( Mouse *mouse )
 		}
 
 		// Deselect all, nothing clicked.
-		steamItems_->DeselectAll();
+		if (steamItems_->GetSelectMode() != SELECT_MODE_MULTIPLE) {
+			steamItems_->DeselectAll();
+		}
 	}
 
 	return false;
@@ -401,13 +408,9 @@ bool ItemManager::MouseReleased( Mouse *mouse )
 		}
 	}
 	else {
-		if (mouse->IsTouching( inventoryView_ )) {
-			SlotView* touchedSlot = inventoryView_->GetTouchingSlot( mouse );
-			if (touchedSlot != nullptr && touchedSlot->GetSlot()->HasItem()) {
-				SlotReleased( touchedSlot );
-			}
-
-			return true;
+		if (draggedView_ != nullptr) {
+			SlotView* slotView = inventoryView_->GetTouchingSlot( mouse );
+			SlotReleased( slotView );
 		}
 	}
 
@@ -425,25 +428,31 @@ bool ItemManager::MouseMoved( Mouse *mouse )
 		top->MouseMoved( mouse );
 	}
 	else {
-		SlotView* slotView = nullptr;
-		if (mouse->IsTouching( inventoryView_ )) {
-			slotView = inventoryView_->GetTouchingSlot( mouse );
-		}
-		else if (mouse->IsTouching( excludedView_ )) {
-			slotView = excludedView_->GetTouchingSlot( mouse );
+		// Check if dragging.
+		if (draggedView_ != nullptr) {
+			draggedView_->MouseMoved( mouse );
 		}
 		else {
-			return false;
-		}
+			SlotView* slotView = nullptr;
+			if (mouse->IsTouching( inventoryView_ )) {
+				slotView = inventoryView_->GetTouchingSlot( mouse );
+			}
+			else if (mouse->IsTouching( excludedView_ )) {
+				slotView = excludedView_->GetTouchingSlot( mouse );
+			}
+			else {
+				return false;
+			}
 
-		if (slotView != nullptr) {
-			Slot* slot = slotView->GetSlot();
-			if (slot->HasItem()) {
-				itemDisplay_->SetItem( slot->GetItem() );
-				itemDisplay_->SetPosition( 
-					slotView->GetX() + (slotView->GetWidth() - itemDisplay_->GetWidth()) / 2.0f,
-					slotView->GetY() + slotView->GetHeight() + ITEM_DISPLAY_SPACING );
-				ClampChild( itemDisplay_, ITEM_DISPLAY_PADDING );
+			if (slotView != nullptr) {
+				Slot* slot = slotView->GetSlot();
+				if (slot->HasItem()) {
+					itemDisplay_->SetItem( slot->GetItem() );
+					itemDisplay_->SetPosition( 
+						slotView->GetX() + (slotView->GetWidth() - itemDisplay_->GetWidth()) / 2.0f,
+						slotView->GetY() + slotView->GetHeight() + ITEM_DISPLAY_SPACING );
+					ClampChild( itemDisplay_, ITEM_DISPLAY_PADDING );
+				}
 			}
 		}
 
@@ -453,23 +462,31 @@ bool ItemManager::MouseMoved( Mouse *mouse )
 	return false;
 }
 
-void ItemManager::SlotClicked( SlotView* slotView )
+void ItemManager::SlotClicked( SlotView* slotView, Mouse* mouse )
 {
 	Slot* slot = slotView->GetSlot();
 	if (slot->HasItem()) {
 		switch (steamItems_->GetSelectMode()) {
-
 		case SELECT_MODE_SINGLE:
 			{
 				assert( draggedView_ == nullptr );
+				Item* item = slot->GetItem();
+				steamItems_->DeselectAll();
 
-				// Create dragged slot.
-				draggedView_ = new SlotView( dragged_ );
-				draggedView_->SetPosition( slotView->GetX(), slotView->GetY() );
+				// Start dragging.
+				dragTarget_ = slotView;
+				float viewX = slotView->GetX();
+				float viewY = slotView->GetY();
+				draggedView_ = new DraggedSlotView( new Slot );
+				draggedView_->SetPosition( viewX, viewY );
+				draggedView_->SetOffset( viewX - mouse->GetX(), viewY - mouse->GetY() );
+				draggedView_->SetSelected( true );
+				draggedView_->SetAlpha( 200 );
 
-				// Empty target and set dragged.
-				dragged_->SetItem( slot->GetItem() );
+				// Swap items.
+				draggedView_->GetSlot()->SetItem( item );
 				slot->SetItem( nullptr );
+
 				Add( draggedView_ );
 				break;
 			}
@@ -477,13 +494,59 @@ void ItemManager::SlotClicked( SlotView* slotView )
 		case SELECT_MODE_MULTIPLE:
 			steamItems_->ToggleSelect( slotView );
 			break;
-
 		}
+	}
+	else if (steamItems_->GetSelectMode() != SELECT_MODE_MULTIPLE) {
+		steamItems_->DeselectAll();
 	}
 }
 
 void ItemManager::SlotReleased( SlotView* slotView )
 {
+	Slot* draggedSlot = draggedView_->GetSlot();
+	Item* draggedItem = draggedSlot->GetItem();
+	backpack_->RemoveItem( draggedItem );
+
+	// Check if item is excluded.
+	bool isExcluded = !backpack_->CanInsert( draggedItem );
+
+	// Return to target slot.
+	Slot* targetSlot = dragTarget_->GetSlot();
+	targetSlot->SetItem( draggedItem );
+
+	// Delete temporary dragged.
+	SlotView* selectTarget = dragTarget_;
+	Remove( draggedView_ );
+	delete draggedView_;
+	draggedView_ = nullptr;
+	dragTarget_ = nullptr;
+
+	if (slotView != nullptr) {
+		// Now try move slot.
+		Slot* touchedSlot = slotView->GetSlot();
+		if (touchedSlot->HasItem()) {
+			Item* touchedItem = touchedSlot->GetItem();
+			if (!isExcluded) {
+				// Swap slots.
+				targetSlot->SetItem( touchedItem );
+				touchedSlot->SetItem( draggedItem );
+				draggedItem->SetPosition( draggedItem->GetIndex() );
+				touchedItem->SetPosition( touchedItem->GetIndex() );
+				steamItems_->UpdateItem( touchedItem );
+				steamItems_->UpdateItem( draggedItem );
+				selectTarget = slotView;
+			}
+		}
+		else {
+			targetSlot->SetItem( nullptr );
+			touchedSlot->SetItem( draggedItem );
+			draggedItem->SetPosition( draggedItem->GetIndex() );
+			steamItems_->UpdateItem( draggedItem );
+			selectTarget = slotView;
+		}
+	}
+
+	steamItems_->Select( selectTarget );
 }
 
 void ItemManager::HandleKeyboard( void )

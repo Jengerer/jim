@@ -1,10 +1,20 @@
 #pragma once
 
-#include <vector>
+#include <set>
 
 #include "item.h"
 #include "slot.h"
 #include "slot_vector.h"
+
+// Compare class for items by unique ID.
+class item_cmp
+{
+public:
+	bool operator()( const Item* item1, const Item* item2 )
+	{
+		return item1->GetUniqueId() < item2->GetUniqueId();
+	}
+};
 
 class Inventory
 {
@@ -18,10 +28,11 @@ public:
 	unsigned int GetExcludedSize() const;
 
 	// Item handling.
-	Item*	GetItemByUniqueId( uint64 uniqueId, bool shouldRemove = false );
-	void	InsertItem( Item* item );
-	void	RemoveItem( uint64 uniqueId );
+	Item*	GetItemByUniqueId( uint64 uniqueId );
+	Slot*	InsertItem( Item* item );
+	void	RemoveItem( Item* item );
 	void	RemoveItems();
+	bool	CanInsert( const Item* item ) const;
 
 	// Slot resource functions.
 	void	AddSlots( unsigned int slots );
@@ -30,11 +41,10 @@ public:
 	// Handling excluded items.
 	void	SetExcludedPage( unsigned int excludedPage );
 	void	UpdateExcluded( void );
-	void	ResolveExcluded( void );
 
-	// Item list maintenance.
-	void	ToInventory( Item *item );
-	void	ToExcluded( Item *item );
+	// Moving from different sets.
+	void	ToInventory( Item* item );
+	void	ToExcluded( Item* item );
 
 private:
 
@@ -44,20 +54,20 @@ private:
 protected:
 
 	// Slot arrays.
-	SlotVector*		inventory_;
-	SlotVector*		excluded_;
+	SlotVector*		inventorySlots_;
+	SlotVector*		excludedSlots_;
 
 private:
 
 	// Inventory attributes.
-	unsigned int	inventorySize_;
-	unsigned int	excludedSize_;
+	unsigned int inventorySize_;
+	unsigned int excludedSize_;
 
 	// Scrolling through excluded.
-	unsigned int	excludedPage_;
+	unsigned int excludedPage_;
 
 	// Item vectors.
-	vector<Item*>	inventoryItems_;
-	vector<Item*>	excludedItems_;
+	std::set<Item*, item_cmp> inventoryItems_;
+	std::set<Item*, item_cmp> excludedItems_;
 
 };

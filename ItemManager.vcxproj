@@ -98,6 +98,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dragged_slot_view.cpp" />
+    <ClCompile Include="index_slot.cpp" />
     <ClCompile Include="steam_item_handler.cpp" />
     <ClCompile Include="constrained_container.cpp" />
     <ClCompile Include="definition_loader.cpp" />
@@ -149,6 +151,8 @@
     <ClCompile Include="wrapped_text.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dragged_slot_view.h" />
+    <ClInclude Include="index_slot.h" />
     <ClInclude Include="steam_item_handler.h" />
     <ClInclude Include="constrained_container.h" />
     <ClInclude Include="definition_loader.h" />

@@ -81,8 +81,7 @@ void DirectX::LoadInterfaces( void )
 	// Set alpha blending modes.
 	d3dDevice_->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
 	d3dDevice_->SetRenderState( D3DRS_BLENDOP, D3DBLENDOP_ADD );
-	d3dDevice_->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
-	d3dDevice_->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA );
+	SetBlendState( D3DBLEND_SRCALPHA, D3DBLEND_INVSRCALPHA );
 	d3dDevice_->SetRenderState( D3DRS_ZENABLE, FALSE );
 
 	// First argument for diffuse quads.
@@ -171,6 +170,12 @@ void DirectX::ReleaseTextures( void )
 		Texture *texture = i->second;
 		texture->ReleaseTexture();
 	}
+}
+
+void DirectX::SetBlendState( DWORD sourceBlend, DWORD destBlend )
+{
+	d3dDevice_->SetRenderState( D3DRS_SRCBLEND, sourceBlend );
+	d3dDevice_->SetRenderState( D3DRS_DESTBLEND, destBlend );
 }
 
 Texture* DirectX::CreateTexture( int width, int height )

@@ -19,32 +19,32 @@ Inventory::~Inventory()
 void Inventory::CreateSlots()
 {
 	// Generate slot arrays.
-	inventory_ = new SlotVector( GetInventorySize() );
-	excluded_ = new SlotVector( GetExcludedSize() );
+	inventorySlots_ = new SlotVector( GetInventorySize() );
+	excludedSlots_ = new SlotVector( GetExcludedSize() );
 }
 
 void Inventory::RemoveSlots()
 {
-	if (inventory_ != nullptr) {
-		delete inventory_;
-		inventory_ = nullptr;
+	if (inventorySlots_ != nullptr) {
+		delete inventorySlots_;
+		inventorySlots_ = nullptr;
 	}
 
-	if (excluded_ != nullptr) {
-		delete excluded_;
-		excluded_ = nullptr;
+	if (excludedSlots_ != nullptr) {
+		delete excludedSlots_;
+		excludedSlots_ = nullptr;
 	}
 }
 
 void Inventory::AddSlots( unsigned int slots )
 {
-	inventory_->AddSlots( slots );
+	inventorySlots_->AddSlots( slots );
 }
 
 void Inventory::EmptySlots()
 {
-	inventory_->EmptySlots();
-	excluded_->EmptySlots();
+	inventorySlots_->EmptySlots();
+	excludedSlots_->EmptySlots();
 }
 
 unsigned int Inventory::GetInventorySize() const
@@ -57,27 +57,18 @@ unsigned int Inventory::GetExcludedSize() const
 	return excludedSize_;
 }
 
-Item* Inventory::GetItemByUniqueId( uint64 uniqueId, bool shouldRemove )
+Item* Inventory::GetItemByUniqueId( uint64 uniqueId )
 {
-	vector<Item*>::iterator i, end;
-	for (i = inventoryItems_.begin(), end = inventoryItems_.end(); i != end; ++i) {
+	for (auto i = inventoryItems_.begin(), end = inventoryItems_.end(); i != end; ++i) {
 		Item* item = *i;
 		if (item->GetUniqueId() == uniqueId) {
-			if (shouldRemove) {
-				inventoryItems_.erase( i );
-			}
-
 			return item;
 		}
 	}
 
-	for (i = excludedItems_.begin(), end = excludedItems_.end(); i != end; ++i) {
+	for (auto i = excludedItems_.begin(), end = excludedItems_.end(); i != end; ++i) {
 		Item* item = *i;
 		if (item->GetUniqueId() == uniqueId) {
-			if (shouldRemove) {
-				excludedItems_.erase( i );
-			}
-
 			return item;
 		}
 	}
@@ -89,48 +80,55 @@ Item* Inventory::GetItemByUniqueId( uint64 uniqueId, bool shouldRemove )
 // Purpose: Inserts an item into the inventory or excluded.
 // Notes:	A call to UpdateExcluded should be called after
 //			any series of inserts.
+// Return:	The inventory slot inserted into if succeeded,
+//			nullptr if it was added to excluded.
 //=============================================================
-void Inventory::InsertItem( Item* item )
+Slot* Inventory::InsertItem( Item* item )
 {
 	// Check if we should/can place in inventory.
-	uint16 index = item->GetIndex();
-	if (item->HasValidFlags() && inventory_->IsSlotEmpty( index )) {
-		Slot* destination = inventory_->GetSlotByIndex( index );
+	if (CanInsert( item )) {
+		Slot* destination = inventorySlots_->GetSlotByIndex( item->GetPosition() );
 		destination->SetItem( item );
 		ToInventory( item );
+		return destination;
 	}
-	else {
-		ToExcluded( item );
-	}
+
+	ToExcluded( item );
+	return nullptr;
 }
 
-void Inventory::RemoveItem( uint64 uniqueId )
+void Inventory::RemoveItem( Item* item )
 {
-	// Remove it from slots.
-	Item* targetItem = GetItemByUniqueId( uniqueId, true );
-	if (targetItem != nullptr) {
-		Slot* targetSlot = inventory_->GetSlotByItem( targetItem );
-		if (targetSlot == nullptr) {
-			targetSlot = excluded_->GetSlotByItem( targetItem );
-			if (targetSlot != nullptr) {
-				excluded_->RemoveItem( targetItem );
-			}
-		}
-		else {
-			inventory_->RemoveItem( targetItem );
-		}
+	// Find the inventory slot.
+	auto i = inventoryItems_.find( item );
+	if (i != inventoryItems_.end()) {
+		inventorySlots_->RemoveItem( item );
+		inventoryItems_.erase( i );
+	}
+	else {
+		excludedItems_.erase( item );
+		UpdateExcluded();
 	}
 }
 
 void Inventory::RemoveItems()
 {
-	vector<Item*>::iterator i;
-	for (i = inventoryItems_.begin(); i != inventoryItems_.end(); i = inventoryItems_.erase( i )) {
+	// Delete inventory items.
+	for (auto i = inventoryItems_.begin(); i != inventoryItems_.end(); i = inventoryItems_.erase( i )) {
 		delete *i;
 	}
 
-	for (i = excludedItems_.begin(); i != excludedItems_.end(); i = excludedItems_.erase( i )) {
+	// Delete excluded items.
+	for (auto i = excludedItems_.begin(); i != excludedItems_.end(); i = excludedItems_.erase( i )) {
 		delete *i;
+	}
+}
+
+bool Inventory::CanInsert( const Item* item ) const
+{
+	if (item->HasValidFlags()) {
+		uint16 index = item->GetPosition();
+		return inventorySlots_->IsValidIndex( index ) && inventorySlots_->IsSlotEmpty( index );
 	}
 }
 
@@ -141,51 +139,33 @@ void Inventory::SetExcludedPage( unsigned int excludedPage )
 
 void Inventory::UpdateExcluded( void )
 {
-	unsigned int itemIndex = excludedPage_ * excludedSize_;
-	for (unsigned int slotIndex = 0; excluded_->IsValidIndex( slotIndex ); ++slotIndex) {
-		Slot* slot = excluded_->GetSlotByIndex( slotIndex );
-		if (itemIndex < excludedItems_.size()) {
-			slot->SetItem( itemIndex < excludedItems_.size() ? excludedItems_[itemIndex++] : nullptr );
-		}
+	excludedSlots_->EmptySlots();
+
+	// Push iterator up to current page.
+	unsigned int iteratorIndex = 0;
+	unsigned int startIndex = excludedPage_ * excludedSize_;
+	auto i = excludedItems_.begin();
+	while (i != excludedItems_.end() && iteratorIndex < startIndex) {
+		i++;
+		iteratorIndex++;
+	}
+
+	// Now set the rest of the slots.
+	unsigned endIndex = startIndex + excludedSize_;
+	for (unsigned int slotIndex = startIndex; slotIndex < endIndex && i != excludedItems_.end(); slotIndex++) {
+		Slot* slot = excludedSlots_->GetSlotByIndex( slotIndex );
+		slot->SetItem( *i++ );
 	}
 }
 
-//=============================================================
-// Purpose: Attempt to place items with valid positions
-//			back into the inventory.
-//=============================================================
-void Inventory::ResolveExcluded( void )
+void Inventory::ToExcluded( Item* item )
 {
-	vector<Item*>::iterator i, end;
-	for (i = excludedItems_.begin(), end = excludedItems_.end(); i != end; ++i) {
-		Item* item = *i;
-		InsertItem( item );
-	}
-
-	UpdateExcluded();
+	inventoryItems_.erase( item );
+	excludedItems_.insert( item );
 }
 
-// NOTE: Should call UpdateExcluded after using this.
-void Inventory::ToInventory( Item *item )
+void Inventory::ToInventory( Item* item )
 {
-	// Remove from excluded.
-	vector<Item*>::iterator i = find( excludedItems_.begin(), excludedItems_.end(), item );
-	if (i != excludedItems_.end()) {
-		excludedItems_.erase( i );
-	}
-
-	inventoryItems_.push_back( item );
-}
-
-// NOTE: Should call UpdateExcluded after using this.
-void Inventory::ToExcluded( Item *item )
-{
-	// Remove from inventory.
-	vector<Item*>::iterator i = find( inventoryItems_.begin(), inventoryItems_.end(), item );
-	if (i != inventoryItems_.end()) {
-		inventory_->RemoveItem( item );
-		inventoryItems_.erase( i );
-	}
-
-	excludedItems_.push_back( item );
+	excludedItems_.erase( item );
+	inventoryItems_.insert( item );
 }

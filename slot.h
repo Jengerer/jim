@@ -7,25 +7,16 @@ class Slot
 {
 public:
 
-	Slot( int index );
+	Slot();
 
 	// Item functions.
-	bool	HasItem( void ) const;
-	Item*	GetItem( void ) const;
-	void	SetItem( Item* item );
-
-	// Slot indexing.
-	unsigned int	GetIndex( void ) const;
+	bool			HasItem( void ) const;
+	Item*			GetItem( void ) const;
+	virtual void	SetItem( Item* item );
 
 private:
 
-	void			SetIndex( unsigned int index );
-
-private:
-
-	// Item stored here.
 	Item*			item_;
-	unsigned int	index_;
 
 };
 

@@ -156,28 +156,34 @@
     <ClCompile Include="mouse.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="slot.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_view.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_vector.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_view.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="constrained_container.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
     <ClCompile Include="steam_item_handler.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="definition_loader.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="slot_grid_pages.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="slot_grid_view.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="slot_vector.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="slot_view.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="dragged_slot_view.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="index_slot.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -956,34 +962,40 @@
     <ClInclude Include="mouse.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\definition_loader.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="slot_view.h">
       <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\iinventory_listener.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_vector.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_view.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\slot_grid_pages.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Jengerer%27s Item Manager\Item Manager\imouse_handler.h">
-      <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="constrained_container.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="steam_item_handler.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="definition_loader.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="iinventory_listener.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="imouse_handler.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="slot.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_grid_pages.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_grid_view.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_vector.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dragged_slot_view.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="index_slot.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -999,9 +1011,7 @@
     <None Include="jimIcon.ico">
       <Filter>resources</Filter>
     </None>
-    <None Include="..\..\Jengerer%27s Item Manager\Item Manager\tint.fx">
-      <Filter>hlsl</Filter>
-    </None>
+    <None Include="tint.fx" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="itemManager.rc">

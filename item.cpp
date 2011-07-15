@@ -18,6 +18,7 @@ Item::Item(
 	SetQuality( quality );
 	SetCount( count );
 	SetFlags( flags );
+	SetIndex( GetPosition() );
 
 	// Set null pointers for things to be acquired.
 	information_ = nullptr;
@@ -85,17 +86,27 @@ const string& Item::GetName( void ) const
 	return information_->GetName();
 }
 
-uint16 Item::GetIndex( void ) const
+uint16 Item::GetPosition( void ) const
 {
 	return (GetFlags() & 0xFFFF) - 1;
 }
 
-void Item::SetIndex( uint16 position )
+void Item::SetPosition( uint16 position )
 {
 	uint32 tempFlags = HasValidFlags() ? GetFlags() : FL_ITEM_VALID;
 	tempFlags &= FL_ITEM_NONPOSITION; // Remove current position.
 	tempFlags |= (position + 1) & FL_ITEM_POSITION; // Set new.
 	SetFlags( tempFlags );
+}
+
+uint32 Item::GetIndex( void ) const
+{
+	return index_;
+}
+
+void Item::SetIndex( uint32 index )
+{
+	index_ = index;
 }
 
 bool Item::HasValidFlags( void ) const

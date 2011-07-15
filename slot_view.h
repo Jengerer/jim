@@ -34,24 +34,24 @@ public:
 private:
 
 	// TODO: Maybe come up with a better set up, mixing together.
-	static RoundedRectangle* emptySlot_;
 	static RoundedRectangle* normalSlot_;
-	static RoundedRectangle* normalSelected_;
-	static RoundedRectangle* vintageSlot_;
-	static RoundedRectangle* vintageSelected_;
-	static RoundedRectangle* genuineSlot_;
-	static RoundedRectangle* genuineSelected_;
+	static RoundedRectangle* selectedSlot_;
+	static RoundedRectangle* commonStroke_;
+	static RoundedRectangle* vintageStroke_;
+	static RoundedRectangle* genuineStroke_;
+	static RoundedRectangle* unusualStroke_;
 	
 	static Font* equippedFont_;
 	static Text* equippedText_;
 
 private:
 
-	Image*	slotImage_;
-	Image*	itemImage_;
+	Image* slotImage_;
+	Image* strokeImage_;
+	Image* itemImage_;
 
-	Slot*	slot_;
-	bool	isSelected_;
+	Slot* slot_;
+	bool isSelected_;
 
 };
 

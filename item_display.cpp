@@ -10,10 +10,6 @@
 #define ITEM_DISPLAY_INFO_FONT_SIZE			16
 #define ITEM_DISPLAY_INFO_FONT_BOLDED		false
 
-#define ITEM_DISPLAY_NORMAL_COLOUR	D3DCOLOR_XRGB( 248, 212, 0 )
-#define ITEM_DISPLAY_VINTAGE_COLOUR	D3DCOLOR_XRGB( 69, 97, 141 )
-#define ITEM_DISPLAY_GENUINE_COLOUR	D3DCOLOR_XRGB( 75, 115, 83 )
-
 Font *ItemDisplay::nameFont_ = nullptr;
 Font *ItemDisplay::infoFont_ = nullptr;
 
@@ -55,16 +51,21 @@ void ItemDisplay::UpdateDisplay()
 	switch (item_->GetQuality()) {
 	case EItemQuality::k_EItemQuality_Common:
 		namePrefix = "Genuine";
-		nameColour = ITEM_DISPLAY_GENUINE_COLOUR;
+		nameColour = QUALITY_GENUINE_COLOUR;
 		break;
 
 	case EItemQuality::k_EItemQuality_Unique:
 		namePrefix = "Vintage";
-		nameColour = ITEM_DISPLAY_VINTAGE_COLOUR;
+		nameColour = QUALITY_VINTAGE_COLOUR;
+		break;
+
+	case EItemQuality::k_EItemQuality_Unk5:
+		namePrefix = "Unusual";
+		nameColour = QUALITY_UNUSUAL_COLOUR;
 		break;
 
 	default:
-		nameColour = ITEM_DISPLAY_NORMAL_COLOUR;
+		nameColour = QUALITY_COMMON_COLOUR;
 		break;
 	}
 

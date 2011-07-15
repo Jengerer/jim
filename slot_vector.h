@@ -1,6 +1,7 @@
 #ifndef SLOT_VECTOR_H
 #define SLOT_VECTOR_H
 
+#include "index_slot.h"
 #include "slot.h"
 #include <vector>
 
@@ -25,7 +26,6 @@ public:
 	unsigned int GetSlotCount() const;
 
 	// Managing items.
-	void Move( Slot* source, Slot* dest );
 	void RemoveItem( Item* item );
 	void EmptySlots();
 

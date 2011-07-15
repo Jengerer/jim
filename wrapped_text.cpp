@@ -20,7 +20,7 @@ void WrappedText::Draw( DirectX *directX )
 		x + GetWidth(), y + GetHeight()
 	};
 
-	font_->drawText( GetText(), &textRect, GetTextFormatting(), ((GetAlpha() & 0xff) << 24) | (GetColour() & 0xFFFFFF) );
+	font_->drawText( GetText(), &textRect, GetTextFormatting() | DT_WORDBREAK, ((GetAlpha() & 0xff) << 24) | (GetColour() & 0xFFFFFF) );
 }
 
 void WrappedText::Pack( void )

@@ -218,14 +218,14 @@ SlotGridPages* Backpack::CreateInventoryView( unsigned int width, unsigned int h
 {
 	SlotGridPages* inventoryView = new SlotGridPages( width, height,
 		PAGE_SPACING, SLOT_SPACING );
-	inventoryView->AddPages( inventory_ );
+	inventoryView->AddPages( inventorySlots_ );
 	return inventoryView;
 }
 
 SlotGridView* Backpack::CreateExcludedView() const
 {
-	SlotGridView* excludedView = new SlotGridView( excluded_->GetSlotCount(), SLOT_SPACING );
-	excludedView->AddSlots( excluded_ );
+	SlotGridView* excludedView = new SlotGridView( excludedSlots_->GetSlotCount(), SLOT_SPACING );
+	excludedView->AddSlots( excludedSlots_ );
 	return excludedView;
 }
 
