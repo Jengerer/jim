@@ -32,8 +32,8 @@ private:
 
 	float x_;
 	float y_;
-	float width_;
-	float height_;
+	int width_;
+	int height_;
 	int alpha_;
 
 };
