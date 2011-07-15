@@ -25,86 +25,12 @@ Backpack::Backpack( unsigned int inventorySize, unsigned int excludedSize ) : In
 	SetLoaded( false );
 }
 
-/* void Backpack::Precache( DirectX *directX )
-{
-	// Get button textures.
-	Texture *craftTexture = directX->GetTexture( "manager/gear" );
-	Texture *equipTexture = directX->GetTexture( "manager/equip" );
-	Texture *sortTexture = directX->GetTexture( "manager/sort" );
-
-	// Create buttons.
-	craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
-	equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
-	sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
-	craftButton_->SetEnabled( false );
-	equipButton_->SetEnabled( false );
-	sortButton_->SetEnabled( false );
-	
-	// Add to layout.
-	buttonLayout_->Add( craftButton_ );
-	buttonLayout_->Add( equipButton_ );
-	buttonLayout_->Add( sortButton_ );
-	Pack();
-} */
-
 /* void Backpack::HandleMessage( int id, void *message, uint32 size )
 {
 	switch (id) {
-	case SOMsgCreate_t::k_iMessage:
-		{
-			// Get object created.
-			CMsgSOSingleObject deleteObj;
-			deleteObj.ParseFromArray( message, size );
-
-			// Get item from object.
-			CSOEconItem econItem;
-			econItem.ParseFromArray( deleteObj.object_data().data(), deleteObj.object_data().size() );
-
-			// Now add item.
-			Item* newItem = new Item(
-				econItem.id(),
-				econItem.def_index(),
-				econItem.level(),
-				(EItemQuality)econItem.quality(),
-				econItem.quantity(),
-				econItem.inventory() );
-
-			// Add this item to excluded.
-			inventory_->InsertItem( newItem );
-			inventory_->UpdateExcluded();
-			
-			// Get the source.
-			string source;
-			if (econItem.origin() == 4) {
-				source = "crafted";
-			}
-			else {
-				source = "found";
-			}
-
-			// Display message.
-			notifications_->AddNotification( "You have " + source + " a " + newItem->GetName() + ".", newItem->GetTexture() );
-
-			break;
-		}
+	
 		
-	case SOMsgDeleted_t::k_iMessage:
-		{
-			// Get deleted message.
-			CMsgSOSingleObject deleteObj;
-			deleteObj.ParseFromArray( message, size );
 
-			// Get ID of deleted item.
-			CSOEconItem deletedItem;
-			deletedItem.ParseFromArray( deleteObj.object_data().data(), deleteObj.object_data().size() );
-
-			// Now remove from inventory.
-			Item *targettedItem = inventory_->GetItemByUniqueId( deletedItem.id() );
-			if (targettedItem != nullptr) {
-				inventory_->RemoveItem( targettedItem->GetUniqueId() );
-			}
-			break;
-		}
 
 	case k_ESOMsg_UpdateMultiple:
 		{
@@ -216,7 +142,7 @@ Backpack::Backpack( unsigned int inventorySize, unsigned int excludedSize ) : In
 
 SlotGridPages* Backpack::CreateInventoryView( unsigned int width, unsigned int height ) const
 {
-	SlotGridPages* inventoryView = new SlotGridPages( width, height,
+	SlotGridPages* inventoryView = new AnimatedGridPages( width, height,
 		PAGE_SPACING, SLOT_SPACING );
 	inventoryView->AddPages( inventorySlots_ );
 	return inventoryView;

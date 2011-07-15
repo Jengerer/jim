@@ -1,8 +1,11 @@
 #include "image.h"
 
+const D3DCOLOR WHITE_TINT = D3DCOLOR_XRGB( 255, 255, 255 );
+
 Image::Image( Texture* texture, float localX, float localY ): Component( localX, localY )
 {
 	SetTexture( texture );
+	SetTint( WHITE_TINT );
 }
 
 void Image::Draw( DirectX *directX )
@@ -13,8 +16,18 @@ void Image::Draw( DirectX *directX )
 			texture_,
 			GetX(), GetY(),
 			GetWidth(), GetHeight(), 
-			D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
+			(GetTint() & 0xFFFFFF) | ((GetAlpha() & 0xFF) << 24 ) );
 	}
+}
+
+void Image::SetTint( D3DCOLOR tint )
+{
+	tint_ = tint;
+}
+
+D3DCOLOR Image::GetTint( void ) const
+{
+	return tint_;
 }
 
 void Image::SetTexture( Texture *texture )

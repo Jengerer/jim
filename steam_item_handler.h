@@ -34,6 +34,7 @@ public:
 	// Handling Steam updating.
 	void CraftSelected();
 	void EquipSelected( EClassEquip whichClass, bool setEquip );
+	bool CanEquipSelected() const;
 
 private:
 

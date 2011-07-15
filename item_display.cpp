@@ -13,6 +13,13 @@
 Font *ItemDisplay::nameFont_ = nullptr;
 Font *ItemDisplay::infoFont_ = nullptr;
 
+const unsigned int ITEM_DISPLAY_PADDING	= 10;
+const unsigned int ITEM_DISPLAY_SPACING	= 5;
+const unsigned int ITEM_DISPLAY_RADIUS	= 5;
+const int ITEM_DISPLAY_TEXT_WIDTH		= 200;
+const int ITEM_DISPLAY_ALPHA_SPEED		= 30;
+const int ITEM_DISPLAY_ALPHA_MAX		= 210;
+
 ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_PADDING )
 {
 	SetAlpha( 0 );
@@ -21,10 +28,9 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 	SetActive( false );
 
 	// Create text objects.
-	nameText_ = new WrappedText( nameFont_, ITEM_DISPLAY_WIDTH );
-	nameText_->SetColour( ITEM_DISPLAY_NAME_COLOUR );
+	nameText_ = new WrappedText( nameFont_, ITEM_DISPLAY_TEXT_WIDTH );
 	nameText_->SetTextFormatting( DT_CENTER );
-	infoText_ = new WrappedText( infoFont_, ITEM_DISPLAY_WIDTH );
+	infoText_ = new WrappedText( infoFont_, ITEM_DISPLAY_TEXT_WIDTH );
 	infoText_->SetTextFormatting( DT_CENTER );
 
 	// Add to layout.
@@ -46,32 +52,8 @@ ItemDisplay::~ItemDisplay( void )
 void ItemDisplay::UpdateDisplay()
 {
 	// Alter display based on quality.
-	string namePrefix;
-	D3DCOLOR nameColour;
-	switch (item_->GetQuality()) {
-	case EItemQuality::k_EItemQuality_Common:
-		namePrefix = "Genuine";
-		nameColour = QUALITY_GENUINE_COLOUR;
-		break;
-
-	case EItemQuality::k_EItemQuality_Unique:
-		namePrefix = "Vintage";
-		nameColour = QUALITY_VINTAGE_COLOUR;
-		break;
-
-	case EItemQuality::k_EItemQuality_Unk5:
-		namePrefix = "Unusual";
-		nameColour = QUALITY_UNUSUAL_COLOUR;
-		break;
-
-	default:
-		nameColour = QUALITY_COMMON_COLOUR;
-		break;
-	}
-
-	// Set quality colour and prefix.
-	nameText_->SetColour( nameColour );
-	SetName( item_->HasCustomName() ? item_->GetCustomName() : namePrefix + ' ' + item_->GetName() );
+	nameText_->SetColour( item_->GetQualityColour() );
+	SetName( item_->GetName() );
 
 	// Build information text.
 	stringstream infoStream;

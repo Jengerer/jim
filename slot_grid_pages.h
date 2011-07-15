@@ -21,9 +21,16 @@ public:
 	SlotView* GetTouchingSlot( Mouse* mouse ) const;
 	SlotGridView* GetCurrentPage() const;
 
-	void NextPage();
-	void PreviousPage();
+	bool NextPage();
+	bool PreviousPage();
+	void UpdateOffset();
 	virtual void UpdateView();
+
+protected:
+
+	HorizontalLayout*		pagesLayout_;
+	Constraint*				pagesConstraint_;
+	float					viewOffset_;
 
 private:
 
@@ -33,8 +40,8 @@ private:
 	unsigned int			pageSpacing_;
 	unsigned int			slotSpacing_;
 
+	// View offset.
 	unsigned int			page_;
-	HorizontalLayout*		pagesLayout_;
 	vector<SlotGridView*>	slotGridViews_;
 
 };

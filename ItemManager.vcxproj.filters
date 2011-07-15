@@ -186,6 +186,12 @@
     <ClCompile Include="index_slot.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="animated_grid_pages.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="constraint.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="steam\AppsCommon.h">
@@ -997,6 +1003,12 @@
     </ClInclude>
     <ClInclude Include="index_slot.h">
       <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="animated_grid_pages.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="constraint.h">
+      <Filter>headers\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
