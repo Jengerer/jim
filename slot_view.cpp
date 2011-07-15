@@ -10,25 +10,22 @@ const unsigned int ITEM_SIZE					= 60;
 // Slot stroke attributes.
 const unsigned int SLOT_STROKE_WIDTH			= 2;
 const D3DCOLOR SLOT_STROKE_NORMAL_COLOUR		= D3DCOLOR_XRGB( 248, 212, 0 );
-const D3DCOLOR SLOT_STROKE_VINTAGE_COLOUR		= D3DCOLOR_XRGB( 69, 97, 141 );
-const D3DCOLOR SLOT_STROKE_GENUINE_COLOUR		= D3DCOLOR_XRGB( 75, 115, 83 );
 
 // Slot colour attributes.
-const D3DCOLOR SLOT_SELECTED_COLOUR				= D3DCOLOR_XRGB( 108, 96, 83 );
 const D3DCOLOR SLOT_NORMAL_COLOUR				= D3DCOLOR_XRGB( 60, 53, 46 );
+const D3DCOLOR SLOT_SELECTED_COLOUR				= D3DCOLOR_XRGB( 90, 80, 72 );
 
 // Slot display attributes.
 const unsigned int DRAG_ALPHA					= 185;
 const unsigned int SLOT_RADIUS					= 5;
 
 // Class-wide components.
-RoundedRectangle* SlotView::emptySlot_			= nullptr;
 RoundedRectangle* SlotView::normalSlot_			= nullptr;
-RoundedRectangle* SlotView::normalSelected_		= nullptr;
-RoundedRectangle* SlotView::vintageSlot_		= nullptr;
-RoundedRectangle* SlotView::vintageSelected_	= nullptr;
-RoundedRectangle* SlotView::genuineSlot_		= nullptr;
-RoundedRectangle* SlotView::genuineSelected_	= nullptr;
+RoundedRectangle* SlotView::selectedSlot_		= nullptr;
+RoundedRectangle* SlotView::commonStroke_		= nullptr;
+RoundedRectangle* SlotView::vintageStroke_		= nullptr;
+RoundedRectangle* SlotView::genuineStroke_		= nullptr;
+RoundedRectangle* SlotView::unusualStroke_		= nullptr;
 
 // Class-wide font/text resources.
 Font* SlotView::equippedFont_					= nullptr;
@@ -45,7 +42,7 @@ SlotView::SlotView( Slot* slot )
 	SetSelected( false );
 
 	// Add images.
-	slotImage_ = new Image( emptySlot_->GetTexture() );
+	slotImage_ = new Image( normalSlot_->GetTexture() );
 	slotImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
 	Add( slotImage_ );
 	SetConstraint( slotImage_, 0.0f, 0.0f );
@@ -53,38 +50,50 @@ SlotView::SlotView( Slot* slot )
 	itemImage_ = new Image( nullptr );
 	itemImage_->SetSize( ITEM_SIZE, ITEM_SIZE );
 	Add( itemImage_ );
-	SetConstraint( itemImage_, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, 0.0f );
+	SetConstraint( itemImage_, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, (SLOT_HEIGHT - ITEM_SIZE) / 2.0f );
+
+	strokeImage_ = new Image( nullptr );
+	strokeImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
+	Add( strokeImage_ );
+	SetConstraint( strokeImage_, 0.0f, 0.0f );
 
 	SetSize( SLOT_WIDTH, SLOT_HEIGHT );
 }
 
 void SlotView::Update()
 {
-	// Get rounded rectangle.
-	RoundedRectangle* whichRect = emptySlot_;
+	// Update slot image.
+	slotImage_->SetTexture( (IsSelected() ? selectedSlot_ : normalSlot_)->GetTexture() );
+
+	// Get stroke and item texture.
 	Texture* itemTexture = nullptr;
+	Texture* strokeTexture = nullptr;
 	if (slot_->HasItem()) {
 		Item* item = slot_->GetItem();
 		itemTexture = item->GetTexture();
 
-		bool isSelected = IsSelected();
-		switch(item->GetQuality()) {
-		case EItemQuality::k_EItemQuality_Unique:
-			whichRect = isSelected ? vintageSelected_ : vintageSlot_;
+		// Update stroke on quality.
+		RoundedRectangle* whichStroke = commonStroke_;
+		switch (item->GetQuality()) {
+		case k_EItemQuality_Unique:
+			whichStroke = vintageStroke_;
 			break;
 
-		case EItemQuality::k_EItemQuality_Common:
-			whichRect = isSelected ? vintageSelected_ : vintageSlot_;
+		case k_EItemQuality_Common:
+			whichStroke = genuineStroke_;
 			break;
 
-		default:
-			whichRect = isSelected ? normalSelected_ : normalSlot_;
+		case k_EItemQuality_Unk5:
+			whichStroke = unusualStroke_;
 			break;
 		}
+
+		strokeTexture = whichStroke->GetTexture();
 	}
 
+	
 	itemImage_->SetTexture( itemTexture );
-	slotImage_->SetTexture( whichRect->GetTexture() );
+	strokeImage_->SetTexture( strokeTexture );
 }
 
 void SlotView::Draw( DirectX* directX )
@@ -111,44 +120,28 @@ bool SlotView::IsSelected() const
 void SlotView::Precache( DirectX* directX )
 {
 	// Create rounded rectangles.
-	emptySlot_			= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
+	normalSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
+	selectedSlot_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
+	commonStroke_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, 0 );
+	commonStroke_->SetStroke( SLOT_STROKE_WIDTH, QUALITY_COMMON_COLOUR );
+	commonStroke_->SetStrokeType( STROKE_TYPE_INNER );
+	vintageStroke_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, 0 );
+	vintageStroke_->SetStroke( SLOT_STROKE_WIDTH, QUALITY_VINTAGE_COLOUR );
+	vintageStroke_->SetStrokeType( STROKE_TYPE_INNER );
+	genuineStroke_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, 0 );
+	genuineStroke_->SetStroke( SLOT_STROKE_WIDTH, QUALITY_GENUINE_COLOUR );
+	genuineStroke_->SetStrokeType( STROKE_TYPE_INNER );
+	unusualStroke_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, 0 );
+	unusualStroke_->SetStroke( SLOT_STROKE_WIDTH, QUALITY_UNUSUAL_COLOUR );
+	unusualStroke_->SetStrokeType( STROKE_TYPE_INNER );
 
-	normalSlot_			= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
-	normalSelected_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
-
-	vintageSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
-	vintageSelected_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
-
-	genuineSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
-	genuineSelected_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
-
-	// Set up attributes.
-	normalSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
-	normalSlot_->SetStrokeType( STROKE_TYPE_INNER );
-	normalSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_NORMAL_COLOUR );
-	normalSelected_->SetStrokeType( STROKE_TYPE_INNER );
-
-	vintageSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
-	vintageSlot_->SetStrokeType( STROKE_TYPE_INNER );
-	vintageSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_VINTAGE_COLOUR );
-	vintageSelected_->SetStrokeType( STROKE_TYPE_INNER );
-
-	genuineSlot_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
-	genuineSlot_->SetStrokeType( STROKE_TYPE_INNER );
-	genuineSelected_->SetStroke( SLOT_STROKE_WIDTH, SLOT_STROKE_GENUINE_COLOUR );
-	genuineSelected_->SetStrokeType( STROKE_TYPE_INNER );
-
-	// Generate all rectangles.
-	emptySlot_->Generate( directX );
-
+	// Generate all.
 	normalSlot_->Generate( directX );
-	normalSelected_->Generate( directX );
-
-	vintageSlot_->Generate( directX );
-	vintageSelected_->Generate( directX );
-
-	genuineSlot_->Generate( directX );
-	genuineSelected_->Generate( directX );
+	selectedSlot_->Generate( directX );
+	commonStroke_->Generate( directX );
+	vintageStroke_->Generate( directX );
+	genuineStroke_->Generate( directX );
+	unusualStroke_->Generate( directX );
 
 	// Create equipped font.
 	equippedFont_ = directX->CreateFont( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE, EQUIPPED_FONT_BOLDED );
@@ -159,39 +152,34 @@ void SlotView::Precache( DirectX* directX )
 
 void SlotView::Release()
 {
-	if (emptySlot_ != nullptr) {
-		delete emptySlot_;
-		emptySlot_ = nullptr;
-	}
-
 	if (normalSlot_ != nullptr) {
 		delete normalSlot_;
-		emptySlot_ = nullptr;
+		normalSlot_ = nullptr;
 	}
 
-	if (normalSelected_ != nullptr) {
-		delete normalSelected_;
-		normalSelected_ = nullptr;
+	if (selectedSlot_ != nullptr) {
+		delete selectedSlot_;
+		selectedSlot_ = nullptr;
 	}
 
-	if (vintageSlot_ != nullptr) {
-		delete vintageSlot_;
-		vintageSlot_ = nullptr;
+	if (commonStroke_ != nullptr) {
+		delete commonStroke_;
+		commonStroke_ != nullptr;
 	}
 
-	if (vintageSelected_ != nullptr) {
-		delete vintageSelected_;
-		vintageSelected_ = nullptr;
+	if (vintageStroke_ != nullptr ) {
+		delete vintageStroke_;
+		vintageStroke_ = nullptr;
 	}
 
-	if (genuineSlot_ != nullptr) {
-		delete genuineSlot_;
-		genuineSlot_ = nullptr;
+	if (genuineStroke_ != nullptr) {
+		delete genuineStroke_;
+		genuineStroke_ = nullptr;
 	}
 
-	if (genuineSelected_ != nullptr) {
-		delete genuineSelected_;
-		genuineSelected_ = nullptr;
+	if (unusualStroke_ != nullptr) {
+		delete unusualStroke_;
+		unusualStroke_ = nullptr;
 	}
 
 	if (equippedFont_ != nullptr) {

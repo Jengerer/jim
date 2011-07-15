@@ -3,10 +3,9 @@
 //=============================================================
 // Constructor
 //=============================================================
-Slot::Slot( int index )
+Slot::Slot()
 {
 	SetItem( nullptr );
-	SetIndex( index );
 }
 
 bool Slot::HasItem() const
@@ -22,14 +21,4 @@ Item* Slot::GetItem() const
 void Slot::SetItem( Item* item )
 {
 	item_ = item;
-}
-
-unsigned int Slot::GetIndex() const
-{
-	return index_;
-}
-
-void Slot::SetIndex( unsigned int index )
-{
-	index_ = index;
 }

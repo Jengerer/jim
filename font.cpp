@@ -27,6 +27,7 @@ void Font::wrapText( string& text, LPRECT bounds, DWORD format )
 	size_t start = 0;
 
 	bool first = true;
+	LONG width = bounds->right - bounds->left;
 
 	for (size_t i = 0; i < text.length(); i++) {
 		char currentChar = text[i];
@@ -35,7 +36,9 @@ void Font::wrapText( string& text, LPRECT bounds, DWORD format )
 
 			RECT rect = {0, 0, 0, 0};
 			getTextRect( current, &rect, DT_SINGLELINE );
-			if ((rect.right - rect.left) > (bounds->right - bounds->left)) {
+
+			// Check whether this line exceeds bounds.
+			if ((rect.right - rect.left) > width) {
 				if (first) {
 					text[i] = '\n';
 					start = i + 1;

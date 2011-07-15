@@ -95,6 +95,15 @@ void RoundedRectangle::Generate( DirectX *directX )
 			GetStrokeColour() );
 	}
 
+	// Empty inner area.
+	directX->SetBlendState( D3DBLEND_ZERO, D3DBLEND_INVSRCALPHA );
+	directX->DrawRoundedRect(
+		strokeSize, strokeSize,
+		rectWidth - strokeSize * 2, rectHeight - strokeSize * 2,
+		innerRadius,
+		D3DCOLOR_XRGB( 255, 255, 255 ) );
+	directX->SetBlendState( D3DBLEND_SRCALPHA, D3DBLEND_INVSRCALPHA );
+
 	// Draw inner rectangle.
 	directX->DrawRoundedRect(
 		strokeSize, strokeSize,

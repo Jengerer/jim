@@ -56,6 +56,9 @@ public:
 	Texture*	GetTexture( const string& filename );
 	Texture*	GetTexture( const string& filename, const string& url );
 
+	// Blending states.
+	void		SetBlendState( DWORD sourceBlend, DWORD destBlend );
+
 	// Texture drawing and rendering.
 	Texture*	CreateTexture( int width, int height );
 	void		SetRenderTarget( Texture *texture );

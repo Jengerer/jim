@@ -87,7 +87,7 @@ void DefinitionLoader::Load()
 
 			if (image_inventory.empty()) {
 				image_inventory = "backpack/unknown_item";
-				image_url = "http://www.jengerer.com/itemManager/imgFiles/unknown_item.png";
+				image_url = "http://www.jengerer.com/itemManager/imgFiles/backpack/unknown_item.png";
 			}
 
 			EItemSlot item_slot;

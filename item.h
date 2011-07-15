@@ -43,8 +43,15 @@ public:
 
 	// Secondary attributes.
 	const string&	GetName( void ) const;
-	uint16			GetIndex( void ) const ;
-	void			SetIndex( uint16 position );
+
+	// Position stored in Steam.
+	void			SetPosition( uint16 position );
+	uint16			GetPosition( void ) const;
+
+	// Index in slot array.
+	uint32			GetIndex( void ) const;
+	void			SetIndex( uint32 position );
+
 	bool			HasValidFlags( void ) const;
 	void			SetCustomName( const string& name );
 	const string&	GetCustomName( void ) const;
@@ -86,7 +93,8 @@ private:
 	uint32					flags_;
 
 	// Secondary information.
-	string					customName_;
+	string customName_;
+	uint32 index_;
 
 	// Item definition information.
 	const ItemInformation	*information_;

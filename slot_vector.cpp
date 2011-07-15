@@ -14,7 +14,7 @@ void SlotVector::AddSlots( unsigned int slots )
 {
 	unsigned int startIndex = slots_.size();
 	for (unsigned int i = 0; i < slots; ++i) {
-		Slot* slot = new Slot( startIndex + i );
+		Slot* slot = new IndexSlot( startIndex + i );
 		slots_.push_back( slot );
 	}
 }
@@ -29,9 +29,10 @@ void SlotVector::RemoveSlots()
 
 Slot* SlotVector::GetSlotByItem( Item* item ) const
 {
-	vector<Slot*>::const_iterator i, end;
-	for (i = slots_.begin(), end = slots_.end(); i != end; ++i) {
-		Slot* slot = *i;
+	// Check by index.
+	uint16 index = item->GetIndex();
+	if (IsValidIndex( index )) {
+		Slot* slot = GetSlotByIndex( index );
 		if (slot->GetItem() == item) {
 			return slot;
 		}
@@ -62,13 +63,9 @@ unsigned int SlotVector::GetSlotCount() const
 
 void SlotVector::RemoveItem( Item* item )
 {
-	vector<Slot*>::const_iterator i, end;
-	for (i = slots_.begin(), end = slots_.end(); i != end; ++i) {
-		Slot* slot = *i;
-		if (slot->GetItem() == item) {
-			slot->SetItem( nullptr );
-			return;
-		}
+	Slot* slot = GetSlotByItem( item );
+	if (slot != nullptr) {
+		slot->SetItem( nullptr );
 	}
 }
 
@@ -79,19 +76,4 @@ void SlotVector::EmptySlots()
 		Slot* slot = *i;
 		slot->SetItem( nullptr );
 	}
-}
-
-void SlotVector::Move( Slot* source, Slot* dest )
-{
-	// Get items.
-	Item* sourceItem = source->GetItem();
-	Item* destItem = dest->GetItem();
-
-	// Switch indices.
-	destItem->SetIndex( source->GetIndex() );
-	sourceItem->SetIndex( dest->GetIndex() );
-
-	// Move to slots.
-	source->SetItem( destItem );
-	dest->SetItem( sourceItem );
 }

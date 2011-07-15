@@ -6,6 +6,7 @@
 #include "backpack.h"
 #include "button.h"
 #include "definition_loader.h"
+#include "dragged_slot_view.h"
 #include "item_display.h"
 #include "notice.h"
 #include "notification_queue.h"
@@ -60,7 +61,7 @@ public:
 	virtual bool MouseMoved( Mouse *mouse );
 
 	// Slot selection handling.
-	void SlotClicked( SlotView* slotView );
+	void SlotClicked( SlotView* slotView, Mouse* mouse );
 	void SlotReleased( SlotView* slotView );
 
 	// Popup handling.
@@ -94,8 +95,8 @@ private:
 	Button*				sortButton_;
 
 	// Item selection handling.
-	Slot*				dragged_;
-	SlotView*			draggedView_;
+	SlotView*			dragTarget_;
+	DraggedSlotView*	draggedView_;
 
 	// Running think function.
 	void (ItemManager::*thinkFunction_)( void );
