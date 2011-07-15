@@ -63,6 +63,7 @@ public:
 	// Slot selection handling.
 	void SlotClicked( SlotView* slotView, Mouse* mouse );
 	void SlotReleased( SlotView* slotView );
+	void UpdateButtons();
 
 	// Popup handling.
 	void OnPopupClicked( Popup* popup );
@@ -97,6 +98,7 @@ private:
 	// Item selection handling.
 	SlotView*			dragTarget_;
 	DraggedSlotView*	draggedView_;
+	DWORD				pageDelay_;
 
 	// Running think function.
 	void (ItemManager::*thinkFunction_)( void );

@@ -81,9 +81,92 @@ uint32 Item::GetCount( void ) const
 	return count_;
 }
 
-const string& Item::GetName( void ) const
+string Item::GetName( void ) const
 {
-	return information_->GetName();
+	if (HasCustomName()) {
+		return '"' + GetCustomName() + '"';
+	}
+	else {
+		string itemName = information_->GetName();
+		string qualityName = GetQualityName();
+		if (!qualityName.empty()) {
+			string fullPrefix = qualityName + ' ';
+			itemName.insert( itemName.begin(), fullPrefix.begin(), fullPrefix.end() );
+		}
+
+		return itemName;
+	}
+}
+
+D3DCOLOR Item::GetQualityColour( void ) const
+{
+	switch (GetQuality()) {
+	case k_EItemQuality_Vintage:
+		return QUALITY_VINTAGE_COLOUR;
+		break;
+
+	case k_EItemQuality_Genuine:
+		return QUALITY_GENUINE_COLOUR;
+		break;
+
+	case k_EItemQuality_Unusual:
+		return QUALITY_UNUSUAL_COLOUR;
+		break;
+
+	case k_EItemQuality_Strange:
+		return QUALITY_STRANGE_COLOUR;
+		break;
+
+	case k_EItemQuality_Community:
+	case k_EItemQuality_SelfMade:
+		return QUALITY_COMMUNITY_COLOUR;
+		break;
+
+	case k_EItemQuality_Valve:
+		return QUALITY_VALVE_COLOUR;
+		break;
+
+	default:
+		return QUALITY_COMMON_COLOUR;
+		break;
+	}
+}
+
+const char* Item::GetQualityName( void ) const
+{
+	switch (GetQuality()) {
+	case k_EItemQuality_Vintage:
+		return "Vintage";
+		break;
+
+	case k_EItemQuality_Genuine:
+		return "Genuine";
+		break;
+
+	case k_EItemQuality_Unusual:
+		return "Unusual";
+		break;
+
+	case k_EItemQuality_Strange:
+		return "Strange";
+		break;
+
+	case k_EItemQuality_Community:
+		return "Community";
+		break;
+
+	case k_EItemQuality_SelfMade:
+		return "Self-Made";
+		break;
+
+	case k_EItemQuality_Valve:
+		return "Valve";
+		break;
+
+	default:
+		return "";
+		break;
+	}
 }
 
 uint16 Item::GetPosition( void ) const

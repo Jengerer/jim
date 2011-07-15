@@ -1,6 +1,7 @@
 #ifndef BACKPACK_H
 #define BACKPACK_H
 
+#include "animated_grid_pages.h"
 #include "inventory.h"
 #include "slot_grid_pages.h"
 #include "slot_grid_view.h"

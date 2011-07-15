@@ -8,11 +8,12 @@ SlotGridPages::SlotGridPages( unsigned int pageWidth, unsigned int pageHeight,
 	pageHeight_ = pageHeight;
 	pageSpacing_ = pageSpacing;
 	slotSpacing_ = slotSpacing;
+	viewOffset_ = 0.0f;
 
 	pagesLayout_ = new HorizontalLayout( pageSpacing, ALIGN_TOP );
 	pagesLayout_->SetParent( this );
 	Add( pagesLayout_ );
-	SetConstraint( pagesLayout_, 0.0f, 0.0f );
+	pagesConstraint_ = SetConstraint( pagesLayout_, viewOffset_, 0.0f );
 	Pack();
 }
 
@@ -68,24 +69,37 @@ SlotGridView* SlotGridPages::GetCurrentPage() const
 	return slotGridViews_[page_];
 }
 
-void SlotGridPages::NextPage()
+bool SlotGridPages::NextPage()
 {
 	if (page_ < slotGridViews_.size() - 1) {
 		++page_;
+		UpdateOffset();
+		return true;
 	}
+
+	return false;
 }
 
-void SlotGridPages::PreviousPage()
+bool SlotGridPages::PreviousPage()
 {
 	if (page_ > 0) {
 		--page_;
+		UpdateOffset();
+		return true;
+	}
+
+	return false;
+}
+
+void SlotGridPages::UpdateOffset()
+{
+	if (!slotGridViews_.empty()) {
+		viewOffset_ = pagesLayout_->GetX() - GetCurrentPage()->GetX();
 	}
 }
 
 void SlotGridPages::UpdateView()
 {
-	if (page_ < slotGridViews_.size()) {
-		float offsetX = pagesLayout_->GetX() - GetCurrentPage()->GetX();
-		SetConstraint( pagesLayout_, offsetX, 0.0f );
-	}
+	pagesConstraint_->SetConstraint( viewOffset_, pagesConstraint_->GetConstraintY() );
+	ApplyConstraint( pagesConstraint_ );
 }

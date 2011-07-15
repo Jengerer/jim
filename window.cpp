@@ -51,8 +51,8 @@ void Window::createWindow(HINSTANCE hInstance)
 	RECT screenRect;
 	GetWindowRect( GetDesktopWindow(), &screenRect );
 
-	int x = (screenRect.right / 2) - (GetWidth() / 2);
-	int y = (screenRect.bottom / 2) - (GetHeight() / 2);
+	int x = (screenRect.right - GetWidth()) / 2;
+	int y = (screenRect.bottom - GetHeight()) / 2;
 
 	// Adjust bounds based on style.
 	RECT windowRect;
@@ -61,29 +61,25 @@ void Window::createWindow(HINSTANCE hInstance)
 	windowRect.right = GetWidth();
 	windowRect.bottom = GetHeight();
 
+	// Adjust size for style.
+	DWORD displayStyle = WS_VISIBLE | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+	if (!AdjustWindowRect( &windowRect, displayStyle, false )) {
+		throw Exception( "Failed to adjust window rectangle." );
+	}
+
 	// Create window.
-	hWnd_ = CreateWindowEx(
-		WS_EX_APPWINDOW,
+	hWnd_ = CreateWindow(
 		title_, title_,
-		WS_VISIBLE | WS_POPUP | WS_OVERLAPPED,
+		displayStyle | WS_OVERLAPPED,
 		x, y,
 		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
 		NULL, NULL,
 		hInstance,
 		NULL );
 
-	// Add rounded corners.
-	HRGN windowRegion = CreateRoundRectRgn(
-		windowRect.left,
-		windowRect.top,
-		windowRect.right,
-		windowRect.bottom,
-		5, 5 );
-	SetWindowRgn( hWnd_, windowRegion, true );
-	DeleteObject( windowRegion );
-
-	if (!hWnd_)
+	if (!hWnd_) {
 		throw Exception( "Failed to create window." );
+	}
 
 	ShowWindow( hWnd_, SW_NORMAL );
 	UpdateWindow( hWnd_ );

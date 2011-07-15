@@ -36,10 +36,7 @@ private:
 	// TODO: Maybe come up with a better set up, mixing together.
 	static RoundedRectangle* normalSlot_;
 	static RoundedRectangle* selectedSlot_;
-	static RoundedRectangle* commonStroke_;
-	static RoundedRectangle* vintageStroke_;
-	static RoundedRectangle* genuineStroke_;
-	static RoundedRectangle* unusualStroke_;
+	static RoundedRectangle* stroke_;
 	
 	static Font* equippedFont_;
 	static Text* equippedText_;

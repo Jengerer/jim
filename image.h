@@ -12,6 +12,9 @@ public:
 	virtual void	Draw( DirectX *directX );
 	void			SetTexture( Texture *texture );
 
+	void			SetTint( D3DCOLOR tint );
+	D3DCOLOR		GetTint( void ) const;
+
 private:
 
 	Texture*		GetTexture( void ) const;
@@ -19,5 +22,6 @@ private:
 private:
 
 	Texture *texture_;
+	D3DCOLOR tint_;
 
 };

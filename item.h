@@ -42,7 +42,9 @@ public:
 	uint32			GetCount( void ) const;
 
 	// Secondary attributes.
-	const string&	GetName( void ) const;
+	string			GetName( void ) const;
+	D3DCOLOR GetQualityColour( void ) const;
+	const char*		GetQualityName( void ) const;
 
 	// Position stored in Steam.
 	void			SetPosition( uint16 position );

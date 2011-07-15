@@ -22,22 +22,21 @@ void ConstrainedContainer::Remove( Component* child )
 	RemoveConstraint( child );
 }
 
-void ConstrainedContainer::SetConstraint( Component* child, float localX, float localY )
+Constraint* ConstrainedContainer::SetConstraint( Component* child, float localX, float localY )
 {
+	Constraint* constraint = nullptr;
 	auto i = constraints_.find( child );
 	if (i != constraints_.end()) {
-		Constraint* constraint = i->second;
-		constraint->localX = localX;
-		constraint->localY = localY;
+		constraint = i->second;
+		constraint->SetConstraint( localX, localY );
 	}
 	else {
-		Constraint* constraint = new Constraint();
-		constraint->localX = localX;
-		constraint->localY = localY;
+		constraint = new Constraint( child, localX, localY );
 		constraints_[child] = constraint;
 	}
 
-	child->SetPosition( GetX() + localX, GetY() + localY );
+	ApplyConstraint( constraint );
+	return constraint;
 }
 
 void ConstrainedContainer::RemoveConstraint( Component* child )
@@ -55,11 +54,16 @@ void ConstrainedContainer::RemoveAllConstraints()
 	}
 }
 
+void ConstrainedContainer::ApplyConstraint( Constraint* constraint )
+{
+	Component* component = constraint->GetComponent();
+	component->SetPosition( GetX() + constraint->GetConstraintX(),
+		GetY() + constraint->GetConstraintY() );
+}
+
 void ConstrainedContainer::ApplyConstraints()
 {
 	for (auto i = constraints_.begin(); i != constraints_.end(); ++i) {
-		Component* component = i->first;
-		Constraint* constraint = i->second;
-		component->SetPosition( GetX() + constraint->localX, GetY() + constraint->localY );
+		ApplyConstraint( i->second );
 	}
 }

@@ -2,13 +2,8 @@
 #define CONSTRAINT_CONTAINER_H
 
 #include <map>
+#include "constraint.h"
 #include "container.h"
-
-struct Constraint
-{
-	float localX;
-	float localY;
-};
 
 class ConstrainedContainer : public Container
 {
@@ -24,9 +19,10 @@ public:
 	virtual void Remove( Component* child );
 	
 	// Constraint management.
-	void SetConstraint( Component* child, float localX, float localY );
+	Constraint* SetConstraint( Component* child, float localX, float localY );
 	void RemoveConstraint( Component* child );
 	void RemoveAllConstraints();
+	void ApplyConstraint( Constraint* constraint );
 	void ApplyConstraints();
 
 private:

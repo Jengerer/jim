@@ -9,14 +9,6 @@
 #include "wrapped_text.h"
 #include "vertical_layout.h"
 
-#define ITEM_DISPLAY_PADDING		10
-#define ITEM_DISPLAY_SPACING		5
-#define ITEM_DISPLAY_RADIUS			5
-#define ITEM_DISPLAY_WIDTH			200
-#define ITEM_DISPLAY_ALPHA_SPEED	30
-#define ITEM_DISPLAY_ALPHA_MAX		215
-#define ITEM_DISPLAY_NAME_COLOUR	D3DCOLOR_XRGB( 255, 255, 0 )
-
 class ItemDisplay : public RoundedRectangleContainer
 {
 

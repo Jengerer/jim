@@ -117,3 +117,14 @@ void SteamItemHandler::EquipSelected( EClassEquip whichClass, bool setEquip )
 {
 	// To be implemented.
 }
+
+bool SteamItemHandler::CanEquipSelected() const
+{
+	if (GetSelectedCount() == 1) {
+		SlotView* selected = *selected_.begin();
+		Item* item = selected->GetSlot()->GetItem();
+		return item->GetEquipClassCount() != 0;
+	}
+
+	return false;
+}

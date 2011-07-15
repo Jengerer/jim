@@ -18,6 +18,10 @@
 #define D3D_DEBUG_INFO
 #endif
 
+// Temporarily disable equip and sort.
+#define EQUIP_NOT_IMPLEMENTED
+#define SORT_NOT_IMPLEMENTED
+
 using namespace std;
 
 // Application attributes.
@@ -26,9 +30,13 @@ const int	APPLICATION_WIDTH	= 795;
 const int	APPLICATION_HEIGHT	= 540;
 const char*	APPLICATION_VERSION	= "1.0.0.0";
 
+// UI attributes.
+const unsigned int EXIT_BUTTON_PADDING	= 10;
+const DWORD PAGE_DELAY_INTERVAL			= 500;
+
 // Title display.
 const char* TITLE_FONT_FACE				= "TF2 Build";
-const unsigned int TITLE_FONT_SIZE		= 20;
+const unsigned int TITLE_FONT_SIZE		= 18;
 const unsigned int TITLE_FONT_BOLDED	= false;
 const D3DCOLOR TITLE_COLOUR				= D3DCOLOR_XRGB( 241, 239, 237);
 
@@ -124,6 +132,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 
 	// Create backpack.
 	backpack_ = new Backpack( PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT, EXCLUDED_SIZE );
+	pageDelay_ = 0;
 
 	// Set default running function.
 	SetThink( &ItemManager::Loading );
@@ -178,7 +187,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		Texture *equipTexture = directX_->GetTexture( "manager/equip" );
 		Texture *sortTexture = directX_->GetTexture( "manager/sort" );
 
-		// Create buttons.
+		// Create inventory buttons.
 		craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
 		equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
 		sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
@@ -342,6 +351,9 @@ void ItemManager::Loading()
 		if (backpack_->IsLoaded()) {
 			SetThink( &ItemManager::Running );
 			RemovePopup( loadProgress_ );
+#ifndef SORT_NOT_IMPLEMENTED
+			sortButton_->SetEnabled( true );
+#endif
 		}
 	}
 }
@@ -350,6 +362,7 @@ void ItemManager::Running()
 {
 	HandleCallbacks();
 	notifications_->UpdateNotifications();
+	inventoryView_->UpdateView();
 	UpdateItemDisplay();
 }
 
@@ -411,6 +424,7 @@ bool ItemManager::MouseClicked( Mouse *mouse )
 		// Deselect all, nothing clicked.
 		if (steamItems_->GetSelectMode() != SELECT_MODE_MULTIPLE) {
 			steamItems_->DeselectAll();
+			UpdateButtons();
 		}
 	}
 
@@ -436,6 +450,12 @@ bool ItemManager::MouseReleased( Mouse *mouse )
 			SlotView* slotView = inventoryView_->GetTouchingSlot( mouse );
 			SlotReleased( slotView );
 		}
+		else {
+			if (craftButton_->MouseReleased( mouse )) {
+				steamItems_->CraftSelected();
+				UpdateButtons();
+			}
+		}
 	}
 
 	return false;
@@ -446,6 +466,12 @@ bool ItemManager::MouseMoved( Mouse *mouse )
 	// Reset item display.
 	itemDisplay_->SetItem( nullptr );
 
+	// Update buttons.
+	// TODO: Have a button frame mouse hover state.
+	craftButton_->MouseMoved( mouse );
+	equipButton_->MouseMoved( mouse );
+	sortButton_->MouseMoved( mouse );
+
 	// Pass message to highest popup.
 	if (!popups_.empty()) {
 		Popup* top = popups_.back();
@@ -455,6 +481,22 @@ bool ItemManager::MouseMoved( Mouse *mouse )
 		// Check if dragging.
 		if (draggedView_ != nullptr) {
 			draggedView_->MouseMoved( mouse );
+			ClampChild( draggedView_ );
+
+			// Check if we're switching page.
+			DWORD currentTick = GetTickCount();
+			if (currentTick > pageDelay_) {
+				if (draggedView_->GetX() <= 0.0f) {
+					if (inventoryView_->PreviousPage()) {
+						pageDelay_ = currentTick + PAGE_DELAY_INTERVAL;
+					}
+				}
+				else if (draggedView_->GetX() + draggedView_->GetWidth() >= GetWidth()) {
+					if (inventoryView_->NextPage()) {
+						pageDelay_ = currentTick + PAGE_DELAY_INTERVAL;
+					}
+				}
+			}	
 		}
 		else {
 			SlotView* slotView = nullptr;
@@ -467,15 +509,15 @@ bool ItemManager::MouseMoved( Mouse *mouse )
 			else {
 				return false;
 			}
-
+			
 			if (slotView != nullptr) {
 				Slot* slot = slotView->GetSlot();
 				if (slot->HasItem()) {
 					itemDisplay_->SetItem( slot->GetItem() );
 					itemDisplay_->SetPosition( 
 						slotView->GetX() + (slotView->GetWidth() - itemDisplay_->GetWidth()) / 2.0f,
-						slotView->GetY() + slotView->GetHeight() + ITEM_DISPLAY_SPACING );
-					ClampChild( itemDisplay_, ITEM_DISPLAY_PADDING );
+						slotView->GetY() + slotView->GetHeight() + PADDING );
+					ClampChild( itemDisplay_, PADDING );
 				}
 			}
 		}
@@ -504,8 +546,8 @@ void ItemManager::SlotClicked( SlotView* slotView, Mouse* mouse )
 				draggedView_ = new DraggedSlotView( new Slot );
 				draggedView_->SetPosition( viewX, viewY );
 				draggedView_->SetOffset( viewX - mouse->GetX(), viewY - mouse->GetY() );
-				draggedView_->SetSelected( true );
 				draggedView_->SetAlpha( 200 );
+				steamItems_->Select( draggedView_ );
 
 				// Swap items.
 				draggedView_->GetSlot()->SetItem( item );
@@ -523,6 +565,8 @@ void ItemManager::SlotClicked( SlotView* slotView, Mouse* mouse )
 	else if (steamItems_->GetSelectMode() != SELECT_MODE_MULTIPLE) {
 		steamItems_->DeselectAll();
 	}
+
+	UpdateButtons();
 }
 
 void ItemManager::SlotReleased( SlotView* slotView )
@@ -530,6 +574,7 @@ void ItemManager::SlotReleased( SlotView* slotView )
 	Slot* draggedSlot = draggedView_->GetSlot();
 	Item* draggedItem = draggedSlot->GetItem();
 	backpack_->RemoveItem( draggedItem );
+	steamItems_->DeselectAll();
 
 	// Check if item is excluded.
 	bool isExcluded = !backpack_->CanInsert( draggedItem );
@@ -545,6 +590,7 @@ void ItemManager::SlotReleased( SlotView* slotView )
 	draggedView_ = nullptr;
 	dragTarget_ = nullptr;
 
+	bool toInventory = false;
 	if (slotView != nullptr) {
 		// Now try move slot.
 		Slot* touchedSlot = slotView->GetSlot();
@@ -559,6 +605,7 @@ void ItemManager::SlotReleased( SlotView* slotView )
 				steamItems_->UpdateItem( touchedItem );
 				steamItems_->UpdateItem( draggedItem );
 				selectTarget = slotView;
+				toInventory = true;
 			}
 		}
 		else {
@@ -567,10 +614,31 @@ void ItemManager::SlotReleased( SlotView* slotView )
 			draggedItem->SetPosition( draggedItem->GetIndex() );
 			steamItems_->UpdateItem( draggedItem );
 			selectTarget = slotView;
+			toInventory = true;
 		}
 	}
 
+	// Move item to appropriate group.
+	if (toInventory) {
+		backpack_->ToInventory( draggedItem );
+	}
+	else {
+		backpack_->ToExcluded( draggedItem );
+	}
+
 	steamItems_->Select( selectTarget );
+	backpack_->UpdateExcluded();
+	UpdateButtons();
+}
+
+void ItemManager::UpdateButtons()
+{
+	unsigned int selectedCount = steamItems_->GetSelectedCount();
+	craftButton_->SetEnabled( selectedCount != 0 );
+
+#ifndef EQUIP_NOT_IMPLEMENTED
+	equipButton_->SetEnabled( steamItems_->CanEquipSelected() );
+#endif
 }
 
 void ItemManager::HandleKeyboard( void )
@@ -598,11 +666,9 @@ void ItemManager::HandleKeyboard( void )
 	
 			if (IsKeyClicked( VK_RIGHT )) {
 				inventoryView_->NextPage();
-				inventoryView_->UpdateView();
 			}
 			else if (IsKeyClicked( VK_LEFT )) {
 				inventoryView_->PreviousPage();
-				inventoryView_->UpdateView();
 			}
 		}		
 	}
@@ -804,6 +870,77 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 	case k_EMsgGCUpdateItemSchema:
 		{
 			// Not handling yet.
+			break;
+		}
+
+	case SOMsgCreate_t::k_iMessage:
+		{
+			// Get object created.
+			CMsgSOSingleObject deleteObj;
+			deleteObj.ParseFromArray( message, size );
+
+			// Get item from object.
+			CSOEconItem econItem;
+			econItem.ParseFromArray( deleteObj.object_data().data(), deleteObj.object_data().size() );
+
+			// Now add item.
+			Item* newItem = new Item(
+				econItem.id(),
+				econItem.def_index(),
+				econItem.level(),
+				(EItemQuality)econItem.quality(),
+				econItem.quantity(),
+				econItem.inventory() );
+
+			// Add this item to excluded.
+			backpack_->InsertItem( newItem );
+			backpack_->UpdateExcluded();
+			
+			// Get the source.
+			string source;
+			if (econItem.origin() == 4) {
+				source = "crafted";
+			}
+			else {
+				source = "found";
+			}
+
+			// Display message.
+			notifications_->AddNotification( "You have " + source + " a " + newItem->GetName() + ".", newItem->GetTexture() );
+
+			break;
+		}
+
+	case SOMsgDeleted_t::k_iMessage:
+		{
+			// Get deleted message.
+			CMsgSOSingleObject deleteObj;
+			deleteObj.ParseFromArray( message, size );
+
+			// Get ID of deleted item.
+			CSOEconItem deletedItem;
+			deletedItem.ParseFromArray( deleteObj.object_data().data(), deleteObj.object_data().size() );
+
+			// Now remove from inventory.
+			Item *targettedItem = backpack_->GetItemByUniqueId( deletedItem.id() );
+			if (targettedItem != nullptr) {
+				backpack_->RemoveItem( targettedItem );
+
+				// Make sure the deleted item isn't being dragged.
+				if (draggedView_ != nullptr) {
+					Slot* draggedSlot = draggedView_->GetSlot();
+					if (draggedSlot->HasItem()) {
+						Item* item = draggedSlot->GetItem();
+						if (item == targettedItem) {
+							Remove( draggedView_ );
+							delete draggedView_;
+							draggedView_ = nullptr;
+						}
+					}
+				}
+
+				delete targettedItem;
+			}
 			break;
 		}
 
