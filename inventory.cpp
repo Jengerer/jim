@@ -130,6 +130,8 @@ bool Inventory::CanInsert( const Item* item ) const
 		uint16 index = item->GetPosition();
 		return inventorySlots_->IsValidIndex( index ) && inventorySlots_->IsSlotEmpty( index );
 	}
+
+	return false;
 }
 
 void Inventory::SetExcludedPage( unsigned int excludedPage )

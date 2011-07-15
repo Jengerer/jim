@@ -76,6 +76,11 @@ void DefinitionLoader::Load()
 		}
 
 		for (Json::ValueIterator i = items.begin(); i != items.end(); ++i) {
+			// Check if we're being closed.
+			if (stop_) {
+				break;
+			}
+
 			Json::Value item = *i;
 
 			// Check that all necessary attributes exist.

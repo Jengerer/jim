@@ -20,15 +20,17 @@
 
 using namespace std;
 
-// Window properties.
+// Application attributes.
 const char*	APPLICATION_TITLE	= "Jengerer's Item Manager";
 const int	APPLICATION_WIDTH	= 795;
 const int	APPLICATION_HEIGHT	= 540;
+const char*	APPLICATION_VERSION	= "1.0.0.0";
 
-// Application attributes.
-const float	APPLICATION_FRAMERATE	= 30.0f;
-const float APPLICATION_FRAMESPEED	= 1000.0f / APPLICATION_FRAMERATE;
-const int	APPLICATION_VERSION		= 1000;
+// Title display.
+const char* TITLE_FONT_FACE				= "TF2 Build";
+const unsigned int TITLE_FONT_SIZE		= 20;
+const unsigned int TITLE_FONT_BOLDED	= false;
+const D3DCOLOR TITLE_COLOUR				= D3DCOLOR_XRGB( 241, 239, 237);
 
 // Inventory attributes.
 const int PAGE_WIDTH		= 10;
@@ -114,6 +116,9 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	definitionLoader_ = nullptr;
 	loadProgress_ = nullptr;
 
+	// Fonts.
+	titleFont_ = nullptr;
+
 	// Create Steam interface.
 	steamItems_ = new SteamItemHandler();
 
@@ -158,6 +163,9 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		// End drawing.
 		directX_->EndDraw();
 
+		// Load title font.
+		titleFont_ = directX_->CreateFont( TITLE_FONT_FACE, TITLE_FONT_SIZE, TITLE_FONT_BOLDED );
+
 		// Create layout.
 		VerticalLayout* layout = new VerticalLayout( SPACING, ALIGN_LEFT );
 
@@ -185,7 +193,18 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		buttonLayout->Add( sortButton_ );
 		buttonLayout->Pack();
 
+		// Create title.
+		stringstream titleStream;
+		titleStream << APPLICATION_TITLE << " " << APPLICATION_VERSION;
+
+		// Add version number.
+		Text* titleText = new Text( titleFont_ );
+		titleText->SetText( titleStream.str() );
+		titleText->SetColour( TITLE_COLOUR );
+		titleText->Pack();
+
 		// Organize layout.
+		layout->Add( titleText );
 		layout->Add( inventoryView_ );
 		layout->Add( buttonLayout );
 		layout->Add( excludedView_ );
@@ -218,6 +237,11 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 void ItemManager::CloseInterfaces( void )
 {
+	if (titleFont_ != nullptr) {
+		delete titleFont_;
+		titleFont_ = nullptr;
+	}
+
 	if (mouse_ != nullptr) {
 		delete mouse_;
 		mouse_ = nullptr;

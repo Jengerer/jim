@@ -104,21 +104,22 @@ private:
 	// Threaded loader for resources.
 	DefinitionLoader*	definitionLoader_;
 
+	// Top-level fonts.
+	Font*				titleFont_;
+
 	// User interface stacks.
 	std::vector<Popup*>	popups_;
 
 	// Display for item information.
 	ItemDisplay*		itemDisplay_;
 
-	// Progress notice.
-	Notice				*loadProgress_;
-
 	// Information notifications.
 	NotificationQueue	*notifications_;
 
-	// Alerts.
+	// Popups.
 	Alert				*alert_;
 	Alert				*error_;
+	Notice				*loadProgress_;
 
 };
 
