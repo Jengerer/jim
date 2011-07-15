@@ -3,11 +3,12 @@
 
 #include <string>
 #include <sstream>
-#include <map>
+#include <hash_map>
 
 #include "curl.h"
 #include "texture.h"
 #include "exception.h"
+#include "string_hasher.h"
 #include "window.h"
 #include "font.h"
 
@@ -24,9 +25,7 @@ struct DiffuseVertex {
 	DWORD colour;
 };
 
-// Bring string hasher in here.
-typedef std::map<string, Texture*>	TextureMap;
-typedef std::pair<string, Texture*>	TexturePair;
+typedef std::hash_map<string, Texture*, StringHasher> TextureMap;
 
 #define D3D9T_DIFFUSEVERTEX ( D3DFVF_XYZ | D3DFVF_DIFFUSE )
 #define D3D9T_TEXTUREVERTEX ( D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1 )

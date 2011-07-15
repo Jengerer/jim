@@ -419,6 +419,7 @@
     <ClInclude Include="steam\UserItemsCommon.h" />
     <ClInclude Include="steam\UserStatsCommon.h" />
     <ClInclude Include="steam\UtilsCommon.h" />
+    <ClInclude Include="string_hasher.h" />
     <ClInclude Include="text.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="toggle_set.h" />

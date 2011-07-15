@@ -25,7 +25,7 @@
 using namespace std;
 
 // Application attributes.
-const char*	APPLICATION_TITLE	= "Jengerer's Item Manager";
+const char*	APPLICATION_TITLE	= "Jengerer's Item Manager Lite";
 const int	APPLICATION_WIDTH	= 795;
 const int	APPLICATION_HEIGHT	= 540;
 const char*	APPLICATION_VERSION	= "1.0.0.0";
