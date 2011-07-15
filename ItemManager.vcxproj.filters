@@ -1010,6 +1010,9 @@
     <ClInclude Include="constraint.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
+    <ClInclude Include="string_hasher.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="steam\steam_api.lib">
