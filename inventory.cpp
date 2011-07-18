@@ -160,6 +160,21 @@ void Inventory::UpdateExcluded( void )
 	}
 }
 
+void Inventory::ResolveExcluded( void )
+{
+	auto i = excludedItems_.begin();
+	while (i != excludedItems_.end()) {
+		Item* item = *i;
+		if (CanInsert( item )) {
+			i = excludedItems_.erase( i );
+			InsertItem( item );
+		}
+		else {
+			i++;
+		}
+	}
+}
+
 void Inventory::ToExcluded( Item* item )
 {
 	inventoryItems_.erase( item );

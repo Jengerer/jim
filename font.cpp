@@ -79,11 +79,18 @@ void Font::wrapText( string& text, LPRECT bounds, DWORD format )
 void Font::drawText(const string& text, LPRECT rect, DWORD format, const D3DCOLOR& colour )
 {
 	// Draw the text.
-	d3dFont_->DrawTextA(
+	MessageBox( NULL, "About to draw.", "Drawing Started", MB_OK );
+	INT result = d3dFont_->DrawTextA(
 		0,
 		text.c_str(),
 		-1,
 		rect,
 		format | DT_NOCLIP,
 		colour );
+
+	if (result == 0) {
+		MessageBox( NULL, "Failed to draw text with D3DX font handle.", "Failed to draw.", MB_OK );
+	}
+
+	MessageBox( NULL, "Drawing finished.", "Drawing Ended", MB_OK );
 }

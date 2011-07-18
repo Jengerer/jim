@@ -192,6 +192,9 @@
     <ClCompile Include="constraint.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="horizontal_split_layout.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="steam\AppsCommon.h">
@@ -1011,6 +1014,9 @@
       <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="string_hasher.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="horizontal_split_layout.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
   </ItemGroup>

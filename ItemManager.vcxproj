@@ -101,6 +101,7 @@
     <ClCompile Include="animated_grid_pages.cpp" />
     <ClCompile Include="constraint.cpp" />
     <ClCompile Include="dragged_slot_view.cpp" />
+    <ClCompile Include="horizontal_split_layout.cpp" />
     <ClCompile Include="index_slot.cpp" />
     <ClCompile Include="steam_item_handler.cpp" />
     <ClCompile Include="constrained_container.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="animated_grid_pages.h" />
     <ClInclude Include="constraint.h" />
     <ClInclude Include="dragged_slot_view.h" />
+    <ClInclude Include="horizontal_split_layout.h" />
     <ClInclude Include="index_slot.h" />
     <ClInclude Include="steam_item_handler.h" />
     <ClInclude Include="constrained_container.h" />

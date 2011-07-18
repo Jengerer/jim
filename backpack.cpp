@@ -20,7 +20,7 @@ const int BACKPACK_PADDING_TOP	= 50;
 const int SLOT_SPACING			= 5;
 const int PAGE_SPACING			= BACKPACK_PADDING * 2;
 
-Backpack::Backpack( unsigned int inventorySize, unsigned int excludedSize ) : Inventory( inventorySize, excludedSize )
+Backpack::Backpack( unsigned int excludedSize ) : Inventory( 0, excludedSize )
 {
 	SetLoaded( false );
 }

@@ -69,6 +69,16 @@ SlotGridView* SlotGridPages::GetCurrentPage() const
 	return slotGridViews_[page_];
 }
 
+unsigned int SlotGridPages::GetPageIndex() const
+{
+	return page_;
+}
+
+unsigned int SlotGridPages::GetPageCount() const
+{
+	return slotGridViews_.size();
+}
+
 bool SlotGridPages::NextPage()
 {
 	if (page_ < slotGridViews_.size() - 1) {

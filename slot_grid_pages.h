@@ -21,6 +21,9 @@ public:
 	SlotView* GetTouchingSlot( Mouse* mouse ) const;
 	SlotGridView* GetCurrentPage() const;
 
+	unsigned int GetPageIndex() const;
+	unsigned int GetPageCount() const;
+
 	bool NextPage();
 	bool PreviousPage();
 	void UpdateOffset();
