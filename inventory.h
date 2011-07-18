@@ -41,6 +41,7 @@ public:
 	// Handling excluded items.
 	void	SetExcludedPage( unsigned int excludedPage );
 	void	UpdateExcluded( void );
+	void	ResolveExcluded( void );
 
 	// Moving from different sets.
 	void	ToInventory( Item* item );

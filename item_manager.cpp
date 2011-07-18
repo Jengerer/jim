@@ -22,8 +22,6 @@
 #define EQUIP_NOT_IMPLEMENTED
 #define SORT_NOT_IMPLEMENTED
 
-using namespace std;
-
 // Application attributes.
 const char*	APPLICATION_TITLE	= "Jengerer's Item Manager Lite";
 const int	APPLICATION_WIDTH	= 795;
@@ -37,13 +35,21 @@ const DWORD PAGE_DELAY_INTERVAL			= 500;
 // Title display.
 const char* TITLE_FONT_FACE				= "TF2 Build";
 const unsigned int TITLE_FONT_SIZE		= 18;
-const unsigned int TITLE_FONT_BOLDED	= false;
+const bool TITLE_FONT_BOLDED			= false;
 const D3DCOLOR TITLE_COLOUR				= D3DCOLOR_XRGB( 241, 239, 237);
+
+// Page display.
+const char* PAGE_FONT_FACE				= "TF2 Build";
+const unsigned int PAGE_FONT_SIZE		= 20;
+const bool PAGE_FONT_BOLDED				= false;
+const D3DCOLOR PAGE_LABEL_COLOUR		= D3DCOLOR_XRGB( 255, 255, 255 );
+const unsigned int PAGE_LABEL_WIDTH		= 50;
 
 // Inventory attributes.
 const int PAGE_WIDTH		= 10;
 const int PAGE_HEIGHT		= 5;
 const int PAGE_COUNT		= 6;
+const int TRIAL_PAGE_COUNT	= 1;
 const int EXCLUDED_SIZE		= 5;
 
 const unsigned int PADDING	= 20;
@@ -105,6 +111,8 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_HEIGHT )
 {
+	layoutCreated_ = false;
+
 	// Alerts and errors.
 	alert_ = nullptr;
 	error_ = nullptr;
@@ -119,6 +127,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	// Dragged slot.
 	dragTarget_ = nullptr;
 	draggedView_ = nullptr;
+	backpack_ = nullptr;
 
 	// Threaded loader.
 	definitionLoader_ = nullptr;
@@ -129,9 +138,6 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 
 	// Create Steam interface.
 	steamItems_ = new SteamItemHandler();
-
-	// Create backpack.
-	backpack_ = new Backpack( PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT, EXCLUDED_SIZE );
 	pageDelay_ = 0;
 
 	// Set default running function.
@@ -160,6 +166,13 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 	Button::Precache( directX_ );
 
 	try {
+		try {
+			directX_->read( "http://www.jengerer.com/itemManager/manager_demo.txt" );
+		}
+		catch (Exception&) {
+			throw Exception( "The demo of this application is no longer available. Sorry!" );
+		}
+
 		// Start drawing to generate textures.
 		directX_->BeginDraw();
 
@@ -174,57 +187,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// Load title font.
 		titleFont_ = directX_->CreateFont( TITLE_FONT_FACE, TITLE_FONT_SIZE, TITLE_FONT_BOLDED );
-
-		// Create layout.
-		VerticalLayout* layout = new VerticalLayout( SPACING, ALIGN_LEFT );
-
-		// Create views.
-		inventoryView_ = backpack_->CreateInventoryView( PAGE_WIDTH, PAGE_HEIGHT );
-		excludedView_ = backpack_->CreateExcludedView();
-
-		// Create button layout.
-		Texture *craftTexture = directX_->GetTexture( "manager/gear" );
-		Texture *equipTexture = directX_->GetTexture( "manager/equip" );
-		Texture *sortTexture = directX_->GetTexture( "manager/sort" );
-
-		// Create inventory buttons.
-		craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
-		equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
-		sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
-		craftButton_->SetEnabled( false );
-		equipButton_->SetEnabled( false );
-		sortButton_->SetEnabled( false );
-	
-		// Add to layout.
-		HorizontalLayout* buttonLayout = new HorizontalLayout( BUTTON_SPACING );
-		buttonLayout->Add( craftButton_ );
-		buttonLayout->Add( equipButton_ );
-		buttonLayout->Add( sortButton_ );
-		buttonLayout->Pack();
-
-		// Create title.
-		stringstream titleStream;
-		titleStream << APPLICATION_TITLE << " " << APPLICATION_VERSION;
-
-		// Add version number.
-		Text* titleText = new Text( titleFont_ );
-		titleText->SetText( titleStream.str() );
-		titleText->SetColour( TITLE_COLOUR );
-		titleText->Pack();
-
-		// Organize layout.
-		layout->Add( titleText );
-		layout->Add( inventoryView_ );
-		layout->Add( buttonLayout );
-		layout->Add( excludedView_ );
-		layout->Pack();
-		layout->SetPosition( (GetWidth() - layout->GetWidth()) / 2.0f, 
-			(GetHeight() - layout->GetHeight()) / 2.0f );
-		Add( layout );
-
-		// Create item display.
-		itemDisplay_ = new ItemDisplay();
-		Add( itemDisplay_ );
+		pageFont_ = directX_->CreateFont( PAGE_FONT_FACE, PAGE_FONT_SIZE, PAGE_FONT_BOLDED );
 
 		// Create notification queue.
 		notifications_ = new NotificationQueue();
@@ -289,6 +252,85 @@ void ItemManager::CloseInterfaces( void )
 	google::protobuf::ShutdownProtobufLibrary();
 }
 
+void ItemManager::CreateLayout( void )
+{
+	if (!layoutCreated_) {
+		// Create layout.
+		VerticalLayout* layout = new VerticalLayout( SPACING, ALIGN_LEFT );
+
+		// Create views.
+		inventoryView_ = backpack_->CreateInventoryView( PAGE_WIDTH, PAGE_HEIGHT );
+		excludedView_ = backpack_->CreateExcludedView();
+
+		// Create button layout.
+		Texture *craftTexture = directX_->GetTexture( "manager/gear" );
+		Texture *equipTexture = directX_->GetTexture( "manager/equip" );
+		Texture *sortTexture = directX_->GetTexture( "manager/sort" );
+
+		// Create inventory buttons.
+		craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
+		equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
+		sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
+		craftButton_->SetEnabled( false );
+		equipButton_->SetEnabled( false );
+		sortButton_->SetEnabled( false );
+	
+		// Create inventory button layout.
+		HorizontalLayout* inventoryButtons = new HorizontalLayout( BUTTON_SPACING );
+		inventoryButtons->Add( craftButton_ );
+		inventoryButtons->Add( equipButton_ );
+		inventoryButtons->Add( sortButton_ );
+		inventoryButtons->Pack();
+
+		// Create pages buttons/text.
+		prevButton_ = Button::CreateLabelButton( "<" );
+		nextButton_ = Button::CreateLabelButton( ">" );
+		pageDisplay_ = new WrappedText( pageFont_, PAGE_LABEL_WIDTH );
+		pageDisplay_->SetColour( PAGE_LABEL_COLOUR );
+		pageDisplay_->SetTextFormatting( DT_CENTER );
+		UpdatePageDisplay();
+		pageDisplay_->Pack();
+
+		// Create pages buttons layout.
+		HorizontalLayout* pageButtons = new HorizontalLayout( BUTTON_SPACING );
+		pageButtons->Add( prevButton_ );
+		pageButtons->Add( pageDisplay_ ); // PAGE LABEL, RATHER
+		pageButtons->Add( nextButton_ );
+		pageButtons->Pack();
+
+		HorizontalSplitLayout* buttonLayout = new HorizontalSplitLayout( inventoryView_->GetWidth() );
+		buttonLayout->AddLeft( inventoryButtons);
+		buttonLayout->AddRight( pageButtons );
+		buttonLayout->Pack();
+		
+		// Create title.
+		stringstream titleStream;
+		titleStream << APPLICATION_TITLE << " " << APPLICATION_VERSION;
+
+		// Add version number.
+		Text* titleText = new Text( titleFont_ );
+		titleText->SetText( titleStream.str() );
+		titleText->SetColour( TITLE_COLOUR );
+		titleText->Pack();
+
+		// Organize layout.
+		layout->Add( titleText );
+		layout->Add( inventoryView_ );
+		layout->Add( buttonLayout );
+		layout->Add( excludedView_ );
+		layout->Pack();
+		layout->SetPosition( (GetWidth() - layout->GetWidth()) / 2.0f, 
+			(GetHeight() - layout->GetHeight()) / 2.0f );
+		Add( layout );
+
+		// Create item display.
+		itemDisplay_ = new ItemDisplay();
+		Add( itemDisplay_ );
+
+		layoutCreated_ = true;
+	}
+}
+
 void ItemManager::RunApplication( void )
 {
 	Application::RunApplication();
@@ -348,7 +390,7 @@ void ItemManager::Loading()
 	}
 	else {
 		HandleCallbacks();
-		if (backpack_->IsLoaded()) {
+		if (backpack_ != nullptr && backpack_->IsLoaded()) {
 			SetThink( &ItemManager::Running );
 			RemovePopup( loadProgress_ );
 #ifndef SORT_NOT_IMPLEMENTED
@@ -380,7 +422,7 @@ bool ItemManager::MouseClicked( Mouse *mouse )
 			return true;
 		}
 	}
-	else {
+	else if (layoutCreated_) {
 		if (draggedView_ != nullptr) {
 			return true;
 		}
@@ -446,14 +488,24 @@ bool ItemManager::MouseReleased( Mouse *mouse )
 		}
 	}
 	else {
-		if (draggedView_ != nullptr) {
-			SlotView* slotView = inventoryView_->GetTouchingSlot( mouse );
-			SlotReleased( slotView );
-		}
-		else {
-			if (craftButton_->MouseReleased( mouse )) {
-				steamItems_->CraftSelected();
-				UpdateButtons();
+		if (layoutCreated_) {
+			if (draggedView_ != nullptr) {
+				SlotView* slotView = inventoryView_->GetTouchingSlot( mouse );
+				SlotReleased( slotView );
+			}
+			else {
+				if (craftButton_->MouseReleased( mouse )) {
+					steamItems_->CraftSelected();
+					UpdateButtons();
+				}
+				else if (nextButton_->MouseReleased( mouse )) {
+					inventoryView_->NextPage();
+					UpdatePageDisplay();
+				}
+				else if (prevButton_->MouseReleased( mouse )) {
+					inventoryView_->PreviousPage();
+					UpdatePageDisplay();
+				}
 			}
 		}
 	}
@@ -463,21 +515,24 @@ bool ItemManager::MouseReleased( Mouse *mouse )
 
 bool ItemManager::MouseMoved( Mouse *mouse )
 {
-	// Reset item display.
-	itemDisplay_->SetItem( nullptr );
-
 	// Update buttons.
 	// TODO: Have a button frame mouse hover state.
-	craftButton_->MouseMoved( mouse );
-	equipButton_->MouseMoved( mouse );
-	sortButton_->MouseMoved( mouse );
+	if (layoutCreated_) {
+		itemDisplay_->SetItem( nullptr );
+
+		craftButton_->MouseMoved( mouse );
+		equipButton_->MouseMoved( mouse );
+		sortButton_->MouseMoved( mouse );
+		nextButton_->MouseMoved( mouse );
+		prevButton_->MouseMoved( mouse );
+	}
 
 	// Pass message to highest popup.
 	if (!popups_.empty()) {
 		Popup* top = popups_.back();
 		top->MouseMoved( mouse );
 	}
-	else {
+	else if (layoutCreated_) {
 		// Check if dragging.
 		if (draggedView_ != nullptr) {
 			draggedView_->MouseMoved( mouse );
@@ -490,11 +545,15 @@ bool ItemManager::MouseMoved( Mouse *mouse )
 					if (inventoryView_->PreviousPage()) {
 						pageDelay_ = currentTick + PAGE_DELAY_INTERVAL;
 					}
+
+					UpdatePageDisplay();
 				}
 				else if (draggedView_->GetX() + draggedView_->GetWidth() >= GetWidth()) {
 					if (inventoryView_->NextPage()) {
 						pageDelay_ = currentTick + PAGE_DELAY_INTERVAL;
 					}
+
+					UpdatePageDisplay();
 				}
 			}	
 		}
@@ -666,9 +725,11 @@ void ItemManager::HandleKeyboard( void )
 	
 			if (IsKeyClicked( VK_RIGHT )) {
 				inventoryView_->NextPage();
+				UpdatePageDisplay();
 			}
 			else if (IsKeyClicked( VK_LEFT )) {
 				inventoryView_->PreviousPage();
+				UpdatePageDisplay();
 			}
 		}		
 	}
@@ -677,6 +738,20 @@ void ItemManager::HandleKeyboard( void )
 void ItemManager::UpdateItemDisplay( void )
 {
 	itemDisplay_->UpdateAlpha();
+}
+
+void ItemManager::UpdatePageDisplay( void )
+{
+	// Update text.
+	stringstream pageText;
+	pageText << (inventoryView_->GetPageIndex() + 1) << '/' << inventoryView_->GetPageCount();
+	pageDisplay_->SetText( pageText.str() );
+
+	// Update buttons.
+	unsigned int pageIndex = inventoryView_->GetPageIndex();
+	unsigned int lastIndex = inventoryView_->GetPageCount() - 1;
+	prevButton_->SetEnabled( pageIndex != 0 );
+	nextButton_->SetEnabled( pageIndex != lastIndex );
 }
 
 void ItemManager::LoadDefinitions( void )
@@ -800,8 +875,11 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 				return;
 			}
 
+			// Create empty backpack.
+			backpack_ = new Backpack( EXCLUDED_SIZE );
 			CMsgSOCacheSubscribed subscribedMsg;
 			subscribedMsg.ParseFromArray( message, size );
+			unsigned int slotCount = PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT;
 								
 			// TODO: Check for other users' backpack.
 			for (int i = 0; i < subscribedMsg.objects_size(); i++) {
@@ -836,6 +914,15 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 							for (int i = 0; i < subscribedType.object_data_size(); i++) {
 								CSOEconGameAccountClient gameAccountClient;
 								gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
+
+								// Adjust slot count based on account type and slot additions.
+								if (gameAccountClient.trial_account()) {
+									backpack_->AddSlots( PAGE_WIDTH * PAGE_HEIGHT * TRIAL_PAGE_COUNT );
+								}
+								else {
+									backpack_->AddSlots( PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT );
+								}
+
 								backpack_->AddSlots( gameAccountClient.additional_backpack_slots() );
 							}
 						}
@@ -845,8 +932,12 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 				}
 			}
 
-			backpack_->SetLoaded( true );
+			// Attempt to place all excluded items.
+			backpack_->ResolveExcluded();
 			backpack_->UpdateExcluded();
+			backpack_->SetLoaded( true );
+
+			CreateLayout();
 			notifications_->AddNotification( "Backpack successfully loaded from Steam.", nullptr );
 			break;
 		}

@@ -22,25 +22,36 @@ Steam::~Steam( void )
 	CloseInterfaces();
 }
 
+#include <sstream>
+
 void Steam::LoadInterfaces( void )
 {
 	// Set Team Fortress 2 application ID.
 	SetEnvironmentVariable( "SteamAppId", "440" );
+	char* steamPath = (char*)malloc( 1 );
 
-	// Get Steam directory.
-	char steamPath[512];
-	HKEY hkRegistry;
+	// Get steam path.
+	HKEY hKey;
+	bool regSuccess = false;
+	if (RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Valve\\Steam\\", 0, KEY_QUERY_VALUE, &hKey ) == ERROR_SUCCESS) {
+		DWORD regType;
+		DWORD regSize = 1;
 
-	if (RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Valve\\Steam\\", 0, KEY_QUERY_VALUE, &hkRegistry ) == ERROR_SUCCESS) {
-		DWORD regType, regSize;
-		if (RegQueryValueEx( hkRegistry, "InstallPath", 0, &regType, (unsigned char *)steamPath, &regSize ) == ERROR_SUCCESS) {
+		// First make proper buffer size.
+		LSTATUS status;
+		if ((status = RegQueryValueEx( hKey, "InstallPath", nullptr, &regType, (LPBYTE)steamPath, &regSize )) == ERROR_MORE_DATA) {
+			steamPath = (char*)realloc( steamPath, regSize );
+		}
+
+		status = status = RegQueryValueEx( hKey, "InstallPath", nullptr, &regType, (LPBYTE)steamPath, &regSize );
+		if (status == ERROR_SUCCESS) {
 			SetDllDirectory( steamPath );
-		} 
-		else {
-			throw Exception( "Failed to get Steam install path from registry." );
+			regSuccess = true;
 		}
 	}
-	else {
+
+	RegCloseKey( hKey );
+	if (!regSuccess) {
 		throw Exception( "Failed to get Steam install path from registry." );
 	}
 

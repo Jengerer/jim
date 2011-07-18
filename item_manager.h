@@ -7,6 +7,7 @@
 #include "button.h"
 #include "definition_loader.h"
 #include "dragged_slot_view.h"
+#include "horizontal_split_layout.h"
 #include "item_display.h"
 #include "notice.h"
 #include "notification_queue.h"
@@ -38,6 +39,9 @@ public:
 	void LoadResources();
 	void LoadDefinitions();
 	void LoadItemsFromWeb();
+
+	// User interface creation.
+	void CreateLayout();
 
 	// Application running functions.
 	void RunApplication();
@@ -73,8 +77,9 @@ public:
 	Notice*	CreateNotice( const string& message );
 	Alert*	CreateAlert( const string& message );
 
-	// Item display.
+	// Updating displays.
 	void UpdateItemDisplay( void );
+	void UpdatePageDisplay( void );
 
 	// Popup handling.
 	void ShowPopup( Popup* popup );
@@ -89,11 +94,17 @@ private:
 	Backpack*			backpack_;
 
 	// User interface members.
+	bool				layoutCreated_;
 	SlotGridPages*		inventoryView_;
 	SlotGridView*		excludedView_;
 	Button*				craftButton_;
 	Button*				equipButton_;
 	Button*				sortButton_;
+
+	// Page handling members.
+	WrappedText*		pageDisplay_;
+	Button*				prevButton_;
+	Button*				nextButton_;
 
 	// Item selection handling.
 	SlotView*			dragTarget_;
@@ -108,6 +119,7 @@ private:
 
 	// Top-level fonts.
 	Font*				titleFont_;
+	Font*				pageFont_;
 
 	// User interface stacks.
 	std::vector<Popup*>	popups_;

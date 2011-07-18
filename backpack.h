@@ -11,7 +11,7 @@ class Backpack: public Inventory
 
 public:
 
-	Backpack( unsigned int inventorySize, unsigned int excludedSlots );
+	Backpack( unsigned int excludedSlots );
 
 	SlotGridPages*	CreateInventoryView( unsigned int width, unsigned int height ) const;
 	SlotGridView*	CreateExcludedView() const;
