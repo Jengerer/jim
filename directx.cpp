@@ -19,13 +19,11 @@ DirectX::~DirectX()
 
 void DirectX::LoadInterfaces( void )
 {
-	MessageBox( NULL, "start", "start", MB_OK );
 	d3d_ = Direct3DCreate9( D3D_SDK_VERSION );
 	if (d3d_ == nullptr) {
 		throw Exception( "Failed to create Direct3D." );
 	}
 
-	MessageBox( NULL, "get display", "display", MB_OK );
 	D3DDISPLAYMODE d3dMode;
 	d3d_->GetAdapterDisplayMode( D3DADAPTER_DEFAULT, &d3dMode );
 
@@ -34,7 +32,6 @@ void DirectX::LoadInterfaces( void )
 	params_.SwapEffect			= D3DSWAPEFFECT_DISCARD;
 	params_.BackBufferFormat	= d3dMode.Format;
 
-	MessageBox( NULL, "create device", "device", MB_OK );
 	HRESULT result = d3d_->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
@@ -46,8 +43,6 @@ void DirectX::LoadInterfaces( void )
 		throw Exception( "Failed to create Direct3D device!" );
 	}
 
-	MessageBox( NULL, "a", "a", MB_OK );
-
 	// Load font as resource.
 	if (AddFontResourceEx("ttfFiles/tf2Build.ttf", FR_PRIVATE, 0) == 0) {
 		if (!download("www.jengerer.com/itemManager/ttfFiles/tf2Build.ttf", "ttfFiles/tf2Build.ttf") || !AddFontResource("ttfFiles/tf2Build.ttf")) {
@@ -56,7 +51,6 @@ void DirectX::LoadInterfaces( void )
 	}
 
 	// Load font as resource.
-	MessageBox( NULL, "b", "b", MB_OK );
 	if (AddFontResourceEx("ttfFiles/tf2Secondary.ttf", FR_PRIVATE, 0) == 0) {
 		if (!download("www.jengerer.com/itemManager/ttfFiles/tf2Secondary.ttf", "ttfFiles/tf2Secondary.ttf") || !AddFontResource("ttfFiles/tf2Secondary.ttf")) {
 			throw Exception( "Failed to load font." );
@@ -325,6 +319,9 @@ Font* DirectX::CreateFont( const string& name, int height, bool isBolded )
 	HRESULT result = D3DXCreateFont(
 		d3dDevice_,
 		height,
+
+
+
 		0, 
 		isBolded ? FW_BOLD : FW_NORMAL,
 		0,

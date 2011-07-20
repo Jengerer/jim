@@ -170,7 +170,7 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 			directX_->read( "http://www.jengerer.com/itemManager/manager_demo.txt" );
 		}
 		catch (Exception&) {
-			throw Exception( "The demo of this application is no longer available. Sorry!" );
+			// throw Exception( "The demo of this application is no longer available. Sorry!" );
 		}
 
 		// Start drawing to generate textures.
@@ -819,6 +819,10 @@ void ItemManager::HandleCallbacks( void ) {
 						SerializedBuffer headerBuffer(buffer);
 						GCProtobufHeader_t *headerStruct = headerBuffer.get<GCProtobufHeader_t>();
 						uint32 headerSize = headerStruct->m_cubProtobufHeader;
+
+						stringstream protoMsg;
+						protoMsg << "Message of type " << realId << " received.";
+						notifications_->AddNotification( protoMsg.str(), nullptr );
 
 						// Now get the real protobuf header.
 						CMsgProtoBufHeader headerMsg;
