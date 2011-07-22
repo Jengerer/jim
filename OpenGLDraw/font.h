@@ -3,26 +3,19 @@
 
 #include "exception.h"
 #include "opengl_shared.h"
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
+#include <OGLFT.h>
 
 class Font
 {
 
 public:
 
-	Font( FT_Face face );
-
-	void GenerateDrawList();
+	Font( const string& fontPath, float size );
 
 private:
 
-	FT_Face face_;
-	GLuint baseList_;
-	GLuint textures_;
+	OGLFT::Monochrome* face_;
 	
-
 };
 
 #endif // FONT_H

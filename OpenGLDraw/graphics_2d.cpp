@@ -1,17 +1,6 @@
 #include "graphics_2d.h"
 #include <png.h>
 
-// Helper function get next power of 2.
-inline GLsizei next_power_of_2( GLsizei number )
-{
-	GLsizei result = 1;
-	while (result < number) {
-		result <<= 1;
-	}
-
-	return result;
-}
-
 Graphics2D::Graphics2D( Window* window )
 {
 	window_ = window;
@@ -96,8 +85,8 @@ Texture* Graphics2D::GetTexture( const string& name )
 Texture* Graphics2D::CreateTexture( GLubyte* data, GLsizei width, GLsizei height, GLenum format )
 {
 	// First bump the size up.
-	width = next_power_of_2( width );
-	height = next_power_of_2( height );
+	width = NextPowerOf2( width );
+	height = NextPowerOf2( height );
 
 	// Create texture.
 	GLuint texture;
@@ -177,8 +166,8 @@ Texture* Graphics2D::LoadTexture( const string& name )
 	// Get size and allocate.
 	png_uint_32 width = png_get_image_width( png_ptr, info_ptr );
 	png_uint_32 height = png_get_image_height( png_ptr, info_ptr );
-	png_uint_32 padded_width = next_power_of_2( width );
-	png_uint_32 padded_height = next_power_of_2( height );
+	png_uint_32 padded_width = NextPowerOf2( width );
+	png_uint_32 padded_height = NextPowerOf2( height );
 	unsigned int allocSize = 4 * padded_width * padded_height;
 	GLubyte* output = new GLubyte[ allocSize ];
 	if (output == nullptr) {
@@ -214,7 +203,7 @@ Texture* Graphics2D::LoadTexture( const string& name )
 void Graphics2D::InitializeGL()
 {
 	// Set background colour.
-	glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+	glClearColor( 0.0f, 0.5f, 0.5f, 1.0f );
 	glClearDepth( 1.0f );
 	glDisable( GL_DEPTH_TEST );
 
@@ -232,6 +221,9 @@ void Graphics2D::InitializeGL()
 	if (GLEE_WGL_EXT_swap_control) {
 		wglSwapIntervalEXT( 1 );
 	}
+	else {
+		MessageBox(NULL, "fag", "fag", MB_OK);
+	}
 
 	// Flat shading.
 	glShadeModel( GL_FLAT );
@@ -245,8 +237,9 @@ void Graphics2D::ResizeScene( GLsizei width, GLsizei height )
 
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
-	glOrtho( 0.0, width, height, 0.0, 0.0, 1.0 );
+	glOrtho( 0.0f, width, height, 0.0f, 0.0f, 1.0f );
 	glMatrixMode( GL_MODELVIEW );
+	// glScalef( 0.0f, -1.0f, 0.0f );
 }
 
 void Graphics2D::BeginScene()

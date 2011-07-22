@@ -3,7 +3,7 @@
 #include "window.h"
 
 #include <windows.h>
-#include "font.h"
+#include <OGLFT.h>
 
 Window* window = nullptr;
 Graphics2D* graphics = nullptr;
@@ -30,17 +30,7 @@ LRESULT CALLBACK wndProc( HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam )
 	return DefWindowProc( wnd, msg, wParam, lParam );
 }
 
-void RenderScene( void )
-{
-	glClear( GL_COLOR_BUFFER_BIT );
-	glBegin( GL_TRIANGLES );
-		glVertex3f( -0.5f, -0.5f, 0.0f );
-		glVertex3f( 0.5f, 0.0f, 0.0f );
-		glVertex3f( 0.0f, 0.5f, 0.0f );
-	glEnd();
-	glutSwapBuffers();
-}
-
+#include <sstream>
 int WINAPI WinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow )
 {
 	try {
@@ -64,47 +54,11 @@ int WINAPI WinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, i
 		throw Exception( "Image load failed." );
 	}
 
-	// Start library.
-	FT_Library library;
-	FT_Error error = FT_Init_FreeType( &library );
-	if (error != 0) {
-		throw Exception( "Failed to start FreeType library." );
-	}
-
-	// Create font.
-	FT_Face face;
-	error = FT_New_Face( library,
-		"tf2build.ttf",
-		0,
-		&face );
-	if (error == FT_Err_Unknown_File_Format) {
-		throw Exception( "Unexpected font format." );
-	}
-	else if (error != 0) {
-		throw Exception( "Failed to load font." );
-	}
-
-	error = FT_Set_Char_Size(
-		face,
-		0,
-		16 * 64,
-		300, 300 );
-	if (error != 0) {
-		throw Exception( "Failed to set size." );
-	}
-
-	FT_UInt index = FT_Get_Char_Index( face, 'a' );
-	error = FT_Load_Glyph( face, index, FT_LOAD_DEFAULT );
-	if (error != 0) {
-		throw Exception( "Failed to load glyph." );
-	}
-
-	error = FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL );
-	if (error != 0) {
-		throw Exception( "Failed to render glyph." );
-	}
-
-	FT_Bitmap* bitmap = &face->glyph->bitmap;
+	OGLFT::Texture* font = new OGLFT::TranslucentTexture( "tf2build.ttf", 16 );
+	font->setForegroundColor( 1.0f, 0.0f, 0.0f, 1.0f );
+	OGLFT::BBox box = font->measure( "this is a message" );
+	DWORD start = GetTickCount();
+	float frames = 0;
 
 	bool running = true;
 	MSG msg;
@@ -120,18 +74,14 @@ int WINAPI WinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, i
 		}
 		
 		if (running) {
+			frames++;
+			stringstream text;
+			float framerate = frames / (static_cast<float>(GetTickCount() - start) / 1000.0f);
+			text << framerate;
 			graphics->BeginScene();
-			glColor3f( 1.0f, 0.0f, 0.0f );
-			glTexImage2D( GL_TEXTURE_2D, 0, 3, bitmap->width, bitmap->rows, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bitmap->buffer );
-			glBegin( GL_QUADS );
-				glTexCoord2f( 0.0f, 0.0f ); glVertex2f( 100.0f, 100.0f );
-				glTexCoord2f( 0.0f, 1.0f ); glVertex2f( 100.0f, 200.0f );
-				glTexCoord2f( 1.0f, 1.0f ); glVertex2f( 200.0f, 200.0f );
-				glTexCoord2f( 1.0f, 0.0f ); glVertex2f( 200.0f, 100.0f );
-			glEnd();
-			//glColor3f( 1.0f, 1.0f, 1.0f );
-			//graphics->DrawTexture( texture, 10.0f, 10.0f );
+			font->draw( 400 - (box.x_max_ - box.x_min_) / 2, 240 - (box.y_max_ - box.y_min_) / 2, text.str().c_str());
 			graphics->EndScene();
+			glPopAttrib();
 		}
 	}
 

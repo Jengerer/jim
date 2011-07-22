@@ -36,9 +36,6 @@
     <ClInclude Include="opengl_shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="font.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OpenGLDraw.cpp">
@@ -59,7 +56,7 @@
     <ClCompile Include="GLee.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="font.cpp">
+    <ClCompile Include="opengl_shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
