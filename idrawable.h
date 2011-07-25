@@ -1,12 +1,15 @@
-#pragma once
+#ifndef IDRAWABLE_H
+#define IDRAWABLE_H
 
-#include "directx.h"
+#include "graphics_2d.h"
 
 class IDrawable
 {
 
 public:
 
-	virtual void Draw( DirectX* directX ) = 0;
+	virtual void Draw( Graphics2D* graphics ) = 0;
 
 };
+
+#endif // IDRAWABLE_H

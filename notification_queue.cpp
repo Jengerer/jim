@@ -16,12 +16,12 @@ NotificationQueue::~NotificationQueue( void )
 	// Notification destroyed.
 }
 
-void NotificationQueue::Draw( DirectX *directX )
+void NotificationQueue::Draw( Graphics2D* graphics )
 {
 	// Draw top notification.
 	if ( HasNotification() ) {
 		Notification *top = GetCurrentNotification();
-		top->Draw( directX );
+		top->Draw( graphics );
 	}
 }
 

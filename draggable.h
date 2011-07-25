@@ -12,7 +12,7 @@ public:
 	Draggable( float x = 0.0f, float y = 0.0f );
 	virtual ~Draggable( void );
 
-	virtual void Draw( DirectX *directX );
+	virtual void Draw( Graphics2D* graphics );
 
 	// Mouse handling.
 	virtual bool MouseMoved( Mouse *mouse );

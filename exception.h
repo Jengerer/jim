@@ -7,7 +7,7 @@ class Exception
 {
 public:
 	Exception( const string& message );
-	const string* getMessage();
+	const string* getMessage() const;
 
 private:
 	string message_;

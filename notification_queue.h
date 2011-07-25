@@ -4,7 +4,6 @@
 #include <queue>
 
 #include "constrained_container.h"
-#include "directx.h"
 #include "imouse_handler.h"
 #include "notification.h"
 #include "texture.h"
@@ -18,7 +17,7 @@ public:
 	virtual ~NotificationQueue( void );
 
 	// Drawing and container functions.
-	virtual void	Draw( DirectX* directX );
+	virtual void	Draw( Graphics2D* graphics );
 
 	// Updating notification state.
 	void			UpdateNotifications( void );

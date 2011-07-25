@@ -7,7 +7,7 @@
 #include "keyboard_handler.h"
 #include "imouse_handler.h"
 #include "container.h"
-#include "directx.h"
+#include "graphics_2d.h"
 #include "window.h"
 #include "mouse.h"
 
@@ -19,6 +19,7 @@ using namespace std;
 class Application: public Container, public KeyboardHandler, public IMouseHandler
 {
 public:
+
 	Application( int width, int height );
 	virtual ~Application( void );
 
@@ -43,7 +44,8 @@ private:
 
 protected:
 
-	DirectX		*directX_;
-	Mouse		*mouse_;
+	Graphics2D*	graphics_;
+	Window*		window_;
+	Mouse*		mouse_;
 
 };

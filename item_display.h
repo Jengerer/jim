@@ -1,8 +1,8 @@
 #pragma once
 
 #include "container.h"
-#include "directx.h"
 #include "font.h"
+#include "graphics_2d.h"
 #include "item.h"
 #include "rounded_container.h"
 #include "text.h"
@@ -31,8 +31,8 @@ public:
 	bool			IsActive( void ) const;
 	void			SetActive( bool isActive );
 
-	static void		Precache( DirectX *directX );
-	static void		Release( void );
+	static void		Precache();
+	static void		Release();
 
 private:
 

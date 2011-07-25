@@ -46,18 +46,18 @@ float Component::GetY() const
 
 void Component::SetAlpha( int alpha )
 {
-	if (alpha > 255) {
-		alpha_ = 255;
+	if (alpha > ALPHA_MAXIMUM) {
+		alpha_ = ALPHA_MAXIMUM;
 	}
-	else if (alpha < 0) {
-		alpha_ = 0;
+	else if (alpha < ALPHA_MINIMUM) {
+		alpha_ = ALPHA_MINIMUM;
 	}
 	else {
-		alpha_ = alpha;
+		alpha_ = static_cast<GLubyte>(alpha);
 	}
 }
 
-int Component::GetAlpha( void ) const
+GLubyte Component::GetAlpha( void ) const
 {
 	return alpha_;
 }

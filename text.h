@@ -12,12 +12,12 @@ public:
 	Text( Font *font );
 	virtual ~Text( void );
 
-	virtual void	Draw( DirectX *directX );
+	virtual void	Draw( Graphics2D* graphics );
 
 	void			SetText( const string& text );
 	const string&	GetText( void ) const;
-	void			SetColour( D3DCOLOR colour );
-	D3DCOLOR		GetColour( void ) const;
+	void			SetColour( const Colour& colour );
+	const Colour&	GetColour( void ) const;
 
 	// Drawing functions.
 	Font*			GetFont( void ) const;
@@ -28,10 +28,11 @@ protected:
 
 	Font		*font_;
 	string		text_;
+	GLuint		list_;
 
 private:
 
-	D3DCOLOR	colour_;
+	Colour colour_;
 
 };
 

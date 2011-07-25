@@ -20,8 +20,8 @@ public:
 	virtual float	GetY() const;
 
 	// Visibility functions.
-	virtual void	SetAlpha( int alpha );
-	int	GetAlpha( void ) const;
+	virtual void	SetAlpha( int alpha ); // Using int to handle underflow.
+	GLubyte	GetAlpha( void ) const;
 
 	// Size functions.
 	virtual void	SetSize( int width, int height );
@@ -34,7 +34,7 @@ private:
 	float y_;
 	int width_;
 	int height_;
-	int alpha_;
+	GLubyte alpha_;
 
 };
 

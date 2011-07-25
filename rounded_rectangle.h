@@ -2,7 +2,6 @@
 #define ROUNDED_RECTANGLE_H
 
 #include "component.h"
-#include "directx.h"
 
 enum EStrokeType {
 	STROKE_TYPE_OUTER,
@@ -15,20 +14,20 @@ class RoundedRectangle : public Component
 
 public:
 
-	RoundedRectangle( int width, int height, int radius, D3DCOLOR colour );
+	RoundedRectangle( int width, int height, int radius, const Colour& colour );
 	virtual ~RoundedRectangle( void );
 
-	virtual void	Draw( DirectX *directX );
+	virtual void	Draw( Graphics2D* graphics );
 
-	void			SetStroke( int size, D3DCOLOR colour );
+	void			SetStroke( int size, const Colour& colour );
 	void			SetStrokeType( EStrokeType strokeType );
-	D3DCOLOR		GetColour( void ) const;
-	void			SetColour( D3DCOLOR colour );
+	const Colour&	GetColour( void ) const;
+	void			SetColour( const Colour& colour );
 	virtual void	SetSize( int width, int height );
 	void			SetCornerRadius( int radius );
 
 	// TODO: Maybe make Generate protected, but a friend of IPrecachable.
-	void			Generate( DirectX *directX );
+	void			Generate( Graphics2D* graphics );
 	Texture*		GetTexture( void ) const;
 	void			RemoveTexture( void );
 
@@ -38,7 +37,7 @@ private:
 	void		UnsetTexture( void );
 
 	// Private getters.
-	D3DCOLOR	GetStrokeColour( void ) const;
+	const Colour& GetStrokeColour( void ) const;
 	int			GetStrokeSize( void ) const;
 	EStrokeType	GetStrokeType( void ) const;
 
@@ -46,8 +45,8 @@ private:
 
 	int			radius_;
 
-	D3DCOLOR	colour_;
-	D3DCOLOR	strokeColour_;
+	Colour		colour_;
+	Colour		strokeColour_;
 	int			strokeSize_;
 	EStrokeType	strokeType_;
 

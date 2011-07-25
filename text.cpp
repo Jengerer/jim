@@ -1,16 +1,17 @@
 #include "text.h"
 
-#define WHITE D3DCOLOR_XRGB( 255, 255, 255 )
+const Colour WHITE = { 255, 255, 255 };
 
 Text::Text( Font *font )
 {
 	SetFont( font );
 	SetColour( WHITE );
+	list_ = glGenLists( 1 );
 }
 
 Text::~Text( void )
 {
-	// Text destroyed.
+	glDeleteLists( list_, 1 );
 }
 
 void Text::SetText( const string& text )
@@ -24,27 +25,23 @@ const string& Text::GetText( void ) const
 	return text_;
 }
 
-void Text::SetColour( D3DCOLOR colour )
+void Text::SetColour( const Colour& colour )
 {
 	colour_ = colour;
 }
 
-D3DCOLOR Text::GetColour( void ) const
+const Colour& Text::GetColour( void ) const
 {
 	return colour_;
 }
 
-void Text::Draw( DirectX *directX )
+void Text::Draw( Graphics2D* graphics )
 {
-	float x = GetX();
-	float y = GetY();
-	RECT textRect = {
-		x, y,
-		x + GetWidth(),
-		y + GetHeight() 
-	};
-
-	font_->drawText( text_, &textRect, 0, ((GetAlpha() & 0xff) << 24) | (GetColour() & 0xFFFFFF) );
+	glPushMatrix();
+	glTranslatef( GetX(), GetY(), 0.0f );
+	graphics->set_colour( colour_, GetAlpha() );
+	glCallList( list_ );
+	glPopMatrix();
 }
 
 Font* Text::GetFont( void ) const
@@ -59,8 +56,8 @@ void Text::SetFont( Font *font )
 
 void Text::Pack( void )
 {
-	RECT resultSize;
-	ZeroMemory( &resultSize, sizeof( RECT ) );
-	font_->getTextRect( text_, &resultSize, 0 );
-	SetSize( resultSize.right - resultSize.left, resultSize.bottom - resultSize.top );
+	RECT size;
+	font_->measure( &size, text_ );
+	font_->prepare_draw( GetX(), GetY(), text_, list_ );
+	SetSize( size.right - size.left, size.bottom - size.top );
 }

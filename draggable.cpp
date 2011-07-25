@@ -14,9 +14,9 @@ Draggable::~Draggable( void )
 	// Draggable destroyed.
 }
 
-void Draggable::Draw( DirectX *directX )
+void Draggable::Draw( Graphics2D* graphics )
 {
-	Container::Draw( directX );
+	Container::Draw( graphics );
 }
 
 bool Draggable::MouseMoved( Mouse *mouse )

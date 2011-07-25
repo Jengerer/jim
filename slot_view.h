@@ -2,7 +2,8 @@
 #define SLOT_VIEW_H
 
 #include "constrained_container.h"
-#include "directx.h"
+#include "font.h"
+#include "font_factory.h"
 #include "image.h"
 #include "item.h"
 #include "rounded_rectangle.h"
@@ -18,7 +19,7 @@ public:
 
 	// Over-ridden drawing function.
 	void Update();
-	void Draw( DirectX* directX );
+	void Draw( Graphics2D* graphics );
 
 	// Getting the slot.
 	Slot* GetSlot() const;
@@ -28,7 +29,7 @@ public:
 	bool IsSelected() const;
 
 	// Precaching class-wide resources.
-	static void	Precache( DirectX *directX );
+	static void	Precache( Graphics2D* graphics );
 	static void Release();
 
 private:

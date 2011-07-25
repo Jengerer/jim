@@ -32,7 +32,7 @@ public:
 
 	bool			IsHovering( void ) const;
 
-	static void		Precache( DirectX *directX );
+	static void		Precache( Graphics2D* graphics );
 	static void		Release();
 
 	static Button*	CreateIconButton( Texture *texture );

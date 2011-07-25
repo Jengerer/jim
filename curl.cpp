@@ -1,35 +1,42 @@
 #include "curl.h"
 
+Curl* Curl::instance_ = nullptr;
+CURL* Curl::curl_ = nullptr;
+
 Curl::Curl()
 {
-	// Curl object has been created.
-	try
-	{
-		openInterfaces();
-	} catch ( Exception exception )
-	{
-		closeInterfaces();
-		throw exception;
-	}
 }
 
 Curl::~Curl()
 {
-	// Curn object has been destroyed.
-	closeInterfaces();
-}
-
-void Curl::openInterfaces()
-{
-	curl_ = curl_easy_init();
-	if (curl_ == NULL)
-		throw Exception( "Failed to initialize cURL." );
-}
-
-void Curl::closeInterfaces()
-{
 	clean();
 	curl_global_cleanup();
+}
+
+Curl* Curl::get_instance()
+{
+	if (instance_ == nullptr) {
+		instance_ = new Curl;
+		instance_->initialize();
+	}
+
+	return instance_;
+}
+
+void Curl::shut_down()
+{
+	if (instance_ != nullptr) {
+		delete instance_;
+		instance_ = nullptr;
+	}
+}
+
+void Curl::initialize()
+{
+	curl_ = curl_easy_init();
+	if (curl_ == nullptr) {
+		throw Exception( "Failed to initialize cURL." );
+	}
 }
 
 void Curl::clean()
@@ -48,11 +55,12 @@ bool Curl::download( const string& url, const string& destination )
 	// Create the folder(s) if needed.
 	size_t slash = destination.find( '/' );
 	while (slash != string::npos) {
+		// TODO: This can be cleaner, no need to remake substr.
 		string path = destination.substr( 0, slash );
 		if ( GetFileAttributes( path.c_str() ) == INVALID_FILE_ATTRIBUTES )
 			CreateDirectory( path.c_str(), 0 );
 
-		slash = destination.find( "/", slash+1 );
+		slash = destination.find( '/', slash + 1 );
 	}
 
 	// Create the file.

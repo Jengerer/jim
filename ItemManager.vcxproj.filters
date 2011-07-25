@@ -51,9 +51,6 @@
     <ClCompile Include="curl.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="directx.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="exception.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -194,6 +191,24 @@
     </ClCompile>
     <ClCompile Include="horizontal_split_layout.cpp">
       <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="file_texture.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="font_factory.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics_2d.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="GLee.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="opengl_shared.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="protobuf\tf_gcmessages.pb.cc">
+      <Filter>source\protobufs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -857,9 +872,6 @@
     <ClInclude Include="curl.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="directx.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="exception.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -1018,6 +1030,24 @@
     </ClInclude>
     <ClInclude Include="horizontal_split_layout.h">
       <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="file_texture.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="font_factory.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics_2d.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="opengl_shared.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="colour.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="protobuf\tf_gcmessages.pb.h">
+      <Filter>headers\protobufs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

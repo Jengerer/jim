@@ -98,7 +98,7 @@ string Item::GetName( void ) const
 	}
 }
 
-D3DCOLOR Item::GetQualityColour( void ) const
+const Colour& Item::GetQualityColour( void ) const
 {
 	switch (GetQuality()) {
 	case k_EItemQuality_Vintage:

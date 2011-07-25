@@ -3,6 +3,7 @@
 #include "exception.h"
 #include "steam/SteamclientAPI.h"
 #include "protobuf/steammessages.pb.h"
+#include "protobuf/base_gcmessages.pb.h"
 
 // Header for receiving protobuf messages.
 #pragma pack(push, 1)
@@ -32,6 +33,10 @@ public:
 	void		GetMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const;
 	void		SendMessage( unsigned int id, void* buffer, uint32 size ) const;
 
+	// SO version handling.
+	void		SetVersion( uint64 version );
+	uint64		GetVersion() const;
+
 	// Steam getters.
 	uint64		GetSteamId( void ) const;
 
@@ -56,6 +61,7 @@ private:
 
 	// Steam interface target.
 	uint64						targetId_;
+	uint64						version_;
 
 	// For function loading.
 	HMODULE						clientDll_;

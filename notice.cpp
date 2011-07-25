@@ -1,11 +1,12 @@
 #include "notice.h"
+#include "font_factory.h"
 
 // Static members.
 Font* Notice::font_						= nullptr;
 
 // Font constants.
-const char* NOTICE_FONT_FACE			= "TF2 Build";
-const unsigned int NOTICE_FONT_SIZE		= 20;
+const char* NOTICE_FONT_FACE			= "fonts/tf2build.ttf";
+const unsigned int NOTICE_FONT_SIZE		= 16;
 const bool NOTICE_FONT_BOLDED			= false;
 
 // Notice specifications.
@@ -14,8 +15,9 @@ const unsigned int NOTICE_RADIUS		= 5;
 const unsigned int NOTICE_PADDING		= 20;
 const int NOTICE_SPACING				= 10;
 const unsigned int NOTICE_STROKE_WIDTH	= 5;
-const D3DCOLOR NOTICE_STROKE_COLOUR		= D3DCOLOR_RGBA( 153, 142, 121, 200 );
-const D3DCOLOR NOTICE_COLOUR			= D3DCOLOR_XRGB( 42, 39, 37 );
+const Colour NOTICE_STROKE_COLOUR		= { 255, 255, 255 };
+const GLubyte NOTICE_STROKE_ALPHA		= 100;
+const Colour NOTICE_COLOUR				= { 42, 39, 37 };
 
 Notice::Notice( const string& message ) : Popup( 0.0f, 0.0f )
 {
@@ -68,9 +70,9 @@ void Notice::AppendMessage( const string& message )
 	SetMessage( message_ + message );
 }
 
-void Notice::Precache( DirectX *directX )
+void Notice::Precache( Graphics2D* graphics )
 {
-	font_ = directX->CreateFont( NOTICE_FONT_FACE, NOTICE_FONT_SIZE, NOTICE_FONT_BOLDED );
+	font_ = FontFactory::create_font( NOTICE_FONT_FACE, NOTICE_FONT_SIZE );
 }
 
 void Notice::Release( void )

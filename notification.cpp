@@ -1,19 +1,19 @@
 #include "notification.h"
+#include "font_factory.h"
 
-#define NOTIFICATION_ICON_SIZE		48
-#define NOTIFICATION_TEXT_WIDTH		160
-#define NOTIFICATION_COLOUR			D3DCOLOR_XRGB( 42, 39, 37 )
-#define NOTIFICATION_RADIUS			5
-#define NOTIFICATION_PADDING		10
-#define NOTIFICATION_SPACING		5
+const unsigned int NOTIFICATION_ICON_SIZE	= 48;
+const unsigned int NOTIFICATION_TEXT_WIDTH	= 160;
+const Colour NOTIFICATION_COLOUR			= { 42, 39, 37 };
+const unsigned int NOTIFICATION_RADIUS		= 5;
+const unsigned int NOTIFICATION_PADDING		= 10;
+const unsigned int NOTIFICATION_SPACING		= 5;
 
-#define NOTIFICATION_STROKE_SIZE	2
-#define NOTIFICATION_STROKE_COLOUR	D3DCOLOR_XRGB( 255, 255, 255 )
+const unsigned int NOTIFICATION_STROKE_SIZE	= 2;
+const Colour NOTIFICATION_STROKE_COLOUR		= { 255, 255, 255 };
 
-#define NOTIFICATION_FONT_FACE		"TF2 Build"
-#define NOTIFICATION_FONT_SIZE		14
-#define NOTIFICATION_FONT_BOLDED	false
-#define NOTIFICATION_FONT_COLOUR	D3DCOLOR_XRGB( 255, 255, 255 )
+const char* NOTIFICATION_FONT_FACE			= "fonts/tf2build.ttf";
+const unsigned int NOTIFICATION_FONT_SIZE	= 14;
+const Colour NOTIFICATION_FONT_COLOUR		= { 255, 255, 255 };
 
 Font *Notification::font_ = nullptr;
 
@@ -66,11 +66,9 @@ void Notification::SetMessage( const string& message )
 	text_->SetText( message );
 }
 
-void Notification::Precache( DirectX *directX )
+void Notification::Precache()
 {
-	font_ = directX->CreateFont( NOTIFICATION_FONT_FACE,
-		NOTIFICATION_FONT_SIZE,
-		NOTIFICATION_FONT_BOLDED );
+	font_ = FontFactory::create_font( NOTIFICATION_FONT_FACE, NOTIFICATION_FONT_SIZE );
 }
 
 void Notification::Release( void )

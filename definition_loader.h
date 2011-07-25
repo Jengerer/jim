@@ -1,7 +1,7 @@
 #ifndef DEFINITION_LOADER_H
 #define DEFINITION_LOADER_H
 
-#include "directx.h"
+#include "graphics_2d.h"
 #include "item.h"
 #include "item_information.h"
 
@@ -26,7 +26,7 @@ class DefinitionLoader
 
 public:
 
-	DefinitionLoader( DirectX *directX, const string& definitionUrl );
+	DefinitionLoader( Graphics2D* graphics, const string& definitionUrl );
 
 	// Starting and ending the worker threads.
 	void Begin();
@@ -52,7 +52,7 @@ private:
 private:
 
 	// Resource parameters.
-	DirectX*		directX_;
+	Graphics2D*		graphics_;
 	string			definitionUrl_;
 
 	// Threading parameters.

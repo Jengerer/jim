@@ -1,0 +1,4 @@
+Mave for testing expanded backpacks.
+Pikachu (electric Scootaloo) for testing XP SP2 font crash bug.
+A Noobcake for strong Norgwegian e-loving.
+Asherkin, Didrole, and VoiDeD for a huge amount of help (alright, they pretty much did all the work for me) with Open Steamworks.
