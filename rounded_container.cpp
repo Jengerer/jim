@@ -1,7 +1,6 @@
 #include "rounded_container.h"
 
-const D3DCOLOR ROUNDED_RECTANGLE_DEFAULT_COLOUR = D3DCOLOR_XRGB( 255, 255, 255 );
-
+const Colour ROUNDED_RECTANGLE_DEFAULT_COLOUR = { 255, 255, 255 };
 
 RoundedRectangleContainer::RoundedRectangleContainer( unsigned int radius, unsigned int padding, float x, float y ) : ConstrainedContainer( x, y )
 {

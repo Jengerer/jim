@@ -17,7 +17,7 @@ public:
 	virtual void	Remove( Component *component );
 
 	// Drawing functions.
-	virtual void	Draw( DirectX *directX );
+	virtual void	Draw( Graphics2D* graphics );
 	virtual void	SetAlpha( int alpha );
 
 	// Local/global child position handling.

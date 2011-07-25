@@ -1,14 +1,13 @@
 #include "item_display.h"
+#include "font_factory.h"
 
-#define ITEM_DISPLAY_TITLE_FONT_FACE		"TF2 Build"
-#define ITEM_DISPLAY_TITLE_FONT_SIZE		17
-#define ITEM_DISPLAY_TITLE_FONT_BOLDED		false
+const char* ITEM_DISPLAY_TITLE_FONT_FACE		= "fonts/tf2build.ttf";
+const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 17;
 
-#define ITEM_DISPLAY_COLOUR					D3DCOLOR_XRGB( 0, 0, 0 )
+const Colour ITEM_DISPLAY_COLOUR				= { 0, 0, 0 };
 
-#define ITEM_DISPLAY_INFO_FONT_FACE			"TF2 Secondary"
-#define ITEM_DISPLAY_INFO_FONT_SIZE			16
-#define ITEM_DISPLAY_INFO_FONT_BOLDED		false
+const char* ITEM_DISPLAY_INFO_FONT_FACE			= "fonts/tf2secondary.ttf";
+const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE	= 16;
 
 Font *ItemDisplay::nameFont_ = nullptr;
 Font *ItemDisplay::infoFont_ = nullptr;
@@ -128,17 +127,13 @@ void ItemDisplay::SetActive( bool isActive )
 	isActive_ = isActive;
 }
 
-void ItemDisplay::Precache( DirectX* directX )
+void ItemDisplay::Precache()
 {
-	nameFont_ = directX->CreateFont( 
-		ITEM_DISPLAY_TITLE_FONT_FACE, 
-		ITEM_DISPLAY_TITLE_FONT_SIZE, 
-		ITEM_DISPLAY_TITLE_FONT_BOLDED );
+	nameFont_ = FontFactory::create_font( 
+		ITEM_DISPLAY_TITLE_FONT_FACE, ITEM_DISPLAY_TITLE_FONT_SIZE );
 
-	infoFont_ = directX->CreateFont( 
-		ITEM_DISPLAY_INFO_FONT_FACE, 
-		ITEM_DISPLAY_INFO_FONT_SIZE, 
-		ITEM_DISPLAY_INFO_FONT_BOLDED );
+	infoFont_ = FontFactory::create_font(
+		ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
 }
 
 void ItemDisplay::Release( void )

@@ -5,6 +5,7 @@
 
 #include "button.h"
 #include "font.h"
+#include "font_factory.h"
 #include "grid_layout.h"
 #include "horizontal_layout.h"
 #include "layout.h"
@@ -38,8 +39,8 @@ public:
 	virtual bool MouseClicked( Mouse *mouse );
 	virtual bool MouseReleased( Mouse *mouse );
 
-	static void Precache( DirectX *directX );
-	static void Release( void );
+	static void Precache();
+	static void Release();
 
 private:
 

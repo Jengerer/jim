@@ -5,18 +5,18 @@ const unsigned int TOGGLE_SET_PADDING		= 10;
 const unsigned int TOGGLE_SET_GRID_WIDTH	= 3;
 
 const unsigned int TOGGLE_SET_RADIUS		= 10;
-const D3DCOLOR TOGGLE_SET_COLOUR			= D3DCOLOR_XRGB( 42, 39, 37 );
-const D3DCOLOR TOGGLE_SET_STROKE_COLOUR		= D3DCOLOR_RGBA( 255, 255, 255, 150 );
+const Colour TOGGLE_SET_COLOUR				= { 42, 39, 37 };
+const Colour TOGGLE_SET_STROKE_COLOUR		= { 255, 255, 255 };
 const unsigned int TOGGLE_SET_STROKE_SIZE	= 5;
 
-const char* TOGGLE_SET_FONT_FACE			= "TF2 Build";
+const char* TOGGLE_SET_FONT_FACE			= "fonts/tf2build.ttf";
 const unsigned int TOGGLE_SET_FONT_SIZE		= 18;
-const D3DCOLOR TOGGLE_SET_FONT_COLOUR		= D3DCOLOR_XRGB( 255, 255, 255 );
+const Colour TOGGLE_SET_FONT_COLOUR			= { 255, 255, 255 };
 const bool TOGGLE_SET_FONT_BOLDED			= false;
 
-const char* TOGGLE_SET_BUTTON_FONT_FACE			= "TF2 Build";
+const char* TOGGLE_SET_BUTTON_FONT_FACE			= "fonts/tf2build.ttf";
 const unsigned int TOGGLE_SET_BUTTON_FONT_SIZE	= 16;
-const D3DCOLOR TOGGLE_SET_BUTTON_FONT_COLOUR	= D3DCOLOR_XRGB( 42, 39, 37 );
+const Colour TOGGLE_SET_BUTTON_FONT_COLOUR		= { 42, 39, 37 };
 const bool TOGGLE_SET_BUTTON_FONT_BOLDED		= false;
 
 const unsigned int TOGGLE_SET_MIN_WIDTH			= 150;
@@ -227,17 +227,10 @@ bool ToggleSet::MouseReleased( Mouse *mouse )
 	return true;
 }
 
-void ToggleSet::Precache( DirectX *directX )
+void ToggleSet::Precache()
 {
-	titleFont_ = directX->CreateFont( 
-		TOGGLE_SET_FONT_FACE, 
-		TOGGLE_SET_FONT_SIZE, 
-		TOGGLE_SET_FONT_BOLDED );
-
-	buttonFont_ = directX->CreateFontA(
-		TOGGLE_SET_BUTTON_FONT_FACE,
-		TOGGLE_SET_BUTTON_FONT_SIZE,
-		TOGGLE_SET_BUTTON_FONT_BOLDED );
+	titleFont_ = FontFactory::create_font( TOGGLE_SET_FONT_FACE, TOGGLE_SET_FONT_SIZE );
+	buttonFont_ = FontFactory::create_font( TOGGLE_SET_BUTTON_FONT_FACE, TOGGLE_SET_BUTTON_FONT_SIZE );
 }
 
 void ToggleSet::Release( void )

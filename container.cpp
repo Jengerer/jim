@@ -41,14 +41,14 @@ void Container::Remove( Component* component )
 //=============================================================
 // Purpose: Draws all children.
 //=============================================================
-void Container::Draw( DirectX *directX )
+void Container::Draw( Graphics2D* graphics )
 {
 	// Draw all children.
 	std::vector<Component*>::iterator i, end;
 	for (i = components_.begin(), end = components_.end(); i != end; ++i) {
 		Component* child = *i;
 		if (IsVisible( child )) {
-			child->Draw( directX );
+			child->Draw( graphics );
 		}
 	}
 }

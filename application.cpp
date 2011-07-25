@@ -4,7 +4,7 @@
 Application::Application( int width, int height )
 {
 	// Uncreated members null.
-	directX_ = nullptr;
+	graphics_ = nullptr;
 	mouse_ = nullptr;
 	
 	// Add mouse keys by default.
@@ -20,17 +20,25 @@ Application::~Application()
 
 void Application::LoadInterfaces( const char* title, HINSTANCE instance )
 {
-	// Get DirectX running.
-	directX_ = new DirectX(	instance, title, GetWidth(), GetHeight() );
-	directX_->LoadInterfaces();
-	mouse_ = new Mouse( directX_ );
+	// Create window and 2D graphics handle.
+	window_ = new Window( instance, title, GetWidth(), GetHeight() );
+	graphics_ = new Graphics2D( window_ );
+	graphics_->initialize();
+
+	// Create mouse.
+	mouse_ = new Mouse( window_ );
 }
 
 void Application::CloseInterfaces( void )
 {
-	if (directX_ != nullptr) {
-		delete directX_;
-		directX_ = nullptr;
+	if (graphics_ != nullptr) {
+		delete graphics_;
+		graphics_ = nullptr;
+	}
+
+	if (window_ != nullptr) {
+		delete window_;
+		window_ = nullptr;
 	}
 }
 
@@ -41,7 +49,7 @@ void Application::ExitApplication()
 
 Window* Application::GetWindow() const
 {
-	return directX_;
+	return window_;
 }
 
 void Application::RunApplication( void )
@@ -56,13 +64,9 @@ void Application::RunApplication( void )
 void Application::DrawFrame( void )
 {
 	// Start redraw.
-	if ( directX_->BeginDraw() ) {
-		Draw( directX_ );
-		directX_->EndDraw();
-	}
-	else {
-		throw Exception( "Failed to call Direct3D BeginDraw." );
-	}
+	graphics_->clear_scene();
+	Draw( graphics_ );
+	graphics_->swap_buffers();
 }
 
 void Application::UpdateMouse( void )

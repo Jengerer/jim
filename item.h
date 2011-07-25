@@ -43,7 +43,7 @@ public:
 
 	// Secondary attributes.
 	string			GetName( void ) const;
-	D3DCOLOR GetQualityColour( void ) const;
+	const Colour&	GetQualityColour( void ) const;
 	const char*		GetQualityName( void ) const;
 
 	// Position stored in Steam.

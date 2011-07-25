@@ -11,25 +11,11 @@ WrappedText::~WrappedText( void )
 	// Wrapped text destroyed.
 }
 
-void WrappedText::Draw( DirectX *directX )
-{
-	float x = GetX();
-	float y = GetY();
-	RECT textRect = {
-		x, y,
-		x + GetWidth(), y + GetHeight()
-	};
-
-	font_->drawText( GetText(), &textRect, GetTextFormatting() | DT_WORDBREAK, ((GetAlpha() & 0xff) << 24) | (GetColour() & 0xFFFFFF) );
-}
-
 void WrappedText::Pack( void )
 {	
-	RECT resultSize = { 0, 0, GetTextWidth(), 0 };
-
-	// Now calculate bottom.
-	GetFont()->wrapText( text_, &resultSize, 0 );
-	SetSize( GetTextWidth(), resultSize.bottom - resultSize.top );
+	RECT bounds = { 0, 0, GetTextWidth(), 0 };
+	font_->prepare_wrap_draw( &bounds, text_, list_ );
+	SetSize( GetTextWidth(), bounds.bottom - bounds.top );
 }
 
 int WrappedText::GetTextWidth( void ) const

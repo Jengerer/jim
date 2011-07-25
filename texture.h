@@ -1,45 +1,40 @@
-#pragma once
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
-#include <d3d9.h>
-#include <d3dx9.h>
-#include <string>
+#include "opengl_shared.h"
 
-using namespace std;
-
-// TODO: Create a parent class that doesn't require filename.
 class Texture
 {
 
 public:
 
 	Texture();
-	Texture( const string& filename, const string& url );
-	~Texture( void );
+	Texture( GLuint texture, GLsizei width, GLsizei height, GLfloat tu = 1.0f, GLfloat tv = 1.0f );
+	virtual ~Texture();
 
-	// Handling resources.
-	const string&		GetUrl() const;
-	const string&		GetFilename( void ) const;
-	void				SetTexture( IDirect3DTexture9 *texture );
-	void				SetTexture( IDirect3DTexture9 *texture, const D3DXIMAGE_INFO& info );
-	IDirect3DTexture9*	GetTexture( void );
-	void				ReleaseTexture( void );
-
-	bool				IsLoaded( void ) const;
+	// Texture setter.
+	void	set_texture( GLuint texture, GLsizei width, GLsizei height, GLfloat tu, GLfloat tv );
 
 	// Texture attribute functions.
-	int					GetWidth( void ) const;
-	int					GetHeight( void ) const;
+	bool	is_loaded() const;
+	GLuint	get_texture() const;
+	GLsizei	get_width() const;
+	GLsizei	get_height() const;
+	GLfloat	get_tu() const;
+	GLfloat	get_tv() const;
 
 private:
 
-	void				SetUrl( const string& url );
-	void				SetFilename( const string& filename );
+	GLuint texture_;
 
-private:
+	// Size variables.
+	GLsizei width_;
+	GLsizei height_;
 
-	IDirect3DTexture9	*texture_;
-	string				filename_;
-	string				url_;
-	D3DXIMAGE_INFO		info_;
+	// Texture mapping coordinates.
+	GLfloat tu_;
+	GLfloat tv_;
 
 };
+
+#endif // TEXTURE_H

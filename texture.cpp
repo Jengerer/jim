@@ -2,76 +2,55 @@
 
 Texture::Texture()
 {
-	SetTexture( nullptr );
+	set_texture( 0, 0, 0, 1.0f, 1.0f );
 }
-Texture::Texture( const string& filename, const string &url )
+
+Texture::Texture( GLuint texture, GLsizei width, GLsizei height, GLfloat tu, GLfloat tv )
 {
-	SetTexture( nullptr );
-	SetFilename( filename );
-	SetUrl( url );
+	set_texture( texture_, width_, height_, tu_, tv_ );
 }
 
 Texture::~Texture()
 {
-	//Texture has been destroyed.
-	ReleaseTexture();
+	glDeleteTextures( 1, &texture_ );
+	texture_ = 0;
 }
 
-void Texture::SetUrl( const string& url )
-{
-	url_ = url;
-}
-
-void Texture::SetFilename( const string& filename )
-{
-	filename_ = filename;
-}
-
-const string& Texture::GetUrl() const
-{
-	return url_;
-}
-
-const string& Texture::GetFilename( void ) const
-{
-	return filename_;
-}
-
-void Texture::SetTexture( IDirect3DTexture9 *texture )
+void Texture::set_texture( GLuint texture, GLsizei width, GLsizei height, GLfloat tu, GLfloat tv )
 {
 	texture_ = texture;
+	width_ = width;
+	height_ = height;
+	tu_ = tu;
+	tv_ = tv;
 }
 
-void Texture::SetTexture( IDirect3DTexture9 *texture, const D3DXIMAGE_INFO& info )
+bool Texture::is_loaded() const
 {
-	SetTexture( texture );
-	info_ = info;
+	return texture_ != 0;
 }
 
-IDirect3DTexture9* Texture::GetTexture( void )
+GLuint Texture::get_texture() const
 {
 	return texture_;
 }
 
-void Texture::ReleaseTexture( void )
+GLsizei Texture::get_width() const
 {
-	if (texture_ != nullptr) {
-		texture_->Release();
-		texture_ = nullptr;
-	}
+	return width_;
 }
 
-bool Texture::IsLoaded( void ) const
+GLsizei Texture::get_height() const
 {
-	return (texture_ != nullptr);
+	return height_;
 }
 
-int Texture::GetWidth( void ) const
+GLfloat Texture::get_tu() const
 {
-	return info_.Width;
+	return tu_;
 }
 
-int Texture::GetHeight( void ) const
+GLfloat Texture::get_tv() const
 {
-	return info_.Height;
+	return tv_;
 }

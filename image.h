@@ -9,11 +9,11 @@ public:
 
 	Image( Texture* texture, float localX = 0.0f, float localY = 0.0f );
 
-	virtual void	Draw( DirectX *directX );
+	virtual void	Draw( Graphics2D* graphics );
 	void			SetTexture( Texture *texture );
 
-	void			SetTint( D3DCOLOR tint );
-	D3DCOLOR		GetTint( void ) const;
+	void			SetTint( const Colour& tint );
+	const Colour&	GetTint( void ) const;
 
 private:
 
@@ -22,6 +22,6 @@ private:
 private:
 
 	Texture *texture_;
-	D3DCOLOR tint_;
+	Colour tint_;
 
 };

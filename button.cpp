@@ -1,5 +1,6 @@
 #include "button.h"
 
+#include "font_factory.h"
 #include "image.h"
 #include "text.h"
 
@@ -9,10 +10,9 @@ Font* Button::defaultFont_ = nullptr;
 const unsigned int BUTTON_ICON_SIZE			= 20;
 
 // Button default font size.
-const char* BUTTON_DEFAULT_FONT_FACE		= "TF2 Build";
+const char* BUTTON_DEFAULT_FONT_FACE		= "fonts/tf2build.ttf";
 const unsigned int BUTTON_DEFAULT_FONT_SIZE	= 20;
-const bool BUTTON_DEFAULT_FONT_BOLDED		= false;
-const D3DCOLOR BUTTON_FONT_COLOUR			= D3DCOLOR_XRGB( 42, 39, 37 );
+const Colour BUTTON_FONT_COLOUR				= { 42, 39, 37 };
 
 // Rounded container parameters.
 const unsigned int BUTTON_RADIUS		= 5;
@@ -20,9 +20,9 @@ const unsigned int BUTTON_SPACING		= 5;
 const unsigned int BUTTON_PADDING		= 15;
 
 // Button colours.
-const D3DCOLOR BUTTON_COLOUR			= D3DCOLOR_XRGB( 247, 231, 198 );
-const D3DCOLOR BUTTON_COLOUR_HOVER		= D3DCOLOR_XRGB( 180, 81, 14 );
-const D3DCOLOR BUTTON_COLOUR_DISABLED	= D3DCOLOR_ARGB( 150, 247, 231, 198);
+const Colour BUTTON_COLOUR			= { 247, 231, 198 };
+const Colour BUTTON_COLOUR_HOVER	= { 180, 81, 14 };
+const Colour BUTTON_COLOUR_DISABLED	= { 150, 247, 231 };
 
 Button::Button( float localX, float localY ) : RoundedRectangleContainer( BUTTON_RADIUS, BUTTON_PADDING, localX, localY )
 {
@@ -53,22 +53,22 @@ Layout* Button::GetContentLayout() const
 void Button::UpdateButton( void )
 {
 	RoundedRectangle *roundedRect = GetRoundedRectangle();
-	D3DCOLOR oldColour = roundedRect->GetColour();
-	D3DCOLOR newColour;
+	const Colour* oldColour = &roundedRect->GetColour();
+	const Colour* newColour = nullptr;
 	if ( IsEnabled() ) {
 		if ( IsHovering() ) {
-			newColour = BUTTON_COLOUR_HOVER;
+			newColour = &BUTTON_COLOUR_HOVER;
 		}
 		else {
-			newColour = BUTTON_COLOUR;
+			newColour = &BUTTON_COLOUR;
 		}
 	}
 	else {
-		newColour = BUTTON_COLOUR_DISABLED;
+		newColour = &BUTTON_COLOUR_DISABLED;
 	}
 
 	if (newColour != oldColour) {
-		roundedRect->SetColour( newColour );
+		roundedRect->SetColour( *newColour );
 		roundedRect->RemoveTexture();
 	}
 }
@@ -113,11 +113,10 @@ bool Button::IsHovering( void ) const
 	return isHovering_;
 }
 
-void Button::Precache( DirectX *directX )
+void Button::Precache( Graphics2D* graphics )
 {
-	defaultFont_ = directX->CreateFont( BUTTON_DEFAULT_FONT_FACE,
-		BUTTON_DEFAULT_FONT_SIZE,
-		BUTTON_DEFAULT_FONT_BOLDED );
+	defaultFont_ = FontFactory::create_font( BUTTON_DEFAULT_FONT_FACE,
+		BUTTON_DEFAULT_FONT_SIZE );
 }
 
 void Button::Release()

@@ -25,24 +25,22 @@ Window::~Window()
 
 bool Window::registerClass( HINSTANCE hInstance )
 {
-	WNDCLASSEX wndCls;
+	WNDCLASS wndCls;
 
 	wndCls.hInstance		= hInstance;
 	wndCls.hIcon			= NULL;
-	wndCls.hIconSm			= NULL;
 	wndCls.hCursor			= LoadCursor( NULL, IDC_ARROW );
-	wndCls.hbrBackground	= (HBRUSH)GetStockObject( BLACK_BRUSH );
+	wndCls.hbrBackground	= NULL;
 
-	wndCls.cbSize			= sizeof( WNDCLASSEX );
 	wndCls.cbWndExtra		= 0;
 	wndCls.cbClsExtra		= 0;
 
 	wndCls.lpfnWndProc		= wndProc;
 	wndCls.lpszClassName	= title_;
 	wndCls.lpszMenuName		= NULL;
-	wndCls.style			= NULL;
+	wndCls.style			= CS_OWNDC;
 
-	return RegisterClassEx( &wndCls );
+	return RegisterClass( &wndCls );
 }
 
 void Window::createWindow(HINSTANCE hInstance)
@@ -62,7 +60,7 @@ void Window::createWindow(HINSTANCE hInstance)
 	windowRect.bottom = GetHeight();
 
 	// Adjust size for style.
-	DWORD displayStyle = WS_VISIBLE | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+	DWORD displayStyle = WS_CAPTION | WS_SYSMENU;
 	if (!AdjustWindowRect( &windowRect, displayStyle, false )) {
 		throw Exception( "Failed to adjust window rectangle." );
 	}
@@ -70,9 +68,10 @@ void Window::createWindow(HINSTANCE hInstance)
 	// Create window.
 	hWnd_ = CreateWindow(
 		title_, title_,
-		displayStyle | WS_OVERLAPPED,
+		displayStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		x, y,
-		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
+		windowRect.right - windowRect.left, 
+		windowRect.bottom - windowRect.top,
 		NULL, NULL,
 		hInstance,
 		NULL );

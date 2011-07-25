@@ -22,8 +22,6 @@ Steam::~Steam( void )
 	CloseInterfaces();
 }
 
-#include <sstream>
-
 void Steam::LoadInterfaces( void )
 {
 	// Set Team Fortress 2 application ID.
@@ -43,12 +41,16 @@ void Steam::LoadInterfaces( void )
 			steamPath = (char*)realloc( steamPath, regSize );
 		}
 
-		status = status = RegQueryValueEx( hKey, "InstallPath", nullptr, &regType, (LPBYTE)steamPath, &regSize );
+		status = RegQueryValueEx( hKey, "InstallPath", nullptr, &regType, (LPBYTE)steamPath, &regSize );
 		if (status == ERROR_SUCCESS) {
 			SetDllDirectory( steamPath );
 			regSuccess = true;
 		}
 	}
+
+	// Free buffer.
+	free( steamPath );
+	steamPath = nullptr;
 
 	RegCloseKey( hKey );
 	if (!regSuccess) {
@@ -85,7 +87,7 @@ void Steam::LoadInterfaces( void )
 		throw Exception( "Failed to create Steam client interface." );
 	}
 
-	//Down to to the nitty-gritty. Start 'er up!
+	// Down to to the nitty-gritty. Start 'er up!
 	if (!SteamAPI_Init()) {
 		throw Exception( "Failed to initialize Steam API. Make sure Steam is running and try again." );
 	}
@@ -188,6 +190,16 @@ void Steam::SendMessage( uint32 id, void* buffer, uint32 size ) const
 		// Just send it.
 		gameCoordinator_->SendMessage( id, buffer, size );
 	}
+}
+
+void Steam::SetVersion( uint64 version )
+{
+	version_ = version;
+}
+
+uint64 Steam::GetVersion() const
+{
+	return version_;
 }
 
 uint64 Steam::GetSteamId( void ) const

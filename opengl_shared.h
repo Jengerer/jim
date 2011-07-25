@@ -1,9 +1,11 @@
 #ifndef OPENGL_SHARED_H
 #define OPENGL_SHARED_H
 
+#include <stdlib.h>
 #include <gl/GLee.h>
-#include <gl/glut.h>
+#include <gl/GL.h>
+#include <gl/GLU.h>
 
-GLsizei NextPowerOf2( GLsizei num );
+GLsizei next_power_of_2( GLsizei num );
 
 #endif // OPENGL_SHARED_H

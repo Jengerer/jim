@@ -1,6 +1,7 @@
-#pragma once
+#ifndef WINDOW_H
+#define WINDOW_H
 
-#include <d3d9.h>
+#include <windows.h>
 #include "exception.h"
 
 class Window
@@ -23,7 +24,11 @@ public:
 
 
 private:
+
 	HWND		hWnd_;
 	const char*	title_;
 	int			width_, height_;
+
 };
+
+#endif // WINDOW_H

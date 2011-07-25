@@ -29,18 +29,27 @@ static size_t writeCallback( void *buffer, size_t size, size_t nMembers, void* d
 class Curl
 {
 public:
-	Curl();
-	virtual ~Curl();
 
-	// Handling interfaces.
-	void	openInterfaces();
-	void	closeInterfaces();
-	void	clean();
+	static Curl* get_instance();
+	static void shut_down();
 
 	// External file functions.
 	bool	download( const string& url, const string& destination );
 	string	read( const string& url );
 
 private:
-	CURL*	curl_;
+
+	Curl();
+	virtual ~Curl();
+
+	// Handling interfaces.
+	void	initialize();
+	void	close();
+	void	clean();
+
+private:
+	
+	static Curl* instance_;
+	static CURL* curl_;
+
 };

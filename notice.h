@@ -25,7 +25,7 @@ public:
 	void			AppendMessage( const string& message );
 
 	// Loading class-wide resources.
-	static void		Precache( DirectX* directX );
+	static void		Precache( Graphics2D* graphics );
 	static void		Release( void );
 
 protected:

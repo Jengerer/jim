@@ -1,11 +1,12 @@
 #include "definition_loader.h"
+#include "curl.h"
 
-DefinitionLoader::DefinitionLoader( DirectX *directX, const string& definitionUrl )
+DefinitionLoader::DefinitionLoader( Graphics2D *graphics, const string& definitionUrl )
 {
 	stop_ = false;
 	loaded_ = 0;
 
-	directX_ = directX;
+	graphics_ = graphics;
 	definitionUrl_ = definitionUrl;
 
 	SetProgress( 0.0f );
@@ -28,6 +29,8 @@ void DefinitionLoader::End()
 
 void DefinitionLoader::Load()
 {
+	wglMakeCurrent( graphics_->dc_, graphics_->loadRc_ );
+
 	// Create slot name map.
 	slotTypes_[""]			= SLOT_NONE;
 	slotTypes_["invalid"]	= SLOT_INVALID;
@@ -58,7 +61,8 @@ void DefinitionLoader::Load()
 		// Get definition file.
 		string itemDefinition;
 		try {
-			itemDefinition = directX_->read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
+			Curl* curl = Curl::get_instance();
+			itemDefinition = curl->read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
 		}
 		catch (Exception&) {
 			throw Exception( "Failed to read item definition file from Steam Web API." );
@@ -92,7 +96,7 @@ void DefinitionLoader::Load()
 
 			if (image_inventory.empty()) {
 				image_inventory = "backpack/unknown_item";
-				image_url = "http://www.jengerer.com/itemManager/imgFiles/backpack/unknown_item.png";
+				image_url = "http://www.jengerer.com/itemManager/img/backpack/unknown_item.png";
 			}
 
 			EItemSlot item_slot;
@@ -119,7 +123,7 @@ void DefinitionLoader::Load()
 				}
 			}
 
-			Texture *texture = directX_->GetTexture( image_inventory, image_url );
+			Texture *texture = graphics_->get_texture( image_inventory, image_url );
 
 			// Generate information object.
 			ItemInformation *itemInformation = new ItemInformation(

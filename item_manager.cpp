@@ -6,6 +6,8 @@
 #include <math.h>
 #include <json/json.h>
 
+#include "curl.h"
+#include "font_factory.h"
 #include "serialized_buffer.h"
 #include "slot_view.h"
 
@@ -33,16 +35,16 @@ const unsigned int EXIT_BUTTON_PADDING	= 10;
 const DWORD PAGE_DELAY_INTERVAL			= 500;
 
 // Title display.
-const char* TITLE_FONT_FACE				= "TF2 Build";
+const char* TITLE_FONT_FACE				= "fonts/tf2build.ttf";
 const unsigned int TITLE_FONT_SIZE		= 18;
 const bool TITLE_FONT_BOLDED			= false;
-const D3DCOLOR TITLE_COLOUR				= D3DCOLOR_XRGB( 241, 239, 237);
+const Colour TITLE_COLOUR				= { 241, 239, 237 };
 
 // Page display.
-const char* PAGE_FONT_FACE				= "TF2 Build";
+const char* PAGE_FONT_FACE				= "fonts/tf2build.ttf";
 const unsigned int PAGE_FONT_SIZE		= 20;
 const bool PAGE_FONT_BOLDED				= false;
-const D3DCOLOR PAGE_LABEL_COLOUR		= D3DCOLOR_XRGB( 255, 255, 255 );
+const Colour PAGE_LABEL_COLOUR			= { 255, 255, 255 };
 const unsigned int PAGE_LABEL_WIDTH		= 50;
 
 // Inventory attributes.
@@ -58,8 +60,10 @@ const unsigned int SPACING	= 10;
 LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch (message) {
+	case WM_CLOSE:
 	case WM_DESTROY:
 		PostQuitMessage( 0 );
+		return 0;
 		break;
 	}
 
@@ -73,11 +77,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		itemManager->LoadInterfaces( hInstance );
 	}
 	catch (Exception mainException) {
-		if (itemManager != nullptr) {
-			delete itemManager;
-			itemManager = nullptr;
-		}
-
 		MessageBox( NULL, mainException.getMessage()->c_str(), "Initialization failed!", MB_OK );
 	}
 
@@ -89,9 +88,10 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 			if (msg.message == WM_QUIT) {
 				running = false;
 			}
-
-			TranslateMessage( &msg );
-			DispatchMessage( &msg );
+			else {
+				TranslateMessage( &msg );
+				DispatchMessage( &msg );
+			}
 		}
 
 		itemManager->RunApplication();
@@ -158,36 +158,29 @@ ItemManager::~ItemManager( void )
 
 void ItemManager::LoadInterfaces( HINSTANCE instance )
 {
-	// Start up DirectX and window.
+	// Start up Graphics2D and window.
 	Application::LoadInterfaces( APPLICATION_TITLE, instance );
 
 	// Necessary to display progress/status.
-	Notice::Precache( directX_ );
-	Button::Precache( directX_ );
+	FontFactory::initialize();
+	Notice::Precache( graphics_ );
+	Button::Precache( graphics_ );
+
+	// Add test image.
+	Image* image = new Image( graphics_->get_texture( "backpack/crafting/desc_tag", "phagot" ), 0.0f, 0.0f );
+	image->SetSize( 128, 128 );
+	Add( image );
 
 	try {
-		try {
-			directX_->read( "http://www.jengerer.com/itemManager/manager_demo.txt" );
-		}
-		catch (Exception&) {
-			// throw Exception( "The demo of this application is no longer available. Sorry!" );
-		}
-
-		// Start drawing to generate textures.
-		directX_->BeginDraw();
-
 		// Precache secondary resources.
-		ItemDisplay::Precache( directX_ );
-		Notification::Precache( directX_ );
-		SlotView::Precache( directX_ );
-		ToggleSet::Precache( directX_ );
-
-		// End drawing.
-		directX_->EndDraw();
+		ToggleSet::Precache();
+		ItemDisplay::Precache();
+		Notification::Precache();
+		SlotView::Precache( graphics_ );
 
 		// Load title font.
-		titleFont_ = directX_->CreateFont( TITLE_FONT_FACE, TITLE_FONT_SIZE, TITLE_FONT_BOLDED );
-		pageFont_ = directX_->CreateFont( PAGE_FONT_FACE, PAGE_FONT_SIZE, PAGE_FONT_BOLDED );
+		titleFont_ = FontFactory::create_font( TITLE_FONT_FACE, TITLE_FONT_SIZE );
+		pageFont_ = FontFactory::create_font( PAGE_FONT_FACE, PAGE_FONT_SIZE );
 
 		// Create notification queue.
 		notifications_ = new NotificationQueue();
@@ -248,6 +241,9 @@ void ItemManager::CloseInterfaces( void )
 	SlotView::Release();
 	ToggleSet::Release();
 
+	// Close font library.
+	FontFactory::shut_down();
+
 	// Free all protobuf library resources.
 	google::protobuf::ShutdownProtobufLibrary();
 }
@@ -263,9 +259,9 @@ void ItemManager::CreateLayout( void )
 		excludedView_ = backpack_->CreateExcludedView();
 
 		// Create button layout.
-		Texture *craftTexture = directX_->GetTexture( "manager/gear" );
-		Texture *equipTexture = directX_->GetTexture( "manager/equip" );
-		Texture *sortTexture = directX_->GetTexture( "manager/sort" );
+		Texture *craftTexture = graphics_->get_texture( "manager/gear" );
+		Texture *equipTexture = graphics_->get_texture( "manager/equip" );
+		Texture *sortTexture = graphics_->get_texture( "manager/sort" );
 
 		// Create inventory buttons.
 		craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
@@ -760,7 +756,7 @@ void ItemManager::LoadDefinitions( void )
 	loadProgress_->SetMessage("Loading item definitions...");
 
 	// Set up loader.
-	definitionLoader_ = new DefinitionLoader( directX_, "http://www.jengerer.com/itemManager/item_definitions.json" );
+	definitionLoader_ = new DefinitionLoader( graphics_, "http://www.jengerer.com/itemManager/item_definitions.json" );
 	definitionLoader_->Begin();
 }
 
@@ -777,7 +773,8 @@ void ItemManager::LoadItemsFromWeb( void )
 	// Attempt to read the file.
 	string jsonInventory;
 	try {
-		jsonInventory = directX_->read(apiUrl);
+		Curl* curl = Curl::get_instance();
+		jsonInventory = curl->read( apiUrl );
 	}
 	catch (Exception curlException) {
 		throw Exception("Failed to read inventory from profile.");
@@ -946,19 +943,38 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			break;
 		}
 
+	case 27:
+		{
+			CMsgSOCacheSubscriptionCheck check;
+			check.ParseFromArray( message, size );
+
+			// Compare version.
+			uint64 version = check.version();
+			if (steamItems_->GetVersion() != check.version()) {
+				steamItems_->SetVersion( version );
+
+				// Send refresh.
+				CMsgSOCacheSubscriptionRefresh refresh;
+				refresh.set_owner( steamItems_->GetSteamId() );
+				string refreshString = refresh.SerializeAsString();
+				steamItems_->SendMessage( 28 | 0x80000000, (void*)refreshString.c_str(), refreshString.size() );
+			}
+			break;
+		}
+
 	case k_EMsgGCStartupCheck:
 		{
 			// Receive the startup check.
-			CMsgStartupCheck startupMsg;
-			startupMsg.ParseFromArray( message, size );
+			//CMsgStartupCheck startupMsg;
+			//startupMsg.ParseFromArray( message, size );
 
 			// Build a response.
-			CMsgStartupCheckResponse responseMsg;
-			responseMsg.set_item_schema_version( 0 );
-			string responseString = responseMsg.SerializeAsString();
+			//CMsgStartupCheckResponse responseMsg;
+			//responseMsg.set_item_schema_version( 0 );
+			//string responseString = responseMsg.SerializeAsString();
 
 			// Send and free.
-			steamItems_->SendMessage( k_EMsgGCStartupCheckResponse | 0x80000000, (void*)responseString.c_str(), responseString.size() );
+			//steamItems_->SendMessage( k_EMsgGCStartupCheckResponse | 0x80000000, (void*)responseString.c_str(), responseString.size() );
 		}
 		break;
 
@@ -1040,7 +1056,6 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 		}
 
 	default:
-		// steamItems_->HandleMessage( id & 0x0FFFFFFF, headerBuffer.here(), bodySize );
 		break;
 	}
 }

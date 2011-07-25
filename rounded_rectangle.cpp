@@ -1,11 +1,9 @@
 #include "rounded_rectangle.h"
 
-#define COLOUR_WHITE D3DCOLOR_XRGB( 255, 255, 255 )
-
-RoundedRectangle::RoundedRectangle( int width, int height, int radius, D3DCOLOR colour )
+RoundedRectangle::RoundedRectangle( int width, int height, int radius, const Colour& colour )
 {
 	UnsetTexture();
-	SetStroke( 0, D3DCOLOR_XRGB( 0, 0, 0 ) );
+	SetStroke( 0, colour );
 	SetStrokeType( STROKE_TYPE_OUTER );
 	SetCornerRadius( radius );
 	SetColour( colour );
@@ -17,14 +15,14 @@ RoundedRectangle::~RoundedRectangle( void )
 	RemoveTexture();
 }
 
-void RoundedRectangle::Draw( DirectX *directX )
+void RoundedRectangle::Draw( Graphics2D* graphics )
 {
 	// Check if we need to redraw.
 	if (roundedRect_ == nullptr) {
-		Generate( directX );
+		Generate( graphics );
 	}
 
-	// Draw texture.
+	// Adjust position for stroke.
 	float textureX = GetX();
 	float textureY = GetY();
 	if (GetStrokeType() == STROKE_TYPE_OUTER) {
@@ -33,20 +31,19 @@ void RoundedRectangle::Draw( DirectX *directX )
 		textureY -= strokeSize;
 	}
 
-	directX->DrawTexture(
+	// Draw texture.
+	graphics->draw_texture(
 		roundedRect_,
-		textureX, textureY,
-		roundedRect_->GetWidth(), roundedRect_->GetHeight(),
-		D3DCOLOR_RGBA( 255, 255, 255, GetAlpha() ) );
+		textureX, textureY );
 }
 
-void RoundedRectangle::SetStroke( int size, D3DCOLOR colour )
+void RoundedRectangle::SetStroke( int size, const Colour& colour )
 {
 	strokeSize_ = size;
 	strokeColour_ = colour;
 }
 
-void RoundedRectangle::SetColour( D3DCOLOR colour )
+void RoundedRectangle::SetColour( const Colour& colour )
 {
 	colour_ = colour;
 }
@@ -62,7 +59,7 @@ void RoundedRectangle::SetCornerRadius( int radius )
 	radius_ = radius;
 }
 
-void RoundedRectangle::Generate( DirectX *directX )
+void RoundedRectangle::Generate( Graphics2D* graphics )
 {
 	int rectWidth = GetWidth();
 	int rectHeight = GetHeight();
@@ -70,9 +67,9 @@ void RoundedRectangle::Generate( DirectX *directX )
 		rectWidth += GetStrokeSize() << 1;
 		rectHeight += GetStrokeSize() << 1;
 	}
-	roundedRect_ = directX->CreateTexture( rectWidth, rectHeight );
-	directX->SetRenderTarget( roundedRect_ );
-	directX->SetProjectionSize( rectWidth, rectHeight );
+
+	roundedRect_ = graphics->create_empty_texture( rectWidth, rectHeight, GL_LUMINANCE_ALPHA );
+	graphics->render_to_texture( roundedRect_ );
 
 	// Adjust radius of inner and outer based on stroke type.
 	int innerRadius = radius_;
@@ -88,31 +85,28 @@ void RoundedRectangle::Generate( DirectX *directX )
 
 	// Draw outer rectangle if needed.
 	if (strokeSize != 0) {
-		directX->DrawRoundedRect(
-			0, 0,
-			rectWidth, rectHeight,
-			outerRadius,
-			GetStrokeColour() );
+		graphics->set_colour( strokeColour_, GetAlpha() );
+		graphics->draw_rounded_rect(	 0.0f, 0.0f, rectWidth, rectHeight, radius_ );
 	}
 
 	// Empty inner area.
-	directX->SetBlendState( D3DBLEND_ZERO, D3DBLEND_INVSRCALPHA );
-	directX->DrawRoundedRect(
+	graphics->set_blend_state( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );
+	graphics->set_colour( COLOUR_WHITE );
+	graphics->draw_rounded_rect(
 		strokeSize, strokeSize,
 		rectWidth - strokeSize * 2, rectHeight - strokeSize * 2,
-		innerRadius,
-		D3DCOLOR_XRGB( 255, 255, 255 ) );
-	directX->SetBlendState( D3DBLEND_SRCALPHA, D3DBLEND_INVSRCALPHA );
+		innerRadius );
+	graphics->set_blend_state( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 	// Draw inner rectangle.
-	directX->DrawRoundedRect(
+	graphics->set_colour( colour_, GetAlpha() );
+	graphics->draw_rounded_rect(
 		strokeSize, strokeSize,
 		rectWidth - strokeSize * 2, rectHeight - strokeSize * 2,
-		innerRadius,
-		GetColour() );
+		innerRadius );
 
-	directX->ResetProjectionSize();
-	directX->ResetRenderTarget();
+	// Draw to backbuffer.
+	graphics->reset_render_target();
 }
 
 Texture *RoundedRectangle::GetTexture( void ) const
@@ -133,12 +127,12 @@ void RoundedRectangle::RemoveTexture( void )
 	}
 }
 
-D3DCOLOR RoundedRectangle::GetColour( void ) const
+const Colour& RoundedRectangle::GetColour( void ) const
 {
 	return colour_;
 }
 
-D3DCOLOR RoundedRectangle::GetStrokeColour( void ) const
+const Colour& RoundedRectangle::GetStrokeColour( void ) const
 {
 	return strokeColour_;
 }

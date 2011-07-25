@@ -20,8 +20,8 @@ public:
 	virtual void	Pack( void );
 	void			SetMessage( const string& message );
 
-	static void		Precache( DirectX *directX );
-	static void		Release( void );
+	static void		Precache();
+	static void		Release();
 
 protected:
 
