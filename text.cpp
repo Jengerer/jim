@@ -1,11 +1,9 @@
 #include "text.h"
 
-const Colour WHITE = { 255, 255, 255 };
-
 Text::Text( Font *font )
 {
 	SetFont( font );
-	SetColour( WHITE );
+	SetColour( COLOUR_WHITE );
 	list_ = glGenLists( 1 );
 }
 
@@ -39,7 +37,7 @@ void Text::Draw( Graphics2D* graphics )
 {
 	glPushMatrix();
 	glTranslatef( GetX(), GetY(), 0.0f );
-	graphics->set_colour( colour_, GetAlpha() );
+	graphics->set_colour( colour_ );
 	glCallList( list_ );
 	glPopMatrix();
 }

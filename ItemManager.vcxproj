@@ -99,6 +99,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="animated_grid_pages.cpp" />
+    <ClCompile Include="colour.cpp" />
     <ClCompile Include="constraint.cpp" />
     <ClCompile Include="dragged_slot_view.cpp" />
     <ClCompile Include="file_texture.cpp" />

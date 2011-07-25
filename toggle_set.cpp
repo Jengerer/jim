@@ -5,18 +5,17 @@ const unsigned int TOGGLE_SET_PADDING		= 10;
 const unsigned int TOGGLE_SET_GRID_WIDTH	= 3;
 
 const unsigned int TOGGLE_SET_RADIUS		= 10;
-const Colour TOGGLE_SET_COLOUR				= { 42, 39, 37 };
-const Colour TOGGLE_SET_STROKE_COLOUR		= { 255, 255, 255 };
+const Colour TOGGLE_SET_COLOUR				= Colour( 42, 39, 37 );
 const unsigned int TOGGLE_SET_STROKE_SIZE	= 5;
 
 const char* TOGGLE_SET_FONT_FACE			= "fonts/tf2build.ttf";
 const unsigned int TOGGLE_SET_FONT_SIZE		= 18;
-const Colour TOGGLE_SET_FONT_COLOUR			= { 255, 255, 255 };
+const Colour TOGGLE_SET_FONT_COLOUR			= COLOUR_WHITE;
 const bool TOGGLE_SET_FONT_BOLDED			= false;
 
 const char* TOGGLE_SET_BUTTON_FONT_FACE			= "fonts/tf2build.ttf";
 const unsigned int TOGGLE_SET_BUTTON_FONT_SIZE	= 16;
-const Colour TOGGLE_SET_BUTTON_FONT_COLOUR		= { 42, 39, 37 };
+const Colour TOGGLE_SET_BUTTON_FONT_COLOUR		= Colour( 42, 39, 37 );
 const bool TOGGLE_SET_BUTTON_FONT_BOLDED		= false;
 
 const unsigned int TOGGLE_SET_MIN_WIDTH			= 150;
@@ -37,7 +36,7 @@ ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB, float x, f
 
 	// Create rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, TOGGLE_SET_RADIUS, TOGGLE_SET_COLOUR );
-	roundedRect_->SetStroke( TOGGLE_SET_STROKE_SIZE, TOGGLE_SET_STROKE_COLOUR );
+	roundedRect_->SetStroke( TOGGLE_SET_STROKE_SIZE, COLOUR_WHITE );
 	Add( roundedRect_ );
 	SetConstraint( roundedRect_, 0.0f, 0.0f );
 

@@ -47,7 +47,7 @@ public:
 
 	// Render mode handling.
 	void set_blend_state( GLenum src_blend, GLenum dest_blend );
-	void set_colour( const Colour& colour, GLubyte alpha = ALPHA_MAXIMUM );
+	void set_colour( const Colour& colour );
 
 	// Framebuffer handling.
 	void render_to_texture( const Texture* texture );

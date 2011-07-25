@@ -85,7 +85,7 @@ void RoundedRectangle::Generate( Graphics2D* graphics )
 
 	// Draw outer rectangle if needed.
 	if (strokeSize != 0) {
-		graphics->set_colour( strokeColour_, GetAlpha() );
+		graphics->set_colour( strokeColour_ );
 		graphics->draw_rounded_rect(	 0.0f, 0.0f, rectWidth, rectHeight, radius_ );
 	}
 
@@ -99,7 +99,7 @@ void RoundedRectangle::Generate( Graphics2D* graphics )
 	graphics->set_blend_state( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 	// Draw inner rectangle.
-	graphics->set_colour( colour_, GetAlpha() );
+	graphics->set_colour( colour_ );
 	graphics->draw_rounded_rect(
 		strokeSize, strokeSize,
 		rectWidth - strokeSize * 2, rectHeight - strokeSize * 2,

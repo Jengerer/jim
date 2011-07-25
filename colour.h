@@ -3,22 +3,33 @@
 
 #include "opengl_shared.h"
 
+// Alpha constants.
+const GLubyte COMPONENT_MIN = 0;
+const GLubyte COMPONENT_MAX = 255;
+
 // Colour struct.
-#pragma pack( push, 1 )
-struct Colour
+class Colour
 {
+
+public:
+
+	Colour( GLubyte r = COMPONENT_MAX, 
+		GLubyte g = COMPONENT_MAX,
+		GLubyte b = COMPONENT_MAX, 
+		GLubyte a = COMPONENT_MAX );
+
+public:
+
 	GLubyte r;
 	GLubyte g;
 	GLubyte b;
+	GLubyte a;
+
 };
-#pragma pack( pop )
 
-// Default some useful colour constants.
-const Colour COLOUR_WHITE = { 255, 255, 255 };
-const Colour COLOUR_BLACK = { 0, 0, 0 };
-
-// Alpha constants.
-const GLubyte ALPHA_MINIMUM = 0;
-const GLubyte ALPHA_MAXIMUM = 255;
+// Useful colours.
+const Colour COLOUR_WHITE( COMPONENT_MAX, COMPONENT_MAX, COMPONENT_MAX );
+const Colour COLOUR_BLACK( COMPONENT_MIN, COMPONENT_MIN, COMPONENT_MIN );
+const Colour COLOUR_BLANK( COMPONENT_MIN, COMPONENT_MIN, COMPONENT_MIN, COMPONENT_MIN );
 
 #endif // COLOUR_H
