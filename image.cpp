@@ -1,18 +1,16 @@
 #include "image.h"
 
-const Colour WHITE_TINT = { 255, 255, 255 };
-
 Image::Image( Texture* texture, float localX, float localY ): Component( localX, localY )
 {
 	SetTexture( texture );
-	SetTint( WHITE_TINT );
+	SetTint( COLOUR_WHITE );
 }
 
 void Image::Draw( Graphics2D* graphics )
 {
 	// Draw texture.
 	if (texture_ != nullptr) {
-		graphics->set_colour( tint_, GetAlpha() );
+		graphics->set_colour( tint_ );
 		graphics->draw_texture(
 			texture_,
 			GetX(), GetY(),
@@ -20,9 +18,17 @@ void Image::Draw( Graphics2D* graphics )
 	}
 }
 
+void Image::SetAlpha( int alpha )
+{
+	Component::SetAlpha( alpha );
+	tint_.a = static_cast<GLubyte>(alpha);
+}
+
 void Image::SetTint( const Colour& tint )
 {
-	tint_ = tint;
+	tint_.r = tint.r;
+	tint_.g = tint.g;
+	tint_.b = tint.b;
 }
 
 const Colour& Image::GetTint( void ) const

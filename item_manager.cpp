@@ -38,13 +38,13 @@ const DWORD PAGE_DELAY_INTERVAL			= 500;
 const char* TITLE_FONT_FACE				= "fonts/tf2build.ttf";
 const unsigned int TITLE_FONT_SIZE		= 18;
 const bool TITLE_FONT_BOLDED			= false;
-const Colour TITLE_COLOUR				= { 241, 239, 237 };
+const Colour TITLE_COLOUR( 241, 239, 237 );
 
 // Page display.
 const char* PAGE_FONT_FACE				= "fonts/tf2build.ttf";
 const unsigned int PAGE_FONT_SIZE		= 20;
 const bool PAGE_FONT_BOLDED				= false;
-const Colour PAGE_LABEL_COLOUR			= { 255, 255, 255 };
+const Colour& PAGE_LABEL_COLOUR			= COLOUR_WHITE;
 const unsigned int PAGE_LABEL_WIDTH		= 50;
 
 // Inventory attributes.
@@ -165,11 +165,6 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 	FontFactory::initialize();
 	Notice::Precache( graphics_ );
 	Button::Precache( graphics_ );
-
-	// Add test image.
-	Image* image = new Image( graphics_->get_texture( "backpack/crafting/desc_tag", "phagot" ), 0.0f, 0.0f );
-	image->SetSize( 128, 128 );
-	Add( image );
 
 	try {
 		// Precache secondary resources.

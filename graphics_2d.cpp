@@ -64,6 +64,11 @@ void Graphics2D::initialize( void )
 		throw Exception( "Failed to set current context." );
 	}
 
+	// Share lists between threads.
+	if (!wglShareLists( rc_, loadRc_ )) {
+		throw Exception( "Failed to share lists between contexts." );
+	}
+
 	// Get rounded corner texture.
 	rounded_corner_ = get_texture( "manager/rounded_corner" );
 
@@ -362,9 +367,9 @@ void Graphics2D::set_blend_state( GLenum src_blend, GLenum dest_blend )
 	glBlendFunc( src_blend, dest_blend );
 }
 
-void Graphics2D::set_colour( const Colour& colour, GLubyte alpha )
+void Graphics2D::set_colour( const Colour& colour )
 {
-	glColor4ub( colour.r, colour.g, colour.b, alpha );
+	glColor4ub( colour.r, colour.g, colour.b, colour.a );
 }
 
 void Graphics2D::render_to_texture( const Texture* texture )

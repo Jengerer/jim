@@ -4,8 +4,8 @@ const unsigned int MENU_PADDING		= 10;
 const unsigned int MENU_SPACING		= 10;
 const unsigned int MENU_RADIUS		= 3;
 const unsigned int MENU_STROKE_SIZE	= 4;
-const Colour MENU_STROKE_COLOUR		= { 255, 255, 255 };
-const Colour MENU_BACKGROUND_COLOUR	= { 42, 39, 37 };
+const Colour& MENU_STROKE_COLOUR	= COLOUR_WHITE;
+const Colour MENU_BACKGROUND_COLOUR( 42, 39, 37 );
 
 // Menu created.
 Menu::Menu( void )

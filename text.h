@@ -4,7 +4,7 @@
 #include "component.h"
 #include "font.h"
 
-class Text : public Component//, public IGeneratable
+class Text : public Component
 {
 
 public:

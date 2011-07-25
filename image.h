@@ -12,6 +12,7 @@ public:
 	virtual void	Draw( Graphics2D* graphics );
 	void			SetTexture( Texture *texture );
 
+	void			SetAlpha( int alpha );
 	void			SetTint( const Colour& tint );
 	const Colour&	GetTint( void ) const;
 

@@ -4,7 +4,7 @@
 const char* ITEM_DISPLAY_TITLE_FONT_FACE		= "fonts/tf2build.ttf";
 const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 17;
 
-const Colour ITEM_DISPLAY_COLOUR				= { 0, 0, 0 };
+const Colour& ITEM_DISPLAY_COLOUR				= COLOUR_BLACK;
 
 const char* ITEM_DISPLAY_INFO_FONT_FACE			= "fonts/tf2secondary.ttf";
 const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE	= 16;

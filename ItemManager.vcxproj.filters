@@ -210,6 +210,9 @@
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc">
       <Filter>source\protobufs</Filter>
     </ClCompile>
+    <ClCompile Include="colour.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="steam\AppsCommon.h">
