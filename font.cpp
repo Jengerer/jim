@@ -1,6 +1,5 @@
 #include "font.h"
 
-GLuint rofl = 0;
 Font::Font( FT_Face face )
 {
 	face_ = face;
@@ -52,8 +51,6 @@ void Font::generate_glyphs()
 	for (unsigned char i = 0; i < 255; ++i) {
 		create_display_list( i );
 	}
-
-	rofl = textures_[0];
 }
 
 void Font::create_display_list( unsigned char ch )

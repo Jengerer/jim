@@ -36,13 +36,13 @@ const DWORD PAGE_DELAY_INTERVAL			= 500;
 
 // Title display.
 const char* TITLE_FONT_FACE				= "fonts/tf2build.ttf";
-const unsigned int TITLE_FONT_SIZE		= 18;
+const unsigned int TITLE_FONT_SIZE		= 14;
 const bool TITLE_FONT_BOLDED			= false;
 const Colour TITLE_COLOUR( 241, 239, 237 );
 
 // Page display.
 const char* PAGE_FONT_FACE				= "fonts/tf2build.ttf";
-const unsigned int PAGE_FONT_SIZE		= 20;
+const unsigned int PAGE_FONT_SIZE		= 14;
 const bool PAGE_FONT_BOLDED				= false;
 const Colour& PAGE_LABEL_COLOUR			= COLOUR_WHITE;
 const unsigned int PAGE_LABEL_WIDTH		= 50;
@@ -812,9 +812,11 @@ void ItemManager::HandleCallbacks( void ) {
 						GCProtobufHeader_t *headerStruct = headerBuffer.get<GCProtobufHeader_t>();
 						uint32 headerSize = headerStruct->m_cubProtobufHeader;
 
+#ifdef _DEBUG
 						stringstream protoMsg;
-						protoMsg << "Message of type " << realId << " received.";
+						protoMsg << "Protobuf message of type " << realId << " received.";
 						notifications_->AddNotification( protoMsg.str(), nullptr );
+#endif
 
 						// Now get the real protobuf header.
 						CMsgProtoBufHeader headerMsg;
@@ -1066,7 +1068,7 @@ Notice* ItemManager::CreateNotice( const string& message )
 Alert* ItemManager::CreateAlert( const string& message )
 {
 	Alert* alert = new Alert( message );
-	alert->CenterTo( this );
+	alert->SetPosition( 0, GetWidth()/2 );
 	ShowPopup( alert );
 	return alert;
 }

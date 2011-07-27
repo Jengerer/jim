@@ -3,16 +3,16 @@
 
 const unsigned int NOTIFICATION_ICON_SIZE	= 48;
 const unsigned int NOTIFICATION_TEXT_WIDTH	= 160;
-const Colour NOTIFICATION_COLOUR			= Colour( 42, 39, 37 );
+const Colour NOTIFICATION_COLOUR( 42, 39, 37 );
 const unsigned int NOTIFICATION_RADIUS		= 5;
 const unsigned int NOTIFICATION_PADDING		= 10;
 const unsigned int NOTIFICATION_SPACING		= 5;
 
 const unsigned int NOTIFICATION_STROKE_SIZE	= 2;
-const Colour& NOTIFICATION_STROKE_COLOUR	= COLOUR_WHITE;
+const Colour NOTIFICATION_STROKE_COLOUR( 255, 255, 255, 100 );
 
 const char* NOTIFICATION_FONT_FACE			= "fonts/tf2build.ttf";
-const unsigned int NOTIFICATION_FONT_SIZE	= 14;
+const unsigned int NOTIFICATION_FONT_SIZE	= 10;
 const Colour& NOTIFICATION_FONT_COLOUR		= COLOUR_WHITE;
 
 Font *Notification::font_ = nullptr;

@@ -32,6 +32,7 @@ void RoundedRectangle::Draw( Graphics2D* graphics )
 	}
 
 	// Draw texture.
+	graphics->set_colour( Colour( 255, 255, 255, GetAlpha() ) );
 	graphics->draw_texture(
 		roundedRect_,
 		textureX, textureY );
@@ -68,7 +69,7 @@ void RoundedRectangle::Generate( Graphics2D* graphics )
 		rectHeight += GetStrokeSize() << 1;
 	}
 
-	roundedRect_ = graphics->create_empty_texture( rectWidth, rectHeight, GL_LUMINANCE_ALPHA );
+	roundedRect_ = graphics->create_empty_texture( rectWidth, rectHeight, GL_RGBA );
 	graphics->render_to_texture( roundedRect_ );
 
 	// Adjust radius of inner and outer based on stroke type.
@@ -86,7 +87,7 @@ void RoundedRectangle::Generate( Graphics2D* graphics )
 	// Draw outer rectangle if needed.
 	if (strokeSize != 0) {
 		graphics->set_colour( strokeColour_ );
-		graphics->draw_rounded_rect(	 0.0f, 0.0f, rectWidth, rectHeight, radius_ );
+		graphics->draw_rounded_rect( 0.0f, 0.0f, rectWidth, rectHeight, radius_ );
 	}
 
 	// Empty inner area.

@@ -53,16 +53,6 @@ void Container::Draw( Graphics2D* graphics )
 	}
 }
 
-void Container::SetAlpha( int alpha )
-{
-	Component::SetAlpha( alpha );
-	vector<Component*>::iterator i, end;
-	for (i = components_.begin(), end = components_.end(); i != end; ++i) {
-		Component *component = *i;
-		component->SetAlpha( alpha );
-	}
-}
-
 //=============================================================
 // Purpose: Checks whether a component is bounded by this
 //			container.
