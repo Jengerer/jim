@@ -18,7 +18,6 @@ public:
 
 	// Drawing functions.
 	virtual void	Draw( Graphics2D* graphics );
-	virtual void	SetAlpha( int alpha );
 
 	// Local/global child position handling.
 	void			ClampChild( Component *child, float padding = 0.0f ) const;

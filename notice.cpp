@@ -16,7 +16,7 @@ const unsigned int NOTICE_PADDING		= 20;
 const int NOTICE_SPACING				= 10;
 const unsigned int NOTICE_STROKE_WIDTH	= 5;
 const Colour NOTICE_STROKE_COLOUR( 255, 255, 255, 100 );
-const Colour NOTICE_COLOUR( 42, 39, 37 );
+const Colour& NOTICE_COLOUR				= COLOUR_BLACK;
 
 Notice::Notice( const string& message ) : Popup( 0.0f, 0.0f )
 {

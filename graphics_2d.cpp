@@ -130,9 +130,7 @@ void Graphics2D::setup_scene()
 	glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
 	// Enable vertical-sync.
-	if (GLEE_WGL_EXT_swap_control) {
-		wglSwapIntervalEXT( 1 );
-	}
+	wglSwapIntervalEXT( 1 );
 
 	// Flat shading.
 	glShadeModel( GL_FLAT );
@@ -186,12 +184,8 @@ void Graphics2D::swap_buffers()
 	SwapBuffers( dc_ );
 }
 
-void Graphics2D::save_texture( Texture* destination, GLubyte* data, GLsizei width, GLsizei height, GLenum format )
+GLuint Graphics2D::create_texture( GLubyte* data, GLsizei width, GLsizei height, GLenum format )
 {
-	// First bump the size up.
-	GLsizei real_width = next_power_of_2( width );
-	GLsizei real_height = next_power_of_2( height );
-
 	// Create texture.
 	GLuint texture;
 	glGenTextures( 1, &texture );
@@ -203,28 +197,58 @@ void Graphics2D::save_texture( Texture* destination, GLubyte* data, GLsizei widt
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 
-	// Get texture mapping edges.
-	GLfloat tu = static_cast<float>(width) / static_cast<float>(real_width);
-	GLfloat tv = static_cast<float>(height) / static_cast<float>(real_height);
-
 	// Build mipmaps, delete buffer.
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, real_width, real_height, 0, format, GL_UNSIGNED_BYTE, data );
+	glTexImage2D( GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data );
 	glBindTexture( GL_TEXTURE_2D, 0 );
-	destination->set_texture( texture, width, height, tu, tv );
+	return texture;
 }
 
 Texture* Graphics2D::create_empty_texture( GLsizei width, GLsizei height, GLenum format )
 {
-	Texture* result = new Texture();
-	save_texture( result, nullptr, width, height, format );
+	// Adjust size to be powers of 2.
+	GLsizei real_width = next_power_of_2( width );
+	GLsizei real_height = next_power_of_2( height );
+	
+	// Get component count.
+	GLuint components;
+	switch (format) {
+	case GL_RGBA:
+		components = 4;
+		break;
+	case GL_RGB:
+		components = 3;
+		break;
+	case GL_LUMINANCE_ALPHA:
+		components = 2;
+		break;
+	default:
+		components = 1;
+		break;
+	}
+
+	// Allocate and zero a buffer.
+	GLuint size = real_width * real_height * components;
+	GLubyte* data = new GLubyte[size];
+	ZeroMemory( data, size );
+
+	// Calculate texture coordinates.
+	float tu = static_cast<float>(width) / static_cast<float>(real_width);
+	float tv = static_cast<float>(height) / static_cast<float>(real_height);
+
+	// Create GL texture.
+	GLuint texture = create_texture( data, real_width, real_height, format );
+	delete[] data;
+
+	// Set texture and return.
+	Texture* result = new Texture( texture, width, height, tu, tv );
 	return result;
 }
 
-void Graphics2D::load_texture( FileTexture* texture )
+void Graphics2D::load_texture( FileTexture* file_texture )
 {
 	// Get filename and URL.
-	const string& filename = "img/" + texture->get_filename() + ".png";
-	const string& url = texture->get_url();
+	const string& filename = "img/" + file_texture->get_filename() + ".png";
+	const string& url = file_texture->get_url();
 
 	// Output variables.
 	png_structp	png_ptr;
@@ -295,10 +319,17 @@ void Graphics2D::load_texture( FileTexture* texture )
 	// Clean up.
 	png_destroy_read_struct( &png_ptr, &info_ptr, nullptr );
 	fclose( fp );
+
+	// Calculate texture coordinates.
+	float tu = static_cast<float>(width) / static_cast<float>(padded_width);
+	float tv = static_cast<float>(height) / static_cast<float>(padded_height);
 	
 	// Generate texture from data.
-	save_texture( texture, output, width, height, GL_RGBA );
+	GLuint texture = create_texture( output, width, height, GL_RGBA );
 	delete[] output;
+
+	// Set texture.
+	file_texture->set_texture( texture, width, height, tu, tv );
 }
 
 void Graphics2D::draw_rectangle( GLfloat x, GLfloat y, GLfloat width, GLfloat height )
@@ -328,7 +359,7 @@ void Graphics2D::draw_rounded_rect( GLfloat x, GLfloat y, GLfloat width, GLfloat
 
 	// Fill in center and tops.
 	draw_rectangle( x, y + radius, width, height - double_radius ); // Middle.
-	draw_rectangle( x + radius, y, width - double_radius, height ); // Top.
+	draw_rectangle( x + radius, y, width - double_radius, radius ); // Top.
 	draw_rectangle( x + radius, y + height - radius, width - double_radius, radius ); // Bottom.
 }
 

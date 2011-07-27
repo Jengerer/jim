@@ -33,10 +33,10 @@ public:
 	void swap_buffers();
 
 	// Resource handling.
-	void save_texture( Texture* texture, GLubyte* data, GLsizei width, GLsizei height, GLenum format );
-	Texture* create_empty_texture( GLsizei width, GLsizei height, GLenum format );
-	FileTexture* get_texture( const string& filename );
-	FileTexture* get_texture( const string& filename, const string& url );
+	Texture*		create_empty_texture( GLsizei width, GLsizei height, GLenum format );
+	GLuint			create_texture( GLubyte* data, GLsizei width, GLsizei height, GLenum format );
+	FileTexture*	get_texture( const string& filename );
+	FileTexture*	get_texture( const string& filename, const string& url );
 
 	// Drawing functions.
 	void draw_rectangle( GLfloat x, GLfloat y, GLfloat width, GLfloat height );
