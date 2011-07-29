@@ -44,13 +44,14 @@ void Curl::clean()
 	curl_easy_cleanup( curl_ );
 }
 
-bool Curl::download( const string& url, const string& destination )
+void Curl::download( const string& url, const string& destination )
 {
 	//Set the URL.
 	CURLcode result = curl_easy_setopt( curl_, CURLOPT_URL, url.c_str() );
 
-	if (result != CURLE_OK)
-		return false;
+	if (result != CURLE_OK) {
+		throw Exception( "Failed to set cURL operation." );
+	}
 
 	// Create the folder(s) if needed.
 	size_t slash = destination.find( '/' );
@@ -76,29 +77,28 @@ bool Curl::download( const string& url, const string& destination )
 
 	// Get it!
 	result = curl_easy_perform( curl_ );
-	if (result != CURLE_OK)
-		return false;
+	if (result != CURLE_OK) {
+		throw Exception( "Failed to download '" + url + "'." );
+	}
 
 	// Close the stream if it exists.
-	if ( downloadFile.file )
+	if ( downloadFile.file ) {
 		fclose( downloadFile.file );
-
-	// All succeeded.
-	return true;
+	}
 }
 
 string Curl::read( const string& url )
 {
 	Memory_t readFile;
-	ZeroMemory( &readFile, sizeof(Memory_t) );
+	ZeroMemory( &readFile, sizeof( Memory_t ) );
 
-	//Specify url.
+	// Specify url.
 	curl_easy_setopt( curl_, CURLOPT_URL, url.c_str() );
 
-	//Send all data to this function.
+	// Send all data to this function.
 	curl_easy_setopt( curl_, CURLOPT_WRITEFUNCTION, writeCallback );
 
-	//Send chuck struct.
+	// Send chuck struct.
 	curl_easy_setopt( curl_, CURLOPT_WRITEDATA, &readFile );
 
 	// Fail if not found.
@@ -114,13 +114,12 @@ string Curl::read( const string& url )
 	string output = readFile.memory;
 
 	//Free the memory.
-	if (readFile.memory != 0)
+	if (readFile.memory != nullptr) {
 		free( readFile.memory );
+	}
 
 	return output;
 }
-
-
 
 static void *reallocate( void *buffer, size_t size )
 {

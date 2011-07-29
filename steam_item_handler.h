@@ -17,6 +17,7 @@ class SteamItemHandler : public Steam
 public:
 
 	SteamItemHandler();
+	virtual ~SteamItemHandler();
 
 	// Selection handling.
 	void Select( SlotView* slotView );

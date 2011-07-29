@@ -18,6 +18,7 @@ public:
 	const string&	GetText( void ) const;
 	void			SetColour( const Colour& colour );
 	const Colour&	GetColour( void ) const;
+	virtual void	SetAlpha( int alpha );
 
 	// Drawing functions.
 	Font*			GetFont( void ) const;

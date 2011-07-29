@@ -34,7 +34,7 @@ public:
 	static void shut_down();
 
 	// External file functions.
-	bool	download( const string& url, const string& destination );
+	void	download( const string& url, const string& destination );
 	string	read( const string& url );
 
 private:

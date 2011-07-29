@@ -31,9 +31,7 @@ Font* FontFactory::create_font( const std::string& filename, FT_F26Dot6 height )
 	if (error != FT_Err_Ok) {
 		try {
 			Curl* curl = Curl::get_instance();
-			if (!curl->download( "http://www.jengerer.com/itemManager/" + filename, filename )) {
-				throw Exception( "Failed to download " + filename + "." );
-			}
+			curl->download( "http://www.jengerer.com/item_manager/" + filename, filename );
 		}
 		catch (const Exception& ex) {
 			throw ex;

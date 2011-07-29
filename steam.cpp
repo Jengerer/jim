@@ -5,8 +5,8 @@
 #include "protobuf/gcsdk_gcmessages.pb.h"
 
 /* Function prototypes to load from DLL. */
-bool* (*Steam_BGetCallback) (HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg, HSteamCall *phSteamCall);
-void* (*Steam_FreeLastCallback) (HSteamPipe hSteamPipe);
+bool (*Steam_BGetCallback) (HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg, HSteamCall *phSteamCall);
+void (*Steam_FreeLastCallback) (HSteamPipe hSteamPipe);
 
 Steam::Steam( void )
 {
@@ -64,12 +64,12 @@ void Steam::LoadInterfaces( void )
 	}
 
 	//Now define the functions.
-	Steam_BGetCallback = (bool* (*)(HSteamPipe, CallbackMsg_t *, HSteamCall *))GetProcAddress( clientDll_, "Steam_BGetCallback" );
+	Steam_BGetCallback = (bool (*)(HSteamPipe, CallbackMsg_t *, HSteamCall *))GetProcAddress( clientDll_, "Steam_BGetCallback" );
 	if (Steam_BGetCallback == nullptr) {
 		throw Exception( "Failed to get Steam_BGetCallback from Steam library." );
 	}
 
-	Steam_FreeLastCallback = (void* (*)(HSteamPipe))GetProcAddress( clientDll_, "Steam_FreeLastCallback" );
+	Steam_FreeLastCallback = (void (*)(HSteamPipe))GetProcAddress( clientDll_, "Steam_FreeLastCallback" );
 	if (Steam_FreeLastCallback == nullptr) {
 		throw Exception( "Failed to get Steam_FreeLastCallback from Steam library." );
 	}

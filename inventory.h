@@ -36,6 +36,7 @@ public:
 
 	// Slot resource functions.
 	void	AddSlots( unsigned int slots );
+	void	RemoveSlots();
 	void	EmptySlots();
 
 	// Handling excluded items.
@@ -50,7 +51,6 @@ public:
 private:
 
 	void	CreateSlots();
-	void	RemoveSlots();
 
 protected:
 

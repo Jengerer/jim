@@ -1,13 +1,12 @@
 #include "definition_loader.h"
 #include "curl.h"
 
-DefinitionLoader::DefinitionLoader( Graphics2D *graphics, const string& definitionUrl )
+DefinitionLoader::DefinitionLoader( Graphics2D *graphics )
 {
 	stop_ = false;
 	loaded_ = 0;
 
 	graphics_ = graphics;
-	definitionUrl_ = definitionUrl;
 
 	SetProgress( 0.0f );
 	SetState( LOADING_STATE_START );
@@ -29,7 +28,7 @@ void DefinitionLoader::End()
 
 void DefinitionLoader::Load()
 {
-	wglMakeCurrent( graphics_->dc_, graphics_->loadRc_ );
+	graphics_->set_render_context( graphics_->get_loading_context() );
 
 	// Create slot name map.
 	slotTypes_[""]			= SLOT_NONE;
@@ -90,21 +89,22 @@ void DefinitionLoader::Load()
 			// Check that all necessary attributes exist.
 			unsigned int defindex	= GetMember( item, "defindex" ).asUInt();
 			string item_name		= GetMember( item, "item_name" ).asString();
-			string slot_name		= GetMember( item, "item_slot" ).asString();
 			string image_inventory	= GetMember( item, "image_inventory" ).asString();
 			string image_url		= GetMember( item, "image_url" ).asString();
 
 			if (image_inventory.empty()) {
 				image_inventory = "backpack/unknown_item";
-				image_url = "http://www.jengerer.com/itemManager/img/backpack/unknown_item.png";
+				image_url = "http://www.jengerer.com/item_manager/img/backpack/unknown_item.png";
 			}
 
-			EItemSlot item_slot;
-			std::map<string, EItemSlot>::iterator j = slotTypes_.find( slot_name );
-			if (j == slotTypes_.end()) {
-				throw Exception( "Failed to parse item definitions. Unexpected item slot type '" + slot_name + "' found." );
+			EItemSlot item_slot = SLOT_NONE;
+			if (item.isMember( "item_slot" )) {
+				string slot_name = GetMember( item, "item_slot" ).asString();
+				auto j = slotTypes_.find( slot_name );
+				if (j == slotTypes_.end()) {
+					throw Exception( "Failed to parse item definitions. Unexpected item slot type '" + slot_name + "' found." );
+				}
 			}
-			item_slot = j->second;
 
 			// Get classes, if they exist.
 			unsigned int item_classes = CLASS_ALL;
@@ -147,6 +147,8 @@ void DefinitionLoader::Load()
 		Cleanup();
 		SetError( *exception.getMessage() );
 	}
+
+	graphics_->unset_render_context();
 }
 
 void DefinitionLoader::Cleanup()

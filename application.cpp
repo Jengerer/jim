@@ -5,6 +5,7 @@ Application::Application( int width, int height )
 {
 	// Uncreated members null.
 	graphics_ = nullptr;
+	window_ = nullptr;
 	mouse_ = nullptr;
 	
 	// Add mouse keys by default.

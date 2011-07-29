@@ -44,12 +44,23 @@ void Container::Remove( Component* component )
 void Container::Draw( Graphics2D* graphics )
 {
 	// Draw all children.
-	std::vector<Component*>::iterator i, end;
-	for (i = components_.begin(), end = components_.end(); i != end; ++i) {
+	for (auto i = components_.begin(), end = components_.end(); i != end; ++i) {
 		Component* child = *i;
 		if (IsVisible( child )) {
 			child->Draw( graphics );
 		}
+	}
+}
+
+//=============================================================
+// Purpose: Sets alpha for all children.
+//=============================================================
+void Container::SetAlpha( int alpha )
+{
+	Component::SetAlpha( alpha );
+	for (auto i = components_.begin(), end = components_.end(); i != end; ++i) {
+		Component* child = *i;
+		child->SetAlpha( alpha );
 	}
 }
 

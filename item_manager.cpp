@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 #include <math.h>
+#include <shellapi.h>
+#include <tlhelp32.h>
 #include <json/json.h>
 
 #include "curl.h"
@@ -17,7 +19,6 @@
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
-#define D3D_DEBUG_INFO
 #endif
 
 // Temporarily disable equip and sort.
@@ -28,7 +29,7 @@
 const char*	APPLICATION_TITLE	= "Jengerer's Item Manager Lite";
 const int	APPLICATION_WIDTH	= 795;
 const int	APPLICATION_HEIGHT	= 540;
-const char*	APPLICATION_VERSION	= "1.0.0.0";
+const char*	APPLICATION_VERSION	= "0.9.9.9.7.2";
 
 // UI attributes.
 const unsigned int EXIT_BUTTON_PADDING	= 10;
@@ -44,8 +45,14 @@ const Colour TITLE_COLOUR( 241, 239, 237 );
 const char* PAGE_FONT_FACE				= "fonts/tf2build.ttf";
 const unsigned int PAGE_FONT_SIZE		= 14;
 const bool PAGE_FONT_BOLDED				= false;
-const Colour& PAGE_LABEL_COLOUR			= COLOUR_WHITE;
+const Colour PAGE_LABEL_COLOUR( 201, 79, 57 );
 const unsigned int PAGE_LABEL_WIDTH		= 50;
+
+// Item display attributes.
+const unsigned int ITEM_DISPLAY_SPACING	= 10;
+
+// Frame rate limiters.
+const DWORD FRAME_SPEED = 1000 / 60;
 
 // Inventory attributes.
 const int PAGE_WIDTH		= 10;
@@ -73,6 +80,7 @@ LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	ItemManager* itemManager = new ItemManager();
+
 	try {
 		itemManager->LoadInterfaces( hInstance );
 	}
@@ -116,6 +124,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	// Alerts and errors.
 	alert_ = nullptr;
 	error_ = nullptr;
+	updateError_ = false;
 
 	// Item stats.
 	itemDisplay_ = nullptr;
@@ -134,6 +143,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	loadProgress_ = nullptr;
 
 	// Fonts.
+	pageFont_ = nullptr;
 	titleFont_ = nullptr;
 
 	// Create Steam interface.
@@ -167,6 +177,20 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 	Button::Precache( graphics_ );
 
 	try {
+		// Check for latest version.
+		if (!IsLatestVersion()) {
+			updateError_ = true;
+			throw Exception( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
+		}
+
+		// Ensure TF2's not running.
+		if (IsTF2Running()) {
+			throw Exception( "Please close Team Fortress 2 before running the item manager." );
+		}
+		else if (IsManagerRunning()) {
+			throw Exception( "Another instance of the item manager is already running!" );
+		}
+
 		// Precache secondary resources.
 		ToggleSet::Precache();
 		ItemDisplay::Precache();
@@ -200,6 +224,11 @@ void ItemManager::CloseInterfaces( void )
 	if (titleFont_ != nullptr) {
 		delete titleFont_;
 		titleFont_ = nullptr;
+	}
+
+	if (pageFont_ != nullptr) {
+		delete pageFont_;
+		pageFont_ = nullptr;
 	}
 
 	if (mouse_ != nullptr) {
@@ -238,6 +267,9 @@ void ItemManager::CloseInterfaces( void )
 
 	// Close font library.
 	FontFactory::shut_down();
+	
+	// Close curl.
+	Curl::shut_down();
 
 	// Free all protobuf library resources.
 	google::protobuf::ShutdownProtobufLibrary();
@@ -440,14 +472,12 @@ bool ItemManager::MouseClicked( Mouse *mouse )
 		}
 		else if (!touchedView) {
 			// TODO: Set a 'clicked target' pointer so we can't just release on button and trigger.
-			if (mouse->IsTouching( craftButton_ )) {
-				return true;
-			}
-			else if (mouse->IsTouching( equipButton_ )) {
-				return true;
-			}
-			else if (mouse->IsTouching( sortButton_ )) {
-				return true;
+			if (mouse->IsTouching( craftButton_ ) ||
+				mouse->IsTouching( equipButton_ ) ||
+				mouse->IsTouching( sortButton_ ) ||
+				mouse->IsTouching( nextButton_ ) ||
+				mouse->IsTouching( prevButton_ )) {
+					return true;
 			}
 			else if (notifications_->MouseClicked( mouse )) {
 				return true;
@@ -471,6 +501,10 @@ bool ItemManager::MouseReleased( Mouse *mouse )
 		if (top->MouseReleased( mouse )) {
 			// Check for error.
 			if (top == error_ && top->GetState() == POPUP_STATE_KILLED) {
+				if (updateError_) {
+					LaunchUpdater();
+				}
+
 				ExitApplication();
 			}
 
@@ -564,9 +598,13 @@ bool ItemManager::MouseMoved( Mouse *mouse )
 				Slot* slot = slotView->GetSlot();
 				if (slot->HasItem()) {
 					itemDisplay_->SetItem( slot->GetItem() );
-					itemDisplay_->SetPosition( 
-						slotView->GetX() + (slotView->GetWidth() - itemDisplay_->GetWidth()) / 2.0f,
-						slotView->GetY() + slotView->GetHeight() + PADDING );
+					float displayX = slotView->GetX() + (slotView->GetWidth() - itemDisplay_->GetWidth()) / 2.0f;
+					float displayY = slotView->GetY() + slotView->GetHeight() + ITEM_DISPLAY_SPACING;
+					if (displayY + itemDisplay_->GetHeight() > GetHeight()) {
+						displayY = slotView->GetY() - itemDisplay_->GetHeight() - ITEM_DISPLAY_SPACING;
+					}
+
+					itemDisplay_->SetPosition( displayX, displayY );
 					ClampChild( itemDisplay_, PADDING );
 				}
 			}
@@ -626,12 +664,9 @@ void ItemManager::SlotReleased( SlotView* slotView )
 	backpack_->RemoveItem( draggedItem );
 	steamItems_->DeselectAll();
 
-	// Check if item is excluded.
+	// Move back if not excluded.
 	bool isExcluded = !backpack_->CanInsert( draggedItem );
-
-	// Return to target slot.
 	Slot* targetSlot = dragTarget_->GetSlot();
-	targetSlot->SetItem( draggedItem );
 
 	// Delete temporary dragged.
 	SlotView* selectTarget = dragTarget_;
@@ -646,7 +681,7 @@ void ItemManager::SlotReleased( SlotView* slotView )
 		Slot* touchedSlot = slotView->GetSlot();
 		if (touchedSlot->HasItem()) {
 			Item* touchedItem = touchedSlot->GetItem();
-			if (!isExcluded) {
+			if (!isExcluded && targetSlot != touchedSlot) {
 				// Swap slots.
 				targetSlot->SetItem( touchedItem );
 				touchedSlot->SetItem( draggedItem );
@@ -666,6 +701,10 @@ void ItemManager::SlotReleased( SlotView* slotView )
 			selectTarget = slotView;
 			toInventory = true;
 		}
+	}
+	else if (!isExcluded) {
+		targetSlot->SetItem( draggedItem );
+		toInventory = true;
 	}
 
 	// Move item to appropriate group.
@@ -701,6 +740,10 @@ void ItemManager::HandleKeyboard( void )
 			Popup *top = popups_.back();
 			if (top == error_) {
 				if (IsKeyPressed( VK_RETURN )) {
+					if (updateError_) {
+						LaunchUpdater();
+					}
+
 					ExitApplication();
 					RemovePopup( top );
 				}
@@ -751,7 +794,7 @@ void ItemManager::LoadDefinitions( void )
 	loadProgress_->SetMessage("Loading item definitions...");
 
 	// Set up loader.
-	definitionLoader_ = new DefinitionLoader( graphics_, "http://www.jengerer.com/itemManager/item_definitions.json" );
+	definitionLoader_ = new DefinitionLoader( graphics_ );
 	definitionLoader_->Begin();
 }
 
@@ -782,8 +825,80 @@ void ItemManager::LoadItemsFromWeb( void )
 	backpack_->SetLoaded( true );
 }
 
-#include <fstream>
-#include <iomanip>
+bool ItemManager::IsLatestVersion() const
+{
+	// Check for program updates.
+	try {
+		Curl* curl = Curl::get_instance();
+		string versionInfo = curl->read( "http://www.jengerer.com/item_manager/item_manager.txt" );
+		return versionInfo == APPLICATION_VERSION;
+	}
+	catch (const Exception&) {
+		// Failed to get version, allow it.
+	}
+
+	return true;
+}
+
+void ItemManager::LaunchUpdater() const
+{
+	// TODO: Make an error type enum and launch this on update error.
+	int result = (int)ShellExecute( 0, 0, "auto_updater.exe", 0, 0, SW_SHOWDEFAULT );
+	if (result == ERROR_FILE_NOT_FOUND || result == ERROR_PATH_NOT_FOUND) {
+		// Attempt to download the updater.
+		try {
+			Curl* curl = Curl::get_instance();
+			curl->download( "http://www.jengerer.com/item_manager/auto_updater.exe", "auto_updater.exe" );
+
+			// ShellExecute returns >32 if success.
+			int result = (int)ShellExecute( 0, 0, "auto_updater.exe", 0, 0, SW_SHOWDEFAULT );
+			if (result <= 32) {
+				throw Exception( "Failed to run auto_updater.exe" );
+			}
+		}
+		catch (const Exception&) {
+			MessageBox( nullptr, "Failed to get/run updater, try re-downloading the application if this persists.", "Update Failed", MB_ICONERROR | MB_OK );
+		}
+	}
+}
+
+bool ItemManager::IsTF2Running() const
+{
+	PROCESSENTRY32 entry;
+	entry.dwSize = sizeof( PROCESSENTRY32 );
+	HANDLE snapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+	if (Process32First( snapshot, &entry )) {
+		while (Process32Next( snapshot, &entry )) {
+			if (strcmp( entry.szExeFile, "hl2.exe" ) == 0) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool ItemManager::IsManagerRunning() const
+{
+	PROCESSENTRY32 entry;
+	entry.dwSize = sizeof( PROCESSENTRY32 );
+	HANDLE snapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+	bool foundFirst = false;
+	if (Process32First( snapshot, &entry )) {
+		while (Process32Next( snapshot, &entry )) {
+			if (strcmp( entry.szExeFile, "item_manager.exe" ) == 0) {
+				if (foundFirst) {
+					return true;
+				}
+				else {
+					foundFirst = true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
 
 void ItemManager::HandleCallbacks( void ) {
 	CallbackMsg_t callback;
@@ -869,14 +984,19 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 	switch (id) {
 	case k_ESOMsg_CacheSubscribed:
 		{
-			if (backpack_ != nullptr && backpack_->IsLoaded() ) {
-				return;
+			bool first_cache = (backpack_ == nullptr);
+			if (first_cache) {
+				backpack_ = new Backpack( EXCLUDED_SIZE );
+			}
+			else {
+				backpack_->RemoveSlots();
+				backpack_->EmptySlots();
 			}
 
 			// Create empty backpack.
-			backpack_ = new Backpack( EXCLUDED_SIZE );
 			CMsgSOCacheSubscribed subscribedMsg;
 			subscribedMsg.ParseFromArray( message, size );
+			steamItems_->SetVersion( subscribedMsg.version() );
 			unsigned int slotCount = PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT;
 								
 			// TODO: Check for other users' backpack.
@@ -909,19 +1029,22 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 				case 7:
 					{
 						if (steamItems_->GetSteamId() == subscribedMsg.owner()) {
-							for (int i = 0; i < subscribedType.object_data_size(); i++) {
-								CSOEconGameAccountClient gameAccountClient;
-								gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
+							// TODO: Handle backpack expansions.
+							if (first_cache) {
+								for (int i = 0; i < subscribedType.object_data_size(); i++) {
+									CSOEconGameAccountClient gameAccountClient;
+									gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
 
-								// Adjust slot count based on account type and slot additions.
-								if (gameAccountClient.trial_account()) {
-									backpack_->AddSlots( PAGE_WIDTH * PAGE_HEIGHT * TRIAL_PAGE_COUNT );
-								}
-								else {
-									backpack_->AddSlots( PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT );
-								}
+									// Adjust slot count based on account type and slot additions.
+									if (gameAccountClient.trial_account()) {
+										backpack_->AddSlots( PAGE_WIDTH * PAGE_HEIGHT * TRIAL_PAGE_COUNT );
+									}
+									else {
+										backpack_->AddSlots( PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT );
+									}
 
-								backpack_->AddSlots( gameAccountClient.additional_backpack_slots() );
+									backpack_->AddSlots( gameAccountClient.additional_backpack_slots() );
+								}
 							}
 						}
 
@@ -935,8 +1058,12 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			backpack_->UpdateExcluded();
 			backpack_->SetLoaded( true );
 
-			CreateLayout();
-			notifications_->AddNotification( "Backpack successfully loaded from Steam.", nullptr );
+			// Create layout if this is the first cache.
+			if (first_cache) {
+				CreateLayout();
+				notifications_->AddNotification( "Backpack successfully loaded from Steam.", nullptr );
+			}
+
 			break;
 		}
 
@@ -959,21 +1086,59 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			break;
 		}
 
-	case k_EMsgGCStartupCheck:
+	case k_ESOMsg_Update:
 		{
-			// Receive the startup check.
-			//CMsgStartupCheck startupMsg;
-			//startupMsg.ParseFromArray( message, size );
+			CMsgSOSingleObject updateMsg;
+			updateMsg.ParseFromArray( message, size );
+			steamItems_->SetVersion( updateMsg.version() );
+			if (updateMsg.type_id() == 1) {
+				CSOEconItem econItem;
+				econItem.ParseFromArray( updateMsg.object_data().data(), updateMsg.object_data().size() );
 
-			// Build a response.
-			//CMsgStartupCheckResponse responseMsg;
-			//responseMsg.set_item_schema_version( 0 );
-			//string responseString = responseMsg.SerializeAsString();
+				// Attempt to find the item.
+				Item *item = backpack_->GetItemByUniqueId( econItem.id() );
+				if (item == nullptr) {
+					break;
+				}
 
-			// Send and free.
-			//steamItems_->SendMessage( k_EMsgGCStartupCheckResponse | 0x80000000, (void*)responseString.c_str(), responseString.size() );
+				// Place item into excluded, to be resolved later.
+				backpack_->RemoveItem( item );
+				backpack_->ToExcluded( item );
+				item->SetFlags( econItem.inventory() );
+			}
+
+			break;
 		}
-		break;
+
+	case k_ESOMsg_UpdateMultiple:
+		{
+			CMsgSOMultipleObjects updateMsg;
+			updateMsg.ParseFromArray( message, size );
+			steamItems_->SetVersion( updateMsg.version() );
+
+			for (int i = 0; i < updateMsg.objects_size(); i++) {
+				CMsgSOMultipleObjects::SingleObject singleObject = updateMsg.objects( i );
+				if (singleObject.type_id() == 1) {
+					CSOEconItem econItem;
+					econItem.ParseFromArray( singleObject.object_data().data(), singleObject.object_data().size() );
+
+					// Attempt to find the item.
+					Item *item = backpack_->GetItemByUniqueId( econItem.id() );
+					if (item == nullptr) {
+						break;
+					}
+
+					// Place item into excluded, to be resolved later.
+					backpack_->RemoveItem( item );
+					backpack_->ToExcluded( item );
+					item->SetFlags( econItem.inventory() );
+				}
+			}
+
+			// Attempt to reposition excluded slots.
+			backpack_->ResolveExcluded();
+			break;
+		}
 
 	case k_EMsgGCUpdateItemSchema:
 		{
@@ -986,6 +1151,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			// Get object created.
 			CMsgSOSingleObject deleteObj;
 			deleteObj.ParseFromArray( message, size );
+			steamItems_->SetVersion( deleteObj.version() );
 
 			// Get item from object.
 			CSOEconItem econItem;
@@ -1024,6 +1190,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			// Get deleted message.
 			CMsgSOSingleObject deleteObj;
 			deleteObj.ParseFromArray( message, size );
+			steamItems_->SetVersion( deleteObj.version() );
 
 			// Get ID of deleted item.
 			CSOEconItem deletedItem;
@@ -1068,7 +1235,7 @@ Notice* ItemManager::CreateNotice( const string& message )
 Alert* ItemManager::CreateAlert( const string& message )
 {
 	Alert* alert = new Alert( message );
-	alert->SetPosition( 0, GetWidth()/2 );
+	alert->CenterTo( this );
 	ShowPopup( alert );
 	return alert;
 }

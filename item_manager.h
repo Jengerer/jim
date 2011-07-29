@@ -36,9 +36,14 @@ public:
 	void CloseInterfaces();
 
 	// Inventory and definition loading.
-	void LoadResources();
 	void LoadDefinitions();
 	void LoadItemsFromWeb();
+
+	// Startup testing.
+	bool IsLatestVersion() const;
+	bool IsTF2Running() const;
+	bool IsManagerRunning() const;
+	void LaunchUpdater() const;
 
 	// User interface creation.
 	void CreateLayout();
@@ -133,6 +138,7 @@ private:
 	// Popups.
 	Alert				*alert_;
 	Alert				*error_;
+	bool				updateError_;
 	Notice				*loadProgress_;
 
 };

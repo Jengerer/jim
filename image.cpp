@@ -21,7 +21,7 @@ void Image::Draw( Graphics2D* graphics )
 void Image::SetAlpha( int alpha )
 {
 	Component::SetAlpha( alpha );
-	tint_.a = static_cast<GLubyte>(alpha);
+	tint_.a = GetAlpha();
 }
 
 void Image::SetTint( const Colour& tint )
