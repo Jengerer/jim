@@ -98,8 +98,10 @@ void Font::create_display_list( unsigned char ch )
 
 	// Set up texture params.
 	glBindTexture( GL_TEXTURE_2D, textures_[ch] );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 
 	// Store character advance.
 	advances_[ch] = face_->glyph->advance.x >> 6;
@@ -160,6 +162,33 @@ void Font::draw( float x, float y, const string& text )
 	glPopMatrix();
 }
 
+void Font::draw_aligned( const string& text, float width, float text_width, TextHorizontalAlignType align_type )
+{
+	// Translate to alignment.
+	glPushMatrix();
+	switch (align_type) {
+	case TEXT_ALIGN_CENTER:
+		glTranslatef( (width - text_width) / 2.0f, 0.0f, 0.0f );
+		break;
+	case TEXT_ALIGN_RIGHT:
+		glTranslatef( (width - text_width), 0.0f, 0.0f );
+		break;
+	}
+
+	// Draw text.
+	draw( 0.0f, 0.0f, text );
+	glPopMatrix();
+}
+
+void Font::draw_aligned( const string& text, float width, TextHorizontalAlignType align_type )
+{
+	// Measure the line.
+	RECT text_rect;
+	measure( &text_rect, text );
+	float text_width = static_cast<float>(text_rect.right - text_rect.left);
+	draw_aligned( text, width, text_width, align_type );
+}
+
 void Font::measure( RECT* rect, const string& text )
 {
 	// Measure width.
@@ -187,6 +216,8 @@ void Font::prepare_draw( float x, float y, const string& text, GLuint list )
 	for (size_t i = 0; i < text.length(); ++i) {
 		if (text[i] == '\n') {
 			string line = text.substr( start, i - start );
+
+			// Draw text and set new line.
 			draw( 0.0f, 0.0f, line );
 			glTranslatef( 0.0f, face_->size->metrics.height >> 6, 0.0f );
 			start = i + 1;
@@ -226,18 +257,19 @@ void Font::prepare_wrap_draw( RECT* bounds, const string& text, GLuint list )
 
 			RECT rect;
 			measure( &rect, current );
+			long text_width = rect.right - rect.left;
 
 			// Check whether this line exceeds bounds.
 			bool has_drawn = false;
-			if ((rect.right - rect.left) > width) {
+			if (text_width > width) {
 				if (first) {
 					start = i + 1;
-					draw( 0.0f, 0.0f, current );
+					draw_aligned( current, width, text_width, TEXT_ALIGN_CENTER );
 					has_drawn = true;
 				}
 				else {
 					const string& last = text.substr( start, prev - start );
-					draw( 0.0f, 0.0f, last );
+					draw_aligned( last, width, TEXT_ALIGN_CENTER );
 					start = prev + 1;
 					has_drawn = true;
 				}
@@ -246,8 +278,15 @@ void Font::prepare_wrap_draw( RECT* bounds, const string& text, GLuint list )
 				first = false;
 			}
 
+			// Draw new line if we've reached the end.
 			if (has_drawn) {
-				glTranslatef( 0.0f, face_->size->metrics.height >> 6, 0.0f );
+				new_line();
+				new_lines++;
+			}
+
+			// Create new line if we wanted another.
+			if (currentChar == '\n') {
+				new_line();
 				new_lines++;
 			}
 
@@ -259,32 +298,33 @@ void Font::prepare_wrap_draw( RECT* bounds, const string& text, GLuint list )
 	const string& final = text.substr( start );
 	RECT rect = {0, 0, 0, 0};
 	measure( &rect, final );
-	if ((rect.right - rect.left) > width && !first) {
-		if (!first) {
-			// Not the first word, draw last and then first.
-			const string& last = text.substr( start, prev - start );
-			draw( 0.0f, 0.0f, last );
+	long text_width = rect.right - rect.left;
+	if (text_width > width && !first) {
+		// Not the first word, draw last and then first.
+		const string& last = text.substr( start, prev - start );
+		draw_aligned( last, width, TEXT_ALIGN_CENTER );
 
-			// Finish last.
-			glTranslatef( 0.0f, face_->size->metrics.height >> 6, 0.0f );
-			const string& end = text.substr( prev + 1 );
-			draw( 0.0f, 0.0f, end );
-
-			new_lines++;
-		}
-		else {
-			// TODO: Need to split the word.
-			draw( 0.0f, 0.0f, final );
-		}
+		// Finish last.
+		new_line();
+		new_lines++;
+		const string& end = text.substr( prev + 1 );
+		draw_aligned( end, width, TEXT_ALIGN_CENTER );
 	}
 	else {
-		draw( 0.0f, 0.0f, final );
+		draw_aligned( final, width, TEXT_ALIGN_CENTER );
 	}
 
 	// Adjust rect bounds by this size.
 	bounds->bottom = bounds->top + (new_lines * get_baseline_spacing()) + get_line_height();
 	glPopMatrix();
 	glEndList();
+}
+
+void Font::new_line()
+{
+	glTranslatef( 0.0f,
+		get_baseline_spacing(),
+		0.0f );
 }
 
 GLsizei Font::get_line_height() const

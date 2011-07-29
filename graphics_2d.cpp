@@ -54,19 +54,19 @@ void Graphics2D::initialize( void )
 	}
 
 	// Creating loading GLRC handle.
-	loadRc_ = wglCreateContext( dc_ );
-	if (loadRc_ == nullptr) {
+	loading_rc_ = wglCreateContext( dc_ );
+	if (loading_rc_ == nullptr) {
 		throw Exception( "Failed to create loading OpenGL context." );
 	}
 
-	// Set current contexts.
-	if (!wglMakeCurrent( dc_, rc_ )) {
-		throw Exception( "Failed to set current context." );
+	// Share lists between threads.
+	if (!wglShareLists( rc_, loading_rc_ )) {
+		throw Exception( "Failed to share lists between contexts." );
 	}
 
-	// Share lists between threads.
-	if (!wglShareLists( rc_, loadRc_ )) {
-		throw Exception( "Failed to share lists between contexts." );
+	// Set current contexts.
+	if (!set_render_context( rc_ )) {
+		throw Exception( "Failed to set current context." );
 	}
 
 	// Get rounded corner texture.
@@ -93,7 +93,7 @@ void Graphics2D::clean_up()
 	// Close rendering context.
 	if (rc_ != nullptr) {
 		// Unset contexts.
-		if (!wglMakeCurrent( nullptr, nullptr )) {
+		if (!unset_render_context()) {
 			throw Exception( "Release of device and render context failed." );
 		}
 
@@ -103,6 +103,15 @@ void Graphics2D::clean_up()
 		}
 
 		rc_ = nullptr;
+	}
+
+	// Close loading rendering context.
+	if (loading_rc_ != nullptr) {
+		if (!wglDeleteContext( loading_rc_ )) {
+			throw Exception( "Failed to release load render context." );
+		}
+
+		loading_rc_ = nullptr;
 	}
 
 	// Release device context.
@@ -116,7 +125,7 @@ void Graphics2D::clean_up()
 void Graphics2D::setup_scene()
 {
 	// Set background colour.
-	glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
+	glClearColor( 0.16f, 0.15f, 0.145, 1.0f );
 	glDisable( GL_DEPTH_TEST );
 
 	// Enable alpha blending.
@@ -155,7 +164,7 @@ void Graphics2D::resize_scene( GLsizei width, GLsizei height )
 
 FileTexture* Graphics2D::get_texture( const string& filename )
 {
-	return get_texture( filename, "http://www.jengerer.com/itemManager/img/" + filename + ".png" );
+	return get_texture( filename, "http://www.jengerer.com/item_manager/img/" + filename + ".png" );
 }
 
 FileTexture* Graphics2D::get_texture( const string& filename, const string& url )
@@ -261,9 +270,7 @@ void Graphics2D::load_texture( FileTexture* file_texture )
 		// Download the file.
 		try {
 			Curl* curl = Curl::get_instance();
-			if (!curl->download( url, filename )) {
-				throw Exception( "Failed to download " + filename + "." );
-			}
+			curl->download( url, filename );
 		}
 		catch (const Exception& ex) {
 			throw ex;
@@ -325,7 +332,7 @@ void Graphics2D::load_texture( FileTexture* file_texture )
 	float tv = static_cast<float>(height) / static_cast<float>(padded_height);
 	
 	// Generate texture from data.
-	GLuint texture = create_texture( output, width, height, GL_RGBA );
+	GLuint texture = create_texture( output, padded_width, padded_height, GL_RGBA );
 	delete[] output;
 
 	// Set texture.
@@ -391,6 +398,34 @@ void Graphics2D::draw_texture( const Texture* texture, GLfloat x, GLfloat y, GLs
 
 	// Unbind texture.
 	glBindTexture( GL_TEXTURE_2D, 0 );
+}
+
+void Graphics2D::draw_display_list( GLuint list, GLfloat x, GLfloat y )
+{
+	glPushMatrix();
+	glTranslatef( x, y, 0.0f );
+	glCallList( list );
+	glPopMatrix();
+}
+
+HGLRC Graphics2D::get_render_context() const
+{
+	return rc_;
+}
+
+HGLRC Graphics2D::get_loading_context() const
+{
+	return loading_rc_;
+}
+
+bool Graphics2D::set_render_context( HGLRC context )
+{
+	return wglMakeCurrent( dc_, context );
+}
+
+bool Graphics2D::unset_render_context()
+{
+	return wglMakeCurrent( nullptr, nullptr );
 }
 
 void Graphics2D::set_blend_state( GLenum src_blend, GLenum dest_blend )

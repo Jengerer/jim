@@ -49,8 +49,8 @@ void Component::SetAlpha( int alpha )
 	if (alpha > COMPONENT_MAX) {
 		alpha_ = COMPONENT_MAX;
 	}
-	else if (alpha < COMPONENT_MAX) {
-		alpha_ = COMPONENT_MAX;
+	else if (alpha < COMPONENT_MIN) {
+		alpha_ = COMPONENT_MIN;
 	}
 	else {
 		alpha_ = static_cast<GLubyte>(alpha);

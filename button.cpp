@@ -11,7 +11,7 @@ const unsigned int BUTTON_ICON_SIZE			= 20;
 
 // Button default font size.
 const char* BUTTON_DEFAULT_FONT_FACE		= "fonts/tf2build.ttf";
-const unsigned int BUTTON_DEFAULT_FONT_SIZE	= 20;
+const unsigned int BUTTON_DEFAULT_FONT_SIZE	= 14;
 const Colour BUTTON_FONT_COLOUR( 42, 39, 37 );
 
 // Rounded container parameters.
@@ -22,7 +22,7 @@ const unsigned int BUTTON_PADDING		= 15;
 // Button colours.
 const Colour BUTTON_COLOUR( 247, 231, 198 );
 const Colour BUTTON_COLOUR_HOVER( 180, 81, 14 );
-const Colour BUTTON_COLOUR_DISABLED( 150, 247, 231 );
+const Colour BUTTON_COLOUR_DISABLED( 247, 231, 198, 150 );
 
 Button::Button( float localX, float localY ) : RoundedRectangleContainer( BUTTON_RADIUS, BUTTON_PADDING, localX, localY )
 {

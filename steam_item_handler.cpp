@@ -6,6 +6,11 @@ SteamItemHandler::SteamItemHandler()
 	SetSelectMode( SELECT_MODE_SINGLE );
 }
 
+SteamItemHandler::~SteamItemHandler()
+{
+	CloseInterfaces();
+}
+
 void SteamItemHandler::Select( SlotView* slotView )
 {
 	if (GetSelectMode() == SELECT_MODE_SINGLE) {

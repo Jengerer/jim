@@ -26,7 +26,7 @@ class DefinitionLoader
 
 public:
 
-	DefinitionLoader( Graphics2D* graphics, const string& definitionUrl );
+	DefinitionLoader( Graphics2D* graphics );
 
 	// Starting and ending the worker threads.
 	void Begin();
@@ -53,7 +53,6 @@ private:
 
 	// Resource parameters.
 	Graphics2D*		graphics_;
-	string			definitionUrl_;
 
 	// Threading parameters.
 	volatile bool						stop_;

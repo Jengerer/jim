@@ -43,7 +43,13 @@ public:
 	void draw_rounded_rect( GLfloat x, GLfloat y, GLfloat width, GLfloat height, GLfloat radius );
 	void draw_texture( const Texture* texture, GLfloat x, GLfloat y );
 	void draw_texture( const Texture* texture, GLfloat x, GLfloat y, GLsizei width, GLsizei height );
-	void draw_display_list( GLuint list );
+	void draw_display_list( GLuint list, GLfloat x, GLfloat y );
+
+	// Setting render context.
+	HGLRC get_render_context() const;
+	HGLRC get_loading_context() const;
+	bool set_render_context( HGLRC context );
+	bool unset_render_context();
 
 	// Render mode handling.
 	void set_blend_state( GLenum src_blend, GLenum dest_blend );
@@ -60,7 +66,7 @@ private:
 
 public:
 
-	HGLRC loadRc_;
+	HGLRC loading_rc_;
 	HDC dc_;
 
 private:

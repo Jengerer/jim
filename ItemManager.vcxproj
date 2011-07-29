@@ -14,6 +14,7 @@
     <ProjectGuid>{ACBA57BF-AE9A-42C2-9813-1355F6BE788C}</ProjectGuid>
     <RootNamespace>ItemManager</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>item_manager</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -40,7 +41,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\release_working\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration) Output\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProgramFiles)\lpng154\;$(ProgramFiles)\freetype-2.4.5\include;$(ProgramFiles)\protobuf-2.4.1\src;$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\boost_1_46_1\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
@@ -75,7 +76,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS.%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -174,7 +175,6 @@
     <ClInclude Include="steam_item_handler.h" />
     <ClInclude Include="constrained_container.h" />
     <ClInclude Include="definition_loader.h" />
-    <ClInclude Include="iinventory_listener.h" />
     <ClInclude Include="imouse_handler.h" />
     <ClInclude Include="slot.h" />
     <ClInclude Include="slot_grid_pages.h" />

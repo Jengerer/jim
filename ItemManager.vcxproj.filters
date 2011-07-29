@@ -998,9 +998,6 @@
     <ClInclude Include="definition_loader.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="iinventory_listener.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="imouse_handler.h">
       <Filter>headers</Filter>
     </ClInclude>

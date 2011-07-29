@@ -2,17 +2,17 @@
 #include "font_factory.h"
 
 const char* ITEM_DISPLAY_TITLE_FONT_FACE		= "fonts/tf2build.ttf";
-const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 17;
+const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 13;
 
 const Colour& ITEM_DISPLAY_COLOUR				= COLOUR_BLACK;
 
 const char* ITEM_DISPLAY_INFO_FONT_FACE			= "fonts/tf2secondary.ttf";
-const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE	= 16;
+const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE	= 11;
 
 Font *ItemDisplay::nameFont_ = nullptr;
 Font *ItemDisplay::infoFont_ = nullptr;
 
-const unsigned int ITEM_DISPLAY_PADDING	= 10;
+const unsigned int ITEM_DISPLAY_PADDING	= 20;
 const unsigned int ITEM_DISPLAY_SPACING	= 5;
 const unsigned int ITEM_DISPLAY_RADIUS	= 5;
 const int ITEM_DISPLAY_TEXT_WIDTH		= 200;

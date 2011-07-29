@@ -7,7 +7,7 @@ Texture::Texture()
 
 Texture::Texture( GLuint texture, GLsizei width, GLsizei height, GLfloat tu, GLfloat tv )
 {
-	set_texture( texture_, width_, height_, tu_, tv_ );
+	set_texture( texture, width, height, tu, tv );
 }
 
 Texture::~Texture()

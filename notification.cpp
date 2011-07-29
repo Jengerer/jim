@@ -3,7 +3,7 @@
 
 const unsigned int NOTIFICATION_ICON_SIZE	= 48;
 const unsigned int NOTIFICATION_TEXT_WIDTH	= 160;
-const Colour NOTIFICATION_COLOUR( 42, 39, 37 );
+const Colour NOTIFICATION_COLOUR( 25, 25, 25 );
 const unsigned int NOTIFICATION_RADIUS		= 5;
 const unsigned int NOTIFICATION_PADDING		= 10;
 const unsigned int NOTIFICATION_SPACING		= 5;

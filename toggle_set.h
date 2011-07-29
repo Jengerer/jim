@@ -16,7 +16,7 @@
 
 typedef vector<Button*> ButtonList;
 
-class ToggleSet : public Popup, public IMouseHandler
+class ToggleSet : public Popup
 {
 
 public:

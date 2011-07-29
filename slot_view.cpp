@@ -30,7 +30,7 @@ Text* SlotView::equippedText_					= nullptr;
 
 // Equipped text attributes.
 const char* EQUIPPED_FONT_FACE					= "fonts/tf2build.ttf";
-const unsigned int EQUIPPED_FONT_SIZE			= 10;
+const unsigned int EQUIPPED_FONT_SIZE			= 6;
 const bool EQUIPPED_FONT_BOLDED					= false;
 const float EQUIPPED_PADDING					= 5;
 
@@ -59,6 +59,8 @@ SlotView::SlotView( Slot* slot )
 
 	SetSize( SLOT_WIDTH, SLOT_HEIGHT );
 }
+
+#include <sstream>
 
 void SlotView::Update()
 {
