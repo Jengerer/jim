@@ -3,6 +3,7 @@
 
 #include "texture.h"
 #include "graphics_2d.h"
+#include "steam/SteamTypes.h"
 
 enum EClassEquip {
 	CLASS_NONE		= 0x00000000,

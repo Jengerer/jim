@@ -10,12 +10,15 @@
 #include "steam/SteamTypes.h"
 #include "steam/UserItemsCommon.h"
 
+#include "attribute_information.h"
 #include "exception.h"
 #include "item_information.h"
 #include "item_shared.h"
+#include "string_hasher.h"
 #include "texture.h"
 
-typedef std::map<int, ItemInformation*> information_map;
+typedef std::map<int, ItemInformation*> InformationMap;
+typedef std::map<uint32, AttributeInformation*>	AttributeMap;
 
 class Item
 {
@@ -82,7 +85,8 @@ public:
 
 	// Using int32 so we can have -1 index for fallback.
 	// TODO: Keep it as uint16, but store a static fallback definition.
-	static information_map	definitions;
+	static InformationMap definitions;
+	static AttributeMap attributes;
 
 private:
 
