@@ -31,6 +31,12 @@
     <Filter Include="hlsl">
       <UniqueIdentifier>{e7c270a7-86f0-4368-bd25-91e149d68f29}</UniqueIdentifier>
     </Filter>
+    <Filter Include="headers\items">
+      <UniqueIdentifier>{13ec254b-52c7-4800-858e-e19883df257d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\items">
+      <UniqueIdentifier>{ff6eaa6b-4c24-4bd2-8f93-e39a7ad71d7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="protobuf\gcsdk_gcmessages.pb.cc">
@@ -45,9 +51,6 @@
     <ClCompile Include="application.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="backpack.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="curl.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -57,16 +60,7 @@
     <ClCompile Include="font.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="inventory.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="item.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="item_display.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="item_information.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="item_manager.cpp">
@@ -159,9 +153,6 @@
     <ClCompile Include="constrained_container.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="steam_item_handler.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="definition_loader.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -212,6 +203,27 @@
     </ClCompile>
     <ClCompile Include="colour.cpp">
       <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="attribute_information.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="item_information.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="inventory.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="backpack.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="steam_item_handler.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="attribute.cpp">
+      <Filter>source\items</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -869,9 +881,6 @@
     <ClInclude Include="application.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="backpack.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="curl.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -881,25 +890,13 @@
     <ClInclude Include="hash_table.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="inventory.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="iprecachable.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="item.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="item_display.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="item_information.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="item_manager.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="item_shared.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="serialized_buffer.h">
@@ -992,9 +989,6 @@
     <ClInclude Include="constrained_container.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="steam_item_handler.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="definition_loader.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -1025,9 +1019,6 @@
     <ClInclude Include="constraint.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="string_hasher.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="horizontal_split_layout.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
@@ -1048,6 +1039,33 @@
     </ClInclude>
     <ClInclude Include="protobuf\tf_gcmessages.pb.h">
       <Filter>headers\protobufs</Filter>
+    </ClInclude>
+    <ClInclude Include="backpack.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="attribute_information.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="inventory.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="item.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="item_information.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="item_shared.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="steam_item_handler.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="string_hasher.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="attribute.h">
+      <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

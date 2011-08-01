@@ -14,7 +14,7 @@ public:
 		size_t result = 0;
 		string::const_iterator i, end;
 		for (auto i = input.begin(), end = input.end(); i != end; ++i) {
-			result = 31 * result + tolower(*i);
+			result = 31 * result + *i;
 		}
 
 		return result;

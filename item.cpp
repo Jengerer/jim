@@ -1,7 +1,8 @@
 #include "item.h"
 
 // Static map.
-information_map Item::definitions;
+InformationMap	Item::definitions;
+AttributeMap	Item::attributes;
 
 Item::Item(
 	uint64 uniqueId,
@@ -33,7 +34,7 @@ Item::~Item( void )
 void Item::GetItemInformation( void )
 {
 	// Attempt to find item information.
-	information_map::iterator i = definitions.find( GetTypeIndex() );
+	InformationMap::iterator i = definitions.find( GetTypeIndex() );
 	if (i != definitions.end()) {
 		information_ = i->second;
 	}

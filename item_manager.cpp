@@ -206,11 +206,8 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		notifications_->SetPosition( GetWidth() - PADDING, GetHeight() - PADDING );
 		Add( notifications_ );
 
-		// Create start up message.
-		loadProgress_ = CreateNotice( "Initializing Steam interfaces..." );
-		steamItems_->LoadInterfaces();
-
-		// Attempt to load Steam and definitions.
+		// Start definition loader.
+		loadProgress_ = CreateNotice( "Preparing to load item definitions..." );
 		LoadDefinitions();
 	}
 	catch (Exception& loadException) {
@@ -247,7 +244,6 @@ void ItemManager::CloseInterfaces( void )
 	}
 
 	if (definitionLoader_ != nullptr) {
-		definitionLoader_->End();
 		delete definitionLoader_;
 		definitionLoader_ = nullptr;
 	}
@@ -374,27 +370,12 @@ void ItemManager::DoThink()
 void ItemManager::Loading()
 {
 	if (definitionLoader_ != nullptr) {
-		switch (definitionLoader_->GetState()){
-		case LOADING_STATE_START:
-			error_ = CreateAlert( "Definition loader was not started." );
-			SetThink( &ItemManager::Exiting );
-			break;
-
-		case LOADING_STATE_RUNNING:
-			{
-				stringstream loadPercentage;
-				loadPercentage << "Loading and downloading item definition resources... (" << floor(definitionLoader_->GetProgress() * 100.0f) << "%)";
-				loadProgress_->SetMessage( loadPercentage.str() );
-				loadProgress_->CenterTo( this );
-			}
-			break;
-
+		switch (definitionLoader_->get_state()){
 		case LOADING_STATE_ERROR:
 			// Show error first.
-			error_ = CreateAlert( definitionLoader_->GetErrorMsg() );
+			error_ = CreateAlert( definitionLoader_->get_progress_msg() );
 
 			// Remove threaded loader.
-			definitionLoader_->End();
 			delete definitionLoader_;
 			definitionLoader_ = nullptr;
 			SetThink( &ItemManager::Exiting );
@@ -402,11 +383,26 @@ void ItemManager::Loading()
 
 		case LOADING_STATE_FINISHED:
 			// Remove threaded loader.
-			definitionLoader_->End();
 			delete definitionLoader_;
 			definitionLoader_ = nullptr;
 
+			// Initialize steam.
+			try {
+				steamItems_->LoadInterfaces();
+			}
+			catch (const Exception& ex) {
+				error_ = CreateAlert( *ex.getMessage() );
+				SetThink( &ItemManager::Exiting );
+				break;
+			}
+
 			loadProgress_->SetMessage( "Waiting for Steam message..." );
+			loadProgress_->CenterTo( this );
+			break;
+
+		default:
+			definitionLoader_->update_progress_msg();
+			loadProgress_->SetMessage( definitionLoader_->get_progress_msg() );
 			loadProgress_->CenterTo( this );
 			break;
 		}
@@ -795,7 +791,7 @@ void ItemManager::LoadDefinitions( void )
 
 	// Set up loader.
 	definitionLoader_ = new DefinitionLoader( graphics_ );
-	definitionLoader_->Begin();
+	definitionLoader_->begin();
 }
 
 void ItemManager::LoadItemsFromWeb( void )

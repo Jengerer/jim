@@ -1,67 +1,84 @@
 #include "definition_loader.h"
 #include "curl.h"
 
+Json::Value get_member( Json::Value& root, const string& member )
+{
+	if (!root.isMember( member )) {
+		throw Exception( "Unexpected definition format, key '" + member + "' not found." );
+	}
+
+	return root[member];
+}
+
 DefinitionLoader::DefinitionLoader( Graphics2D *graphics )
 {
-	stop_ = false;
-	loaded_ = 0;
-
 	graphics_ = graphics;
 
-	SetProgress( 0.0f );
-	SetState( LOADING_STATE_START );
+	set_progress( 0.0f );
+	set_state( LOADING_STATE_NONE );
 }
 
-void DefinitionLoader::Begin()
+DefinitionLoader::~DefinitionLoader()
+{
+	if (thread_ != nullptr) {
+		end();
+	}
+}
+
+void DefinitionLoader::begin()
 {
 	assert( thread_ == nullptr );
-	SetState( LOADING_STATE_RUNNING );
-	thread_ = boost::shared_ptr<boost::thread>( new boost::thread( boost::bind( &DefinitionLoader::Load, this ) ) );
+	stop_ = false;
+	set_state( LOADING_STATE_START );
+	thread_ = boost::shared_ptr<boost::thread>( new boost::thread( boost::bind( &DefinitionLoader::load, this ) ) );
 }
 
-void DefinitionLoader::End()
+void DefinitionLoader::end()
 {
 	assert( thread_ != nullptr );
 	stop_ = true;
 	thread_->join();
 }
 
-void DefinitionLoader::Load()
+void DefinitionLoader::load()
 {
+	// Set this thread's render context.
 	graphics_->set_render_context( graphics_->get_loading_context() );
 
 	// Create slot name map.
-	slotTypes_[""]			= SLOT_NONE;
-	slotTypes_["invalid"]	= SLOT_INVALID;
-	slotTypes_["primary"]	= SLOT_PRIMARY;
-	slotTypes_["secondary"]	= SLOT_SECONDARY;
-	slotTypes_["melee"]		= SLOT_MELEE;
-	slotTypes_["pda"]		= SLOT_PDA;
-	slotTypes_["pda2"]		= SLOT_PDA2;
-	slotTypes_["building"]	= SLOT_BUILDING;
-	slotTypes_["head"]		= SLOT_HEAD;
-	slotTypes_["misc"]		= SLOT_MISC;
-	slotTypes_["action"]	= SLOT_ACTION;
-	slotTypes_["grenade"]	= SLOT_GRENADE;
+	slots_[""]			= SLOT_NONE;
+	slots_["invalid"]	= SLOT_INVALID;
+	slots_["primary"]	= SLOT_PRIMARY;
+	slots_["secondary"]	= SLOT_SECONDARY;
+	slots_["melee"]		= SLOT_MELEE;
+	slots_["pda"]		= SLOT_PDA;
+	slots_["pda2"]		= SLOT_PDA2;
+	slots_["building"]	= SLOT_BUILDING;
+	slots_["head"]		= SLOT_HEAD;
+	slots_["misc"]		= SLOT_MISC;
+	slots_["action"]	= SLOT_ACTION;
+	slots_["grenade"]	= SLOT_GRENADE;
 
 	// Create class map.
-	classTypes_[""]			= CLASS_NONE;
-	classTypes_["Scout"]	= CLASS_SCOUT;
-	classTypes_["Soldier"]	= CLASS_SOLDIER;
-	classTypes_["Pyro"]		= CLASS_PYRO;
-	classTypes_["Demoman"]	= CLASS_DEMOMAN;
-	classTypes_["Heavy"]	= CLASS_HEAVY;
-	classTypes_["Engineer"]	= CLASS_ENGINEER;
-	classTypes_["Medic"]	= CLASS_MEDIC;
-	classTypes_["Sniper"]	= CLASS_SNIPER;
-	classTypes_["Spy"]		= CLASS_SPY;
+	classes_[""]		= CLASS_NONE;
+	classes_["Scout"]	= CLASS_SCOUT;
+	classes_["Soldier"]	= CLASS_SOLDIER;
+	classes_["Pyro"]	= CLASS_PYRO;
+	classes_["Demoman"]	= CLASS_DEMOMAN;
+	classes_["Heavy"]	= CLASS_HEAVY;
+	classes_["Engineer"] = CLASS_ENGINEER;
+	classes_["Medic"]	= CLASS_MEDIC;
+	classes_["Sniper"]	= CLASS_SNIPER;
+	classes_["Spy"]		= CLASS_SPY;
+
+	set_state( LOADING_STATE_DOWNLOAD_DEFINITIONS );
 
 	try {
 		// Get definition file.
-		string itemDefinition;
+		string definition;
 		try {
 			Curl* curl = Curl::get_instance();
-			itemDefinition = curl->read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
+			definition = curl->read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
 		}
 		catch (Exception&) {
 			throw Exception( "Failed to read item definition file from Steam Web API." );
@@ -69,28 +86,100 @@ void DefinitionLoader::Load()
 
 		// Parse definition file.
 		Json::Reader reader;
-		if (!reader.parse( itemDefinition, root_, false )) {
+		if (!reader.parse( definition, root_, false )) {
 			throw Exception( "Failed to parse item definition file." );
 		}
 
-		Json::Value& items = root_["result"]["items"];
+		Json::Value& result = get_member( root_, "result" );
+		Json::Value& attributes = get_member( result, "attributes" );
+
+		// Create table of class/index pairs.
+		std::hash_map<string, uint32, StringHasher> index_map;
+		
+		// Start loading attributes.
+		size_t loaded_attribs = 0;
+		size_t num_attribs = attributes.size();
+		set_state( LOADING_STATE_LOADING_ATTRIBUTES );
+		for (Json::ValueIterator i = attributes.begin(); i != attributes.end(); ++i) {
+			// Quit if we need to stop.
+			if (stop_) {
+				return;
+			}
+
+			Json::Value& attribute = *i;
+
+			// Get necessary members.
+			string name = get_member( attribute, "name" ).asString();
+			uint32 index = get_member( attribute, "defindex" ).asUInt();
+			string attribute_class = get_member( attribute, "attribute_class" ).asString();
+			float min_value = get_member( attribute, "min_value" ).asDouble();
+			float max_value = get_member( attribute, "max_value" ).asDouble();
+			string effect_type_name = get_member( attribute, "effect_type" ).asString();
+			bool hidden = get_member( attribute, "hidden" ).asBool();
+			bool is_integer = get_member( attribute, "stored_as_integer" ).asBool();
+
+			// Add to index map.
+			index_map[name] = index;
+
+			// Get effect type, third char is different for each time.
+			EffectType effect_type;
+			if (effect_type_name == "positive") {
+				effect_type = EFFECT_POSITIVE;
+			}
+			else if (effect_type_name == "negative") {
+				effect_type = EFFECT_NEGATIVE;
+			}
+			else if (effect_type_name == "neutral") {
+				effect_type = EFFECT_NEUTRAL;
+			}
+			else {
+				throw Exception( "Unexpected effect type '" + effect_type_name + "' received." );
+			}
+
+			// Create new attribute definition.
+			AttributeInformation* attrib_info = new AttributeInformation(
+				name,
+				index,
+				attribute_class,
+				min_value, max_value,
+				effect_type,
+				hidden,
+				is_integer );
+
+			// Check for optional members.
+			if (attribute.isMember( "description_string" ) && attribute.isMember( "description_format" )) {
+				string desc_string = attribute[ "description_string" ].asString();
+				string desc_format = attribute[ "description_format" ].asString();
+				attrib_info->set_description( desc_string, desc_format );
+			}
+
+			loaded_attribs++;
+			set_progress( loaded_attribs, num_attribs );
+		}
+
+		// Get item member.
+		Json::Value& items = get_member( result, "items" );
 		if (items == Json::Value::null) {
 			throw Exception( "Unexpected definition format, expected result.items." );
 		}
 
+		// Start loading items.
+		size_t loaded_items = 0;
+		size_t num_items = items.size();
+		set_state( LOADING_STATE_LOADING_ITEMS );
 		for (Json::ValueIterator i = items.begin(); i != items.end(); ++i) {
-			// Check if we're being closed.
+			// Return if we're exiting.
 			if (stop_) {
-				break;
+				return;
 			}
 
 			Json::Value item = *i;
 
 			// Check that all necessary attributes exist.
-			unsigned int defindex	= GetMember( item, "defindex" ).asUInt();
-			string item_name		= GetMember( item, "item_name" ).asString();
-			string image_inventory	= GetMember( item, "image_inventory" ).asString();
-			string image_url		= GetMember( item, "image_url" ).asString();
+			unsigned int defindex	= get_member( item, "defindex" ).asUInt();
+			string item_name		= get_member( item, "item_name" ).asString();
+			string image_inventory	= get_member( item, "image_inventory" ).asString();
+			string image_url		= get_member( item, "image_url" ).asString();
 
 			if (image_inventory.empty()) {
 				image_inventory = "backpack/unknown_item";
@@ -99,9 +188,9 @@ void DefinitionLoader::Load()
 
 			EItemSlot item_slot = SLOT_NONE;
 			if (item.isMember( "item_slot" )) {
-				string slot_name = GetMember( item, "item_slot" ).asString();
-				auto j = slotTypes_.find( slot_name );
-				if (j == slotTypes_.end()) {
+				string slot_name = item["item_slot"].asString();
+				auto j = slots_.find( slot_name );
+				if (j == slots_.end()) {
 					throw Exception( "Failed to parse item definitions. Unexpected item slot type '" + slot_name + "' found." );
 				}
 			}
@@ -114,8 +203,8 @@ void DefinitionLoader::Load()
 				for (size_t i = 0; i < classes.size(); i++) {
 					string class_name = classes[i].asString();
 
-					std::map<string, EClassEquip>::iterator k = classTypes_.find( class_name );
-					if (k == classTypes_.end()) {
+					auto k = classes_.find( class_name );
+					if (k == classes_.end()) {
 						throw Exception( "Failed to parse item definitions. Unexpected class type '" + class_name + "' found." );
 					}
 
@@ -123,6 +212,7 @@ void DefinitionLoader::Load()
 				}
 			}
 
+			// Load the image.
 			Texture *texture = graphics_->get_texture( image_inventory, image_url );
 
 			// Generate information object.
@@ -136,70 +226,108 @@ void DefinitionLoader::Load()
 			Item::definitions[defindex] = itemInformation;
 
 			// Update progress.
-			loaded_++;
-			SetProgress( static_cast<float>(loaded_) / static_cast<float>(items.size()) );
+			loaded_items++;
+			set_progress( loaded_items, num_items );
 		}
 
-		Cleanup();
-		SetState( LOADING_STATE_FINISHED );
+		clean_up();
+		set_state( LOADING_STATE_FINISHED );
 	}
 	catch (Exception& exception) {
-		Cleanup();
-		SetError( *exception.getMessage() );
+		clean_up();
+		set_error( *exception.getMessage() );
 	}
-
-	graphics_->unset_render_context();
 }
 
-void DefinitionLoader::Cleanup()
+void DefinitionLoader::clean_up()
 {
+	set_state( LOADING_STATE_CLEANUP );
 	root_.clear();
-	slotTypes_.clear();
-	classTypes_.clear();
+	slots_.clear();
+	classes_.clear();
+	graphics_->set_render_context( graphics_->get_loading_context() );
 }
 
-Json::Value DefinitionLoader::GetMember( Json::Value& root, const string& member )
+void DefinitionLoader::set_state( ELoadingState state )
 {
-	if (!root.isMember( member )) {
-		throw Exception( "Unexpected definition format, key '" + member + "' not found." );
-	}
-
-	return root[member];
+	state_ = state;
+	set_progress( 0.0f );
+	state_changed_ = true;
+	update_progress_msg();
 }
 
-ELoadingState DefinitionLoader::GetState() const
+ELoadingState DefinitionLoader::get_state() const
 {
 	return state_;
 }
 
-const string& DefinitionLoader::GetErrorMsg() const
+float DefinitionLoader::get_progress() const
 {
-	return errorMsg_;
+	return progress_ * 100.0f;
 }
 
-float DefinitionLoader::GetProgress() const
+void DefinitionLoader::set_error( const string& error_msg )
 {
-	return progress_;
+	error_msg_ = error_msg;
+	set_state( LOADING_STATE_ERROR );
 }
 
-void DefinitionLoader::SetState( ELoadingState state )
+void DefinitionLoader::set_progress( float percentage )
 {
-	state_ = state;
+	progress_ = percentage;
 }
 
-void DefinitionLoader::SetError( const string& errorMsg )
+void DefinitionLoader::set_progress( size_t loaded, size_t total )
 {
-	SetProgress( 0.0f );
-	SetState( LOADING_STATE_ERROR );
-	SetErrorMsg( errorMsg );
+	set_progress( static_cast<float>(loaded) / static_cast<float>(total) );
 }
 
-void DefinitionLoader::SetErrorMsg( const string& errorMsg )
+void DefinitionLoader::set_progress_msg( const string& progress_msg )
 {
-	errorMsg_ = errorMsg;
+	progress_msg_ = progress_msg;
 }
 
-void DefinitionLoader::SetProgress( float progress )
+const string& DefinitionLoader::get_progress_msg() const
 {
-	progress_ = progress;
+	return progress_msg_;
+}
+
+void DefinitionLoader::update_progress_msg()
+{
+	stringstream message;
+	switch (get_state()) {
+	case LOADING_STATE_NONE:
+		message << "Definition loader not started.";
+		break;
+
+	case LOADING_STATE_START:
+		message << "Starting definition loader...";
+		break;
+
+	case LOADING_STATE_DOWNLOAD_DEFINITIONS:
+		message << "Downloading item schema from Steam Web API...";
+		break;
+
+	case LOADING_STATE_LOADING_ATTRIBUTES:
+		message << "Loading attributes from schema... (" << get_progress() << ")";
+		break;
+
+	case LOADING_STATE_LOADING_ITEMS:
+		message << "Loading items from schema... (" << get_progress() << ")";
+		break;
+
+	case LOADING_STATE_ERROR:
+		message << error_msg_;
+		break;
+
+	case LOADING_STATE_CLEANUP:
+		message << "Cleaning up...";
+		break;
+
+	case LOADING_STATE_FINISHED:
+		message << "Loading item definitions completed successfully.";
+		break;
+	}
+
+	set_progress_msg( message.str() );
 }

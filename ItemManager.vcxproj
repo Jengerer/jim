@@ -100,6 +100,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="animated_grid_pages.cpp" />
+    <ClCompile Include="attribute.cpp" />
+    <ClCompile Include="attribute_information.cpp" />
     <ClCompile Include="colour.cpp" />
     <ClCompile Include="constraint.cpp" />
     <ClCompile Include="dragged_slot_view.cpp" />
@@ -162,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animated_grid_pages.h" />
+    <ClInclude Include="attribute.h" />
     <ClInclude Include="colour.h" />
     <ClInclude Include="constraint.h" />
     <ClInclude Include="dragged_slot_view.h" />
@@ -170,6 +173,7 @@
     <ClInclude Include="graphics_2d.h" />
     <ClInclude Include="horizontal_split_layout.h" />
     <ClInclude Include="index_slot.h" />
+    <ClInclude Include="attribute_information.h" />
     <ClInclude Include="opengl_shared.h" />
     <ClInclude Include="protobuf\tf_gcmessages.pb.h" />
     <ClInclude Include="steam_item_handler.h" />
