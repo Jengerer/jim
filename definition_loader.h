@@ -24,7 +24,7 @@ enum ELoadingState
 	LOADING_STATE_FINISHED
 };
 
-Json::Value get_member( Json::Value& root, const string& member );
+Json::Value& get_member( Json::Value& root, const string& member );
 
 class DefinitionLoader
 {

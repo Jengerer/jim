@@ -1,7 +1,7 @@
 #include "definition_loader.h"
 #include "curl.h"
 
-Json::Value get_member( Json::Value& root, const string& member )
+Json::Value& get_member( Json::Value& root, const string& member )
 {
 	if (!root.isMember( member )) {
 		throw Exception( "Unexpected definition format, key '" + member + "' not found." );
@@ -93,8 +93,8 @@ void DefinitionLoader::load()
 		Json::Value& result = get_member( root_, "result" );
 		Json::Value& attributes = get_member( result, "attributes" );
 
-		// Create table of class/index pairs.
-		std::hash_map<string, uint32, StringHasher> index_map;
+		// Create table of class/attribute pairs.
+		std::hash_map<string, AttributeInformation*, StringHasher> name_map;
 		
 		// Start loading attributes.
 		size_t loaded_attribs = 0;
@@ -117,9 +117,6 @@ void DefinitionLoader::load()
 			string effect_type_name = get_member( attribute, "effect_type" ).asString();
 			bool hidden = get_member( attribute, "hidden" ).asBool();
 			bool is_integer = get_member( attribute, "stored_as_integer" ).asBool();
-
-			// Add to index map.
-			index_map[name] = index;
 
 			// Get effect type, third char is different for each time.
 			EffectType effect_type;
@@ -152,6 +149,10 @@ void DefinitionLoader::load()
 				string desc_format = attribute[ "description_format" ].asString();
 				attrib_info->set_description( desc_string, desc_format );
 			}
+
+			// Add to both maps.
+			name_map[name] = attrib_info;
+			Item::attributes[index] = attrib_info;
 
 			loaded_attribs++;
 			set_progress( loaded_attribs, num_attribs );
@@ -221,6 +222,25 @@ void DefinitionLoader::load()
 				texture,
 				item_classes,
 				item_slot );
+
+			// Now add attributes, if they exist.
+			if (item.isMember( "attributes" )) {
+				Json::Value& item_attributes = item[ "attributes" ];
+				for (Json::ValueIterator j = item_attributes.begin(); j != item_attributes.end(); ++j) {
+					Json::Value& item_attrib = *j;
+
+					// Get class and value.
+					string attrib_name = get_member( item_attrib, "name" ).asString();
+					float attrib_value = get_member( item_attrib, "value" ).asDouble();
+
+					// Get information.
+					AttributeInformation* attrib_info = name_map[attrib_name];
+
+					// Create new attribute.
+					Attribute* attribute = new Attribute( attrib_info, attrib_value );
+					itemInformation->AddAttribute( attribute );
+				}
+			}
 
 			// Parse item type and insert.
 			Item::definitions[defindex] = itemInformation;

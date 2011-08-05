@@ -253,6 +253,11 @@ void ItemManager::CloseInterfaces( void )
 		delete i->second;
 	}
 
+	// Erase attribute definitions.
+	for (auto i = Item::attributes.begin(); i != Item::attributes.end(); i = Item::attributes.erase( i )) {
+		delete i->second;
+	}
+
 	// Free cached resources.
 	ItemDisplay::Release();
 	Button::Release();

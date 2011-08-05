@@ -260,6 +260,21 @@ Texture* Item::GetTexture( void )
 	return information_->GetTexture();
 }
 
+bool Item::HasAttributes() const
+{
+	return GetAttributeCount() != 0;
+}
+
+size_t Item::GetAttributeCount() const
+{
+	return information_->GetAttributeCount();
+}
+
+const Attribute* Item::GetAttribute( size_t index ) const
+{
+	return information_->GetAttribute( index );
+}
+
 void Item::SetUniqueId( uint64 uniqueId )
 {
 	uniqueId_ = uniqueId;

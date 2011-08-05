@@ -118,11 +118,6 @@ void Font::create_display_list( unsigned char ch )
 	glBindTexture( GL_TEXTURE_2D, textures_[ch] );
 	glPushMatrix();
 
-	unsigned char breakch = 'a';
-	if (ch == breakch) {
-		int i = 1;
-	}
-
 	// Place the character properly.
 	glTranslatef( face_->glyph->bitmap_left, 0.0f, 0.0f );
 	glTranslatef( 0, (face_->size->metrics.ascender >> 6) - face_->glyph->bitmap_top, 0.0f );
@@ -153,13 +148,10 @@ void Font::create_display_list( unsigned char ch )
 	glEndList();
 }
 
-void Font::draw( float x, float y, const string& text )
+void Font::draw( const string& text )
 {
-	glPushMatrix();
-	glTranslatef( x, y, 0.0f );
 	glListBase( list_ );
 	glCallLists( text.length(), GL_UNSIGNED_BYTE, text.c_str() );
-	glPopMatrix();
 }
 
 void Font::draw_aligned( const string& text, float width, float text_width, TextHorizontalAlignType align_type )
@@ -176,7 +168,7 @@ void Font::draw_aligned( const string& text, float width, float text_width, Text
 	}
 
 	// Draw text.
-	draw( 0.0f, 0.0f, text );
+	draw( text );
 	glPopMatrix();
 }
 
@@ -218,15 +210,17 @@ void Font::prepare_draw( float x, float y, const string& text, GLuint list )
 			string line = text.substr( start, i - start );
 
 			// Draw text and set new line.
-			draw( 0.0f, 0.0f, line );
-			glTranslatef( 0.0f, face_->size->metrics.height >> 6, 0.0f );
+			glPushMatrix();
+			draw( line );
+			glPopMatrix();
+			new_line();
 			start = i + 1;
 		}
 	}
 
 	// Draw the last line.
 	string line = text.substr( start );
-	draw( 0.0f, 0.0f, line );
+	draw( line );
 
 	// End the list.
 	glPopMatrix();
@@ -251,8 +245,13 @@ void Font::prepare_wrap_draw( RECT* bounds, const string& text, GLuint list )
 
 	// Start wrapping.
 	for (size_t i = 0; i < text.length(); i++) {
-		char currentChar = text[i];
-		if (currentChar == ' ' || currentChar == '\n') {
+		char current_char = text[i];
+
+		// Check whether this a newline character.
+		bool is_newline = (current_char == '\n');
+
+		// Check if we should test fitting.
+		if (current_char == ' ' || is_newline) {
 			const string& current = text.substr( start, i - start );
 
 			RECT rect;
@@ -277,20 +276,6 @@ void Font::prepare_wrap_draw( RECT* bounds, const string& text, GLuint list )
 			else {
 				first = false;
 			}
-
-			// Draw new line if we've reached the end.
-			if (has_drawn) {
-				new_line();
-				new_lines++;
-			}
-
-			// Create new line if we wanted another.
-			if (currentChar == '\n') {
-				new_line();
-				new_lines++;
-			}
-
-			prev = i;
 		}
 	}
 

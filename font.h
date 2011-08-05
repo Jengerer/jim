@@ -24,7 +24,7 @@ public:
 	void generate_glyphs();
 	void create_display_list( unsigned char ch );
 
-	void draw( float x, float y, const string& text );
+	void draw( const string& text );
 	void draw_aligned( const string& text, float width, TextHorizontalAlignType align_type );
 	void draw_aligned( const string& text, float width, float text_width, TextHorizontalAlignType align_type );
 	void measure( RECT* rect, const string& text );

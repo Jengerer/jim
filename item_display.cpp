@@ -62,6 +62,13 @@ void ItemDisplay::UpdateDisplay()
 	infoStream << "\nFLAGS: " << hex << item_->GetFlags();
 #endif
 
+	for (size_t i = 0; i < item_->GetAttributeCount(); i++) {
+		const Attribute* attrib = item_->GetAttribute( i );
+		if (attrib->has_description()) {
+			infoStream << attrib->get_description_string();
+		}
+	}
+
 	infoText_->SetText( infoStream.str() );
 	Pack();
 }

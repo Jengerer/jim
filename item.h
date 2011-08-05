@@ -73,6 +73,11 @@ public:
 	// Drawing and interaction.
 	Texture*		GetTexture( void );
 
+	// Attribute handling.
+	bool HasAttributes() const;
+	size_t GetAttributeCount() const;
+	const Attribute* GetAttribute( size_t index ) const;
+
 private:
 
 	void SetUniqueId( uint64 uniqueId );
