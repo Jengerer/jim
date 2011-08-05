@@ -43,6 +43,16 @@ uint32 Attribute::get_uint32_value() const
 	return uint32_value_;
 }
 
+bool Attribute::has_description() const
+{
+	return attribute_info_->has_description();
+}
+
+bool Attribute::is_hidden() const
+{
+	return attribute_info_->is_hidden();
+}
+
 void Attribute::set_value( float value )
 {
 	float_value_ = value;

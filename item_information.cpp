@@ -15,6 +15,9 @@ ItemInformation::ItemInformation(
 ItemInformation::~ItemInformation( void )
 {
 	// Item information destroyed.
+	for (auto i = attributes_.begin(); i != attributes_.end(); i = attributes_.erase( i )) {
+		delete *i;
+	}
 }
 
 const string& ItemInformation::GetName( void ) const
@@ -40,6 +43,21 @@ uint8 ItemInformation::GetClassCount( void ) const
 EItemSlot ItemInformation::GetSlot( void ) const
 {
 	return slot_;
+}
+
+void ItemInformation::AddAttribute( Attribute* attribute )
+{
+	attributes_.push_back( attribute );
+}
+
+size_t ItemInformation::GetAttributeCount() const
+{
+	return attributes_.size();
+}
+
+const Attribute* ItemInformation::GetAttribute( size_t index ) const
+{
+	return attributes_[index];
 }
 
 void ItemInformation::SetName( const string& name )

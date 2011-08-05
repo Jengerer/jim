@@ -10,6 +10,7 @@ AttributeInformation::AttributeInformation( const string& name,
 	bool is_integer )
 {
 	// Set main attributes.
+	name_ = name;
 	index_ = index;
 	attribute_class_ = attribute_class;
 	min_value_ = min_value;

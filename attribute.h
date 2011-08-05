@@ -17,6 +17,10 @@ public:
 	float	get_float_value() const;
 	uint32	get_uint32_value() const;
 
+	// Information related functions.
+	bool has_description() const;
+	bool is_hidden() const;
+
 private:
 
 	void set_value( float value );
