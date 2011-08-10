@@ -65,7 +65,7 @@ void ItemDisplay::UpdateDisplay()
 	for (size_t i = 0; i < item_->GetAttributeCount(); i++) {
 		const Attribute* attrib = item_->GetAttribute( i );
 		if (attrib->has_description()) {
-			infoStream << attrib->get_description_string();
+			infoStream << "\n" << attrib->get_description_string();
 		}
 	}
 

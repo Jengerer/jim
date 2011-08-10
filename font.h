@@ -24,12 +24,12 @@ public:
 	void generate_glyphs();
 	void create_display_list( unsigned char ch );
 
-	void draw( const string& text );
-	void draw_aligned( const string& text, float width, TextHorizontalAlignType align_type );
-	void draw_aligned( const string& text, float width, float text_width, TextHorizontalAlignType align_type );
-	void measure( RECT* rect, const string& text );
-	void prepare_draw( float x, float y, const string& text, GLuint list );
-	void prepare_wrap_draw( RECT* rect, const string& text, GLuint list );
+	void draw( const char* text, size_t length );
+	void draw_aligned( const char* text, size_t length, float width, TextHorizontalAlignType align_type );
+	void draw_aligned( const char* text, size_t length, float width, float text_width, TextHorizontalAlignType align_type );
+	void measure( RECT* rect, const char* text, size_t length );
+	void prepare_draw( const char* text, size_t length, GLuint list );
+	void prepare_wrap_draw( RECT* rect, const char* text, size_t length, GLuint list, TextHorizontalAlignType align_type );
 	void new_line();
 
 	// Getting font attributes.

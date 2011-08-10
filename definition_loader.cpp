@@ -329,11 +329,11 @@ void DefinitionLoader::update_progress_msg()
 		break;
 
 	case LOADING_STATE_LOADING_ATTRIBUTES:
-		message << "Loading attributes from schema... (" << get_progress() << ")";
+		message << "Loading attributes from schema...\n(" << get_progress() << ")";
 		break;
 
 	case LOADING_STATE_LOADING_ITEMS:
-		message << "Loading items from schema... (" << get_progress() << ")";
+		message << "Loading items from schema...\n(" << get_progress() << ")";
 		break;
 
 	case LOADING_STATE_ERROR:

@@ -63,7 +63,7 @@ void Text::SetFont( Font *font )
 void Text::Pack( void )
 {
 	RECT size;
-	font_->measure( &size, text_ );
-	font_->prepare_draw( GetX(), GetY(), text_, list_ );
+	font_->measure( &size, text_.c_str(), text_.length() );
+	font_->prepare_draw( text_.c_str(), text_.length(), list_ );
 	SetSize( size.right - size.left, size.bottom - size.top );
 }
