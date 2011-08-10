@@ -14,7 +14,7 @@ WrappedText::~WrappedText( void )
 void WrappedText::Pack( void )
 {	
 	RECT bounds = { 0, 0, GetTextWidth(), 0 };
-	font_->prepare_wrap_draw( &bounds, text_, list_ );
+	font_->prepare_wrap_draw( &bounds, text_.c_str(), text_.length(), list_, TEXT_ALIGN_CENTER );
 	SetSize( GetTextWidth(), bounds.bottom - bounds.top );
 }
 

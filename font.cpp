@@ -148,13 +148,13 @@ void Font::create_display_list( unsigned char ch )
 	glEndList();
 }
 
-void Font::draw( const string& text )
+void Font::draw( const char* text, size_t length )
 {
 	glListBase( list_ );
-	glCallLists( text.length(), GL_UNSIGNED_BYTE, text.c_str() );
+	glCallLists( length, GL_UNSIGNED_BYTE, (unsigned char*)text );
 }
 
-void Font::draw_aligned( const string& text, float width, float text_width, TextHorizontalAlignType align_type )
+void Font::draw_aligned( const char* text, size_t length, float width, float text_width, TextHorizontalAlignType align_type )
 {
 	// Translate to alignment.
 	glPushMatrix();
@@ -168,136 +168,141 @@ void Font::draw_aligned( const string& text, float width, float text_width, Text
 	}
 
 	// Draw text.
-	draw( text );
+	draw( text, length );
 	glPopMatrix();
 }
 
-void Font::draw_aligned( const string& text, float width, TextHorizontalAlignType align_type )
+void Font::draw_aligned( const char* text, size_t length, float width, TextHorizontalAlignType align_type )
 {
 	// Measure the line.
 	RECT text_rect;
-	measure( &text_rect, text );
+	measure( &text_rect, text, length );
 	float text_width = static_cast<float>(text_rect.right - text_rect.left);
-	draw_aligned( text, width, text_width, align_type );
+	draw_aligned( text, length, width, text_width, align_type );
 }
 
-void Font::measure( RECT* rect, const string& text )
+void Font::measure( RECT* rect, const char* text, size_t length )
 {
 	// Measure width.
 	FT_Pos right = 0L;
-	for (auto i = text.begin(); i != text.end(); ++i) {
-		right += advances_[*i];
+	for (size_t i = 0; i < length; ++i) {
+		right += advances_[text[i]];
 	}
 
 	// Set bounds.
 	rect->left = 0L;
 	rect->top = 0L;
-	rect->bottom = face_->size->metrics.ascender >> 6;
+	rect->bottom = get_line_height();
 	rect->right = right;
 }
 
-void Font::prepare_draw( float x, float y, const string& text, GLuint list )
+void Font::prepare_draw( const char* text, size_t length, GLuint list )
 {
 	// Start the list on a new matrix.
 	glNewList( list, GL_COMPILE );
 	glPushMatrix();
-	glTranslatef( x, y, 0.0f );
 	
 	// Keep making new lines.
 	size_t start = 0;
-	for (size_t i = 0; i < text.length(); ++i) {
+	for (size_t i = 0; i < length; ++i) {
 		if (text[i] == '\n') {
-			string line = text.substr( start, i - start );
+			const char* line = text + start;
+			size_t line_length = i - start;
 
 			// Draw text and set new line.
 			glPushMatrix();
-			draw( line );
+			draw( line, line_length );
 			glPopMatrix();
 			new_line();
+
+			// Next line starts at next char.
 			start = i + 1;
 		}
 	}
 
 	// Draw the last line.
-	string line = text.substr( start );
-	draw( line );
+	const char* last_line = text + start;
+	draw( text + start, length - start );
 
 	// End the list.
 	glPopMatrix();
 	glEndList();
 }
 
-void Font::prepare_wrap_draw( RECT* bounds, const string& text, GLuint list )
+void Font::prepare_wrap_draw( RECT* bounds, const char* text, size_t length, GLuint list, TextHorizontalAlignType align_type )
 {
-	// Word wrapping variables.
-	bool first = true;
-	LONG width = bounds->right - bounds->left;
+	// Constant bounds.
+	const long LINE_WIDTH = bounds->right - bounds->left;
+
+	// Line break variables.
+	size_t line_start = 0;
+	size_t break_point = 0;
+	long width_left = LINE_WIDTH;
+	long width_since_break = 0;
 	unsigned int new_lines = 0;
 
-	// Indexes.
-	size_t prev = 0;
-	size_t start = 0;
-
-	// Start the list on a new matrix.
+	// Begin list.
 	glNewList( list, GL_COMPILE );
+
+	// Set local temporary transformation.
 	glPushMatrix();
-	glTranslatef( bounds->left, bounds->top, 0.0f );
 
-	// Start wrapping.
-	for (size_t i = 0; i < text.length(); i++) {
-		char current_char = text[i];
+	for (size_t i = 0; i < length; ++i) {
+		char ch = text[i];
+		bool draw_line = false;
+		
+		if (ch == '\n') {
+			// It has fit so far, draw until here.
+			break_point = i;
+			draw_line = true;
+			width_since_break = 0;
+		}
+		else {
+			// Move forward by character width.
+			long char_width = advances_[(unsigned char)ch];
+			width_since_break += char_width;
 
-		// Check whether this a newline character.
-		bool is_newline = (current_char == '\n');
-
-		// Check if we should test fitting.
-		if (current_char == ' ' || is_newline) {
-			const string& current = text.substr( start, i - start );
-
-			RECT rect;
-			measure( &rect, current );
-			long text_width = rect.right - rect.left;
-
-			// Check whether this line exceeds bounds.
-			bool has_drawn = false;
-			if (text_width > width) {
-				if (first) {
-					start = i + 1;
-					draw_aligned( current, width, text_width, TEXT_ALIGN_CENTER );
-					has_drawn = true;
+			// Check if exceeding and if we have a break.
+			bool exceeds_width = width_since_break > width_left;
+			bool no_break = break_point == line_start;
+			
+			if (exceeds_width) {
+				if (ch == ' ') {
+					// Use space to break line.
+					break_point = i;
+					width_since_break = 0;
 				}
-				else {
-					const string& last = text.substr( start, prev - start );
-					draw_aligned( last, width, TEXT_ALIGN_CENTER );
-					start = prev + 1;
-					has_drawn = true;
+				else if (no_break) {
+					// Set break before this character.
+					break_point = i - 1;
+					width_since_break = char_width;
 				}
+				
+				draw_line = 1;
 			}
-			else {
-				first = false;
+			else if (ch == '/' || ch == ' ' || ch == '-') {
+				// Reset width since break.
+				width_left -= width_since_break;
+				width_since_break = 0;
+
+				// Now set this as the break point.
+				break_point = i;
 			}
+		}
+		
+		if (draw_line) {
+			draw_aligned( text + line_start, break_point - line_start, LINE_WIDTH, align_type );
+			new_line();
+			new_lines++;
+
+			// Reset start of line and remaining width.
+			line_start = break_point = break_point + 1;
+			width_left = LINE_WIDTH;
 		}
 	}
 
-	// Finish the last line.
-	const string& final = text.substr( start );
-	RECT rect = {0, 0, 0, 0};
-	measure( &rect, final );
-	long text_width = rect.right - rect.left;
-	if (text_width > width && !first) {
-		// Not the first word, draw last and then first.
-		const string& last = text.substr( start, prev - start );
-		draw_aligned( last, width, TEXT_ALIGN_CENTER );
-
-		// Finish last.
-		new_line();
-		new_lines++;
-		const string& end = text.substr( prev + 1 );
-		draw_aligned( end, width, TEXT_ALIGN_CENTER );
-	}
-	else {
-		draw_aligned( final, width, TEXT_ALIGN_CENTER );
-	}
+	// Draw last line, since it fits.
+	draw_aligned( text + line_start, length - line_start, LINE_WIDTH, align_type );
 
 	// Adjust rect bounds by this size.
 	bounds->bottom = bounds->top + (new_lines * get_baseline_spacing()) + get_line_height();
