@@ -1,5 +1,11 @@
 #include "font.h"
 
+// Constant character codes.
+const FT_ULong NEW_LINE = '\n';
+const FT_ULong SPACE = ' ';
+const FT_ULong SLASH = '/';
+const FT_ULong DASH = '-';
+
 Font::Font( FT_Face face )
 {
 	face_ = face;
@@ -47,115 +53,153 @@ void Font::generate_glyphs()
 	list_ = glGenLists( glyph_count );
 	advances_ = new FT_Pos[ glyph_count ];
 
-	// Generate display lists for all characters.
-	for (unsigned char i = 0; i < 255; ++i) {
-		create_display_list( i );
-	}
+	create_display_lists();
 }
 
-void Font::create_display_list( unsigned char ch )
+void Font::create_display_lists()
 {
-	FT_UInt index = FT_Get_Char_Index( face_, ch );
-
-	// Load the glyph for the character.
-	FT_Error error = FT_Load_Glyph( face_, index, FT_LOAD_DEFAULT );
-	if (error != 0) {
-		throw Exception( "Failed to load glyph." );
-	}
-
-	// Render the glyph.
-	error = FT_Render_Glyph( face_->glyph, FT_RENDER_MODE_NORMAL );
-	if (error != 0) {
-		throw Exception( "Failed to render glyph." );
-	}
-
-	// Get the texture size.
-	FT_Bitmap& bitmap = face_->glyph->bitmap;
-	GLsizei width = next_power_of_2( bitmap.width );
-	GLsizei height = next_power_of_2( bitmap.rows );
-
-	// Create buffer for pixels.
-	const unsigned int SRC_BPP = 1;
-	const unsigned int DEST_BPP = 2;
-	GLubyte* tex_buffer = new GLubyte[ DEST_BPP * width * height ]; 
-	const GLsizei DEST_ROW_WIDTH = DEST_BPP * width;
-	const GLsizei DEST_SRC_WIDTH = DEST_BPP * bitmap.width;
-	const GLsizei ROW_REMAINDER = DEST_ROW_WIDTH - DEST_BPP * bitmap.width;
-
-	// Fill in alpha and colour.
-	for (GLsizei y = 0; y < bitmap.rows; ++y) {
-		GLubyte* row_start = tex_buffer + y * DEST_ROW_WIDTH;
-		for (GLsizei x = 0; x < bitmap.width; ++x) {
-			unsigned int src_index = SRC_BPP * (x + bitmap.width * y);
-			unsigned int dest_index = DEST_BPP * (x + y * width);
-			tex_buffer[ dest_index ] = 0xff;
-			tex_buffer[ dest_index + 1 ]  = bitmap.buffer[ src_index ];
+	// Generate display lists for all characters.
+	FT_UInt index;
+	for (FT_ULong i = FT_Get_First_Char( face_, &index); i != 0; i = FT_Get_Next_Char( face_, i, &index )) {
+		// Load the glyph for the character.
+		FT_Error error = FT_Load_Glyph( face_, index, FT_LOAD_DEFAULT );
+		if (error != 0) {
+			throw Exception( "Failed to load glyph." );
 		}
 
-		// Zero the rest.
-		memset( row_start + DEST_SRC_WIDTH, 0, ROW_REMAINDER);
+		// Render the glyph.
+		error = FT_Render_Glyph( face_->glyph, FT_RENDER_MODE_NORMAL );
+		if (error != 0) {
+			throw Exception( "Failed to render glyph." );
+		}
+
+		// Get the texture size.
+		FT_Bitmap& bitmap = face_->glyph->bitmap;
+		GLsizei width = next_power_of_2( bitmap.width );
+		GLsizei height = next_power_of_2( bitmap.rows );
+
+		// Create buffer for pixels.
+		const unsigned int SRC_BPP = 1;
+		const unsigned int DEST_BPP = 2;
+		GLubyte* tex_buffer = new GLubyte[ DEST_BPP * width * height ]; 
+		const GLsizei DEST_ROW_WIDTH = DEST_BPP * width;
+		const GLsizei DEST_SRC_WIDTH = DEST_BPP * bitmap.width;
+		const GLsizei ROW_REMAINDER = DEST_ROW_WIDTH - DEST_BPP * bitmap.width;
+
+		// Fill in alpha and colour.
+		for (GLsizei y = 0; y < bitmap.rows; ++y) {
+			GLubyte* row_start = tex_buffer + y * DEST_ROW_WIDTH;
+			for (GLsizei x = 0; x < bitmap.width; ++x) {
+				unsigned int src_index = SRC_BPP * (x + bitmap.width * y);
+				unsigned int dest_index = DEST_BPP * (x + y * width);
+				tex_buffer[ dest_index ] = 0xff;
+				tex_buffer[ dest_index + 1 ]  = bitmap.buffer[ src_index ];
+			}
+
+			// Zero the rest.
+			memset( row_start + DEST_SRC_WIDTH, 0, ROW_REMAINDER);
+		}
+
+		// Set up texture params.
+		glBindTexture( GL_TEXTURE_2D, textures_[index] );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+
+		// Store character advance.
+		advances_[index] = face_->glyph->advance.x >> 6;
+
+		// Create texture from the buffer.
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, 
+			width, height, 0,
+			GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
+			tex_buffer );
+		delete[] tex_buffer;
+
+		// Create display list for this character.
+		glNewList( list_ + index, GL_COMPILE );
+		glBindTexture( GL_TEXTURE_2D, textures_[index] );
+		glPushMatrix();
+
+		// Place the character properly.
+		glTranslatef( face_->glyph->bitmap_left, 0.0f, 0.0f );
+		glTranslatef( 0, (face_->size->metrics.ascender >> 6) - face_->glyph->bitmap_top, 0.0f );
+
+		// Get texture coordinates (due to power-of-2 rule).
+		float x = static_cast<float>(bitmap.width) / static_cast<float>(width);
+		float y = static_cast<float>(bitmap.rows) / static_cast<float>(height);
+
+		// Draw texture mapped quad.
+		glBegin( GL_QUADS );
+			glTexCoord2f( 0.0f, 0.0f );
+			glVertex2f( 0.0f, 0.0f );
+
+			glTexCoord2f( x, 0.0f );
+			glVertex2f( bitmap.width, 0.0f );
+
+			glTexCoord2f( x, y );
+			glVertex2f( bitmap.width, bitmap.rows );
+
+			glTexCoord2f( 0.0f, y );	
+			glVertex2f( 0.0f, bitmap.rows );
+		glEnd();
+		glPopMatrix();
+
+		// Move forward by the character's advance.
+		glTranslatef( face_->glyph->advance.x >> 6, 0.0f, 0.0f );
+		glBindTexture( GL_TEXTURE_2D, 0 );
+		glEndList();
+	}
+}
+
+void Font::draw_char( FT_ULong c ) const
+{
+	FT_UInt index = FT_Get_Char_Index( face_, c );
+	if (index != 0) {
+		glCallList( list_ + index );
+	}
+}
+
+void Font::new_line() const
+{
+	glTranslatef( 0.0f,
+		get_baseline_spacing(),
+		0.0f );
+}
+
+FT_Pos Font::get_char_width( FT_ULong c ) const
+{
+	FT_UInt index = FT_Get_Char_Index( face_, c );
+	if (index != 0) {
+		return advances_[index];
 	}
 
-	// Set up texture params.
-	glBindTexture( GL_TEXTURE_2D, textures_[ch] );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-
-	// Store character advance.
-	advances_[ch] = face_->glyph->advance.x >> 6;
-
-	// Create texture from the buffer.
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, 
-		width, height, 0,
-		GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
-		tex_buffer );
-	delete[] tex_buffer;
-
-	// Create display list for this character.
-	glNewList( list_ + ch, GL_COMPILE );
-	glBindTexture( GL_TEXTURE_2D, textures_[ch] );
-	glPushMatrix();
-
-	// Place the character properly.
-	glTranslatef( face_->glyph->bitmap_left, 0.0f, 0.0f );
-	glTranslatef( 0, (face_->size->metrics.ascender >> 6) - face_->glyph->bitmap_top, 0.0f );
-
-	// Get texture coordinates (due to power-of-2 rule).
-	float x = static_cast<float>(bitmap.width) / static_cast<float>(width);
-	float y = static_cast<float>(bitmap.rows) / static_cast<float>(height);
-
-	// Draw texture mapped quad.
-	glBegin( GL_QUADS );
-		glTexCoord2f( 0.0f, 0.0f );
-		glVertex2f( 0.0f, 0.0f );
-
-		glTexCoord2f( x, 0.0f );
-		glVertex2f( bitmap.width, 0.0f );
-
-		glTexCoord2f( x, y );
-		glVertex2f( bitmap.width, bitmap.rows );
-
-		glTexCoord2f( 0.0f, y );	
-		glVertex2f( 0.0f, bitmap.rows );
-	glEnd();
-	glPopMatrix();
-
-	// Move forward by the character's advance.
-	glTranslatef( face_->glyph->advance.x >> 6, 0.0f, 0.0f );
-	glBindTexture( GL_TEXTURE_2D, 0 );
-	glEndList();
+	return 0;
 }
 
-void Font::draw( const char* text, size_t length )
+FT_Pos Font::get_string_width( const RenderableString* text, size_t start, size_t end ) const
 {
-	glListBase( list_ );
-	glCallLists( length, GL_UNSIGNED_BYTE, (unsigned char*)text );
+	FT_Pos width = 0L;
+	for (size_t i = start; i < end; ++i) {
+		width += get_char_width( text->char_code_at( i ) );
+	}
+
+	return width;
 }
 
-void Font::draw_aligned( const char* text, size_t length, float width, float text_width, TextHorizontalAlignType align_type )
+void Font::draw( const RenderableString* text, size_t start, size_t end ) const
 {
+	for (size_t i = start; i < end; ++i) {
+		draw_char( text->char_code_at( i ) );
+	}
+}
+
+void Font::draw_aligned( const RenderableString* text, size_t start, size_t end, float width, TextHorizontalAlignType align_type ) const
+{
+	// Measure text.
+	float text_width = static_cast<float>(get_string_width( text, start, end ));
+
 	// Translate to alignment.
 	glPushMatrix();
 	switch (align_type) {
@@ -168,68 +212,63 @@ void Font::draw_aligned( const char* text, size_t length, float width, float tex
 	}
 
 	// Draw text.
-	draw( text, length );
+	draw( text, start, end );
 	glPopMatrix();
 }
 
-void Font::draw_aligned( const char* text, size_t length, float width, TextHorizontalAlignType align_type )
-{
-	// Measure the line.
-	RECT text_rect;
-	measure( &text_rect, text, length );
-	float text_width = static_cast<float>(text_rect.right - text_rect.left);
-	draw_aligned( text, length, width, text_width, align_type );
-}
-
-void Font::measure( RECT* rect, const char* text, size_t length )
-{
-	// Measure width.
-	FT_Pos right = 0L;
-	for (size_t i = 0; i < length; ++i) {
-		right += advances_[text[i]];
-	}
-
-	// Set bounds.
-	rect->left = 0L;
-	rect->top = 0L;
-	rect->bottom = get_line_height();
-	rect->right = right;
-}
-
-void Font::prepare_draw( const char* text, size_t length, GLuint list )
+void Font::prepare_draw( RECT* rect, const RenderableString* text, GLuint list ) const
 {
 	// Start the list on a new matrix.
 	glNewList( list, GL_COMPILE );
 	glPushMatrix();
 	
-	// Keep making new lines.
-	size_t start = 0;
-	for (size_t i = 0; i < length; ++i) {
-		if (text[i] == '\n') {
-			const char* line = text + start;
-			size_t line_length = i - start;
+	// Push matrix for line.
+	glPushMatrix();
 
-			// Draw text and set new line.
-			glPushMatrix();
-			draw( line, line_length );
+	// Keep track of new-lines and widest line.
+	FT_Pos longest = 0L;
+	FT_Pos current = 0L;
+	unsigned int new_lines = 0;
+
+	// Draw characters, split on new line.
+	for (size_t i = 0, len = text->length(); i < len; ++i) {
+		FT_ULong c = text->char_code_at( i );
+		if (c == static_cast<FT_ULong>('\n')) {
+			// Update longest line.
+			if (current > longest) {
+				longest = current;
+				current = 0L;
+			}
+
+			// Reset line.
 			glPopMatrix();
+			new_lines++;
 			new_line();
-
-			// Next line starts at next char.
-			start = i + 1;
+			glPushMatrix();
+		}
+		else {
+			draw_char( c );
+			current += get_char_width( c );
 		}
 	}
 
-	// Draw the last line.
-	const char* last_line = text + start;
-	draw( text + start, length - start );
+	// Do one more check for last line.
+	if (current > longest) {
+		longest = current;
+	}
 
-	// End the list.
-	glPopMatrix();
+	// Set rect sizes.
+	rect->left = 0;
+	rect->right = longest;
+	rect->top = 0;
+	rect->bottom = new_lines * get_baseline_spacing() + get_line_height();
+
+	glPopMatrix(); // End line matrix.
+	glPopMatrix(); // End draw matrix.
 	glEndList();
 }
 
-void Font::prepare_wrap_draw( RECT* bounds, const char* text, size_t length, GLuint list, TextHorizontalAlignType align_type )
+void Font::prepare_wrap_draw( RECT* bounds, const RenderableString* text, GLuint list, TextHorizontalAlignType align_type ) const
 {
 	// Constant bounds.
 	const long LINE_WIDTH = bounds->right - bounds->left;
@@ -247,11 +286,12 @@ void Font::prepare_wrap_draw( RECT* bounds, const char* text, size_t length, GLu
 	// Set local temporary transformation.
 	glPushMatrix();
 
+	size_t length = text->length();
 	for (size_t i = 0; i < length; ++i) {
-		char ch = text[i];
+		FT_ULong ch = text->char_code_at( i );
 		bool draw_line = false;
 		
-		if (ch == '\n') {
+		if (ch == NEW_LINE) {
 			// It has fit so far, draw until here.
 			break_point = i;
 			draw_line = true;
@@ -259,7 +299,7 @@ void Font::prepare_wrap_draw( RECT* bounds, const char* text, size_t length, GLu
 		}
 		else {
 			// Move forward by character width.
-			long char_width = advances_[(unsigned char)ch];
+			long char_width = get_char_width( ch );
 			width_since_break += char_width;
 
 			// Check if exceeding and if we have a break.
@@ -267,7 +307,7 @@ void Font::prepare_wrap_draw( RECT* bounds, const char* text, size_t length, GLu
 			bool no_break = break_point == line_start;
 			
 			if (exceeds_width) {
-				if (ch == ' ') {
+				if (ch == SPACE) {
 					// Use space to break line.
 					break_point = i;
 					width_since_break = 0;
@@ -280,7 +320,7 @@ void Font::prepare_wrap_draw( RECT* bounds, const char* text, size_t length, GLu
 				
 				draw_line = 1;
 			}
-			else if (ch == '/' || ch == ' ' || ch == '-') {
+			else if (ch == SLASH || ch == SPACE || ch == DASH) {
 				// Reset width since break.
 				width_left -= width_since_break;
 				width_since_break = 0;
@@ -291,7 +331,7 @@ void Font::prepare_wrap_draw( RECT* bounds, const char* text, size_t length, GLu
 		}
 		
 		if (draw_line) {
-			draw_aligned( text + line_start, break_point - line_start, LINE_WIDTH, align_type );
+			draw_aligned( text, line_start, break_point, LINE_WIDTH, align_type );
 			new_line();
 			new_lines++;
 
@@ -302,19 +342,12 @@ void Font::prepare_wrap_draw( RECT* bounds, const char* text, size_t length, GLu
 	}
 
 	// Draw last line, since it fits.
-	draw_aligned( text + line_start, length - line_start, LINE_WIDTH, align_type );
+	draw_aligned( text, line_start, length, LINE_WIDTH, align_type );
 
 	// Adjust rect bounds by this size.
 	bounds->bottom = bounds->top + (new_lines * get_baseline_spacing()) + get_line_height();
 	glPopMatrix();
 	glEndList();
-}
-
-void Font::new_line()
-{
-	glTranslatef( 0.0f,
-		get_baseline_spacing(),
-		0.0f );
 }
 
 GLsizei Font::get_line_height() const

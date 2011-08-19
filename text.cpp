@@ -1,3 +1,4 @@
+#include "renderable_cstring.h"
 #include "text.h"
 
 Text::Text( Font *font )
@@ -63,7 +64,7 @@ void Text::SetFont( Font *font )
 void Text::Pack( void )
 {
 	RECT size;
-	font_->measure( &size, text_.c_str(), text_.length() );
-	font_->prepare_draw( text_.c_str(), text_.length(), list_ );
-	SetSize( size.right - size.left, size.bottom - size.top );
+	RenderableCString render_string( text_.c_str(), text_.size() );
+	font_->prepare_draw( &size, &render_string, list_ );
+	SetSize( size.right, size.bottom );
 }
