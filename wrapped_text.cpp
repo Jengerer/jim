@@ -1,4 +1,5 @@
 #include "wrapped_text.h"
+#include "renderable_cstring.h"
 
 WrappedText::WrappedText( Font *font, int textWidth ) : Text( font )
 {
@@ -14,7 +15,8 @@ WrappedText::~WrappedText( void )
 void WrappedText::Pack( void )
 {	
 	RECT bounds = { 0, 0, GetTextWidth(), 0 };
-	font_->prepare_wrap_draw( &bounds, text_.c_str(), text_.length(), list_, TEXT_ALIGN_CENTER );
+	RenderableCString render_string( text_.c_str(), text_.length() );
+	font_->prepare_wrap_draw( &bounds, &render_string, list_, TEXT_ALIGN_CENTER );
 	SetSize( GetTextWidth(), bounds.bottom - bounds.top );
 }
 

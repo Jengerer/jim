@@ -225,6 +225,15 @@
     <ClCompile Include="attribute.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
+    <ClCompile Include="renderable_cstring.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="renderable_wide_string.cpp">
+      <Filter>headers\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="renderable_string.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="steam\AppsCommon.h">
@@ -1066,6 +1075,15 @@
     </ClInclude>
     <ClInclude Include="attribute.h">
       <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="renderable_cstring.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="renderable_wide_string.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="renderable_string.h">
+      <Filter>headers\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

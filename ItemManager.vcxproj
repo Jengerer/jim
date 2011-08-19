@@ -114,6 +114,9 @@
     <ClCompile Include="index_slot.cpp" />
     <ClCompile Include="opengl_shared.cpp" />
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc" />
+    <ClCompile Include="renderable_cstring.cpp" />
+    <ClCompile Include="renderable_string.cpp" />
+    <ClCompile Include="renderable_wide_string.cpp" />
     <ClCompile Include="steam_item_handler.cpp" />
     <ClCompile Include="constrained_container.cpp" />
     <ClCompile Include="definition_loader.cpp" />
@@ -175,8 +178,11 @@
     <ClInclude Include="horizontal_split_layout.h" />
     <ClInclude Include="index_slot.h" />
     <ClInclude Include="attribute_information.h" />
+    <ClInclude Include="renderable_string.h" />
     <ClInclude Include="opengl_shared.h" />
     <ClInclude Include="protobuf\tf_gcmessages.pb.h" />
+    <ClInclude Include="renderable_cstring.h" />
+    <ClInclude Include="renderable_wide_string.h" />
     <ClInclude Include="steam_item_handler.h" />
     <ClInclude Include="constrained_container.h" />
     <ClInclude Include="definition_loader.h" />

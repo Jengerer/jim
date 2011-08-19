@@ -28,7 +28,7 @@ public:
 protected:
 
 	Font		*font_;
-	string		text_;
+	RenderableString* str_;
 	GLuint		list_;
 
 private:

@@ -208,12 +208,6 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// Start definition loader.
 		loadProgress_ = CreateNotice( "Preparing to load item definitions..." );
-
-		char* lol = "Ãœ";
-		wchar_t* phagot2 = L"Ü";
-		wchar_t shit;
-		mbtowc( &shit, lol, 2 );
-
 		LoadDefinitions();
 	}
 	catch (Exception& loadException) {
