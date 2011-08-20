@@ -15,7 +15,7 @@ public:
 	virtual void	Draw( Graphics2D* graphics );
 
 	void			SetText( const string& text );
-	const string&	GetText( void ) const;
+	void			SetText( const wchar_t* text, size_t length );
 	void			SetColour( const Colour& colour );
 	const Colour&	GetColour( void ) const;
 	virtual void	SetAlpha( int alpha );

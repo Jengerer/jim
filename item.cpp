@@ -10,7 +10,8 @@ Item::Item(
 	uint8 level,
 	EItemQuality quality,
 	uint32 count,
-	uint32 flags )
+	uint32 flags,
+	uint32 origin )
 {
 	// Set basic attributes.
 	SetUniqueId( uniqueId );
@@ -20,6 +21,7 @@ Item::Item(
 	SetCount( count );
 	SetFlags( flags );
 	SetIndex( GetPosition() );
+	SetOrigin( origin );
 
 	// Set null pointers for things to be acquired.
 	information_ = nullptr;
@@ -80,6 +82,11 @@ uint32 Item::GetFlags( void ) const
 uint32 Item::GetCount( void ) const
 {
 	return count_;
+}
+
+uint32 Item::GetOrigin( void ) const
+{
+	return origin_;
 }
 
 string Item::GetName( void ) const
@@ -303,4 +310,9 @@ void Item::SetFlags( uint32 flags )
 void Item::SetCount( uint32 count )
 {
 	count_ = count;
+}
+
+void Item::SetOrigin( uint32 origin )
+{
+	origin_ = origin;
 }

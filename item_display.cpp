@@ -60,6 +60,7 @@ void ItemDisplay::UpdateDisplay()
 
 #if defined( _DEBUG )
 	infoStream << "\nFLAGS: " << hex << item_->GetFlags();
+	infoStream << "\nORIGIN: " << item_->GetOrigin();
 #endif
 
 	for (size_t i = 0; i < item_->GetAttributeCount(); i++) {
@@ -69,7 +70,22 @@ void ItemDisplay::UpdateDisplay()
 		}
 	}
 
-	infoText_->SetText( infoStream.str() );
+	// Get resulting string.
+	const string& text = infoStream.str();
+
+	// Get buffer of correct size.
+	int wide_size = MultiByteToWideChar( CP_UTF8, 0, text.c_str(), text.length(), nullptr, 0 );
+	wchar_t* wide_buffer = new wchar_t[ wide_size ];
+
+	// Convert to wide string.
+	if (wide_buffer != nullptr) {
+		MultiByteToWideChar( CP_UTF8, 0, text.c_str(), text.length(), wide_buffer, wide_size );
+		infoText_->SetText( wide_buffer, wide_size );
+
+		// Delete wide string.
+		delete wide_buffer;
+	}
+
 	Pack();
 }
 
@@ -88,8 +104,6 @@ void ItemDisplay::UpdateAlpha( void )
 
 void ItemDisplay::Pack( void )
 {
-	nameText_->Pack();
-	infoText_->Pack();
 	textLayout_->Pack();
 	RoundedRectangleContainer::Pack();
 }

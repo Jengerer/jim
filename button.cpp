@@ -148,8 +148,6 @@ Button* Button::CreateLabelButton( const string& label, Font* font )
 	Text *text = new Text( font );
 	text->SetColour( BUTTON_FONT_COLOUR );
 	text->SetText( label );
-	text->Pack();
-
 	layout->Add( text );
 	button->Pack();
 
@@ -167,8 +165,6 @@ Button* Button::CreateIconLabelButton( Texture* texture, const string& label, Fo
 	Text* text = new Text( font );
 	text->SetColour( BUTTON_FONT_COLOUR );
 	text->SetText( label );
-	text->Pack();
-
 	layout->Add( icon );
 	layout->Add( text );
 	button->Pack();

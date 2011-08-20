@@ -29,7 +29,8 @@ public:
 		uint8 level,
 		EItemQuality quality,
 		uint32 count,
-		uint32 flags );
+		uint32 flags,
+		uint32 origin );
 	virtual ~Item( void );
 
 	// Loading item definition by index.
@@ -43,6 +44,7 @@ public:
 	uint32			GetFlags( void ) const;
 	void			SetFlags( uint32 flags );
 	uint32			GetCount( void ) const;
+	uint32			GetOrigin( void ) const;
 
 	// Secondary attributes.
 	string			GetName( void ) const;
@@ -85,6 +87,7 @@ private:
 	void SetLevel( uint8 level );
 	void SetQuality( EItemQuality quality );
 	void SetCount( uint32 count );
+	void SetOrigin( uint32 origin );
 
 public:
 
@@ -96,12 +99,13 @@ public:
 private:
 
 	// Item information.
-	uint64					uniqueId_;
-	uint16					typeIndex_;
-	uint8					level_;
-	EItemQuality			quality_;
-	uint32					count_;
-	uint32					flags_;
+	uint64			uniqueId_;
+	uint16			typeIndex_;
+	uint8			level_;
+	EItemQuality	quality_;
+	uint32			count_;
+	uint32			flags_;
+	uint32			origin_;
 
 	// Secondary information.
 	string customName_;
