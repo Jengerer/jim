@@ -132,7 +132,6 @@ void SlotView::Precache( Graphics2D* graphics )
 	equippedFont_ = FontFactory::create_font( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE );
 	equippedText_ = new Text( equippedFont_ );
 	equippedText_->SetText( "EQUIPPED" );
-	equippedText_->Pack();
 }
 
 void SlotView::Release()

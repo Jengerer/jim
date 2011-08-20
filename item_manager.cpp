@@ -313,7 +313,6 @@ void ItemManager::CreateLayout( void )
 		pageDisplay_->SetColour( PAGE_LABEL_COLOUR );
 		pageDisplay_->SetTextFormatting( DT_CENTER );
 		UpdatePageDisplay();
-		pageDisplay_->Pack();
 
 		// Create pages buttons layout.
 		HorizontalLayout* pageButtons = new HorizontalLayout( BUTTON_SPACING );
@@ -335,7 +334,6 @@ void ItemManager::CreateLayout( void )
 		Text* titleText = new Text( titleFont_ );
 		titleText->SetText( titleStream.str() );
 		titleText->SetColour( TITLE_COLOUR );
-		titleText->Pack();
 
 		// Organize layout.
 		layout->Add( titleText );
@@ -980,8 +978,15 @@ void ItemManager::HandleMessage( uint32 id, void* message, size_t size )
 	}
 }
 
+#include <fstream>
+
 void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 {
+	ofstream log;
+	log.open( "message_log.txt", ios::app );
+	log << "Got message of type " << id << ".\n";
+	log.close();
+
 	switch (id) {
 	case k_ESOMsg_CacheSubscribed:
 		{
@@ -1016,7 +1021,8 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 									econItem.level(),
 									(EItemQuality)econItem.quality(),
 									econItem.quantity(),
-									econItem.inventory() );
+									econItem.inventory(),
+									econItem.origin() );
 								if (econItem.has_custom_name()) {
 									item->SetCustomName( econItem.custom_name() );
 								}
@@ -1075,7 +1081,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 
 			// Compare version.
 			uint64 version = check.version();
-			if (steamItems_->GetVersion() != check.version()) {
+			if (steamItems_->GetVersion() != version) {
 				steamItems_->SetVersion( version );
 
 				// Send refresh.
@@ -1165,7 +1171,8 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 				econItem.level(),
 				(EItemQuality)econItem.quality(),
 				econItem.quantity(),
-				econItem.inventory() );
+				econItem.inventory(),
+				econItem.origin() );
 
 			// Add this item to excluded.
 			backpack_->InsertItem( newItem );

@@ -51,7 +51,6 @@ Notice::~Notice()
 
 void Notice::Pack( void )
 {
-	text_->Pack();
 	content_->Pack();
 	roundedContainer_->Pack();
 	SetSize( roundedContainer_->GetWidth(), roundedContainer_->GetHeight() );

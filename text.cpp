@@ -1,4 +1,5 @@
 #include "renderable_cstring.h"
+#include "renderable_wide_string.h"
 #include "text.h"
 
 Text::Text( Font *font )
@@ -6,6 +7,7 @@ Text::Text( Font *font )
 	SetFont( font );
 	SetColour( COLOUR_WHITE );
 	list_ = glGenLists( 1 );
+	str_ = nullptr;
 }
 
 Text::~Text( void )
@@ -15,13 +17,16 @@ Text::~Text( void )
 
 void Text::SetText( const string& text )
 {
-	text_ = text;
+	// Set renderable string and pack.
+	str_ = new RenderableCString( text.c_str(), text.length() );
 	Pack();
 }
 
-const string& Text::GetText( void ) const
+void Text::SetText( const wchar_t* text, size_t length )
 {
-	return text_;
+	// Set renderable wide string and pack.
+	str_ = new RenderableWideString( text, length );
+	Pack();
 }
 
 void Text::SetColour( const Colour& colour )
@@ -63,8 +68,17 @@ void Text::SetFont( Font *font )
 
 void Text::Pack( void )
 {
-	RECT size;
-	RenderableCString render_string( text_.c_str(), text_.size() );
-	font_->prepare_draw( &size, &render_string, list_ );
-	SetSize( size.right, size.bottom );
+	if (str_ != nullptr) {
+		// Pack on renderable string size.
+		RECT size;
+		font_->prepare_draw( &size, str_, list_ );
+		SetSize( size.right, size.bottom );
+
+		// Remove temporary renderable string.
+		delete str_;
+		str_ = nullptr;
+	}
+	else {
+		SetSize( 0, 0 );
+	}
 }

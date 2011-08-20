@@ -40,7 +40,7 @@ bool Window::registerClass( HINSTANCE hInstance )
 	wndCls.lpszMenuName		= NULL;
 	wndCls.style			= CS_OWNDC;
 
-	return RegisterClass( &wndCls );
+	return RegisterClass( &wndCls ) != 0;
 }
 
 void Window::createWindow(HINSTANCE hInstance)

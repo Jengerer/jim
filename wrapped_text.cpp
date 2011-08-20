@@ -14,10 +14,19 @@ WrappedText::~WrappedText( void )
 
 void WrappedText::Pack( void )
 {	
-	RECT bounds = { 0, 0, GetTextWidth(), 0 };
-	RenderableCString render_string( text_.c_str(), text_.length() );
-	font_->prepare_wrap_draw( &bounds, &render_string, list_, TEXT_ALIGN_CENTER );
-	SetSize( GetTextWidth(), bounds.bottom - bounds.top );
+	if (str_ != nullptr) {
+		// Wrap renderable string.
+		RECT bounds = { 0, 0, GetTextWidth(), 0 };
+		font_->prepare_wrap_draw( &bounds, str_, list_, TEXT_ALIGN_CENTER );
+		SetSize( GetTextWidth(), bounds.bottom - bounds.top );
+
+		// Delete renderable string.
+		delete str_;
+		str_ = nullptr;
+	}
+	else {
+		SetSize( 0, 0 );
+	}
 }
 
 int WrappedText::GetTextWidth( void ) const
