@@ -21,13 +21,25 @@ const AttributeInformation* Attribute::get_attribute_info() const
 
 string Attribute::get_description_string() const
 {
+	// String to replace.
+	const string STRING_TOKEN( "%s1" );
+
 	// Get the description string.
-	const string& desc_string = attribute_info_->get_desc_string();
+	string desc_string = attribute_info_->get_desc_string();
+	size_t start = desc_string.find( STRING_TOKEN );
+	if (start != string::npos) {
+		// Convert value to string.
+		stringstream value_stream;
+		if (attribute_info_->is_integer()) {
+			value_stream << get_uint32_value();
+		}
+		else {
+			value_stream << get_float_value();
+		}
+		const string& value_string = value_stream.str();
 
-	stringstream attribute_description;
-	size_t index = desc_string.find( "%s1" );
-	if (index != string::npos) {
-
+		// Replace token with value.
+		desc_string.replace( start, STRING_TOKEN.length(), value_string );
 	}
 
 	return desc_string;

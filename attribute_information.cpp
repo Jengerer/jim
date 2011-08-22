@@ -53,6 +53,11 @@ bool AttributeInformation::is_hidden() const
 	return hidden_;
 }
 
+bool AttributeInformation::is_integer() const
+{
+	return is_integer_;
+}
+
 bool AttributeInformation::has_description() const
 {
 	return has_description_;
