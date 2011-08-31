@@ -186,6 +186,9 @@ void DefinitionLoader::load()
 				image_inventory = "backpack/unknown_item";
 				image_url = "http://www.jengerer.com/item_manager/img/backpack/unknown_item.png";
 			}
+			else if (image_url.empty()) {
+				image_url = "http://www.jengerer.com/item_manager/img/" + image_inventory + ".png";
+			}
 
 			EItemSlot item_slot = SLOT_NONE;
 			if (item.isMember( "item_slot" )) {
@@ -315,6 +318,8 @@ const string& DefinitionLoader::get_progress_msg() const
 void DefinitionLoader::update_progress_msg()
 {
 	stringstream message;
+	message.precision( 3 );
+
 	switch (get_state()) {
 	case LOADING_STATE_NONE:
 		message << "Definition loader not started.";
@@ -329,11 +334,11 @@ void DefinitionLoader::update_progress_msg()
 		break;
 
 	case LOADING_STATE_LOADING_ATTRIBUTES:
-		message << "Loading attributes from schema...\n(" << get_progress() << ")";
+		message << "Loading attributes from schema...\n(" << get_progress() << "%)";
 		break;
 
 	case LOADING_STATE_LOADING_ITEMS:
-		message << "Loading items from schema...\n(" << get_progress() << ")";
+		message << "Loading items from schema...\n(" << get_progress() << "%)";
 		break;
 
 	case LOADING_STATE_ERROR:
