@@ -18,10 +18,10 @@
     <ClCompile Include="auto_updater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Item Manager\curl.cpp">
+    <ClCompile Include="..\curl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Item Manager\exception.cpp">
+    <ClCompile Include="..\exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

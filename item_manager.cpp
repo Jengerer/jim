@@ -29,7 +29,7 @@
 const char*	APPLICATION_TITLE	= "Jengerer's Item Manager Lite";
 const int	APPLICATION_WIDTH	= 795;
 const int	APPLICATION_HEIGHT	= 540;
-const char*	APPLICATION_VERSION	= "0.9.9.9.7.2";
+const char*	APPLICATION_VERSION	= "0.9.9.9.7.3";
 
 // UI attributes.
 const unsigned int EXIT_BUTTON_PADDING	= 10;

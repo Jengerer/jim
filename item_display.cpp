@@ -61,14 +61,13 @@ void ItemDisplay::UpdateDisplay()
 #if defined( _DEBUG )
 	infoStream << "\nFLAGS: " << hex << item_->GetFlags();
 	infoStream << "\nORIGIN: " << item_->GetOrigin();
-#endif
-
 	for (size_t i = 0; i < item_->GetAttributeCount(); i++) {
 		const Attribute* attrib = item_->GetAttribute( i );
 		if (attrib->has_description()) {
 			infoStream << "\n" << attrib->get_description_string();
 		}
 	}
+#endif
 
 	// Get resulting string.
 	const string& text = infoStream.str();
