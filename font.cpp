@@ -290,6 +290,7 @@ void Font::prepare_wrap_draw( RECT* bounds, const RenderableString* text, GLuint
 	for (size_t i = 0; i < length; ++i) {
 		FT_ULong ch = text->char_code_at( i );
 		bool draw_line = false;
+		bool include_breakpoint = true;
 		
 		if (ch == NEW_LINE) {
 			// It has fit so far, draw until here.
@@ -320,13 +321,22 @@ void Font::prepare_wrap_draw( RECT* bounds, const RenderableString* text, GLuint
 				
 				draw_line = 1;
 			}
-			else if (ch == SLASH || ch == SPACE || ch == DASH) {
+			else if (ch == SPACE) {
 				// Reset width since break.
 				width_left -= width_since_break;
 				width_since_break = 0;
 
 				// Now set this as the break point.
 				break_point = i;
+				include_breakpoint = false;
+			}
+			else if (ch == DASH || ch == SLASH) {
+				// Reset width since break.
+				width_left -= width_since_break;
+				width_since_break = 0;
+
+				// Now set this as the break point.
+				break_point = i+1;
 			}
 		}
 		
@@ -336,7 +346,7 @@ void Font::prepare_wrap_draw( RECT* bounds, const RenderableString* text, GLuint
 			new_lines++;
 
 			// Reset start of line and remaining width.
-			line_start = break_point = break_point + 1;
+			line_start = break_point = break_point + (include_breakpoint ? 0 : 1);
 			width_left = LINE_WIDTH;
 		}
 	}

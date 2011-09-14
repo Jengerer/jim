@@ -73,12 +73,14 @@ public:
 	void			SetEquip( uint32 equipClass, bool equip );
 
 	// Drawing and interaction.
-	Texture*		GetTexture( void );
+	const Texture*	GetTexture( void );
 
 	// Attribute handling.
-	bool HasAttributes() const;
-	size_t GetAttributeCount() const;
-	const Attribute* GetAttribute( size_t index ) const;
+	void add_attribute( Attribute* attribute );
+	size_t get_attribute_count() const;
+	const Attribute* get_attribute_at( size_t index ) const;
+	const Attribute* get_attribute_by_index( size_t index ) const;
+	const Attribute* get_attribute_by_name( const string& name ) const;
 
 private:
 
@@ -93,6 +95,7 @@ public:
 
 	// Using int32 so we can have -1 index for fallback.
 	// TODO: Keep it as uint16, but store a static fallback definition.
+	static ItemInformation* fallback;
 	static InformationMap definitions;
 	static AttributeMap attributes;
 
@@ -112,6 +115,7 @@ private:
 	uint32 index_;
 
 	// Item definition information.
-	const ItemInformation	*information_;
+	const ItemInformation*	information_;
+	std::vector<Attribute*>	attributes_;
 
 };

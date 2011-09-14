@@ -203,7 +203,9 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 
 		// Create notification queue.
 		notifications_ = new NotificationQueue();
-		notifications_->SetPosition( GetWidth() - PADDING, GetHeight() - PADDING );
+		notifications_->SetPosition( 
+			static_cast<float>(GetWidth() - PADDING), 
+			static_cast<float>(GetHeight() - PADDING) );
 		Add( notifications_ );
 
 		// Start definition loader.
@@ -256,6 +258,12 @@ void ItemManager::CloseInterfaces( void )
 	// Erase attribute definitions.
 	for (auto i = Item::attributes.begin(); i != Item::attributes.end(); i = Item::attributes.erase( i )) {
 		delete i->second;
+	}
+
+	// Erase fallback definition.
+	if (Item::fallback != nullptr) {
+		delete Item::fallback;
+		Item::fallback = nullptr;
 	}
 
 	// Free cached resources.
@@ -603,8 +611,10 @@ bool ItemManager::MouseMoved( Mouse *mouse )
 						displayY = slotView->GetY() - itemDisplay_->GetHeight() - ITEM_DISPLAY_SPACING;
 					}
 
-					itemDisplay_->SetPosition( displayX, displayY );
-					ClampChild( itemDisplay_, PADDING );
+					itemDisplay_->SetPosition(
+						static_cast<float>(displayX),
+						static_cast<float>(displayY) );
+					ClampChild( itemDisplay_, static_cast<float>(PADDING) );
 				}
 			}
 		}

@@ -68,7 +68,7 @@ void SlotView::Update()
 	slotImage_->SetTexture( (IsSelected() ? selectedSlot_ : normalSlot_)->GetTexture() );
 
 	// Get stroke and item texture.
-	Texture* itemTexture = nullptr;
+	const Texture* itemTexture = nullptr;
 	if (slot_->HasItem()) {
 		Item* item = slot_->GetItem();
 		itemTexture = item->GetTexture();

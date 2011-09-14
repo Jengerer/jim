@@ -14,7 +14,7 @@ class Notification : public RoundedRectangleContainer
 	
 public:
 
-	Notification( const string& message, Texture *texture = nullptr );
+	Notification( const string& message, const Texture *texture = nullptr );
 	virtual ~Notification( void );
 
 	virtual void	Pack( void );

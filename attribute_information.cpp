@@ -23,6 +23,11 @@ AttributeInformation::AttributeInformation( const string& name,
 	has_description_ = false;
 }
 
+const string& AttributeInformation::get_name() const
+{
+	return name_;
+}
+
 unsigned int AttributeInformation::get_index() const
 {
 	return index_;

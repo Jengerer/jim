@@ -23,7 +23,7 @@ public:
 	~ItemInformation( void );
 
 	const string&	GetName( void ) const;
-	Texture*		GetTexture( void ) const;
+	const Texture*		GetTexture( void ) const;
 	uint32			GetClassFlags( void ) const;
 	uint8			GetClassCount( void ) const;
 	EItemSlot		GetSlot( void ) const;
@@ -35,14 +35,14 @@ public:
 private:
 
 	void			SetName( const string& name );
-	void			SetTexture( Texture *texture );
+	void			SetTexture( const Texture *texture );
 	void			SetClassFlags( uint32 classFlags );
 	void			SetSlot( EItemSlot slot );
 
 private:
 
 	std::string				name_;
-	Texture*				texture_; // TODO: Can this be const?
+	const Texture*			texture_;
 	uint32					classFlags_;
 	uint8					classCount_;
 	EItemSlot				slot_;

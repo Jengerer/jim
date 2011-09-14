@@ -1,8 +1,8 @@
 #include "item.h"
 
-// Static map.
-InformationMap	Item::definitions;
-AttributeMap	Item::attributes;
+InformationMap Item::definitions;
+AttributeMap Item::attributes;
+ItemInformation* Item::fallback = nullptr;
 
 Item::Item(
 	uint64 uniqueId,
@@ -23,14 +23,16 @@ Item::Item(
 	SetIndex( GetPosition() );
 	SetOrigin( origin );
 
-	// Set null pointers for things to be acquired.
-	information_ = nullptr;
+	// Get item information.
 	GetItemInformation();
 }
 
 Item::~Item( void )
 {
-	//Item has been destroyed.
+	// Remove all attributes.
+	for (auto i = attributes_.begin(); i != attributes_.end(); i = attributes_.erase( i )) {
+		delete *i;
+	}
 }
 
 void Item::GetItemInformation( void )
@@ -41,17 +43,14 @@ void Item::GetItemInformation( void )
 		information_ = i->second;
 	}
 	else {
-		// Fall back to default.
-		i = definitions.find( -1 );
-		if (i != definitions.end()) {
-			information_ = i->second;
-		}
-		else {
-			throw Exception( "Failed to find item or fallback definition." );
-		}
+		information_ = fallback;
 	}
 
-	GetTexture();
+	// Load attributes from class definition.
+	for (size_t i = 0, len = information_->GetAttributeCount(); i < len; ++i) {
+		const Attribute* orig = information_->GetAttribute( i );
+		add_attribute( new Attribute( *orig ) );
+	}
 }
 
 uint64 Item::GetUniqueId( void ) const
@@ -262,24 +261,55 @@ void Item::SetEquip( uint32 equipClass, bool equip )
 	}
 }
 
-Texture* Item::GetTexture( void )
+const Texture* Item::GetTexture( void )
 {
 	return information_->GetTexture();
 }
 
-bool Item::HasAttributes() const
+void Item::add_attribute( Attribute* attribute )
 {
-	return GetAttributeCount() != 0;
+	for (auto i = attributes_.begin(); i != attributes_.end(); ++i) {
+		Attribute* current = *i;
+
+		// Check if we should replace.
+		if (attribute->get_index() == current->get_index()) {
+			*i = attribute;
+			delete current;
+			return;
+		}
+	}
 }
 
-size_t Item::GetAttributeCount() const
+size_t Item::get_attribute_count() const
 {
-	return information_->GetAttributeCount();
+	return attributes_.size();
 }
 
-const Attribute* Item::GetAttribute( size_t index ) const
+const Attribute* Item::get_attribute_at( size_t index ) const
 {
-	return information_->GetAttribute( index );
+	return attributes_.at( index );
+}
+
+const Attribute* Item::get_attribute_by_index( size_t index ) const
+{
+	for each (Attribute* i in attributes_) {
+		if (i->get_index() == index) {
+			return i;
+		}
+	}
+
+	return nullptr;
+}
+
+const Attribute* Item::get_attribute_by_name( const string& name ) const
+{
+	for each (Attribute* i in attributes_) {
+		if (i->get_name() == name) {
+			return i;
+		}
+	}
+
+	return nullptr;
 }
 
 void Item::SetUniqueId( uint64 uniqueId )

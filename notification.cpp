@@ -17,7 +17,7 @@ const Colour& NOTIFICATION_FONT_COLOUR		= COLOUR_WHITE;
 
 Font *Notification::font_ = nullptr;
 
-Notification::Notification( const string& message, Texture *texture ) : RoundedRectangleContainer( NOTIFICATION_RADIUS, NOTIFICATION_PADDING )
+Notification::Notification( const string& message, const Texture *texture ) : RoundedRectangleContainer( NOTIFICATION_RADIUS, NOTIFICATION_PADDING )
 {
 	text_ = new WrappedText( font_, NOTIFICATION_TEXT_WIDTH );
 	text_->SetColour( NOTIFICATION_FONT_COLOUR );

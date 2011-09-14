@@ -68,7 +68,7 @@ bool NotificationQueue::MouseReleased( Mouse *mouse )
 	return false;
 }
 
-void NotificationQueue::AddNotification( const string& message, Texture *texture )
+void NotificationQueue::AddNotification( const string& message, const Texture *texture )
 {
 	Notification *notification = new Notification( message, texture );
 	notification->SetAlpha( 0 );
