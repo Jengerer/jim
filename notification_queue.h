@@ -28,7 +28,7 @@ public:
 	virtual bool	MouseReleased( Mouse *mouse );
 
 	// Notification handling.
-	void			AddNotification( const string& message, Texture *texture );
+	void			AddNotification( const string& message, const Texture *texture );
 	void			SetNextNotification( void );
 
 private:

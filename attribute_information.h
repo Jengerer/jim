@@ -25,6 +25,7 @@ public:
 		bool is_integer );
 
 	// Accessing main attributes.
+	const string&	get_name() const;
 	unsigned int	get_index() const;
 	const string&	get_attribute_class() const;
 	float			get_min_value() const;

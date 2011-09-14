@@ -112,8 +112,8 @@ void DefinitionLoader::load()
 			string name = get_member( attribute, "name" ).asString();
 			uint32 index = get_member( attribute, "defindex" ).asUInt();
 			string attribute_class = get_member( attribute, "attribute_class" ).asString();
-			float min_value = get_member( attribute, "min_value" ).asDouble();
-			float max_value = get_member( attribute, "max_value" ).asDouble();
+			float min_value = static_cast<float>(get_member( attribute, "min_value" ).asDouble());
+			float max_value = static_cast<float>(get_member( attribute, "max_value" ).asDouble());
 			string effect_type_name = get_member( attribute, "effect_type" ).asString();
 			bool hidden = get_member( attribute, "hidden" ).asBool();
 			bool is_integer = get_member( attribute, "stored_as_integer" ).asBool();
@@ -164,6 +164,14 @@ void DefinitionLoader::load()
 			throw Exception( "Unexpected definition format, expected result.items." );
 		}
 
+		// Create fallback definition.
+		Texture* invalid_item = graphics_->get_texture( "backpack/unknown_item" );
+		Item::fallback = new ItemInformation(
+			"Unknown Item",
+			invalid_item,
+			0,
+			SLOT_NONE );
+
 		// Start loading items.
 		size_t loaded_items = 0;
 		size_t num_items = items.size();
@@ -182,11 +190,13 @@ void DefinitionLoader::load()
 			string image_inventory	= get_member( item, "image_inventory" ).asString();
 			string image_url		= get_member( item, "image_url" ).asString();
 
+			// Fallback image.
 			if (image_inventory.empty()) {
 				image_inventory = "backpack/unknown_item";
-				image_url = "http://www.jengerer.com/item_manager/img/backpack/unknown_item.png";
 			}
-			else if (image_url.empty()) {
+
+			// Fallback URL.
+			if (image_url.empty()) {
 				image_url = "http://www.jengerer.com/item_manager/img/" + image_inventory + ".png";
 			}
 
@@ -196,6 +206,9 @@ void DefinitionLoader::load()
 				auto j = slots_.find( slot_name );
 				if (j == slots_.end()) {
 					throw Exception( "Failed to parse item definitions. Unexpected item slot type '" + slot_name + "' found." );
+				}
+				else {
+					item_slot = j->second;
 				}
 			}
 
@@ -234,7 +247,7 @@ void DefinitionLoader::load()
 
 					// Get class and value.
 					string attrib_name = get_member( item_attrib, "name" ).asString();
-					float attrib_value = get_member( item_attrib, "value" ).asDouble();
+					float attrib_value = static_cast<float>(get_member( item_attrib, "value" ).asDouble());
 
 					// Get information.
 					AttributeInformation* attrib_info = name_map[attrib_name];

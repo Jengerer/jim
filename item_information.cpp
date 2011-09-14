@@ -25,7 +25,7 @@ const string& ItemInformation::GetName( void ) const
 	return name_;
 }
 
-Texture* ItemInformation::GetTexture( void ) const
+const Texture* ItemInformation::GetTexture( void ) const
 {
 	return texture_;
 }
@@ -65,7 +65,7 @@ void ItemInformation::SetName( const string& name )
 	name_ = name;
 }
 
-void ItemInformation::SetTexture( Texture *texture )
+void ItemInformation::SetTexture( const Texture *texture )
 {
 	texture_ = texture;
 }

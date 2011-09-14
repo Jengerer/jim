@@ -1,6 +1,6 @@
 #include "image.h"
 
-Image::Image( Texture* texture, float localX, float localY ): Component( localX, localY )
+Image::Image( const Texture* texture, float localX, float localY ): Component( localX, localY )
 {
 	SetTexture( texture );
 	SetTint( COLOUR_WHITE );
@@ -36,12 +36,12 @@ const Colour& Image::GetTint( void ) const
 	return tint_;
 }
 
-void Image::SetTexture( Texture *texture )
+void Image::SetTexture( const Texture *texture )
 {
 	texture_ = texture;
 }
 
-Texture* Image::GetTexture( void ) const
+const Texture* Image::GetTexture( void ) const
 {
 	return texture_;
 }
