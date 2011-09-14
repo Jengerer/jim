@@ -278,6 +278,9 @@ void Item::add_attribute( Attribute* attribute )
 			return;
 		}
 	}
+
+	// Not overlapping, just append.
+	attributes_.push_back( attribute );
 }
 
 size_t Item::get_attribute_count() const

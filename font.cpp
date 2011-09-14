@@ -123,8 +123,8 @@ void Font::create_display_lists()
 		glPushMatrix();
 
 		// Place the character properly.
-		glTranslatef( face_->glyph->bitmap_left, 0.0f, 0.0f );
-		glTranslatef( 0, (face_->size->metrics.ascender >> 6) - face_->glyph->bitmap_top, 0.0f );
+		glTranslatef( static_cast<float>(face_->glyph->bitmap_left), 0.0f, 0.0f );
+		glTranslatef( 0, static_cast<float>((face_->size->metrics.ascender >> 6) - face_->glyph->bitmap_top), 0.0f );
 
 		// Get texture coordinates (due to power-of-2 rule).
 		float x = static_cast<float>(bitmap.width) / static_cast<float>(width);
@@ -136,18 +136,18 @@ void Font::create_display_lists()
 			glVertex2f( 0.0f, 0.0f );
 
 			glTexCoord2f( x, 0.0f );
-			glVertex2f( bitmap.width, 0.0f );
+			glVertex2i( bitmap.width, 0 );
 
 			glTexCoord2f( x, y );
-			glVertex2f( bitmap.width, bitmap.rows );
+			glVertex2i( bitmap.width, bitmap.rows );
 
 			glTexCoord2f( 0.0f, y );	
-			glVertex2f( 0.0f, bitmap.rows );
+			glVertex2i( 0, bitmap.rows );
 		glEnd();
 		glPopMatrix();
 
 		// Move forward by the character's advance.
-		glTranslatef( face_->glyph->advance.x >> 6, 0.0f, 0.0f );
+		glTranslatef( static_cast<float>(face_->glyph->advance.x >> 6), 0.0f, 0.0f );
 		glBindTexture( GL_TEXTURE_2D, 0 );
 		glEndList();
 	}
@@ -164,7 +164,7 @@ void Font::draw_char( FT_ULong c ) const
 void Font::new_line() const
 {
 	glTranslatef( 0.0f,
-		get_baseline_spacing(),
+		static_cast<float>(get_baseline_spacing()),
 		0.0f );
 }
 
@@ -341,7 +341,7 @@ void Font::prepare_wrap_draw( RECT* bounds, const RenderableString* text, GLuint
 		}
 		
 		if (draw_line) {
-			draw_aligned( text, line_start, break_point, LINE_WIDTH, align_type );
+			draw_aligned( text, line_start, break_point, static_cast<float>(LINE_WIDTH), align_type );
 			new_line();
 			new_lines++;
 
@@ -352,7 +352,7 @@ void Font::prepare_wrap_draw( RECT* bounds, const RenderableString* text, GLuint
 	}
 
 	// Draw last line, since it fits.
-	draw_aligned( text, line_start, length, LINE_WIDTH, align_type );
+	draw_aligned( text, line_start, length, static_cast<float>(LINE_WIDTH), align_type );
 
 	// Adjust rect bounds by this size.
 	bounds->bottom = bounds->top + (new_lines * get_baseline_spacing()) + get_line_height();
