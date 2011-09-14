@@ -165,10 +165,10 @@ void DefinitionLoader::load()
 		}
 
 		// Create fallback definition.
-		Texture* invalid_item = graphics_->get_texture( "backpack/unknown_item" );
+		Texture* unknown_item = graphics_->get_texture( "backpack/unknown_item" );
 		Item::fallback = new ItemInformation(
 			"Unknown Item",
-			invalid_item,
+			unknown_item,
 			0,
 			SLOT_NONE );
 
@@ -230,7 +230,13 @@ void DefinitionLoader::load()
 			}
 
 			// Load the image.
-			Texture *texture = graphics_->get_texture( image_inventory, image_url );
+			Texture *texture = nullptr;
+			try {
+				texture = graphics_->get_texture( image_inventory, image_url );
+			}
+			catch (const Exception&) {
+				texture = unknown_item;
+			}
 
 			// Generate information object.
 			ItemInformation *itemInformation = new ItemInformation(
