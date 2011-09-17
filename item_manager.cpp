@@ -992,10 +992,12 @@ void ItemManager::HandleMessage( uint32 id, void* message, size_t size )
 
 void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 {
+#ifdef _DEBUG
 	ofstream log;
 	log.open( "message_log.txt", ios::app );
 	log << "Got message of type " << id << ".\n";
 	log.close();
+#endif
 
 	switch (id) {
 	case k_ESOMsg_CacheSubscribed:
@@ -1033,6 +1035,19 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 									econItem.quantity(),
 									econItem.inventory(),
 									econItem.origin() );
+
+								for (int j = 0; j < econItem.attribute_size(); ++j) {
+									const CSOEconItemAttribute& attribute = econItem.attribute( j );
+									uint32 attrib_index = attribute.def_index();
+									
+									// Get attribute information.
+									auto k = Item::attributes.find( attrib_index );
+									if (k != Item::attributes.end()) {
+										Attribute* new_attribute = new Attribute( k->second, attribute.value() );
+										item->add_attribute( new_attribute );
+									}
+								}
+
 								if (econItem.has_custom_name()) {
 									item->SetCustomName( econItem.custom_name() );
 								}
