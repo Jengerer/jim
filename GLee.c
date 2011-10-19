@@ -15974,7 +15974,7 @@ GLboolean __GLeeGetExtensions(ExtensionList* extList)
 	int platExtStrLen;
 	int addASpace;
 	
-	/* read the platform specific extension string */
+	/* read the platform specific extension std::string */
 	platExtStr=__GLeeGetExtStrPlat(); 
 	if (!platExtStr) platExtStr=emptyString;
 
@@ -15985,7 +15985,7 @@ GLboolean __GLeeGetExtensions(ExtensionList* extList)
 		return GL_FALSE;
 	}
 
-	/* allocate the extension string */
+	/* allocate the extension std::string */
 	platExtStrLen = strlen(platExtStr);
 	totalExtStrLen = platExtStrLen + strlen(glExtStr);
 	extStr=(char *)malloc( (totalExtStrLen+2) * sizeof(char) ); /* we add 2 to allow for an extra space and a null terminator */

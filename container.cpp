@@ -32,7 +32,7 @@ void Container::Add( Component* component )
 //=============================================================
 void Container::Remove( Component* component )
 {
-	vector<Component*>::iterator i = find( components_.begin(), components_.end(), component );
+	std::vector<Component*>::iterator i = find( components_.begin(), components_.end(), component );
 	if (i != components_.end()) {
 		components_.erase( i );
 	}

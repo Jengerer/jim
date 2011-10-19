@@ -1,6 +1,6 @@
 #include "alert.h"
 
-Alert::Alert( const string& message ) : Notice( message )
+Alert::Alert( const std::string& message ) : Notice( message )
 {
 	// Make OK button.
 	okButton_ = Button::CreateLabelButton( "okay" );
@@ -19,7 +19,7 @@ void Alert::Pack()
 	Notice::Pack();
 }
 
-void Alert::SetMessage( const string& message )
+void Alert::SetMessage( const std::string& message )
 {
 	Notice::SetMessage( message );
 }

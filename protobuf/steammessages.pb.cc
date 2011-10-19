@@ -1002,7 +1002,7 @@ bool CMsgProtoBufHeader::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string target_job_name = 12;
+      // optional std::string target_job_name = 12;
       case 12: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -1057,7 +1057,7 @@ void CMsgProtoBufHeader::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteFixed64(11, this->job_id_target(), output);
   }
   
-  // optional string target_job_name = 12;
+  // optional std::string target_job_name = 12;
   if (has_target_job_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->target_job_name().data(), this->target_job_name().length(),
@@ -1094,7 +1094,7 @@ void CMsgProtoBufHeader::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteFixed64ToArray(11, this->job_id_target(), target);
   }
   
-  // optional string target_job_name = 12;
+  // optional std::string target_job_name = 12;
   if (has_target_job_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->target_job_name().data(), this->target_job_name().length(),
@@ -1137,7 +1137,7 @@ int CMsgProtoBufHeader::ByteSize() const {
       total_size += 1 + 8;
     }
     
-    // optional string target_job_name = 12;
+    // optional std::string target_job_name = 12;
     if (has_target_job_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -1380,7 +1380,7 @@ bool CMsgWebAPIKey::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string domain = 5;
+      // optional std::string domain = 5;
       case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -1435,7 +1435,7 @@ void CMsgWebAPIKey::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(4, this->key_id(), output);
   }
   
-  // optional string domain = 5;
+  // optional std::string domain = 5;
   if (has_domain()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->domain().data(), this->domain().length(),
@@ -1472,7 +1472,7 @@ void CMsgWebAPIKey::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(4, this->key_id(), target);
   }
   
-  // optional string domain = 5;
+  // optional std::string domain = 5;
   if (has_domain()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->domain().data(), this->domain().length(),
@@ -1521,7 +1521,7 @@ int CMsgWebAPIKey::ByteSize() const {
           this->key_id());
     }
     
-    // optional string domain = 5;
+    // optional std::string domain = 5;
     if (has_domain()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -1699,7 +1699,7 @@ bool CMsgHttpRequest_RequestHeader::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string name = 1;
+      // optional std::string name = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -1715,7 +1715,7 @@ bool CMsgHttpRequest_RequestHeader::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string value = 2;
+      // optional std::string value = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -1750,7 +1750,7 @@ bool CMsgHttpRequest_RequestHeader::MergePartialFromCodedStream(
 
 void CMsgHttpRequest_RequestHeader::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional string name = 1;
+  // optional std::string name = 1;
   if (has_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
@@ -1759,7 +1759,7 @@ void CMsgHttpRequest_RequestHeader::SerializeWithCachedSizes(
       1, this->name(), output);
   }
   
-  // optional string value = 2;
+  // optional std::string value = 2;
   if (has_value()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->value().data(), this->value().length(),
@@ -1776,7 +1776,7 @@ void CMsgHttpRequest_RequestHeader::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CMsgHttpRequest_RequestHeader::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional string name = 1;
+  // optional std::string name = 1;
   if (has_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
@@ -1786,7 +1786,7 @@ void CMsgHttpRequest_RequestHeader::SerializeWithCachedSizes(
         1, this->name(), target);
   }
   
-  // optional string value = 2;
+  // optional std::string value = 2;
   if (has_value()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->value().data(), this->value().length(),
@@ -1807,14 +1807,14 @@ int CMsgHttpRequest_RequestHeader::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string name = 1;
+    // optional std::string name = 1;
     if (has_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->name());
     }
     
-    // optional string value = 2;
+    // optional std::string value = 2;
     if (has_value()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -1980,7 +1980,7 @@ bool CMsgHttpRequest_QueryParam::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string name = 1;
+      // optional std::string name = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -2028,7 +2028,7 @@ bool CMsgHttpRequest_QueryParam::MergePartialFromCodedStream(
 
 void CMsgHttpRequest_QueryParam::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional string name = 1;
+  // optional std::string name = 1;
   if (has_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
@@ -2051,7 +2051,7 @@ void CMsgHttpRequest_QueryParam::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CMsgHttpRequest_QueryParam::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional string name = 1;
+  // optional std::string name = 1;
   if (has_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
@@ -2079,7 +2079,7 @@ int CMsgHttpRequest_QueryParam::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string name = 1;
+    // optional std::string name = 1;
     if (has_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -2286,7 +2286,7 @@ bool CMsgHttpRequest::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string hostname = 2;
+      // optional std::string hostname = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -2303,7 +2303,7 @@ bool CMsgHttpRequest::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string url = 3;
+      // optional std::string url = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -2402,7 +2402,7 @@ void CMsgHttpRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->request_method(), output);
   }
   
-  // optional string hostname = 2;
+  // optional std::string hostname = 2;
   if (has_hostname()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->hostname().data(), this->hostname().length(),
@@ -2411,7 +2411,7 @@ void CMsgHttpRequest::SerializeWithCachedSizes(
       2, this->hostname(), output);
   }
   
-  // optional string url = 3;
+  // optional std::string url = 3;
   if (has_url()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->url().data(), this->url().length(),
@@ -2457,7 +2457,7 @@ void CMsgHttpRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->request_method(), target);
   }
   
-  // optional string hostname = 2;
+  // optional std::string hostname = 2;
   if (has_hostname()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->hostname().data(), this->hostname().length(),
@@ -2467,7 +2467,7 @@ void CMsgHttpRequest::SerializeWithCachedSizes(
         2, this->hostname(), target);
   }
   
-  // optional string url = 3;
+  // optional std::string url = 3;
   if (has_url()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->url().data(), this->url().length(),
@@ -2523,14 +2523,14 @@ int CMsgHttpRequest::ByteSize() const {
           this->request_method());
     }
     
-    // optional string hostname = 2;
+    // optional std::string hostname = 2;
     if (has_hostname()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->hostname());
     }
     
-    // optional string url = 3;
+    // optional std::string url = 3;
     if (has_url()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -2771,7 +2771,7 @@ bool CMsgWebAPIRequest::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string UNUSED_job_name = 1;
+      // optional std::string UNUSED_job_name = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -2787,7 +2787,7 @@ bool CMsgWebAPIRequest::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string interface_name = 2;
+      // optional std::string interface_name = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -2804,7 +2804,7 @@ bool CMsgWebAPIRequest::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string method_name = 3;
+      // optional std::string method_name = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -2899,7 +2899,7 @@ bool CMsgWebAPIRequest::MergePartialFromCodedStream(
 
 void CMsgWebAPIRequest::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional string UNUSED_job_name = 1;
+  // optional std::string UNUSED_job_name = 1;
   if (has_unused_job_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->unused_job_name().data(), this->unused_job_name().length(),
@@ -2908,7 +2908,7 @@ void CMsgWebAPIRequest::SerializeWithCachedSizes(
       1, this->unused_job_name(), output);
   }
   
-  // optional string interface_name = 2;
+  // optional std::string interface_name = 2;
   if (has_interface_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->interface_name().data(), this->interface_name().length(),
@@ -2917,7 +2917,7 @@ void CMsgWebAPIRequest::SerializeWithCachedSizes(
       2, this->interface_name(), output);
   }
   
-  // optional string method_name = 3;
+  // optional std::string method_name = 3;
   if (has_method_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->method_name().data(), this->method_name().length(),
@@ -2956,7 +2956,7 @@ void CMsgWebAPIRequest::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CMsgWebAPIRequest::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional string UNUSED_job_name = 1;
+  // optional std::string UNUSED_job_name = 1;
   if (has_unused_job_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->unused_job_name().data(), this->unused_job_name().length(),
@@ -2966,7 +2966,7 @@ void CMsgWebAPIRequest::SerializeWithCachedSizes(
         1, this->unused_job_name(), target);
   }
   
-  // optional string interface_name = 2;
+  // optional std::string interface_name = 2;
   if (has_interface_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->interface_name().data(), this->interface_name().length(),
@@ -2976,7 +2976,7 @@ void CMsgWebAPIRequest::SerializeWithCachedSizes(
         2, this->interface_name(), target);
   }
   
-  // optional string method_name = 3;
+  // optional std::string method_name = 3;
   if (has_method_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->method_name().data(), this->method_name().length(),
@@ -3021,21 +3021,21 @@ int CMsgWebAPIRequest::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string UNUSED_job_name = 1;
+    // optional std::string UNUSED_job_name = 1;
     if (has_unused_job_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->unused_job_name());
     }
     
-    // optional string interface_name = 2;
+    // optional std::string interface_name = 2;
     if (has_interface_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->interface_name());
     }
     
-    // optional string method_name = 3;
+    // optional std::string method_name = 3;
     if (has_method_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -3249,7 +3249,7 @@ bool CMsgHttpResponse_ResponseHeader::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string name = 1;
+      // optional std::string name = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -3265,7 +3265,7 @@ bool CMsgHttpResponse_ResponseHeader::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string value = 2;
+      // optional std::string value = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -3300,7 +3300,7 @@ bool CMsgHttpResponse_ResponseHeader::MergePartialFromCodedStream(
 
 void CMsgHttpResponse_ResponseHeader::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional string name = 1;
+  // optional std::string name = 1;
   if (has_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
@@ -3309,7 +3309,7 @@ void CMsgHttpResponse_ResponseHeader::SerializeWithCachedSizes(
       1, this->name(), output);
   }
   
-  // optional string value = 2;
+  // optional std::string value = 2;
   if (has_value()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->value().data(), this->value().length(),
@@ -3326,7 +3326,7 @@ void CMsgHttpResponse_ResponseHeader::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CMsgHttpResponse_ResponseHeader::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional string name = 1;
+  // optional std::string name = 1;
   if (has_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
@@ -3336,7 +3336,7 @@ void CMsgHttpResponse_ResponseHeader::SerializeWithCachedSizes(
         1, this->name(), target);
   }
   
-  // optional string value = 2;
+  // optional std::string value = 2;
   if (has_value()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->value().data(), this->value().length(),
@@ -3357,14 +3357,14 @@ int CMsgHttpResponse_ResponseHeader::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string name = 1;
+    // optional std::string name = 1;
     if (has_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->name());
     }
     
-    // optional string value = 2;
+    // optional std::string value = 2;
     if (has_value()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -3833,7 +3833,7 @@ bool CMsgAMFindAccounts::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string search_string = 2;
+      // optional std::string search_string = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -3873,7 +3873,7 @@ void CMsgAMFindAccounts::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->search_type(), output);
   }
   
-  // optional string search_string = 2;
+  // optional std::string search_string = 2;
   if (has_search_string()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->search_string().data(), this->search_string().length(),
@@ -3895,7 +3895,7 @@ void CMsgAMFindAccounts::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->search_type(), target);
   }
   
-  // optional string search_string = 2;
+  // optional std::string search_string = 2;
   if (has_search_string()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->search_string().data(), this->search_string().length(),
@@ -3923,7 +3923,7 @@ int CMsgAMFindAccounts::ByteSize() const {
           this->search_type());
     }
     
-    // optional string search_string = 2;
+    // optional std::string search_string = 2;
     if (has_search_string()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -4399,7 +4399,7 @@ bool CMsgNotifyWatchdog::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string text = 7;
+      // optional std::string text = 7;
       case 7: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -4464,7 +4464,7 @@ void CMsgNotifyWatchdog::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(6, this->appid(), output);
   }
   
-  // optional string text = 7;
+  // optional std::string text = 7;
   if (has_text()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->text().data(), this->text().length(),
@@ -4511,7 +4511,7 @@ void CMsgNotifyWatchdog::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(6, this->appid(), target);
   }
   
-  // optional string text = 7;
+  // optional std::string text = 7;
   if (has_text()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->text().data(), this->text().length(),
@@ -4572,7 +4572,7 @@ int CMsgNotifyWatchdog::ByteSize() const {
           this->appid());
     }
     
-    // optional string text = 7;
+    // optional std::string text = 7;
     if (has_text()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -6652,7 +6652,7 @@ bool CMsgGCGetCommandList::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string command_prefix = 2;
+      // optional std::string command_prefix = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -6692,7 +6692,7 @@ void CMsgGCGetCommandList::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->app_id(), output);
   }
   
-  // optional string command_prefix = 2;
+  // optional std::string command_prefix = 2;
   if (has_command_prefix()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->command_prefix().data(), this->command_prefix().length(),
@@ -6714,7 +6714,7 @@ void CMsgGCGetCommandList::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->app_id(), target);
   }
   
-  // optional string command_prefix = 2;
+  // optional std::string command_prefix = 2;
   if (has_command_prefix()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->command_prefix().data(), this->command_prefix().length(),
@@ -6742,7 +6742,7 @@ int CMsgGCGetCommandList::ByteSize() const {
           this->app_id());
     }
     
-    // optional string command_prefix = 2;
+    // optional std::string command_prefix = 2;
     if (has_command_prefix()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -6888,7 +6888,7 @@ bool CMsgGCGetCommandListResponse::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated string command_name = 1;
+      // repeated std::string command_name = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -6924,7 +6924,7 @@ bool CMsgGCGetCommandListResponse::MergePartialFromCodedStream(
 
 void CMsgGCGetCommandListResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // repeated string command_name = 1;
+  // repeated std::string command_name = 1;
   for (int i = 0; i < this->command_name_size(); i++) {
   ::google::protobuf::internal::WireFormat::VerifyUTF8String(
     this->command_name(i).data(), this->command_name(i).length(),
@@ -6941,7 +6941,7 @@ void CMsgGCGetCommandListResponse::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CMsgGCGetCommandListResponse::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // repeated string command_name = 1;
+  // repeated std::string command_name = 1;
   for (int i = 0; i < this->command_name_size(); i++) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->command_name(i).data(), this->command_name(i).length(),
@@ -6960,7 +6960,7 @@ void CMsgGCGetCommandListResponse::SerializeWithCachedSizes(
 int CMsgGCGetCommandListResponse::ByteSize() const {
   int total_size = 0;
   
-  // repeated string command_name = 1;
+  // repeated std::string command_name = 1;
   total_size += 1 * this->command_name_size();
   for (int i = 0; i < this->command_name_size(); i++) {
     total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -7097,7 +7097,7 @@ bool CGCMsgMemCachedGet::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated string keys = 1;
+      // repeated std::string keys = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -7133,7 +7133,7 @@ bool CGCMsgMemCachedGet::MergePartialFromCodedStream(
 
 void CGCMsgMemCachedGet::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // repeated string keys = 1;
+  // repeated std::string keys = 1;
   for (int i = 0; i < this->keys_size(); i++) {
   ::google::protobuf::internal::WireFormat::VerifyUTF8String(
     this->keys(i).data(), this->keys(i).length(),
@@ -7150,7 +7150,7 @@ void CGCMsgMemCachedGet::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CGCMsgMemCachedGet::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // repeated string keys = 1;
+  // repeated std::string keys = 1;
   for (int i = 0; i < this->keys_size(); i++) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->keys(i).data(), this->keys(i).length(),
@@ -7169,7 +7169,7 @@ void CGCMsgMemCachedGet::SerializeWithCachedSizes(
 int CGCMsgMemCachedGet::ByteSize() const {
   int total_size = 0;
   
-  // repeated string keys = 1;
+  // repeated std::string keys = 1;
   total_size += 1 * this->keys_size();
   for (int i = 0; i < this->keys_size(); i++) {
     total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -7781,7 +7781,7 @@ bool CGCMsgMemCachedSet_KeyPair::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string name = 1;
+      // optional std::string name = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -7829,7 +7829,7 @@ bool CGCMsgMemCachedSet_KeyPair::MergePartialFromCodedStream(
 
 void CGCMsgMemCachedSet_KeyPair::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional string name = 1;
+  // optional std::string name = 1;
   if (has_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
@@ -7852,7 +7852,7 @@ void CGCMsgMemCachedSet_KeyPair::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CGCMsgMemCachedSet_KeyPair::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional string name = 1;
+  // optional std::string name = 1;
   if (has_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
@@ -7880,7 +7880,7 @@ int CGCMsgMemCachedSet_KeyPair::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string name = 1;
+    // optional std::string name = 1;
     if (has_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -8235,7 +8235,7 @@ bool CGCMsgMemCachedDelete::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated string keys = 1;
+      // repeated std::string keys = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -8271,7 +8271,7 @@ bool CGCMsgMemCachedDelete::MergePartialFromCodedStream(
 
 void CGCMsgMemCachedDelete::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // repeated string keys = 1;
+  // repeated std::string keys = 1;
   for (int i = 0; i < this->keys_size(); i++) {
   ::google::protobuf::internal::WireFormat::VerifyUTF8String(
     this->keys(i).data(), this->keys(i).length(),
@@ -8288,7 +8288,7 @@ void CGCMsgMemCachedDelete::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CGCMsgMemCachedDelete::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // repeated string keys = 1;
+  // repeated std::string keys = 1;
   for (int i = 0; i < this->keys_size(); i++) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->keys(i).data(), this->keys(i).length(),
@@ -8307,7 +8307,7 @@ void CGCMsgMemCachedDelete::SerializeWithCachedSizes(
 int CGCMsgMemCachedDelete::ByteSize() const {
   int total_size = 0;
   
-  // repeated string keys = 1;
+  // repeated std::string keys = 1;
   total_size += 1 * this->keys_size();
   for (int i = 0; i < this->keys_size(); i++) {
     total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -8510,7 +8510,7 @@ bool CMsgAMAddFreeLicense::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string store_country_code = 4;
+      // optional std::string store_country_code = 4;
       case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -8560,7 +8560,7 @@ void CMsgAMAddFreeLicense::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->packageid(), output);
   }
   
-  // optional string store_country_code = 4;
+  // optional std::string store_country_code = 4;
   if (has_store_country_code()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->store_country_code().data(), this->store_country_code().length(),
@@ -8592,7 +8592,7 @@ void CMsgAMAddFreeLicense::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->packageid(), target);
   }
   
-  // optional string store_country_code = 4;
+  // optional std::string store_country_code = 4;
   if (has_store_country_code()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->store_country_code().data(), this->store_country_code().length(),
@@ -8632,7 +8632,7 @@ int CMsgAMAddFreeLicense::ByteSize() const {
           this->packageid());
     }
     
-    // optional string store_country_code = 4;
+    // optional std::string store_country_code = 4;
     if (has_store_country_code()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(

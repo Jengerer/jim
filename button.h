@@ -36,8 +36,8 @@ public:
 	static void		Release();
 
 	static Button*	CreateIconButton( Texture *texture );
-	static Button*	CreateLabelButton( const string& label, Font* font = defaultFont_ );
-	static Button*	CreateIconLabelButton( Texture *texture, const string& label, Font* font = defaultFont_ );
+	static Button*	CreateLabelButton( const std::string& label, Font* font = defaultFont_ );
+	static Button*	CreateIconLabelButton( Texture *texture, const std::string& label, Font* font = defaultFont_ );
 
 private:
 

@@ -281,7 +281,7 @@ S_API int STEAM_CALL Steam_InitiateGameConnection( HSteamUser hUser, HSteamPipe 
 S_API void STEAM_CALL Steam_TerminateGameConnection( HSteamUser hUser, HSteamPipe hSteamPipe, uint32 unIPServer, uint16 usPortServer );
 
 // Steam callbacks
-// S_API bool STEAM_CALL Steam_BGetCallback( HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg );
+// S_API bool STEAM_CALL Steam_Bget_callback( HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg );
 // S_API void STEAM_CALL Steam_FreeLastCallback( HSteamPipe hSteamPipe );
 S_API bool STEAM_CALL Steam_GetAPICallResult( HSteamPipe hSteamPipe, SteamAPICall_t hSteamAPICall, void* pCallback, int cubCallback, int iCallbackExpected, bool* pbFailed );
 

@@ -32,8 +32,8 @@ public:
 	virtual ~ItemManager();
 
 	// Starting up.
-	void LoadInterfaces( HINSTANCE instance );
-	void CloseInterfaces();
+	void load_interfaces( HINSTANCE instance );
+	void close_interfaces();
 
 	// Inventory and definition loading.
 	void LoadDefinitions();
@@ -79,8 +79,8 @@ public:
 	void OnPopupReleased( Popup* popup );
 
 	// Interface handling.
-	Notice*	CreateNotice( const string& message );
-	Alert*	CreateAlert( const string& message );
+	Notice*	CreateNotice( const std::string& message );
+	Alert*	CreateAlert( const std::string& message );
 
 	// Updating displays.
 	void UpdateItemDisplay( void );

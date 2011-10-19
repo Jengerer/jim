@@ -23,8 +23,8 @@ public:
 	Application( int width, int height );
 	virtual ~Application( void );
 
-	virtual void	LoadInterfaces( const char* title, HINSTANCE instance );
-	virtual void	CloseInterfaces( void );
+	virtual void	load_interfaces( const char* title, HINSTANCE instance );
+	virtual void	close_interfaces( void );
 	void			ExitApplication( void );
 
 	// Drawing functions.

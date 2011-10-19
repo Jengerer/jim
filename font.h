@@ -1,7 +1,7 @@
 #ifndef FONT_H
 #define FONT_H
 
-#include "exception.h"
+#include <stdexcept>
 #include "renderable_string.h"
 #include "opengl_shared.h"
 #include <ft2build.h>
@@ -33,7 +33,7 @@ public:
 	FT_Pos get_char_width( FT_ULong c ) const;
 	FT_Pos get_string_width( const RenderableString* text, size_t start, size_t end ) const;
 
-	// Regular char string drawing.
+	// Regular char std::string drawing.
 	void draw( const RenderableString* text, size_t start, size_t end ) const;
 	void draw_aligned( const RenderableString* text, size_t start, size_t end, float width, TextHorizontalAlignType align_type ) const;
 	void prepare_draw( RECT* rect, const RenderableString* text, GLuint list ) const;

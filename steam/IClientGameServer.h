@@ -101,8 +101,8 @@ public:
 	//			unGamePort - The port which the server is listening for client connections on
 	//			unSpectatorPort - the port on which spectators can join to observe the server, 0 if spectating is not supported
 	//			usQueryPort - The port which the ISteamMasterServerUpdater API should use in order to listen for matchmaking requests
-	//			pchGameDir - A unique string identifier for your game
-	//			pchVersion - The current version of the server as a string like 1.0.0.0
+	//			pchGameDir - A unique std::string identifier for your game
+	//			pchVersion - The current version of the server as a std::string like 1.0.0.0
 	//			bLanMode - Is this a LAN only server?
 	//			
 	// bugbug jmccaskey - figure out how to remove this from the API and only expose via SteamGameServer_Init... or make this actually used,
@@ -125,7 +125,7 @@ public:
 
 	virtual void SetGameTags( const char *pchGameTags ) = 0; 
 
-	// Sets a string defining the "gamedata" for this server, this is optional, but if it is set
+	// Sets a std::string defining the "gamedata" for this server, this is optional, but if it is set
 	// it allows users to filter in the matchmaking/server-browser interfaces based on the value
 	// don't set this unless it actually changes, its only uploaded to the master once (when
 	// acknowledged)

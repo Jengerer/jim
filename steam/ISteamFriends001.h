@@ -73,7 +73,7 @@ public:
 	virtual void SetFriendRegValue( CSteamID steamIDFriend, const char *pchKey, const char *pchValue ) = 0;
 	virtual const char *GetFriendRegValue( CSteamID steamIDFriend, const char *pchKey ) = 0;
 
-	// accesses old friends names - returns an empty string when their are no more items in the history
+	// accesses old friends names - returns an empty std::string when their are no more items in the history
 	virtual const char *GetFriendPersonaNameHistory( CSteamID steamIDFriend, int iPersonaName ) = 0;
 
 	// chat message iteration

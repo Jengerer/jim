@@ -23,7 +23,7 @@ const unsigned int TOGGLE_SET_MIN_WIDTH			= 150;
 Font* ToggleSet::titleFont_ = nullptr;
 Font* ToggleSet::buttonFont_ = nullptr;
 
-ToggleSet::ToggleSet( const string& nameSetA, const string& nameSetB, float x, float y ) : Popup( x, y )
+ToggleSet::ToggleSet( const std::string& nameSetA, const std::string& nameSetB, float x, float y ) : Popup( x, y )
 {
 	// Create titles.
 	titleSetA_ = new Text( titleFont_ );

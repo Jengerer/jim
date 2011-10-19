@@ -13,16 +13,16 @@ class Notice : public Popup
 
 public:
 
-	Notice( const string& message );
+	Notice( const std::string& message );
 	virtual ~Notice( void );
 
 	// Resizes the notification based on new text.
 	virtual void	Pack( void );
 
 	// Message handling.
-	const string*	GetMessage( void ) const;
-	void			SetMessage( const string& message );
-	void			AppendMessage( const string& message );
+	const std::string*	get_message( void ) const;
+	void			SetMessage( const std::string& message );
+	void			AppendMessage( const std::string& message );
 
 	// Loading class-wide resources.
 	static void		Precache( Graphics2D* graphics );

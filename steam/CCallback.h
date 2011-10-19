@@ -34,7 +34,7 @@ public:
 	virtual void Run( void *pvParam ) = 0;
 	virtual void Run( void *pvParam, bool bIOFailure, SteamAPICall_t hSteamAPICall ) = 0;
 	int GetICallback() { return m_iCallback; }
-	virtual int GetCallbackSizeBytes() = 0;
+	virtual int get_callbackSizeBytes() = 0;
 
 protected:
 	enum { k_ECallbackFlagsRegistered = 0x01, k_ECallbackFlagsGameServer = 0x02 };
@@ -108,7 +108,7 @@ private:
 			(m_pObj->*m_Func)( (P *)pvParam, bIOFailure );			
 		}
 	}
-	int GetCallbackSizeBytes()
+	int get_callbackSizeBytes()
 	{
 		return sizeof( P );
 	}
@@ -186,7 +186,7 @@ private:
 	{
 		(m_pObj->*m_Func)( (P *)pvParam );
 	}
-	int GetCallbackSizeBytes()
+	int get_callbackSizeBytes()
 	{
 		return sizeof( P );
 	}

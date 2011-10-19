@@ -118,7 +118,7 @@ public:
 	virtual CSteamID GetLobbyMemberByIndex( CSteamID steamIDLobby, int iMember ) = 0;
 
 	// Get data associated with this lobby
-	// takes a simple key, and returns the string associated with it
+	// takes a simple key, and returns the std::string associated with it
 	// "" will be returned if no value is set, or if steamIDLobby is invalid
 	virtual const char *GetLobbyData( CSteamID steamIDLobby, const char *pchKey ) = 0;
 	// Sets a key/value pair in the lobby metadata

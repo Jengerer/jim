@@ -18,15 +18,15 @@ const AttributeInformation* Attribute::get_attribute_info() const
 	return attribute_info_;
 }
 
-string Attribute::get_description_string() const
+std::string Attribute::get_description_string() const
 {
-	// String to replace.
+	// std::string to replace.
 	const char* STRING_TOKEN = "%s1";
 
 	// Get the description string.
-	string desc_string = attribute_info_->get_desc_string();
+	std::string desc_string = attribute_info_->get_desc_string();
 	size_t start = desc_string.find( STRING_TOKEN );
-	if (start != string::npos) {
+	if (start != std::string::npos) {
 		// Convert value to string.
 		std::stringstream value_stream;
 		if (attribute_info_->is_integer()) {
@@ -35,7 +35,7 @@ string Attribute::get_description_string() const
 		else {
 			value_stream << get_float_value();
 		}
-		const string& value_string = value_stream.str();
+		const std::string& value_string = value_stream.str();
 
 		// Replace token with value.
 		desc_string.replace( start, strlen(STRING_TOKEN), value_string );
@@ -49,7 +49,7 @@ unsigned int Attribute::get_index() const
 	return get_attribute_info()->get_index();
 }
 
-const string& Attribute::get_name() const
+const std::string& Attribute::get_name() const
 {
 	return get_attribute_info()->get_name();
 }

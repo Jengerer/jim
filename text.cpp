@@ -15,16 +15,16 @@ Text::~Text( void )
 	glDeleteLists( list_, 1 );
 }
 
-void Text::SetText( const string& text )
+void Text::SetText( const std::string& text )
 {
-	// Set renderable string and pack.
+	// Set renderable std::string and pack.
 	str_ = new RenderableCString( text.c_str(), text.length() );
 	Pack();
 }
 
 void Text::SetText( const wchar_t* text, size_t length )
 {
-	// Set renderable wide string and pack.
+	// Set renderable wide std::string and pack.
 	str_ = new RenderableWideString( text, length );
 	Pack();
 }
@@ -69,7 +69,7 @@ void Text::SetFont( Font *font )
 void Text::Pack( void )
 {
 	if (str_ != nullptr) {
-		// Pack on renderable string size.
+		// Pack on renderable std::string size.
 		RECT size;
 		font_->prepare_draw( &size, str_, list_ );
 		SetSize( size.right, size.bottom );

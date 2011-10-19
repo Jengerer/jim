@@ -9,7 +9,7 @@ void FontFactory::initialize()
 	if (library_ == nullptr) {
 		FT_Error error = FT_Init_FreeType( &library_ );
 		if (error != 0) {
-			throw Exception( "Failed to initialize FreeType library." );
+			throw std::runtime_error( "Failed to initialize FreeType library." );
 		}
 	}
 }
@@ -33,13 +33,13 @@ Font* FontFactory::create_font( const std::string& filename, FT_F26Dot6 height )
 			Curl* curl = Curl::get_instance();
 			curl->download( "http://www.jengerer.com/item_manager/" + filename, filename );
 		}
-		catch (const Exception& ex) {
+		catch (const std::runtime_error& ex) {
 			throw ex;
 		}
 		
 		error = FT_New_Face( library_, filename.c_str(), 0, &face );
 		if (error != 0) {
-			throw Exception( "Failed to load font face." );
+			throw std::runtime_error( "Failed to load font face." );
 		}
 	}
 

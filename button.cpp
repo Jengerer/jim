@@ -140,7 +140,7 @@ Button* Button::CreateIconButton( Texture* texture )
 	return button;
 }
 
-Button* Button::CreateLabelButton( const string& label, Font* font )
+Button* Button::CreateLabelButton( const std::string& label, Font* font )
 {
 	Button* button = new Button;
 	Layout* layout = button->GetContentLayout();
@@ -154,7 +154,7 @@ Button* Button::CreateLabelButton( const string& label, Font* font )
 	return button;
 }
 
-Button* Button::CreateIconLabelButton( Texture* texture, const string& label, Font* font )
+Button* Button::CreateIconLabelButton( Texture* texture, const std::string& label, Font* font )
 {
 	Button* button = new Button;
 	Layout* layout = button->GetContentLayout();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "exception.h"
+#include <stdexcept>
 
 #include <curl/curl.h>
 #include <curl/types.h>
@@ -34,8 +34,8 @@ public:
 	static void shut_down();
 
 	// External file functions.
-	void	download( const string& url, const string& destination );
-	string	read( const string& url );
+	void	download( const std::string& url, const std::string& destination );
+	string	read( const std::string& url );
 
 private:
 

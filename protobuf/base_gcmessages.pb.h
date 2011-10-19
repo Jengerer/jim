@@ -130,7 +130,7 @@ class CSOPartyInvite : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 sender_id() const;
   inline void set_sender_id(::google::protobuf::uint64 value);
   
-  // optional string sender_name = 3;
+  // optional std::string sender_name = 3;
   inline bool has_sender_name() const;
   inline void clear_sender_name();
   static const int kSenderNameFieldNumber = 3;
@@ -236,7 +236,7 @@ class CSOLobbyInvite : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 sender_id() const;
   inline void set_sender_id(::google::protobuf::uint64 value);
   
-  // optional string sender_name = 3;
+  // optional std::string sender_name = 3;
   inline bool has_sender_name() const;
   inline void clear_sender_name();
   static const int kSenderNameFieldNumber = 3;
@@ -328,7 +328,7 @@ class CMsgSystemBroadcast : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string message = 1;
+  // optional std::string message = 1;
   inline bool has_message() const;
   inline void clear_message();
   static const int kMessageFieldNumber = 1;
@@ -862,7 +862,7 @@ class CMsgServerAddresses : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 server_tv_port() const;
   inline void set_server_tv_port(::google::protobuf::uint32 value);
   
-  // optional string server_key = 5;
+  // optional std::string server_key = 5;
   inline bool has_server_key() const;
   inline void clear_server_key();
   static const int kServerKeyFieldNumber = 5;
@@ -1191,7 +1191,7 @@ class CSOItemCriteriaCondition : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 op() const;
   inline void set_op(::google::protobuf::int32 value);
   
-  // optional string field = 2;
+  // optional std::string field = 2;
   inline bool has_field() const;
   inline void clear_field();
   static const int kFieldFieldNumber = 2;
@@ -1216,7 +1216,7 @@ class CSOItemCriteriaCondition : public ::google::protobuf::Message {
   inline float float_value() const;
   inline void set_float_value(float value);
   
-  // optional string string_value = 5;
+  // optional std::string string_value = 5;
   inline bool has_string_value() const;
   inline void clear_string_value();
   static const int kStringValueFieldNumber = 5;
@@ -1486,7 +1486,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 def_index() const;
   inline void set_def_index(::google::protobuf::uint32 value);
   
-  // optional string name = 2;
+  // optional std::string name = 2;
   inline bool has_name() const;
   inline void clear_name();
   static const int kNameFieldNumber = 2;
@@ -1497,7 +1497,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::std::string* mutable_name();
   inline ::std::string* release_name();
   
-  // optional string n_a = 3;
+  // optional std::string n_a = 3;
   inline bool has_n_a() const;
   inline void clear_n_a();
   static const int kNAFieldNumber = 3;
@@ -1508,7 +1508,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::std::string* mutable_n_a();
   inline ::std::string* release_n_a();
   
-  // optional string desc_inputs = 4;
+  // optional std::string desc_inputs = 4;
   inline bool has_desc_inputs() const;
   inline void clear_desc_inputs();
   static const int kDescInputsFieldNumber = 4;
@@ -1519,7 +1519,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::std::string* mutable_desc_inputs();
   inline ::std::string* release_desc_inputs();
   
-  // optional string desc_outputs = 5;
+  // optional std::string desc_outputs = 5;
   inline bool has_desc_outputs() const;
   inline void clear_desc_outputs();
   static const int kDescOutputsFieldNumber = 5;
@@ -1530,7 +1530,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::std::string* mutable_desc_outputs();
   inline ::std::string* release_desc_outputs();
   
-  // optional string di_a = 6;
+  // optional std::string di_a = 6;
   inline bool has_di_a() const;
   inline void clear_di_a();
   static const int kDiAFieldNumber = 6;
@@ -1541,7 +1541,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::std::string* mutable_di_a();
   inline ::std::string* release_di_a();
   
-  // optional string di_b = 7;
+  // optional std::string di_b = 7;
   inline bool has_di_b() const;
   inline void clear_di_b();
   static const int kDiBFieldNumber = 7;
@@ -1552,7 +1552,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::std::string* mutable_di_b();
   inline ::std::string* release_di_b();
   
-  // optional string di_c = 8;
+  // optional std::string di_c = 8;
   inline bool has_di_c() const;
   inline void clear_di_c();
   static const int kDiCFieldNumber = 8;
@@ -1563,7 +1563,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::std::string* mutable_di_c();
   inline ::std::string* release_di_c();
   
-  // optional string do_a = 9;
+  // optional std::string do_a = 9;
   inline bool has_do_a() const;
   inline void clear_do_a();
   static const int kDoAFieldNumber = 9;
@@ -1574,7 +1574,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::std::string* mutable_do_a();
   inline ::std::string* release_do_a();
   
-  // optional string do_b = 10;
+  // optional std::string do_b = 10;
   inline bool has_do_b() const;
   inline void clear_do_b();
   static const int kDoBFieldNumber = 10;
@@ -1585,7 +1585,7 @@ class CSOItemRecipe : public ::google::protobuf::Message {
   inline ::std::string* mutable_do_b();
   inline ::std::string* release_do_b();
   
-  // optional string do_c = 11;
+  // optional std::string do_c = 11;
   inline bool has_do_c() const;
   inline void clear_do_c();
   static const int kDoCFieldNumber = 11;
@@ -2140,7 +2140,7 @@ class CSOEconItem : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 origin() const;
   inline void set_origin(::google::protobuf::uint32 value);
   
-  // optional string custom_name = 10;
+  // optional std::string custom_name = 10;
   inline bool has_custom_name() const;
   inline void clear_custom_name();
   static const int kCustomNameFieldNumber = 10;
@@ -2151,7 +2151,7 @@ class CSOEconItem : public ::google::protobuf::Message {
   inline ::std::string* mutable_custom_name();
   inline ::std::string* release_custom_name();
   
-  // optional string custom_desc = 11;
+  // optional std::string custom_desc = 11;
   inline bool has_custom_desc() const;
   inline void clear_custom_desc();
   static const int kCustomDescFieldNumber = 11;
@@ -2424,7 +2424,7 @@ class CSOEconClaimCode : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 time_acquired() const;
   inline void set_time_acquired(::google::protobuf::uint32 value);
   
-  // optional string code = 4;
+  // optional std::string code = 4;
   inline bool has_code() const;
   inline void clear_code();
   static const int kCodeFieldNumber = 4;
@@ -2615,7 +2615,7 @@ class CMsgStoreGetUserDataResponse : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 currency() const;
   inline void set_currency(::google::protobuf::int32 value);
   
-  // optional string country = 3;
+  // optional std::string country = 3;
   inline bool has_country() const;
   inline void clear_country();
   static const int kCountryFieldNumber = 3;
@@ -2789,7 +2789,7 @@ class CMsgUpdateItemSchema : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 item_schema_version() const;
   inline void set_item_schema_version(::google::protobuf::uint32 value);
   
-  // optional string items_game_url = 3;
+  // optional std::string items_game_url = 3;
   inline bool has_items_game_url() const;
   inline void clear_items_game_url();
   static const int kItemsGameUrlFieldNumber = 3;
@@ -2953,7 +2953,7 @@ class CMsgGCError : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string error_text = 1;
+  // optional std::string error_text = 1;
   inline bool has_error_text() const;
   inline void clear_error_text();
   static const int kErrorTextFieldNumber = 1;
@@ -3111,7 +3111,7 @@ class CMsgConVarValue : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string name = 1;
+  // optional std::string name = 1;
   inline bool has_name() const;
   inline void clear_name();
   static const int kNameFieldNumber = 1;
@@ -3122,7 +3122,7 @@ class CMsgConVarValue : public ::google::protobuf::Message {
   inline ::std::string* mutable_name();
   inline ::std::string* release_name();
   
-  // optional string value = 2;
+  // optional std::string value = 2;
   inline bool has_value() const;
   inline void clear_value();
   static const int kValueFieldNumber = 2;
@@ -3291,7 +3291,7 @@ inline void CSOPartyInvite::set_sender_id(::google::protobuf::uint64 value) {
   sender_id_ = value;
 }
 
-// optional string sender_name = 3;
+// optional std::string sender_name = 3;
 inline bool CSOPartyInvite::has_sender_name() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -3397,7 +3397,7 @@ inline void CSOLobbyInvite::set_sender_id(::google::protobuf::uint64 value) {
   sender_id_ = value;
 }
 
-// optional string sender_name = 3;
+// optional std::string sender_name = 3;
 inline bool CSOLobbyInvite::has_sender_name() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -3459,7 +3459,7 @@ inline ::std::string* CSOLobbyInvite::release_sender_name() {
 
 // CMsgSystemBroadcast
 
-// optional string message = 1;
+// optional std::string message = 1;
 inline bool CMsgSystemBroadcast::has_message() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -3761,7 +3761,7 @@ inline void CMsgServerAddresses::set_server_tv_port(::google::protobuf::uint32 v
   server_tv_port_ = value;
 }
 
-// optional string server_key = 5;
+// optional std::string server_key = 5;
 inline bool CMsgServerAddresses::has_server_key() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -4029,7 +4029,7 @@ inline void CSOItemCriteriaCondition::set_op(::google::protobuf::int32 value) {
   op_ = value;
 }
 
-// optional string field = 2;
+// optional std::string field = 2;
 inline bool CSOItemCriteriaCondition::has_field() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -4131,7 +4131,7 @@ inline void CSOItemCriteriaCondition::set_float_value(float value) {
   float_value_ = value;
 }
 
-// optional string string_value = 5;
+// optional std::string string_value = 5;
 inline bool CSOItemCriteriaCondition::has_string_value() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -4420,7 +4420,7 @@ inline void CSOItemRecipe::set_def_index(::google::protobuf::uint32 value) {
   def_index_ = value;
 }
 
-// optional string name = 2;
+// optional std::string name = 2;
 inline bool CSOItemRecipe::has_name() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -4478,7 +4478,7 @@ inline ::std::string* CSOItemRecipe::release_name() {
   }
 }
 
-// optional string n_a = 3;
+// optional std::string n_a = 3;
 inline bool CSOItemRecipe::has_n_a() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -4536,7 +4536,7 @@ inline ::std::string* CSOItemRecipe::release_n_a() {
   }
 }
 
-// optional string desc_inputs = 4;
+// optional std::string desc_inputs = 4;
 inline bool CSOItemRecipe::has_desc_inputs() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -4594,7 +4594,7 @@ inline ::std::string* CSOItemRecipe::release_desc_inputs() {
   }
 }
 
-// optional string desc_outputs = 5;
+// optional std::string desc_outputs = 5;
 inline bool CSOItemRecipe::has_desc_outputs() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -4652,7 +4652,7 @@ inline ::std::string* CSOItemRecipe::release_desc_outputs() {
   }
 }
 
-// optional string di_a = 6;
+// optional std::string di_a = 6;
 inline bool CSOItemRecipe::has_di_a() const {
   return (_has_bits_[0] & 0x00000020u) != 0;
 }
@@ -4710,7 +4710,7 @@ inline ::std::string* CSOItemRecipe::release_di_a() {
   }
 }
 
-// optional string di_b = 7;
+// optional std::string di_b = 7;
 inline bool CSOItemRecipe::has_di_b() const {
   return (_has_bits_[0] & 0x00000040u) != 0;
 }
@@ -4768,7 +4768,7 @@ inline ::std::string* CSOItemRecipe::release_di_b() {
   }
 }
 
-// optional string di_c = 8;
+// optional std::string di_c = 8;
 inline bool CSOItemRecipe::has_di_c() const {
   return (_has_bits_[0] & 0x00000080u) != 0;
 }
@@ -4826,7 +4826,7 @@ inline ::std::string* CSOItemRecipe::release_di_c() {
   }
 }
 
-// optional string do_a = 9;
+// optional std::string do_a = 9;
 inline bool CSOItemRecipe::has_do_a() const {
   return (_has_bits_[0] & 0x00000100u) != 0;
 }
@@ -4884,7 +4884,7 @@ inline ::std::string* CSOItemRecipe::release_do_a() {
   }
 }
 
-// optional string do_b = 10;
+// optional std::string do_b = 10;
 inline bool CSOItemRecipe::has_do_b() const {
   return (_has_bits_[0] & 0x00000200u) != 0;
 }
@@ -4942,7 +4942,7 @@ inline ::std::string* CSOItemRecipe::release_do_b() {
   }
 }
 
-// optional string do_c = 11;
+// optional std::string do_c = 11;
 inline bool CSOItemRecipe::has_do_c() const {
   return (_has_bits_[0] & 0x00000400u) != 0;
 }
@@ -5560,7 +5560,7 @@ inline void CSOEconItem::set_origin(::google::protobuf::uint32 value) {
   origin_ = value;
 }
 
-// optional string custom_name = 10;
+// optional std::string custom_name = 10;
 inline bool CSOEconItem::has_custom_name() const {
   return (_has_bits_[0] & 0x00000200u) != 0;
 }
@@ -5618,7 +5618,7 @@ inline ::std::string* CSOEconItem::release_custom_name() {
   }
 }
 
-// optional string custom_desc = 11;
+// optional std::string custom_desc = 11;
 inline bool CSOEconItem::has_custom_desc() const {
   return (_has_bits_[0] & 0x00000400u) != 0;
 }
@@ -5892,7 +5892,7 @@ inline void CSOEconClaimCode::set_time_acquired(::google::protobuf::uint32 value
   time_acquired_ = value;
 }
 
-// optional string code = 4;
+// optional std::string code = 4;
 inline bool CSOEconClaimCode::has_code() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -6024,7 +6024,7 @@ inline void CMsgStoreGetUserDataResponse::set_currency(::google::protobuf::int32
   currency_ = value;
 }
 
-// optional string country = 3;
+// optional std::string country = 3;
 inline bool CMsgStoreGetUserDataResponse::has_country() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -6334,7 +6334,7 @@ inline void CMsgUpdateItemSchema::set_item_schema_version(::google::protobuf::ui
   item_schema_version_ = value;
 }
 
-// optional string items_game_url = 3;
+// optional std::string items_game_url = 3;
 inline bool CMsgUpdateItemSchema::has_items_game_url() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -6400,7 +6400,7 @@ inline ::std::string* CMsgUpdateItemSchema::release_items_game_url() {
 
 // CMsgGCError
 
-// optional string error_text = 1;
+// optional std::string error_text = 1;
 inline bool CMsgGCError::has_error_text() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -6466,7 +6466,7 @@ inline ::std::string* CMsgGCError::release_error_text() {
 
 // CMsgConVarValue
 
-// optional string name = 1;
+// optional std::string name = 1;
 inline bool CMsgConVarValue::has_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -6524,7 +6524,7 @@ inline ::std::string* CMsgConVarValue::release_name() {
   }
 }
 
-// optional string value = 2;
+// optional std::string value = 2;
 inline bool CMsgConVarValue::has_value() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }

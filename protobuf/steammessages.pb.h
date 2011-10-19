@@ -143,7 +143,7 @@ class CMsgProtoBufHeader : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 job_id_target() const;
   inline void set_job_id_target(::google::protobuf::uint64 value);
   
-  // optional string target_job_name = 12;
+  // optional std::string target_job_name = 12;
   inline bool has_target_job_name() const;
   inline void clear_target_job_name();
   static const int kTargetJobNameFieldNumber = 12;
@@ -269,7 +269,7 @@ class CMsgWebAPIKey : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 key_id() const;
   inline void set_key_id(::google::protobuf::uint32 value);
   
-  // optional string domain = 5;
+  // optional std::string domain = 5;
   inline bool has_domain() const;
   inline void clear_domain();
   static const int kDomainFieldNumber = 5;
@@ -367,7 +367,7 @@ class CMsgHttpRequest_RequestHeader : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string name = 1;
+  // optional std::string name = 1;
   inline bool has_name() const;
   inline void clear_name();
   static const int kNameFieldNumber = 1;
@@ -378,7 +378,7 @@ class CMsgHttpRequest_RequestHeader : public ::google::protobuf::Message {
   inline ::std::string* mutable_name();
   inline ::std::string* release_name();
   
-  // optional string value = 2;
+  // optional std::string value = 2;
   inline bool has_value() const;
   inline void clear_value();
   static const int kValueFieldNumber = 2;
@@ -467,7 +467,7 @@ class CMsgHttpRequest_QueryParam : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string name = 1;
+  // optional std::string name = 1;
   inline bool has_name() const;
   inline void clear_name();
   static const int kNameFieldNumber = 1;
@@ -577,7 +577,7 @@ class CMsgHttpRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 request_method() const;
   inline void set_request_method(::google::protobuf::uint32 value);
   
-  // optional string hostname = 2;
+  // optional std::string hostname = 2;
   inline bool has_hostname() const;
   inline void clear_hostname();
   static const int kHostnameFieldNumber = 2;
@@ -588,7 +588,7 @@ class CMsgHttpRequest : public ::google::protobuf::Message {
   inline ::std::string* mutable_hostname();
   inline ::std::string* release_hostname();
   
-  // optional string url = 3;
+  // optional std::string url = 3;
   inline bool has_url() const;
   inline void clear_url();
   static const int kUrlFieldNumber = 3;
@@ -733,7 +733,7 @@ class CMsgWebAPIRequest : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string UNUSED_job_name = 1;
+  // optional std::string UNUSED_job_name = 1;
   inline bool has_unused_job_name() const;
   inline void clear_unused_job_name();
   static const int kUNUSEDJobNameFieldNumber = 1;
@@ -744,7 +744,7 @@ class CMsgWebAPIRequest : public ::google::protobuf::Message {
   inline ::std::string* mutable_unused_job_name();
   inline ::std::string* release_unused_job_name();
   
-  // optional string interface_name = 2;
+  // optional std::string interface_name = 2;
   inline bool has_interface_name() const;
   inline void clear_interface_name();
   static const int kInterfaceNameFieldNumber = 2;
@@ -755,7 +755,7 @@ class CMsgWebAPIRequest : public ::google::protobuf::Message {
   inline ::std::string* mutable_interface_name();
   inline ::std::string* release_interface_name();
   
-  // optional string method_name = 3;
+  // optional std::string method_name = 3;
   inline bool has_method_name() const;
   inline void clear_method_name();
   static const int kMethodNameFieldNumber = 3;
@@ -889,7 +889,7 @@ class CMsgHttpResponse_ResponseHeader : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string name = 1;
+  // optional std::string name = 1;
   inline bool has_name() const;
   inline void clear_name();
   static const int kNameFieldNumber = 1;
@@ -900,7 +900,7 @@ class CMsgHttpResponse_ResponseHeader : public ::google::protobuf::Message {
   inline ::std::string* mutable_name();
   inline ::std::string* release_name();
   
-  // optional string value = 2;
+  // optional std::string value = 2;
   inline bool has_value() const;
   inline void clear_value();
   static const int kValueFieldNumber = 2;
@@ -1107,7 +1107,7 @@ class CMsgAMFindAccounts : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 search_type() const;
   inline void set_search_type(::google::protobuf::uint32 value);
   
-  // optional string search_string = 2;
+  // optional std::string search_string = 2;
   inline bool has_search_string() const;
   inline void clear_search_string();
   static const int kSearchStringFieldNumber = 2;
@@ -1323,7 +1323,7 @@ class CMsgNotifyWatchdog : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 appid() const;
   inline void set_appid(::google::protobuf::uint32 value);
   
-  // optional string text = 7;
+  // optional std::string text = 7;
   inline bool has_text() const;
   inline void clear_text();
   static const int kTextFieldNumber = 7;
@@ -2133,7 +2133,7 @@ class CMsgGCGetCommandList : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 app_id() const;
   inline void set_app_id(::google::protobuf::uint32 value);
   
-  // optional string command_prefix = 2;
+  // optional std::string command_prefix = 2;
   inline bool has_command_prefix() const;
   inline void clear_command_prefix();
   static const int kCommandPrefixFieldNumber = 2;
@@ -2222,7 +2222,7 @@ class CMsgGCGetCommandListResponse : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // repeated string command_name = 1;
+  // repeated std::string command_name = 1;
   inline int command_name_size() const;
   inline void clear_command_name();
   static const int kCommandNameFieldNumber = 1;
@@ -2311,7 +2311,7 @@ class CGCMsgMemCachedGet : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // repeated string keys = 1;
+  // repeated std::string keys = 1;
   inline int keys_size() const;
   inline void clear_keys();
   static const int kKeysFieldNumber = 1;
@@ -2583,7 +2583,7 @@ class CGCMsgMemCachedSet_KeyPair : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string name = 1;
+  // optional std::string name = 1;
   inline bool has_name() const;
   inline void clear_name();
   static const int kNameFieldNumber = 1;
@@ -2770,7 +2770,7 @@ class CGCMsgMemCachedDelete : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // repeated string keys = 1;
+  // repeated std::string keys = 1;
   inline int keys_size() const;
   inline void clear_keys();
   static const int kKeysFieldNumber = 1;
@@ -2880,7 +2880,7 @@ class CMsgAMAddFreeLicense : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 packageid() const;
   inline void set_packageid(::google::protobuf::uint32 value);
   
-  // optional string store_country_code = 4;
+  // optional std::string store_country_code = 4;
   inline bool has_store_country_code() const;
   inline void clear_store_country_code();
   static const int kStoreCountryCodeFieldNumber = 4;
@@ -3116,7 +3116,7 @@ inline void CMsgProtoBufHeader::set_job_id_target(::google::protobuf::uint64 val
   job_id_target_ = value;
 }
 
-// optional string target_job_name = 12;
+// optional std::string target_job_name = 12;
 inline bool CMsgProtoBufHeader::has_target_job_name() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -3266,7 +3266,7 @@ inline void CMsgWebAPIKey::set_key_id(::google::protobuf::uint32 value) {
   key_id_ = value;
 }
 
-// optional string domain = 5;
+// optional std::string domain = 5;
 inline bool CMsgWebAPIKey::has_domain() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -3328,7 +3328,7 @@ inline ::std::string* CMsgWebAPIKey::release_domain() {
 
 // CMsgHttpRequest_RequestHeader
 
-// optional string name = 1;
+// optional std::string name = 1;
 inline bool CMsgHttpRequest_RequestHeader::has_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -3386,7 +3386,7 @@ inline ::std::string* CMsgHttpRequest_RequestHeader::release_name() {
   }
 }
 
-// optional string value = 2;
+// optional std::string value = 2;
 inline bool CMsgHttpRequest_RequestHeader::has_value() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -3448,7 +3448,7 @@ inline ::std::string* CMsgHttpRequest_RequestHeader::release_value() {
 
 // CMsgHttpRequest_QueryParam
 
-// optional string name = 1;
+// optional std::string name = 1;
 inline bool CMsgHttpRequest_QueryParam::has_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -3590,7 +3590,7 @@ inline void CMsgHttpRequest::set_request_method(::google::protobuf::uint32 value
   request_method_ = value;
 }
 
-// optional string hostname = 2;
+// optional std::string hostname = 2;
 inline bool CMsgHttpRequest::has_hostname() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -3648,7 +3648,7 @@ inline ::std::string* CMsgHttpRequest::release_hostname() {
   }
 }
 
-// optional string url = 3;
+// optional std::string url = 3;
 inline bool CMsgHttpRequest::has_url() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -3843,7 +3843,7 @@ inline ::std::string* CMsgHttpRequest::release_body() {
 
 // CMsgWebAPIRequest
 
-// optional string UNUSED_job_name = 1;
+// optional std::string UNUSED_job_name = 1;
 inline bool CMsgWebAPIRequest::has_unused_job_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -3901,7 +3901,7 @@ inline ::std::string* CMsgWebAPIRequest::release_unused_job_name() {
   }
 }
 
-// optional string interface_name = 2;
+// optional std::string interface_name = 2;
 inline bool CMsgWebAPIRequest::has_interface_name() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -3959,7 +3959,7 @@ inline ::std::string* CMsgWebAPIRequest::release_interface_name() {
   }
 }
 
-// optional string method_name = 3;
+// optional std::string method_name = 3;
 inline bool CMsgWebAPIRequest::has_method_name() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -4123,7 +4123,7 @@ inline void CMsgWebAPIRequest::set_routing_app_id(::google::protobuf::uint32 val
 
 // CMsgHttpResponse_ResponseHeader
 
-// optional string name = 1;
+// optional std::string name = 1;
 inline bool CMsgHttpResponse_ResponseHeader::has_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -4181,7 +4181,7 @@ inline ::std::string* CMsgHttpResponse_ResponseHeader::release_name() {
   }
 }
 
-// optional string value = 2;
+// optional std::string value = 2;
 inline bool CMsgHttpResponse_ResponseHeader::has_value() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -4374,7 +4374,7 @@ inline void CMsgAMFindAccounts::set_search_type(::google::protobuf::uint32 value
   search_type_ = value;
 }
 
-// optional string search_string = 2;
+// optional std::string search_string = 2;
 inline bool CMsgAMFindAccounts::has_search_string() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -4597,7 +4597,7 @@ inline void CMsgNotifyWatchdog::set_appid(::google::protobuf::uint32 value) {
   appid_ = value;
 }
 
-// optional string text = 7;
+// optional std::string text = 7;
 inline bool CMsgNotifyWatchdog::has_text() const {
   return (_has_bits_[0] & 0x00000040u) != 0;
 }
@@ -5117,7 +5117,7 @@ inline void CMsgGCGetCommandList::set_app_id(::google::protobuf::uint32 value) {
   app_id_ = value;
 }
 
-// optional string command_prefix = 2;
+// optional std::string command_prefix = 2;
 inline bool CMsgGCGetCommandList::has_command_prefix() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -5179,7 +5179,7 @@ inline ::std::string* CMsgGCGetCommandList::release_command_prefix() {
 
 // CMsgGCGetCommandListResponse
 
-// repeated string command_name = 1;
+// repeated std::string command_name = 1;
 inline int CMsgGCGetCommandListResponse::command_name_size() const {
   return command_name_.size();
 }
@@ -5227,7 +5227,7 @@ CMsgGCGetCommandListResponse::mutable_command_name() {
 
 // CGCMsgMemCachedGet
 
-// repeated string keys = 1;
+// repeated std::string keys = 1;
 inline int CGCMsgMemCachedGet::keys_size() const {
   return keys_.size();
 }
@@ -5388,7 +5388,7 @@ CGCMsgMemCachedGetResponse::mutable_values() {
 
 // CGCMsgMemCachedSet_KeyPair
 
-// optional string name = 1;
+// optional std::string name = 1;
 inline bool CGCMsgMemCachedSet_KeyPair::has_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -5537,7 +5537,7 @@ CGCMsgMemCachedSet::mutable_keys() {
 
 // CGCMsgMemCachedDelete
 
-// repeated string keys = 1;
+// repeated std::string keys = 1;
 inline int CGCMsgMemCachedDelete::keys_size() const {
   return keys_.size();
 }
@@ -5651,7 +5651,7 @@ inline void CMsgAMAddFreeLicense::set_packageid(::google::protobuf::uint32 value
   packageid_ = value;
 }
 
-// optional string store_country_code = 4;
+// optional std::string store_country_code = 4;
 inline bool CMsgAMAddFreeLicense::has_store_country_code() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }

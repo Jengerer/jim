@@ -77,7 +77,7 @@ public:
 	virtual bool IsFriendGameOnConsole( CSteamID steamID ) = 0;
 	virtual unknown_ret GetFriendRestrictions( CSteamID steamID ) = 0;
 
-	// accesses old friends names - returns an empty string when their are no more items in the history
+	// accesses old friends names - returns an empty std::string when their are no more items in the history
 	virtual const char *GetFriendPersonaNameHistory( CSteamID steamIDFriend, int iPersonaName ) = 0;
 
 	virtual bool AddFriend( CSteamID steamID ) = 0;

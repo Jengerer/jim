@@ -84,8 +84,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\curl.cpp" />
-    <ClCompile Include="..\exception.cpp" />
     <ClCompile Include="auto_updater.cpp" />
+  </ItemGroup>
+  <ItemGroup>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

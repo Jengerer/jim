@@ -8,7 +8,7 @@ SteamItemHandler::SteamItemHandler()
 
 SteamItemHandler::~SteamItemHandler()
 {
-	CloseInterfaces();
+	close_interfaces();
 }
 
 void SteamItemHandler::Select( SlotView* slotView )
@@ -73,7 +73,7 @@ void SteamItemHandler::UpdateItem( const Item* item ) const
 	message.position = item->GetFlags();
 
 	// Send it.
-	SendMessage( 
+	send_message( 
 		static_cast<uint32>(GCSetItemPosition_t::k_iMessage), 
 		(void*)&message,
 		sizeof( message ) );
@@ -113,7 +113,7 @@ void SteamItemHandler::CraftSelected()
 		DeselectAll();
 
 		// Send message.
-		SendMessage( GCCraft_t::k_iMessage, message, messageSize );
+		send_message( GCCraft_t::k_iMessage, message, messageSize );
 		free( message );
 	}
 }

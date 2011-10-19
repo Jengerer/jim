@@ -21,7 +21,7 @@ void SlotVector::AddSlots( unsigned int slots )
 
 void SlotVector::RemoveSlots()
 {
-	vector<Slot*>::iterator i;
+	std::vector<Slot*>::iterator i;
 	for (i = slots_.begin(); i != slots_.end(); i = slots_.erase( i )) {
 		delete *i;
 	}
@@ -71,7 +71,7 @@ void SlotVector::RemoveItem( Item* item )
 
 void SlotVector::EmptySlots()
 {
-	vector<Slot*>::const_iterator i, end;
+	std::vector<Slot*>::const_iterator i, end;
 	for (i = slots_.begin(), end = slots_.end(); i != end; ++i) {
 		Slot* slot = *i;
 		slot->SetItem( nullptr );

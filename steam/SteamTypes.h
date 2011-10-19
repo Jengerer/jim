@@ -178,7 +178,7 @@ typedef void (*KeyValueIteratorCallback_t)(const char* key, const char* value, v
 
 typedef void (*SteamNotificationCallback_t)(ESteamNotify eEvent, unsigned int nData);
 
-typedef bool (*SteamBGetCallbackFn)( int hpipe, void *pCallbackMsg );
+typedef bool (*SteamBget_callbackFn)( int hpipe, void *pCallbackMsg );
 typedef void (*SteamFreeLastCallbackFn)( int hpipe );
 typedef bool (*SteamGetAPICallResultFn)( int hpipe, uint64 hSteamAPICall, void* pCallback, int cubCallback, int iCallbackExpected, bool* pbFailed );
 
