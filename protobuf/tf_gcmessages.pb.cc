@@ -1493,7 +1493,7 @@ bool CMsgTFGoldenWrenchBroadcast::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string user_name = 3;
+      // optional std::string user_name = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -1538,7 +1538,7 @@ void CMsgTFGoldenWrenchBroadcast::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->deleted(), output);
   }
   
-  // optional string user_name = 3;
+  // optional std::string user_name = 3;
   if (has_user_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->user_name().data(), this->user_name().length(),
@@ -1565,7 +1565,7 @@ void CMsgTFGoldenWrenchBroadcast::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->deleted(), target);
   }
   
-  // optional string user_name = 3;
+  // optional std::string user_name = 3;
   if (has_user_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->user_name().data(), this->user_name().length(),
@@ -1598,7 +1598,7 @@ int CMsgTFGoldenWrenchBroadcast::ByteSize() const {
       total_size += 1 + 1;
     }
     
-    // optional string user_name = 3;
+    // optional std::string user_name = 3;
     if (has_user_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -1776,7 +1776,7 @@ bool CMsgTFSaxxyBroadcast::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string user_name = 2;
+      // optional std::string user_name = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -1816,7 +1816,7 @@ void CMsgTFSaxxyBroadcast::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->category_number(), output);
   }
   
-  // optional string user_name = 2;
+  // optional std::string user_name = 2;
   if (has_user_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->user_name().data(), this->user_name().length(),
@@ -1838,7 +1838,7 @@ void CMsgTFSaxxyBroadcast::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->category_number(), target);
   }
   
-  // optional string user_name = 2;
+  // optional std::string user_name = 2;
   if (has_user_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->user_name().data(), this->user_name().length(),
@@ -1866,7 +1866,7 @@ int CMsgTFSaxxyBroadcast::ByteSize() const {
           this->category_number());
     }
     
-    // optional string user_name = 2;
+    // optional std::string user_name = 2;
     if (has_user_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -5536,7 +5536,7 @@ bool CMsgSaxxyAwarded::MergePartialFromCodedStream(
         break;
       }
       
-      // repeated string winner_names = 2;
+      // repeated std::string winner_names = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -5577,7 +5577,7 @@ void CMsgSaxxyAwarded::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->category(), output);
   }
   
-  // repeated string winner_names = 2;
+  // repeated std::string winner_names = 2;
   for (int i = 0; i < this->winner_names_size(); i++) {
   ::google::protobuf::internal::WireFormat::VerifyUTF8String(
     this->winner_names(i).data(), this->winner_names(i).length(),
@@ -5599,7 +5599,7 @@ void CMsgSaxxyAwarded::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->category(), target);
   }
   
-  // repeated string winner_names = 2;
+  // repeated std::string winner_names = 2;
   for (int i = 0; i < this->winner_names_size(); i++) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->winner_names(i).data(), this->winner_names(i).length(),
@@ -5627,7 +5627,7 @@ int CMsgSaxxyAwarded::ByteSize() const {
     }
     
   }
-  // repeated string winner_names = 2;
+  // repeated std::string winner_names = 2;
   total_size += 1 * this->winner_names_size();
   for (int i = 0; i < this->winner_names_size(); i++) {
     total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -5793,7 +5793,7 @@ bool CMsgReplayUploadedToYouTube::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string youtube_url = 1;
+      // optional std::string youtube_url = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -5809,7 +5809,7 @@ bool CMsgReplayUploadedToYouTube::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string youtube_account_name = 2;
+      // optional std::string youtube_account_name = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -5860,7 +5860,7 @@ bool CMsgReplayUploadedToYouTube::MergePartialFromCodedStream(
 
 void CMsgReplayUploadedToYouTube::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional string youtube_url = 1;
+  // optional std::string youtube_url = 1;
   if (has_youtube_url()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->youtube_url().data(), this->youtube_url().length(),
@@ -5869,7 +5869,7 @@ void CMsgReplayUploadedToYouTube::SerializeWithCachedSizes(
       1, this->youtube_url(), output);
   }
   
-  // optional string youtube_account_name = 2;
+  // optional std::string youtube_account_name = 2;
   if (has_youtube_account_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->youtube_account_name().data(), this->youtube_account_name().length(),
@@ -5891,7 +5891,7 @@ void CMsgReplayUploadedToYouTube::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CMsgReplayUploadedToYouTube::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional string youtube_url = 1;
+  // optional std::string youtube_url = 1;
   if (has_youtube_url()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->youtube_url().data(), this->youtube_url().length(),
@@ -5901,7 +5901,7 @@ void CMsgReplayUploadedToYouTube::SerializeWithCachedSizes(
         1, this->youtube_url(), target);
   }
   
-  // optional string youtube_account_name = 2;
+  // optional std::string youtube_account_name = 2;
   if (has_youtube_account_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->youtube_account_name().data(), this->youtube_account_name().length(),
@@ -5927,14 +5927,14 @@ int CMsgReplayUploadedToYouTube::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string youtube_url = 1;
+    // optional std::string youtube_url = 1;
     if (has_youtube_url()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->youtube_url());
     }
     
-    // optional string youtube_account_name = 2;
+    // optional std::string youtube_account_name = 2;
     if (has_youtube_account_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -6104,7 +6104,7 @@ bool CMsgReplaySubmitContestEntry::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string youtube_url = 1;
+      // optional std::string youtube_url = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -6154,7 +6154,7 @@ bool CMsgReplaySubmitContestEntry::MergePartialFromCodedStream(
 
 void CMsgReplaySubmitContestEntry::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional string youtube_url = 1;
+  // optional std::string youtube_url = 1;
   if (has_youtube_url()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->youtube_url().data(), this->youtube_url().length(),
@@ -6176,7 +6176,7 @@ void CMsgReplaySubmitContestEntry::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CMsgReplaySubmitContestEntry::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional string youtube_url = 1;
+  // optional std::string youtube_url = 1;
   if (has_youtube_url()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->youtube_url().data(), this->youtube_url().length(),
@@ -6202,7 +6202,7 @@ int CMsgReplaySubmitContestEntry::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string youtube_url = 1;
+    // optional std::string youtube_url = 1;
     if (has_youtube_url()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -7457,7 +7457,7 @@ bool CMsgTFCoaching_FindCoachResponse::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string coach_name = 3;
+      // optional std::string coach_name = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -7502,7 +7502,7 @@ void CMsgTFCoaching_FindCoachResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->num_likes(), output);
   }
   
-  // optional string coach_name = 3;
+  // optional std::string coach_name = 3;
   if (has_coach_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->coach_name().data(), this->coach_name().length(),
@@ -7529,7 +7529,7 @@ void CMsgTFCoaching_FindCoachResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->num_likes(), target);
   }
   
-  // optional string coach_name = 3;
+  // optional std::string coach_name = 3;
   if (has_coach_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->coach_name().data(), this->coach_name().length(),
@@ -7562,7 +7562,7 @@ int CMsgTFCoaching_FindCoachResponse::ByteSize() const {
           this->num_likes());
     }
     
-    // optional string coach_name = 3;
+    // optional std::string coach_name = 3;
     if (has_coach_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -10722,7 +10722,7 @@ bool CMsgGC_GameServer_LevelInfo::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string level_name = 2;
+      // optional std::string level_name = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -10762,7 +10762,7 @@ void CMsgGC_GameServer_LevelInfo::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->level_loaded(), output);
   }
   
-  // optional string level_name = 2;
+  // optional std::string level_name = 2;
   if (has_level_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->level_name().data(), this->level_name().length(),
@@ -10784,7 +10784,7 @@ void CMsgGC_GameServer_LevelInfo::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->level_loaded(), target);
   }
   
-  // optional string level_name = 2;
+  // optional std::string level_name = 2;
   if (has_level_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->level_name().data(), this->level_name().length(),
@@ -10810,7 +10810,7 @@ int CMsgGC_GameServer_LevelInfo::ByteSize() const {
       total_size += 1 + 1;
     }
     
-    // optional string level_name = 2;
+    // optional std::string level_name = 2;
     if (has_level_name()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -10966,7 +10966,7 @@ bool CMsgGC_GameServer_AuthChallenge::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string challenge_string = 1;
+      // optional std::string challenge_string = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -11000,7 +11000,7 @@ bool CMsgGC_GameServer_AuthChallenge::MergePartialFromCodedStream(
 
 void CMsgGC_GameServer_AuthChallenge::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional string challenge_string = 1;
+  // optional std::string challenge_string = 1;
   if (has_challenge_string()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->challenge_string().data(), this->challenge_string().length(),
@@ -11017,7 +11017,7 @@ void CMsgGC_GameServer_AuthChallenge::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* CMsgGC_GameServer_AuthChallenge::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional string challenge_string = 1;
+  // optional std::string challenge_string = 1;
   if (has_challenge_string()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->challenge_string().data(), this->challenge_string().length(),
@@ -11038,7 +11038,7 @@ int CMsgGC_GameServer_AuthChallenge::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string challenge_string = 1;
+    // optional std::string challenge_string = 1;
     if (has_challenge_string()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -12040,7 +12040,7 @@ bool CMsgGC_GameServer_CreateIdentityResponse::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string game_server_identity_token = 3;
+      // optional std::string game_server_identity_token = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -12106,7 +12106,7 @@ void CMsgGC_GameServer_CreateIdentityResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->game_server_account_id(), output);
   }
   
-  // optional string game_server_identity_token = 3;
+  // optional std::string game_server_identity_token = 3;
   if (has_game_server_identity_token()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->game_server_identity_token().data(), this->game_server_identity_token().length(),
@@ -12139,7 +12139,7 @@ void CMsgGC_GameServer_CreateIdentityResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->game_server_account_id(), target);
   }
   
-  // optional string game_server_identity_token = 3;
+  // optional std::string game_server_identity_token = 3;
   if (has_game_server_identity_token()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->game_server_identity_token().data(), this->game_server_identity_token().length(),
@@ -12178,7 +12178,7 @@ int CMsgGC_GameServer_CreateIdentityResponse::ByteSize() const {
           this->game_server_account_id());
     }
     
-    // optional string game_server_identity_token = 3;
+    // optional std::string game_server_identity_token = 3;
     if (has_game_server_identity_token()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -12579,7 +12579,7 @@ bool CMsgGC_GameServer_ListResponse_GameServerIdentity::MergePartialFromCodedStr
         break;
       }
       
-      // optional string game_server_identity_token = 2;
+      // optional std::string game_server_identity_token = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -12651,7 +12651,7 @@ void CMsgGC_GameServer_ListResponse_GameServerIdentity::SerializeWithCachedSizes
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->game_server_account_id(), output);
   }
   
-  // optional string game_server_identity_token = 2;
+  // optional std::string game_server_identity_token = 2;
   if (has_game_server_identity_token()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->game_server_identity_token().data(), this->game_server_identity_token().length(),
@@ -12683,7 +12683,7 @@ void CMsgGC_GameServer_ListResponse_GameServerIdentity::SerializeWithCachedSizes
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->game_server_account_id(), target);
   }
   
-  // optional string game_server_identity_token = 2;
+  // optional std::string game_server_identity_token = 2;
   if (has_game_server_identity_token()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->game_server_identity_token().data(), this->game_server_identity_token().length(),
@@ -12721,7 +12721,7 @@ int CMsgGC_GameServer_ListResponse_GameServerIdentity::ByteSize() const {
           this->game_server_account_id());
     }
     
-    // optional string game_server_identity_token = 2;
+    // optional std::string game_server_identity_token = 2;
     if (has_game_server_identity_token()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -13345,7 +13345,7 @@ bool CMsgGC_GameServer_ResetIdentityResponse::MergePartialFromCodedStream(
         break;
       }
       
-      // optional string game_server_identity_token = 3;
+      // optional std::string game_server_identity_token = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -13390,7 +13390,7 @@ void CMsgGC_GameServer_ResetIdentityResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->game_server_account_id(), output);
   }
   
-  // optional string game_server_identity_token = 3;
+  // optional std::string game_server_identity_token = 3;
   if (has_game_server_identity_token()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->game_server_identity_token().data(), this->game_server_identity_token().length(),
@@ -13417,7 +13417,7 @@ void CMsgGC_GameServer_ResetIdentityResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->game_server_account_id(), target);
   }
   
-  // optional string game_server_identity_token = 3;
+  // optional std::string game_server_identity_token = 3;
   if (has_game_server_identity_token()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->game_server_identity_token().data(), this->game_server_identity_token().length(),
@@ -13450,7 +13450,7 @@ int CMsgGC_GameServer_ResetIdentityResponse::ByteSize() const {
           this->game_server_account_id());
     }
     
-    // optional string game_server_identity_token = 3;
+    // optional std::string game_server_identity_token = 3;
     if (has_game_server_identity_token()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(

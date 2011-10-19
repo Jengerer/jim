@@ -55,11 +55,11 @@ void ItemDisplay::UpdateDisplay()
 	SetName( item_->GetName() );
 
 	// Build information text.
-	stringstream infoStream;
+	std::stringstream infoStream;
 	infoStream << "LEVEL " << static_cast<uint16>(item_->GetLevel());
 
 #if defined( _DEBUG )
-	infoStream << "\nFLAGS: " << hex << item_->GetFlags();
+	infoStream << "\nFLAGS: " << std::hex << item_->GetFlags();
 	infoStream << "\nORIGIN: " << item_->GetOrigin();
 	for (size_t i = 0; i < item_->get_attribute_count(); i++) {
 		const Attribute* attrib = item_->get_attribute_at( i );
@@ -70,7 +70,7 @@ void ItemDisplay::UpdateDisplay()
 #endif
 
 	// Get resulting string.
-	const string& text = infoStream.str();
+	const std::string& text = infoStream.str();
 
 	// Get buffer of correct size.
 	int wide_size = MultiByteToWideChar( CP_UTF8, 0, text.c_str(), text.length(), nullptr, 0 );
@@ -126,12 +126,12 @@ void ItemDisplay::SetItem( const Item *item )
 	}
 }
 
-const string& ItemDisplay::GetName( void ) const
+const std::string& ItemDisplay::GetName( void ) const
 {
 	return itemName_;
 }
 
-void ItemDisplay::SetName( const string& name )
+void ItemDisplay::SetName( const std::string& name )
 {
 	itemName_ = name;
 	nameText_->SetText( name );

@@ -21,7 +21,7 @@ class ToggleSet : public Popup
 
 public:
 
-	ToggleSet( const string& nameSetA, const string& nameSetB, float x = 0.0f, float y = 0.0f );
+	ToggleSet( const std::string& nameSetA, const std::string& nameSetB, float x = 0.0f, float y = 0.0f );
 	virtual ~ToggleSet( void );
 
 	virtual void Pack( void );

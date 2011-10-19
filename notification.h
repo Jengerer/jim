@@ -14,11 +14,11 @@ class Notification : public RoundedRectangleContainer
 	
 public:
 
-	Notification( const string& message, const Texture *texture = nullptr );
+	Notification( const std::string& message, const Texture *texture = nullptr );
 	virtual ~Notification( void );
 
 	virtual void	Pack( void );
-	void			SetMessage( const string& message );
+	void			SetMessage( const std::string& message );
 
 	static void		Precache();
 	static void		Release();

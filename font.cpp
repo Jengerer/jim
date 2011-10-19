@@ -64,13 +64,13 @@ void Font::create_display_lists()
 		// Load the glyph for the character.
 		FT_Error error = FT_Load_Glyph( face_, index, FT_LOAD_DEFAULT );
 		if (error != 0) {
-			throw Exception( "Failed to load glyph." );
+			throw std::runtime_error( "Failed to load glyph." );
 		}
 
 		// Render the glyph.
 		error = FT_Render_Glyph( face_->glyph, FT_RENDER_MODE_NORMAL );
 		if (error != 0) {
-			throw Exception( "Failed to render glyph." );
+			throw std::runtime_error( "Failed to render glyph." );
 		}
 
 		// Get the texture size.

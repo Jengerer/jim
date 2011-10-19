@@ -88,16 +88,16 @@ uint32 Item::GetOrigin( void ) const
 	return origin_;
 }
 
-string Item::GetName( void ) const
+std::string Item::GetName( void ) const
 {
 	if (HasCustomName()) {
 		return '"' + GetCustomName() + '"';
 	}
 	else {
-		string itemName = information_->GetName();
-		string qualityName = GetQualityName();
+		std::string itemName = information_->GetName();
+		std::string qualityName = GetQualityName();
 		if (!qualityName.empty()) {
-			string fullPrefix = qualityName + ' ';
+			std::string fullPrefix = qualityName + ' ';
 			itemName.insert( itemName.begin(), fullPrefix.begin(), fullPrefix.end() );
 		}
 
@@ -204,12 +204,12 @@ bool Item::HasValidFlags( void ) const
 	return (GetFlags() & 0xF0000000) == FL_ITEM_VALID;
 }
 
-void Item::SetCustomName( const string& name )
+void Item::SetCustomName( const std::string& name )
 {
 	customName_ = '"' + name + '"';
 }
 
-const string& Item::GetCustomName( void ) const
+const std::string& Item::GetCustomName( void ) const
 {
 	return customName_;
 }
@@ -304,7 +304,7 @@ const Attribute* Item::get_attribute_by_index( size_t index ) const
 	return nullptr;
 }
 
-const Attribute* Item::get_attribute_by_name( const string& name ) const
+const Attribute* Item::get_attribute_by_name( const std::string& name ) const
 {
 	for each (Attribute* i in attributes_) {
 		if (i->get_name() == name) {

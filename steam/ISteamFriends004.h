@@ -69,7 +69,7 @@ public:
 	// returns true if the friend is actually in a game
 	virtual bool GetFriendGamePlayed( CSteamID steamIDFriend, uint64 *pulGameID, uint32 *punGameIP, uint16 *pusGamePort, uint16 *pusQueryPort ) = 0;
 
-	// accesses old friends names - returns an empty string when their are no more items in the history
+	// accesses old friends names - returns an empty std::string when their are no more items in the history
 	virtual const char *GetFriendPersonaNameHistory( CSteamID steamIDFriend, int iPersonaName ) = 0;
 
 	// returns true if the specified user meets any of the criteria specified in iFriendFlags

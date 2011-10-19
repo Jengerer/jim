@@ -16,13 +16,13 @@ class ItemInformation
 public:
 
 	ItemInformation(
-		const string& name,
+		const std::string& name,
 		Texture *texture,
 		uint32 classFlags,
 		EItemSlot slot );
 	~ItemInformation( void );
 
-	const string&	GetName( void ) const;
+	const std::string&	GetName( void ) const;
 	const Texture*		GetTexture( void ) const;
 	uint32			GetClassFlags( void ) const;
 	uint8			GetClassCount( void ) const;
@@ -34,7 +34,7 @@ public:
 
 private:
 
-	void			SetName( const string& name );
+	void			SetName( const std::string& name );
 	void			SetTexture( const Texture *texture );
 	void			SetClassFlags( uint32 classFlags );
 	void			SetSlot( EItemSlot slot );

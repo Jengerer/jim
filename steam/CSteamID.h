@@ -346,7 +346,7 @@ public:
 		return CSteamID(ulSteamID).Render();
 	}
 
-	const char *SteamRender() const // renders this steam ID to string using the new rendering style
+	const char *SteamRender() const // renders this steam ID to std::string using the new rendering style
 	{
 		const int k_cBufLen = 37;
 		const int k_cBufs = 4;

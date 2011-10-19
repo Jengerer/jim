@@ -30,7 +30,7 @@ Menu::~Menu( void )
 	// Menu destroyed.
 }
 
-Button* Menu::AddOption( const string& caption )
+Button* Menu::AddOption( const std::string& caption )
 {
 	Button* button = Button::CreateLabelButton( caption );
 

@@ -26,7 +26,7 @@ public:
 	const Item*		GetItem( void ) const;
 	void			SetItem( const Item *item );
 
-	const string&	GetName( void ) const;
+	const std::string&	GetName( void ) const;
 
 	bool			IsActive( void ) const;
 	void			SetActive( bool isActive );
@@ -36,7 +36,7 @@ public:
 
 private:
 
-	void			SetName( const string& name );
+	void			SetName( const std::string& name );
 
 protected:
 
@@ -47,7 +47,7 @@ private:
 
 	bool		isActive_;
 	const Item	*item_;
-	string		itemName_;
+	std::string	itemName_;
 
 	VerticalLayout		*textLayout_;
 	WrappedText			*nameText_;

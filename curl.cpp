@@ -35,7 +35,7 @@ void Curl::initialize()
 {
 	curl_ = curl_easy_init();
 	if (curl_ == nullptr) {
-		throw Exception( "Failed to initialize cURL." );
+		throw std::runtime_error( "Failed to initialize cURL." );
 	}
 }
 
@@ -44,13 +44,13 @@ void Curl::clean()
 	curl_easy_cleanup( curl_ );
 }
 
-void Curl::download( const string& url, const string& destination )
+void Curl::download( const std::string& url, const std::string& destination )
 {
 	//Set the URL.
 	CURLcode result = curl_easy_setopt( curl_, CURLOPT_URL, url.c_str() );
 
 	if (result != CURLE_OK) {
-		throw Exception( "Failed to set cURL operation." );
+		throw std::runtime_error( "Failed to set cURL operation." );
 	}
 
 	// Create the folder(s) if needed.
@@ -78,7 +78,7 @@ void Curl::download( const string& url, const string& destination )
 	// Get it!
 	result = curl_easy_perform( curl_ );
 	if (result != CURLE_OK) {
-		throw Exception( "Failed to download '" + url + "'." );
+		throw std::runtime_error( "Failed to download '" + url + "'." );
 	}
 
 	// Close the stream if it exists.
@@ -87,7 +87,7 @@ void Curl::download( const string& url, const string& destination )
 	}
 }
 
-string Curl::read( const string& url )
+string Curl::read( const std::string& url )
 {
 	Memory_t readFile;
 	ZeroMemory( &readFile, sizeof( Memory_t ) );
@@ -107,7 +107,7 @@ string Curl::read( const string& url )
 	//Get it!
 	CURLcode result = curl_easy_perform( curl_ );
 	if (result != CURLE_OK) {
-		throw Exception( "Failed to read contents of page." );
+		throw std::runtime_error( "Failed to read contents of page." );
 	}
 
 	//Now get the string.

@@ -171,7 +171,7 @@ class CMsgTFGoldenWrenchBroadcast : public ::google::protobuf::Message {
   inline bool deleted() const;
   inline void set_deleted(bool value);
   
-  // optional string user_name = 3;
+  // optional std::string user_name = 3;
   inline bool has_user_name() const;
   inline void clear_user_name();
   static const int kUserNameFieldNumber = 3;
@@ -270,7 +270,7 @@ class CMsgTFSaxxyBroadcast : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 category_number() const;
   inline void set_category_number(::google::protobuf::int32 value);
   
-  // optional string user_name = 2;
+  // optional std::string user_name = 2;
   inline bool has_user_name() const;
   inline void clear_user_name();
   static const int kUserNameFieldNumber = 2;
@@ -1680,7 +1680,7 @@ class CMsgSaxxyAwarded : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 category() const;
   inline void set_category(::google::protobuf::uint32 value);
   
-  // repeated string winner_names = 2;
+  // repeated std::string winner_names = 2;
   inline int winner_names_size() const;
   inline void clear_winner_names();
   static const int kWinnerNamesFieldNumber = 2;
@@ -1772,7 +1772,7 @@ class CMsgReplayUploadedToYouTube : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string youtube_url = 1;
+  // optional std::string youtube_url = 1;
   inline bool has_youtube_url() const;
   inline void clear_youtube_url();
   static const int kYoutubeUrlFieldNumber = 1;
@@ -1783,7 +1783,7 @@ class CMsgReplayUploadedToYouTube : public ::google::protobuf::Message {
   inline ::std::string* mutable_youtube_url();
   inline ::std::string* release_youtube_url();
   
-  // optional string youtube_account_name = 2;
+  // optional std::string youtube_account_name = 2;
   inline bool has_youtube_account_name() const;
   inline void clear_youtube_account_name();
   static const int kYoutubeAccountNameFieldNumber = 2;
@@ -1882,7 +1882,7 @@ class CMsgReplaySubmitContestEntry : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string youtube_url = 1;
+  // optional std::string youtube_url = 1;
   inline bool has_youtube_url() const;
   inline void clear_youtube_url();
   static const int kYoutubeUrlFieldNumber = 1;
@@ -2415,7 +2415,7 @@ class CMsgTFCoaching_FindCoachResponse : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 num_likes() const;
   inline void set_num_likes(::google::protobuf::uint32 value);
   
-  // optional string coach_name = 3;
+  // optional std::string coach_name = 3;
   inline bool has_coach_name() const;
   inline void clear_coach_name();
   static const int kCoachNameFieldNumber = 3;
@@ -3638,7 +3638,7 @@ class CMsgGC_GameServer_LevelInfo : public ::google::protobuf::Message {
   inline bool level_loaded() const;
   inline void set_level_loaded(bool value);
   
-  // optional string level_name = 2;
+  // optional std::string level_name = 2;
   inline bool has_level_name() const;
   inline void clear_level_name();
   static const int kLevelNameFieldNumber = 2;
@@ -3727,7 +3727,7 @@ class CMsgGC_GameServer_AuthChallenge : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional string challenge_string = 1;
+  // optional std::string challenge_string = 1;
   inline bool has_challenge_string() const;
   inline void clear_challenge_string();
   static const int kChallengeStringFieldNumber = 1;
@@ -4143,7 +4143,7 @@ class CMsgGC_GameServer_CreateIdentityResponse : public ::google::protobuf::Mess
   inline ::google::protobuf::uint32 game_server_account_id() const;
   inline void set_game_server_account_id(::google::protobuf::uint32 value);
   
-  // optional string game_server_identity_token = 3;
+  // optional std::string game_server_identity_token = 3;
   inline bool has_game_server_identity_token() const;
   inline void clear_game_server_identity_token();
   static const int kGameServerIdentityTokenFieldNumber = 3;
@@ -4334,7 +4334,7 @@ class CMsgGC_GameServer_ListResponse_GameServerIdentity : public ::google::proto
   inline ::google::protobuf::uint32 game_server_account_id() const;
   inline void set_game_server_account_id(::google::protobuf::uint32 value);
   
-  // optional string game_server_identity_token = 2;
+  // optional std::string game_server_identity_token = 2;
   inline bool has_game_server_identity_token() const;
   inline void clear_game_server_identity_token();
   static const int kGameServerIdentityTokenFieldNumber = 2;
@@ -4626,7 +4626,7 @@ class CMsgGC_GameServer_ResetIdentityResponse : public ::google::protobuf::Messa
   inline ::google::protobuf::uint32 game_server_account_id() const;
   inline void set_game_server_account_id(::google::protobuf::uint32 value);
   
-  // optional string game_server_identity_token = 3;
+  // optional std::string game_server_identity_token = 3;
   inline bool has_game_server_identity_token() const;
   inline void clear_game_server_identity_token();
   static const int kGameServerIdentityTokenFieldNumber = 3;
@@ -4713,7 +4713,7 @@ inline void CMsgTFGoldenWrenchBroadcast::set_deleted(bool value) {
   deleted_ = value;
 }
 
-// optional string user_name = 3;
+// optional std::string user_name = 3;
 inline bool CMsgTFGoldenWrenchBroadcast::has_user_name() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -4797,7 +4797,7 @@ inline void CMsgTFSaxxyBroadcast::set_category_number(::google::protobuf::int32 
   category_number_ = value;
 }
 
-// optional string user_name = 2;
+// optional std::string user_name = 2;
 inline bool CMsgTFSaxxyBroadcast::has_user_name() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -5603,7 +5603,7 @@ inline void CMsgSaxxyAwarded::set_category(::google::protobuf::uint32 value) {
   category_ = value;
 }
 
-// repeated string winner_names = 2;
+// repeated std::string winner_names = 2;
 inline int CMsgSaxxyAwarded::winner_names_size() const {
   return winner_names_.size();
 }
@@ -5651,7 +5651,7 @@ CMsgSaxxyAwarded::mutable_winner_names() {
 
 // CMsgReplayUploadedToYouTube
 
-// optional string youtube_url = 1;
+// optional std::string youtube_url = 1;
 inline bool CMsgReplayUploadedToYouTube::has_youtube_url() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -5709,7 +5709,7 @@ inline ::std::string* CMsgReplayUploadedToYouTube::release_youtube_url() {
   }
 }
 
-// optional string youtube_account_name = 2;
+// optional std::string youtube_account_name = 2;
 inline bool CMsgReplayUploadedToYouTube::has_youtube_account_name() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -5793,7 +5793,7 @@ inline void CMsgReplayUploadedToYouTube::set_session_id(::google::protobuf::uint
 
 // CMsgReplaySubmitContestEntry
 
-// optional string youtube_url = 1;
+// optional std::string youtube_url = 1;
 inline bool CMsgReplaySubmitContestEntry::has_youtube_url() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -6076,7 +6076,7 @@ inline void CMsgTFCoaching_FindCoachResponse::set_num_likes(::google::protobuf::
   num_likes_ = value;
 }
 
-// optional string coach_name = 3;
+// optional std::string coach_name = 3;
 inline bool CMsgTFCoaching_FindCoachResponse::has_coach_name() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -6764,7 +6764,7 @@ inline void CMsgGC_GameServer_LevelInfo::set_level_loaded(bool value) {
   level_loaded_ = value;
 }
 
-// optional string level_name = 2;
+// optional std::string level_name = 2;
 inline bool CMsgGC_GameServer_LevelInfo::has_level_name() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -6826,7 +6826,7 @@ inline ::std::string* CMsgGC_GameServer_LevelInfo::release_level_name() {
 
 // CMsgGC_GameServer_AuthChallenge
 
-// optional string challenge_string = 1;
+// optional std::string challenge_string = 1;
 inline bool CMsgGC_GameServer_AuthChallenge::has_challenge_string() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -7134,7 +7134,7 @@ inline void CMsgGC_GameServer_CreateIdentityResponse::set_game_server_account_id
   game_server_account_id_ = value;
 }
 
-// optional string game_server_identity_token = 3;
+// optional std::string game_server_identity_token = 3;
 inline bool CMsgGC_GameServer_CreateIdentityResponse::has_game_server_identity_token() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -7267,7 +7267,7 @@ inline void CMsgGC_GameServer_ListResponse_GameServerIdentity::set_game_server_a
   game_server_account_id_ = value;
 }
 
-// optional string game_server_identity_token = 2;
+// optional std::string game_server_identity_token = 2;
 inline bool CMsgGC_GameServer_ListResponse_GameServerIdentity::has_game_server_identity_token() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -7472,7 +7472,7 @@ inline void CMsgGC_GameServer_ResetIdentityResponse::set_game_server_account_id(
   game_server_account_id_ = value;
 }
 
-// optional string game_server_identity_token = 3;
+// optional std::string game_server_identity_token = 3;
 inline bool CMsgGC_GameServer_ResetIdentityResponse::has_game_server_identity_token() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "exception.h"
+#include <stdexcept>
 #include "steam/SteamclientAPI.h"
 #include "protobuf/steammessages.pb.h"
 #include "protobuf/base_gcmessages.pb.h"
@@ -23,30 +23,30 @@ public:
 	virtual ~Steam( void );
 
 	// Initializing and closing.
-	virtual void LoadInterfaces( void );
-	virtual void CloseInterfaces( void );
+	virtual void load_interfaces( void );
+	virtual void close_interfaces( void );
 
 	// Callback and message handling.
-	bool		GetCallback( CallbackMsg_t* callback ) const;
-	void		ReleaseCallback( void ) const;
-	bool		HasMessage( uint32* size ) const;
-	void		GetMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const;
-	void		SendMessage( unsigned int id, void* buffer, uint32 size ) const;
+	bool		get_callback( CallbackMsg_t* callback ) const;
+	void		release_callback( void ) const;
+	bool		has_message( uint32* size ) const;
+	void		get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const;
+	void		send_message( unsigned int id, void* buffer, uint32 size ) const;
 
 	// SO version handling.
-	void		SetVersion( uint64 version );
-	uint64		GetVersion() const;
+	void		set_version( uint64 version );
+	uint64		get_version() const;
 
 	// Steam getters.
-	uint64		GetSteamId( void ) const;
+	uint64		get_steam_id( void ) const;
 
 	// For sending protobuf headers.
-	void		SetTargetId( uint64 targetId );
-	void		GenerateProtobufHeader( CMsgProtoBufHeader *headerMsg ) const;
+	void		set_target_id( uint64 targetId );
+	void		generate_protobuf_header( CMsgProtoBufHeader *headerMsg ) const;
 
 private:
 
-	uint64		GetTargetId( void ) const;
+	uint64		get_target_id( void ) const;
 
 private:
 

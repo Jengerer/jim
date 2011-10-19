@@ -54,9 +54,6 @@
     <ClCompile Include="curl.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="exception.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="font.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -94,9 +91,6 @@
       <Filter>source\ui</Filter>
     </ClCompile>
     <ClCompile Include="grid_layout.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="hash_table.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
     <ClCompile Include="horizontal_layout.cpp">
@@ -891,12 +885,6 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="curl.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="exception.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="hash_table.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="iprecachable.h">

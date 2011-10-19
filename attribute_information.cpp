@@ -1,8 +1,8 @@
 #include "attribute_information.h"
 
-AttributeInformation::AttributeInformation( const string& name,
+AttributeInformation::AttributeInformation( const std::string& name,
 	unsigned int index,
-	const string& attribute_class,
+	const std::string& attribute_class,
 	float min_value,
 	float max_value,
 	EffectType effect_type,
@@ -23,7 +23,7 @@ AttributeInformation::AttributeInformation( const string& name,
 	has_description_ = false;
 }
 
-const string& AttributeInformation::get_name() const
+const std::string& AttributeInformation::get_name() const
 {
 	return name_;
 }
@@ -33,7 +33,7 @@ unsigned int AttributeInformation::get_index() const
 	return index_;
 }
 
-const string& AttributeInformation::get_attribute_class() const
+const std::string& AttributeInformation::get_attribute_class() const
 {
 	return attribute_class_;
 }
@@ -68,19 +68,19 @@ bool AttributeInformation::has_description() const
 	return has_description_;
 }
 
-void AttributeInformation::set_description( const string& desc_string, const string& desc_format )
+void AttributeInformation::set_description( const std::string& desc_string, const std::string& desc_format )
 {
 	desc_string_ = desc_string;
 	desc_format_ = desc_format;
 	has_description_ = true;
 }
 
-const string& AttributeInformation::get_desc_string() const
+const std::string& AttributeInformation::get_desc_string() const
 {
 	return desc_string_;
 }
 
-const string& AttributeInformation::get_desc_format() const
+const std::string& AttributeInformation::get_desc_format() const
 {
 	return desc_format_;
 }

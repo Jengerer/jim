@@ -15,7 +15,7 @@ public:
 	virtual ~Menu( void);
 
 	// Menu handling functions.
-	Button*	AddOption( const string& caption );
+	Button*	AddOption( const std::string& caption );
 	Button*	GetClicked( void ) const;
 
 	// Drawing functions.

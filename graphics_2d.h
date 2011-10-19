@@ -2,15 +2,16 @@
 #define GRAPHICS_2D_H
 
 #include "colour.h"
-#include "exception.h"
 #include "file_texture.h"
 #include "window.h"
 #include "opengl_shared.h"
 #include "string_hasher.h"
 
 #include <hash_map>
+#include <string>
+#include <stdexcept>
 
-typedef std::hash_map<string, FileTexture*, StringHasher> TextureMap;
+typedef std::hash_map<std::string, FileTexture*, StringHasher> TextureMap;
 
 class Graphics2D
 {
@@ -35,8 +36,8 @@ public:
 	// Resource handling.
 	Texture*		create_empty_texture( GLsizei width, GLsizei height, GLenum format );
 	GLuint			create_texture( GLubyte* data, GLsizei width, GLsizei height, GLenum format );
-	FileTexture*	get_texture( const string& filename );
-	FileTexture*	get_texture( const string& filename, const string& url );
+	FileTexture*	get_texture( const std::string& filename );
+	FileTexture*	get_texture( const std::string& filename, const std::string& url );
 
 	// Drawing functions.
 	void draw_rectangle( GLfloat x, GLfloat y, GLfloat width, GLfloat height );

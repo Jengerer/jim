@@ -1,7 +1,7 @@
 #include "item_information.h"
 
 ItemInformation::ItemInformation(
-	const string& name,
+	const std::string& name,
 	Texture *texture,
 	uint32 classFlags,
 	EItemSlot slot )
@@ -20,7 +20,7 @@ ItemInformation::~ItemInformation( void )
 	}
 }
 
-const string& ItemInformation::GetName( void ) const
+const std::string& ItemInformation::GetName( void ) const
 {
 	return name_;
 }
@@ -60,7 +60,7 @@ const Attribute* ItemInformation::GetAttribute( size_t index ) const
 	return attributes_[index];
 }
 
-void ItemInformation::SetName( const string& name )
+void ItemInformation::SetName( const std::string& name )
 {
 	name_ = name;
 }

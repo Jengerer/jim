@@ -10,11 +10,11 @@ class Alert: public Notice
 
 public:
 
-	Alert( const string& message );
+	Alert( const std::string& message );
 	virtual ~Alert( void );
 
 	virtual void	Pack( void );
-	virtual void	SetMessage( const string& message );
+	virtual void	SetMessage( const std::string& message );
 	const Button*	GetButton( void ) const;
 
 	// Mouse handling.

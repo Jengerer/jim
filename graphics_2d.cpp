@@ -33,40 +33,40 @@ void Graphics2D::initialize( void )
 	// Get device context.
 	dc_ = GetDC( window_->getHandle() );
 	if (dc_ == nullptr) {
-		throw Exception( "Failed to get device context for window." );
+		throw std::runtime_error( "Failed to get device context for window." );
 	}
 
 	// Choose pixel format.
 	GLuint pixelFormat = ChoosePixelFormat( dc_, &pixelDesc );
 	if (pixelFormat == 0) {
-		throw Exception( "Failed to choose pixel format." );
+		throw std::runtime_error( "Failed to choose pixel format." );
 	}
 
 	// Set received pixel format.
 	if (!SetPixelFormat( dc_, pixelFormat, &pixelDesc )) {
-		throw Exception( "Failed to set pixel format." );
+		throw std::runtime_error( "Failed to set pixel format." );
 	}
 
 	// Create GLRC handle.
 	rc_ = wglCreateContext( dc_ );
 	if (rc_ == nullptr) {
-		throw Exception( "Failed to create OpenGL context." );
+		throw std::runtime_error( "Failed to create OpenGL context." );
 	}
 
 	// Creating loading GLRC handle.
 	loading_rc_ = wglCreateContext( dc_ );
 	if (loading_rc_ == nullptr) {
-		throw Exception( "Failed to create loading OpenGL context." );
+		throw std::runtime_error( "Failed to create loading OpenGL context." );
 	}
 
 	// Share lists between threads.
 	if (!wglShareLists( rc_, loading_rc_ )) {
-		throw Exception( "Failed to share lists between contexts." );
+		throw std::runtime_error( "Failed to share lists between contexts." );
 	}
 
 	// Set current contexts.
 	if (!set_render_context( rc_ )) {
-		throw Exception( "Failed to set current context." );
+		throw std::runtime_error( "Failed to set current context." );
 	}
 
 	// Get rounded corner texture.
@@ -94,12 +94,12 @@ void Graphics2D::clean_up()
 	if (rc_ != nullptr) {
 		// Unset contexts.
 		if (!unset_render_context()) {
-			throw Exception( "Release of device and render context failed." );
+			throw std::runtime_error( "Release of device and render context failed." );
 		}
 
 		// Delete rendering context.
 		if (!wglDeleteContext( rc_ )) {
-			throw Exception( "Releasing render context failed." );
+			throw std::runtime_error( "Releasing render context failed." );
 		}
 
 		rc_ = nullptr;
@@ -108,7 +108,7 @@ void Graphics2D::clean_up()
 	// Close loading rendering context.
 	if (loading_rc_ != nullptr) {
 		if (!wglDeleteContext( loading_rc_ )) {
-			throw Exception( "Failed to release load render context." );
+			throw std::runtime_error( "Failed to release load render context." );
 		}
 
 		loading_rc_ = nullptr;
@@ -117,7 +117,7 @@ void Graphics2D::clean_up()
 	// Release device context.
 	if (dc_ != nullptr) {
 		if (ReleaseDC( window_->getHandle(), dc_ ) == 0) {
-			throw Exception( "Failed to release device context." );
+			throw std::runtime_error( "Failed to release device context." );
 		}
 	}
 }
@@ -162,12 +162,12 @@ void Graphics2D::resize_scene( GLsizei width, GLsizei height )
 	glLoadIdentity();
 }
 
-FileTexture* Graphics2D::get_texture( const string& filename )
+FileTexture* Graphics2D::get_texture( const std::string& filename )
 {
 	return get_texture( filename, "http://www.jengerer.com/item_manager/img/" + filename + ".png" );
 }
 
-FileTexture* Graphics2D::get_texture( const string& filename, const string& url )
+FileTexture* Graphics2D::get_texture( const std::string& filename, const std::string& url )
 {
 	auto i = textures_.find( filename );
 	if (i != textures_.end()) {
@@ -256,8 +256,8 @@ Texture* Graphics2D::create_empty_texture( GLsizei width, GLsizei height, GLenum
 void Graphics2D::load_texture( FileTexture* file_texture )
 {
 	// Get filename and URL.
-	const string& filename = "img/" + file_texture->get_filename() + ".png";
-	const string& url = file_texture->get_url();
+	const std::string& filename = "img/" + file_texture->get_filename() + ".png";
+	const std::string& url = file_texture->get_url();
 
 	// Output variables.
 	png_structp	png_ptr;
@@ -272,14 +272,14 @@ void Graphics2D::load_texture( FileTexture* file_texture )
 			Curl* curl = Curl::get_instance();
 			curl->download( url, filename );
 		}
-		catch (const Exception& ex) {
+		catch (const std::runtime_error& ex) {
 			throw ex;
 		}
 
 		// Re-attempt to read.
 		fp = fopen( filename.c_str(), "rb");
 		if (fp == nullptr) {
-			throw Exception( "Failed to read " + filename + "." );
+			throw std::runtime_error( "Failed to read " + filename + "." );
 		}
 	}
 
@@ -287,7 +287,7 @@ void Graphics2D::load_texture( FileTexture* file_texture )
 	png_ptr = png_create_read_struct( PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr );
 	if (png_ptr == nullptr) {
 		fclose( fp );
-		throw Exception( "Failed to create PNG read struct." );
+		throw std::runtime_error( "Failed to create PNG read struct." );
 	}
 
 	// Create PNG info struct.
@@ -295,7 +295,7 @@ void Graphics2D::load_texture( FileTexture* file_texture )
 	if (info_ptr == nullptr) {
 		fclose( fp );
 		png_destroy_read_struct( &png_ptr, nullptr, nullptr );
-		throw Exception( "Failed to create PNG info struct." );
+		throw std::runtime_error( "Failed to create PNG info struct." );
 	}
 
 	// Initialize I/O.
@@ -313,7 +313,7 @@ void Graphics2D::load_texture( FileTexture* file_texture )
 	unsigned int allocSize = 4 * padded_width * padded_height;
 	GLubyte* output = new GLubyte[ allocSize ];
 	if (output == nullptr) {
-		throw Exception( "Failed to allocate memory for PNG image." );
+		throw std::runtime_error( "Failed to allocate memory for PNG image." );
 	}
 
 	// Copy information.

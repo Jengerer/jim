@@ -16,10 +16,10 @@ Application::Application( int width, int height )
 
 Application::~Application()
 {
-	CloseInterfaces();
+	close_interfaces();
 }
 
-void Application::LoadInterfaces( const char* title, HINSTANCE instance )
+void Application::load_interfaces( const char* title, HINSTANCE instance )
 {
 	// Create window and 2D graphics handle.
 	window_ = new Window( instance, title, GetWidth(), GetHeight() );
@@ -30,7 +30,7 @@ void Application::LoadInterfaces( const char* title, HINSTANCE instance )
 	mouse_ = new Mouse( window_ );
 }
 
-void Application::CloseInterfaces( void )
+void Application::close_interfaces( void )
 {
 	if (graphics_ != nullptr) {
 		delete graphics_;

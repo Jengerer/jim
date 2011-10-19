@@ -26,12 +26,12 @@ int main( int argc, char** argv )
 						if (result == WAIT_TIMEOUT) {
 							if (!TerminateProcess( process, 0 )) {
 								CloseHandle( process );
-								throw Exception( "Failed to terminate process." );
+								throw std::runtime_error( "Failed to terminate process." );
 							}
 						}
 						else if (result != WAIT_OBJECT_0) {
 							CloseHandle( process );
-							throw Exception( "Failed to wait for object." );
+							throw std::runtime_error( "Failed to wait for object." );
 						}
 
 						CloseHandle( process );
@@ -40,9 +40,9 @@ int main( int argc, char** argv )
 			}
 		}
 	}
-	catch (const Exception& ex) {
+	catch (const std::runtime_error& ex) {
 		cout << "FAILED!\n";
-		cout << *ex.getMessage() << "\n";
+		cout << ex.what() << "\n";
 		system( "pause" );
 		return EXIT_FAILURE;
 	}
@@ -67,7 +67,7 @@ int main( int argc, char** argv )
 		curl->download( "http://www.jengerer.com/item_manager/libpng15.dll", "libpng15.dll" );
 		cout << "SUCCESS!\n";
 	}
-	catch (const Exception&) {
+	catch (const std::runtime_error&) {
 		cout << "FAILED!\n";
 		Curl::shut_down();
 		system( "pause" );

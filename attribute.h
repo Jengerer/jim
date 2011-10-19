@@ -12,11 +12,11 @@ public:
 	Attribute( const AttributeInformation* attribute_info, uint32 value );
 
 	const AttributeInformation* get_attribute_info() const;
-	string get_description_string() const;
+	std::string get_description_string() const;
 
 	// Attribute information functions.
 	unsigned int get_index() const;
-	const string& get_name() const;
+	const std::string& get_name() const;
 
 	// Value getters.
 	float	get_float_value() const;

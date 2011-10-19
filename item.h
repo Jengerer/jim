@@ -11,7 +11,7 @@
 #include "steam/UserItemsCommon.h"
 
 #include "attribute_information.h"
-#include "exception.h"
+#include <stdexcept>
 #include "item_information.h"
 #include "item_shared.h"
 #include "string_hasher.h"
@@ -47,7 +47,7 @@ public:
 	uint32			GetOrigin( void ) const;
 
 	// Secondary attributes.
-	string			GetName( void ) const;
+	std::string		GetName( void ) const;
 	const Colour&	GetQualityColour( void ) const;
 	const char*		GetQualityName( void ) const;
 
@@ -60,8 +60,8 @@ public:
 	void			SetIndex( uint32 position );
 
 	bool			HasValidFlags( void ) const;
-	void			SetCustomName( const string& name );
-	const string&	GetCustomName( void ) const;
+	void			SetCustomName( const std::string& name );
+	const std::string& GetCustomName( void ) const;
 	bool			HasCustomName( void ) const;
 
 	// Equipment handling.
@@ -80,7 +80,7 @@ public:
 	size_t get_attribute_count() const;
 	const Attribute* get_attribute_at( size_t index ) const;
 	const Attribute* get_attribute_by_index( size_t index ) const;
-	const Attribute* get_attribute_by_name( const string& name ) const;
+	const Attribute* get_attribute_by_name( const std::string& name ) const;
 
 private:
 
@@ -111,7 +111,7 @@ private:
 	uint32			origin_;
 
 	// Secondary information.
-	string customName_;
+	std::string customName_;
 	uint32 index_;
 
 	// Item definition information.

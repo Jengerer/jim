@@ -11,8 +11,7 @@ void HorizontalLayout::Pack( void )
 {
 	// First get maximum height.
 	int maxHeight = 0;
-	vector<Component*>::const_iterator i;
-	for (i = components_.begin(); i != components_.end(); i++) {
+	for (auto i = components_.begin(); i != components_.end(); i++) {
 		Component *component = *i;
 		int height = component->GetHeight();
 		if (height > maxHeight) {
@@ -26,7 +25,7 @@ void HorizontalLayout::Pack( void )
 
 	// Now pack.
 	float width = 0.0f;
-	for (i = components_.begin(); i != components_.end(); i++) {
+	for (auto i = components_.begin(); i != components_.end(); i++) {
 		Component *component = *i;
 
 		// Set position aligned vertically.

@@ -18,7 +18,7 @@ const unsigned int NOTICE_STROKE_WIDTH	= 5;
 const Colour NOTICE_STROKE_COLOUR( 255, 255, 255, 100 );
 const Colour& NOTICE_COLOUR				= COLOUR_BLACK;
 
-Notice::Notice( const string& message ) : Popup( 0.0f, 0.0f )
+Notice::Notice( const std::string& message ) : Popup( 0.0f, 0.0f )
 {
 	// Create rounded container.
 	roundedContainer_ = new RoundedRectangleContainer( NOTICE_RADIUS, NOTICE_PADDING );
@@ -56,14 +56,14 @@ void Notice::Pack( void )
 	SetSize( roundedContainer_->GetWidth(), roundedContainer_->GetHeight() );
 }
 
-void Notice::SetMessage( const string& message )
+void Notice::SetMessage( const std::string& message )
 {
 	message_ = message;
 	text_->SetText( message );
 	Pack();
 }
 
-void Notice::AppendMessage( const string& message )
+void Notice::AppendMessage( const std::string& message )
 {
 	SetMessage( message_ + message );
 }

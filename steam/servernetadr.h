@@ -45,7 +45,7 @@ public:
 	uint32 GetIP() const;
 	void SetIP( uint32 );
 
-	// This gets the 'a.b.c.d:port' string with the connection port (instead of the query port).
+	// This gets the 'a.b.c.d:port' std::string with the connection port (instead of the query port).
 	const char *GetConnectionAddressString() const;
 	const char *GetQueryAddressString() const;
 

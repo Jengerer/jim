@@ -82,10 +82,10 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	ItemManager* itemManager = new ItemManager();
 
 	try {
-		itemManager->LoadInterfaces( hInstance );
+		itemManager->load_interfaces( hInstance );
 	}
-	catch (Exception mainException) {
-		MessageBox( NULL, mainException.getMessage()->c_str(), "Initialization failed!", MB_OK );
+	catch (std::runtime_error ex) {
+		MessageBox( NULL, ex.what(), "Initialization failed!", MB_OK );
 	}
 
 	// Enter main program loop.
@@ -163,13 +163,13 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 
 ItemManager::~ItemManager( void )
 {
-	CloseInterfaces();
+	close_interfaces();
 }
 
-void ItemManager::LoadInterfaces( HINSTANCE instance )
+void ItemManager::load_interfaces( HINSTANCE instance )
 {
 	// Start up Graphics2D and window.
-	Application::LoadInterfaces( APPLICATION_TITLE, instance );
+	Application::load_interfaces( APPLICATION_TITLE, instance );
 
 	// Necessary to display progress/status.
 	FontFactory::initialize();
@@ -180,15 +180,15 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		// Check for latest version.
 		if (!IsLatestVersion()) {
 			updateError_ = true;
-			throw Exception( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
+			throw std::runtime_error( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
 		}
 
 		// Ensure TF2's not running.
 		if (IsTF2Running()) {
-			throw Exception( "Please close Team Fortress 2 before running the item manager." );
+			throw std::runtime_error( "Please close Team Fortress 2 before running the item manager." );
 		}
 		else if (IsManagerRunning()) {
-			throw Exception( "Another instance of the item manager is already running!" );
+			throw std::runtime_error( "Another instance of the item manager is already running!" );
 		}
 
 		// Precache secondary resources.
@@ -212,13 +212,13 @@ void ItemManager::LoadInterfaces( HINSTANCE instance )
 		loadProgress_ = CreateNotice( "Preparing to load item definitions..." );
 		LoadDefinitions();
 	}
-	catch (Exception& loadException) {
-		error_ = CreateAlert( *loadException.getMessage() );
+	catch (std::runtime_error& load_ex) {
+		error_ = CreateAlert( load_ex.what() );
 		SetThink( &ItemManager::Exiting );
 	}
 }
 
-void ItemManager::CloseInterfaces( void )
+void ItemManager::close_interfaces( void )
 {
 	if (titleFont_ != nullptr) {
 		delete titleFont_;
@@ -399,10 +399,10 @@ void ItemManager::Loading()
 
 			// Initialize steam.
 			try {
-				steamItems_->LoadInterfaces();
+				steamItems_->load_interfaces();
 			}
-			catch (const Exception& ex) {
-				error_ = CreateAlert( *ex.getMessage() );
+			catch (const std::runtime_error& ex) {
+				error_ = CreateAlert( ex.what() );
 				SetThink( &ItemManager::Exiting );
 				break;
 			}
@@ -812,7 +812,7 @@ void ItemManager::LoadItemsFromWeb( void )
 	loadProgress_->AppendMessage("\n\nLoading items...");
 	DrawFrame();
 
-	uint64 userId = steamItems_->GetSteamId();
+	uint64 userId = steamItems_->get_steam_id();
 	stringstream urlStream;
 	urlStream << "http://api.steampowered.com/ITFItems_440/GetPlayerItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&SteamID=" << userId << "&format=json";
 	string apiUrl = urlStream.str();
@@ -823,8 +823,8 @@ void ItemManager::LoadItemsFromWeb( void )
 		Curl* curl = Curl::get_instance();
 		jsonInventory = curl->read( apiUrl );
 	}
-	catch (Exception curlException) {
-		throw Exception("Failed to read inventory from profile.");
+	catch (std::runtime_error curl_ex) {
+		throw std::runtime_error( "Failed to read inventory from profile." );
 	}
 
 	// Show success.
@@ -842,7 +842,7 @@ bool ItemManager::IsLatestVersion() const
 		string versionInfo = curl->read( "http://www.jengerer.com/item_manager/item_manager.txt" );
 		return versionInfo == APPLICATION_VERSION;
 	}
-	catch (const Exception&) {
+	catch (const std::runtime_error&) {
 		// Failed to get version, allow it.
 	}
 
@@ -862,10 +862,10 @@ void ItemManager::LaunchUpdater() const
 			// ShellExecute returns >32 if success.
 			int result = (int)ShellExecute( 0, 0, "auto_updater.exe", 0, 0, SW_SHOWDEFAULT );
 			if (result <= 32) {
-				throw Exception( "Failed to run auto_updater.exe" );
+				throw std::runtime_error( "Failed to run auto_updater.exe" );
 			}
 		}
-		catch (const Exception&) {
+		catch (const std::runtime_error&) {
 			MessageBox( nullptr, "Failed to get/run updater, try re-downloading the application if this persists.", "Update Failed", MB_ICONERROR | MB_OK );
 		}
 	}
@@ -911,21 +911,21 @@ bool ItemManager::IsManagerRunning() const
 
 void ItemManager::HandleCallbacks( void ) {
 	CallbackMsg_t callback;
-	if ( steamItems_->GetCallback( &callback ) ) {
+	if ( steamItems_->get_callback( &callback ) ) {
 		switch (callback.m_iCallback) {
 		case GCMessageAvailable_t::k_iCallback:
 			{
 				GCMessageAvailable_t *message = (GCMessageAvailable_t *)callback.m_pubParam;
 				
 				uint32 size;
-				if ( steamItems_->HasMessage( &size ) )
+				if ( steamItems_->has_message( &size ) )
 				{
 					uint32 id, realSize = 0;
 
 					// Retrieve the message.
 					// WARNING: Do NOT use return before calling free on buffer.
 					void* buffer = malloc( size );
-					steamItems_->GetMessage( &id, buffer, size, &realSize );
+					steamItems_->get_message( &id, buffer, size, &realSize );
 
 					// Filter protobuf messages.
 					if ((id & 0x80000000) != 0) {
@@ -951,7 +951,7 @@ void ItemManager::HandleCallbacks( void ) {
 						// Check if we can set target ID.
 						// TODO: Maybe move all this horseshit into Steam.
 						if ( headerMsg.has_job_id_source() ) {
-							steamItems_->SetTargetId( headerMsg.job_id_source() );
+							steamItems_->set_target_id( headerMsg.job_id_source() );
 						}
 
 						uint32 bodySize = size - sizeof( GCProtobufHeader_t ) - headerSize;
@@ -969,7 +969,7 @@ void ItemManager::HandleCallbacks( void ) {
 			}
 		}
 
-		steamItems_->ReleaseCallback();
+		steamItems_->release_callback();
 	} 
 }
 
@@ -992,6 +992,7 @@ void ItemManager::HandleMessage( uint32 id, void* message, size_t size )
 
 void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 {
+
 #ifdef _DEBUG
 	ofstream log;
 	log.open( "message_log.txt", ios::app );
@@ -1014,16 +1015,22 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			// Create empty backpack.
 			CMsgSOCacheSubscribed subscribedMsg;
 			subscribedMsg.ParseFromArray( message, size );
-			steamItems_->SetVersion( subscribedMsg.version() );
+			steamItems_->set_version( subscribedMsg.version() );
 			unsigned int slotCount = PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT;
+
+			// Check that this is our backpack.
+			if (subscribedMsg.owner() != steamItems_->get_steam_id()) {
+				break;
+			}
 								
-			// TODO: Check for other users' backpack.
+			// Add items.
 			for (int i = 0; i < subscribedMsg.objects_size(); i++) {
 				CMsgSOCacheSubscribed_SubscribedType subscribedType = subscribedMsg.objects( i );
 				switch (subscribedType.type_id()) {
 				case 1:
 					{
-						if (steamItems_->GetSteamId() == subscribedMsg.owner()) {
+						// Ensure we own this item.
+						if (steamItems_->get_steam_id() == subscribedMsg.owner()) {
 							for (int i = 0; i < subscribedType.object_data_size(); i++) {
 								CSOEconItem econItem;
 								econItem.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
@@ -1060,7 +1067,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 					}
 				case 7:
 					{
-						if (steamItems_->GetSteamId() == subscribedMsg.owner()) {
+						if (steamItems_->get_steam_id() == subscribedMsg.owner()) {
 							// TODO: Handle backpack expansions.
 							if (first_cache) {
 								for (int i = 0; i < subscribedType.object_data_size(); i++) {
@@ -1106,14 +1113,14 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 
 			// Compare version.
 			uint64 version = check.version();
-			if (steamItems_->GetVersion() != version) {
-				steamItems_->SetVersion( version );
+			if (steamItems_->get_version() != version) {
+				steamItems_->set_version( version );
 
 				// Send refresh.
 				CMsgSOCacheSubscriptionRefresh refresh;
-				refresh.set_owner( steamItems_->GetSteamId() );
+				refresh.set_owner( steamItems_->get_steam_id() );
 				string refreshString = refresh.SerializeAsString();
-				steamItems_->SendMessage( 28 | 0x80000000, (void*)refreshString.c_str(), refreshString.size() );
+				steamItems_->send_message( 28 | 0x80000000, (void*)refreshString.c_str(), refreshString.size() );
 			}
 			break;
 		}
@@ -1122,7 +1129,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 		{
 			CMsgSOSingleObject updateMsg;
 			updateMsg.ParseFromArray( message, size );
-			steamItems_->SetVersion( updateMsg.version() );
+			steamItems_->set_version( updateMsg.version() );
 			if (updateMsg.type_id() == 1) {
 				CSOEconItem econItem;
 				econItem.ParseFromArray( updateMsg.object_data().data(), updateMsg.object_data().size() );
@@ -1146,7 +1153,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 		{
 			CMsgSOMultipleObjects updateMsg;
 			updateMsg.ParseFromArray( message, size );
-			steamItems_->SetVersion( updateMsg.version() );
+			steamItems_->set_version( updateMsg.version() );
 
 			for (int i = 0; i < updateMsg.objects_size(); i++) {
 				CMsgSOMultipleObjects::SingleObject singleObject = updateMsg.objects( i );
@@ -1183,7 +1190,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			// Get object created.
 			CMsgSOSingleObject deleteObj;
 			deleteObj.ParseFromArray( message, size );
-			steamItems_->SetVersion( deleteObj.version() );
+			steamItems_->set_version( deleteObj.version() );
 
 			// Get item from object.
 			CSOEconItem econItem;
@@ -1223,7 +1230,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			// Get deleted message.
 			CMsgSOSingleObject deleteObj;
 			deleteObj.ParseFromArray( message, size );
-			steamItems_->SetVersion( deleteObj.version() );
+			steamItems_->set_version( deleteObj.version() );
 
 			// Get ID of deleted item.
 			CSOEconItem deletedItem;
@@ -1257,7 +1264,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 	}
 }
 
-Notice* ItemManager::CreateNotice( const string& message )
+Notice* ItemManager::CreateNotice( const std::string& message )
 {
 	Notice* notice = new Notice( message );
 	notice->CenterTo( this );
@@ -1265,7 +1272,7 @@ Notice* ItemManager::CreateNotice( const string& message )
 	return notice;
 }
 
-Alert* ItemManager::CreateAlert( const string& message )
+Alert* ItemManager::CreateAlert( const std::string& message )
 {
 	Alert* alert = new Alert( message );
 	alert->CenterTo( this );

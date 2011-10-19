@@ -12,7 +12,7 @@ Window::Window( HINSTANCE hInstance,
 	height_ = height;
 
 	if (!registerClass( hInstance )) {
-		throw Exception( "Failed to register class." );
+		throw std::runtime_error( "Failed to register class." );
 	}
 
 	createWindow( hInstance );
@@ -62,7 +62,7 @@ void Window::createWindow(HINSTANCE hInstance)
 	// Adjust size for style.
 	DWORD displayStyle = WS_CAPTION | WS_SYSMENU;
 	if (!AdjustWindowRect( &windowRect, displayStyle, false )) {
-		throw Exception( "Failed to adjust window rectangle." );
+		throw std::runtime_error( "Failed to adjust window rectangle." );
 	}
 
 	// Create window.
@@ -77,7 +77,7 @@ void Window::createWindow(HINSTANCE hInstance)
 		NULL );
 
 	if (!hWnd_) {
-		throw Exception( "Failed to create window." );
+		throw std::runtime_error( "Failed to create window." );
 	}
 
 	ShowWindow( hWnd_, SW_NORMAL );

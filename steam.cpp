@@ -4,6 +4,10 @@
 #include "protobuf/base_gcmessages.pb.h"
 #include "protobuf/gcsdk_gcmessages.pb.h"
 
+#ifdef _DEBUG
+#include <fstream>
+#endif
+
 /* Function prototypes to load from DLL. */
 bool (*Steam_BGetCallback) (HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg, HSteamCall *phSteamCall);
 void (*Steam_FreeLastCallback) (HSteamPipe hSteamPipe);
@@ -19,14 +23,14 @@ Steam::Steam( void )
 Steam::~Steam( void )
 {
 	//Steam has been destroyed.
-	CloseInterfaces();
+	close_interfaces();
 }
 
-void Steam::LoadInterfaces( void )
+void Steam::load_interfaces( void )
 {
 	// Set Team Fortress 2 application ID.
 	SetEnvironmentVariable( "SteamAppId", "440" );
-	char* steamPath = (char*)malloc( 1 );
+	char* steamPath = (char*)malloc(1);
 
 	// Get steam path.
 	HKEY hKey;
@@ -54,24 +58,24 @@ void Steam::LoadInterfaces( void )
 
 	RegCloseKey( hKey );
 	if (!regSuccess) {
-		throw Exception( "Failed to get Steam install path from registry." );
+		throw std::runtime_error( "Failed to get Steam install path from registry." );
 	}
 
 	//Load the library.
 	clientDll_ = LoadLibrary( "steamclient.dll" );
 	if ( clientDll_ == nullptr ) {
-		throw Exception( "Failed to load steamclient.dll from Steam install path." );
+		throw std::runtime_error( "Failed to load steamclient.dll from Steam install path." );
 	}
 
 	//Now define the functions.
 	Steam_BGetCallback = (bool (*)(HSteamPipe, CallbackMsg_t *, HSteamCall *))GetProcAddress( clientDll_, "Steam_BGetCallback" );
 	if (Steam_BGetCallback == nullptr) {
-		throw Exception( "Failed to get Steam_BGetCallback from Steam library." );
+		throw std::runtime_error( "Failed to get Steam_BGetCallback from Steam library." );
 	}
 
 	Steam_FreeLastCallback = (void (*)(HSteamPipe))GetProcAddress( clientDll_, "Steam_FreeLastCallback" );
 	if (Steam_FreeLastCallback == nullptr) {
-		throw Exception( "Failed to get Steam_FreeLastCallback from Steam library." );
+		throw std::runtime_error( "Failed to get Steam_FreeLastCallback from Steam library." );
 	}
 
 	//Now load the API.
@@ -79,17 +83,17 @@ void Steam::LoadInterfaces( void )
 
 	CreateInterfaceFn clientFactory = apiLoader.Load();
 	if (clientFactory == nullptr) {
-		throw Exception( "Failed to load Steam API from factory." );
+		throw std::runtime_error( "Failed to load Steam API from factory." );
 	}
 
 	steamClient_ = (ISteamClient008*)clientFactory( STEAMCLIENT_INTERFACE_VERSION_008, 0 );
 	if (steamClient_ == nullptr) {
-		throw Exception( "Failed to create Steam client interface." );
+		throw std::runtime_error( "Failed to create Steam client interface." );
 	}
 
 	// Down to to the nitty-gritty. Start 'er up!
 	if (!SteamAPI_Init()) {
-		throw Exception( "Failed to initialize Steam API. Make sure Steam is running and try again." );
+		throw std::runtime_error( "Failed to initialize Steam API. Make sure Steam is running and try again." );
 	}
 
 	hPipe_ = steamClient_->CreateSteamPipe();
@@ -97,7 +101,7 @@ void Steam::LoadInterfaces( void )
 
 	// Make sure we've got a user.
 	if (hUser_ == 0) {
-		throw Exception( "Failed to connect to global user." );
+		throw std::runtime_error( "Failed to connect to global user." );
 	}
 
 	// Make sure we're logged on correctly.
@@ -106,18 +110,18 @@ void Steam::LoadInterfaces( void )
 		hPipe_,
 		STEAMUSER_INTERFACE_VERSION_012 );
 	if (steamUser_ == nullptr || !steamUser_->LoggedOn()) {
-		throw Exception( "You are not properly logged into Steam." );
+		throw std::runtime_error( "You are not properly logged into Steam." );
 	}
 
 	gameCoordinator_ = (ISteamGameCoordinator001*)steamClient_->GetISteamGenericInterface(
 		hUser_, hPipe_,
 		STEAMGAMECOORDINATOR_INTERFACE_VERSION_001 );
 	if (gameCoordinator_ == nullptr) {
-		throw Exception( "Failed to get ISteamGameCoordinator interface." );
+		throw std::runtime_error( "Failed to get ISteamGameCoordinator interface." );
 	}
 }
 
-void Steam::CloseInterfaces( void )
+void Steam::close_interfaces( void )
 {
 	if (steamClient_ != nullptr) {
 		if (hUser_ != 0) {
@@ -140,35 +144,42 @@ void Steam::CloseInterfaces( void )
 	SteamAPI_Shutdown();
 }
 
-bool Steam::GetCallback( CallbackMsg_t* tCallback ) const
+bool Steam::get_callback( CallbackMsg_t* tCallback ) const
 {
 	HSteamCall steamCall;
 	return Steam_BGetCallback( hPipe_, tCallback, &steamCall );
 }
 
-void Steam::ReleaseCallback( void ) const
+void Steam::release_callback( void ) const
 {
 	Steam_FreeLastCallback( hPipe_ );
 }
 
-bool Steam::HasMessage( uint32* messageSize ) const
+bool Steam::has_message( uint32* messageSize ) const
 {
 	return gameCoordinator_->IsMessageAvailable( messageSize );
 }
 
-void Steam::GetMessage( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const
+void Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const
 {
 	gameCoordinator_->RetrieveMessage( id, buffer, size, realSize );
 }
 
-void Steam::SendMessage( uint32 id, void* buffer, uint32 size ) const
+void Steam::send_message( uint32 id, void* buffer, uint32 size ) const
 {
+//#ifdef _DEBUG
+	std::ofstream log;
+	log.open( "message_log.txt", std::ios::app );
+	log << "Sent message of type " << id << ".\n";
+	log.close();
+//#endif
+
 	// Check if we need a protobuf header sent.
 	if ((id & 0x80000000) != 0) {
 		// Create header for response.
 		CMsgProtoBufHeader responseHeader;
-		GenerateProtobufHeader( &responseHeader );
-		string headerData;
+		generate_protobuf_header( &responseHeader );
+		std::string headerData;
 		responseHeader.SerializeToString( &headerData );
 
 		// Fill in struct.
@@ -192,34 +203,34 @@ void Steam::SendMessage( uint32 id, void* buffer, uint32 size ) const
 	}
 }
 
-void Steam::SetVersion( uint64 version )
+void Steam::set_version( uint64 version )
 {
 	version_ = version;
 }
 
-uint64 Steam::GetVersion() const
+uint64 Steam::get_version() const
 {
 	return version_;
 }
 
-uint64 Steam::GetSteamId( void ) const
+uint64 Steam::get_steam_id( void ) const
 {
 	CSteamID steamId = steamUser_->GetSteamID();
 	return steamId.ConvertToUint64();
 }
 
-void Steam::SetTargetId( uint64 targetId )
+void Steam::set_target_id( uint64 targetId )
 {
 	targetId_ = targetId;
 }
 
-uint64 Steam::GetTargetId( void ) const
+uint64 Steam::get_target_id( void ) const
 {
 	return targetId_;
 }
 
-void Steam::GenerateProtobufHeader( CMsgProtoBufHeader *headerMsg ) const
+void Steam::generate_protobuf_header( CMsgProtoBufHeader *headerMsg ) const
 {
-	headerMsg->set_client_steam_id( GetSteamId() );
-	headerMsg->set_job_id_target( GetTargetId() );
+	headerMsg->set_client_steam_id( get_steam_id() );
+	headerMsg->set_job_id_target( get_target_id() );
 }

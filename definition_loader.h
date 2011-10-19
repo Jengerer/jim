@@ -24,7 +24,7 @@ enum ELoadingState
 	LOADING_STATE_FINISHED
 };
 
-Json::Value& get_member( Json::Value& root, const string& member );
+Json::Value& get_member( Json::Value& root, const std::string& member );
 
 class DefinitionLoader
 {
@@ -42,7 +42,7 @@ public:
 	ELoadingState get_state() const;
 	float get_progress() const;
 	void update_progress_msg();
-	const string& get_progress_msg() const;
+	const std::string& get_progress_msg() const;
 
 private:
 
@@ -52,12 +52,12 @@ private:
 	// Loading state functions.
 	bool is_state_changed() const;
 	void set_state( ELoadingState state );
-	void set_error( const string& error_msg );
+	void set_error( const std::string& error_msg );
 
 	// Progress counters.
 	void set_progress( size_t loaded, size_t total );
 	void set_progress( float percentage );
-	void set_progress_msg( const string& progress_msg );
+	void set_progress_msg( const std::string& progress_msg );
 
 private:
 
@@ -71,13 +71,13 @@ private:
 
 	// Parsing members.
 	Json::Value root_;
-	std::hash_map<string, EItemSlot, StringHasher> slots_;
-	std::hash_map<string, EClassEquip, StringHasher> classes_;
+	std::hash_map<std::string, EItemSlot, StringHasher> slots_;
+	std::hash_map<std::string, EClassEquip, StringHasher> classes_;
 
 	// State members.
 	float								progress_;
-	string								progress_msg_;
-	string								error_msg_;
+	std::string							progress_msg_;
+	std::string							error_msg_;
 	ELoadingState						state_;
 	bool								state_changed_;
 	

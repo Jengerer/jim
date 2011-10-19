@@ -132,10 +132,8 @@
     <ClCompile Include="container.cpp" />
     <ClCompile Include="curl.cpp" />
     <ClCompile Include="draggable.cpp" />
-    <ClCompile Include="exception.cpp" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="grid_layout.cpp" />
-    <ClCompile Include="hash_table.cpp" />
     <ClCompile Include="horizontal_layout.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="inventory.cpp" />
@@ -199,10 +197,8 @@
     <ClInclude Include="container.h" />
     <ClInclude Include="curl.h" />
     <ClInclude Include="draggable.h" />
-    <ClInclude Include="exception.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="grid_layout.h" />
-    <ClInclude Include="hash_table.h" />
     <ClInclude Include="horizontal_layout.h" />
     <ClInclude Include="idrawable.h" />
     <ClInclude Include="image.h" />

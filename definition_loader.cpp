@@ -1,10 +1,10 @@
 #include "definition_loader.h"
 #include "curl.h"
 
-Json::Value& get_member( Json::Value& root, const string& member )
+Json::Value& get_member( Json::Value& root, const std::string& member )
 {
 	if (!root.isMember( member )) {
-		throw Exception( "Unexpected definition format, key '" + member + "' not found." );
+		throw std::runtime_error( "Unexpected definition format, key '" + member + "' not found." );
 	}
 
 	return root[member];
@@ -80,14 +80,14 @@ void DefinitionLoader::load()
 			Curl* curl = Curl::get_instance();
 			definition = curl->read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
 		}
-		catch (Exception&) {
-			throw Exception( "Failed to read item definition file from Steam Web API." );
+		catch (std::runtime_error&) {
+			throw std::runtime_error( "Failed to read item definition file from Steam Web API." );
 		}
 
 		// Parse definition file.
 		Json::Reader reader;
 		if (!reader.parse( definition, root_, false )) {
-			throw Exception( "Failed to parse item definition file." );
+			throw std::runtime_error( "Failed to parse item definition file." );
 		}
 
 		Json::Value& result = get_member( root_, "result" );
@@ -130,7 +130,7 @@ void DefinitionLoader::load()
 				effect_type = EFFECT_NEUTRAL;
 			}
 			else {
-				throw Exception( "Unexpected effect type '" + effect_type_name + "' received." );
+				throw std::runtime_error( "Unexpected effect type '" + effect_type_name + "' received." );
 			}
 
 			// Create new attribute definition.
@@ -161,7 +161,7 @@ void DefinitionLoader::load()
 		// Get item member.
 		Json::Value& items = get_member( result, "items" );
 		if (items == Json::Value::null) {
-			throw Exception( "Unexpected definition format, expected result.items." );
+			throw std::runtime_error( "Unexpected definition format, expected result.items." );
 		}
 
 		// Create fallback definition.
@@ -205,7 +205,7 @@ void DefinitionLoader::load()
 				string slot_name = item["item_slot"].asString();
 				auto j = slots_.find( slot_name );
 				if (j == slots_.end()) {
-					throw Exception( "Failed to parse item definitions. Unexpected item slot type '" + slot_name + "' found." );
+					throw std::runtime_error( "Failed to parse item definitions. Unexpected item slot type '" + slot_name + "' found." );
 				}
 				else {
 					item_slot = j->second;
@@ -222,7 +222,7 @@ void DefinitionLoader::load()
 
 					auto k = classes_.find( class_name );
 					if (k == classes_.end()) {
-						throw Exception( "Failed to parse item definitions. Unexpected class type '" + class_name + "' found." );
+						throw std::runtime_error( "Failed to parse item definitions. Unexpected class type '" + class_name + "' found." );
 					}
 
 					item_classes |= k->second;
@@ -234,7 +234,7 @@ void DefinitionLoader::load()
 			try {
 				texture = graphics_->get_texture( image_inventory, image_url );
 			}
-			catch (const Exception&) {
+			catch (const std::runtime_error&) {
 				texture = unknown_item;
 			}
 
@@ -275,9 +275,9 @@ void DefinitionLoader::load()
 		clean_up();
 		set_state( LOADING_STATE_FINISHED );
 	}
-	catch (Exception& exception) {
+	catch (std::runtime_error& exception) {
 		clean_up();
-		set_error( *exception.getMessage() );
+		set_error( exception.what() );
 	}
 }
 
@@ -308,7 +308,7 @@ float DefinitionLoader::get_progress() const
 	return progress_ * 100.0f;
 }
 
-void DefinitionLoader::set_error( const string& error_msg )
+void DefinitionLoader::set_error( const std::string& error_msg )
 {
 	error_msg_ = error_msg;
 	set_state( LOADING_STATE_ERROR );
@@ -324,12 +324,12 @@ void DefinitionLoader::set_progress( size_t loaded, size_t total )
 	set_progress( static_cast<float>(loaded) / static_cast<float>(total) );
 }
 
-void DefinitionLoader::set_progress_msg( const string& progress_msg )
+void DefinitionLoader::set_progress_msg( const std::string& progress_msg )
 {
 	progress_msg_ = progress_msg;
 }
 
-const string& DefinitionLoader::get_progress_msg() const
+const std::string& DefinitionLoader::get_progress_msg() const
 {
 	return progress_msg_;
 }
