@@ -17,12 +17,12 @@ Menu::Menu( void )
 	roundedRect_ = new RoundedRectangle( 0, 0, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
 	roundedRect_->SetStroke( MENU_STROKE_SIZE, MENU_STROKE_COLOUR );
 	SetConstraint( roundedRect_, 0.0f, 0.0f );
-	Add( roundedRect_ );
+	add( roundedRect_ );
 
 	// Create layout.
 	layout_ = new VerticalLayout();
 	SetConstraint( layout_, MENU_PADDING, MENU_PADDING );
-	Add( layout_ );
+	add( layout_ );
 }
 
 Menu::~Menu( void )
@@ -36,7 +36,7 @@ Button* Menu::AddOption( const std::string& caption )
 
 	// Add to layout and list.
 	options_.push_back( button );
-	layout_->Add( button );
+	layout_->add( button );
 
 	return button;
 }
@@ -54,19 +54,19 @@ void Menu::Pack( void )
 	SetSize( roundedRect_->GetWidth(), roundedRect_->GetHeight() );
 }
 
-bool Menu::MouseMoved( Mouse *mouse )
+bool Menu::on_mouse_moved( Mouse *mouse )
 {
 	// Pass message to buttons.
 	vector<Button*>::iterator i, end;
 	for (i = options_.begin(), end = options_.end(); i != end; ++i) {
 		Button *button = *i;
-		button->MouseMoved( mouse );
+		button->on_mouse_moved( mouse );
 	}
 
 	return true;
 }
 
-bool Menu::MouseClicked( Mouse *mouse )
+bool Menu::on_mouse_clicked( Mouse *mouse )
 {
 	SetClicked( nullptr );
 	if ( !mouse->IsTouching( this ) ) {
@@ -77,7 +77,7 @@ bool Menu::MouseClicked( Mouse *mouse )
 	return true;
 }
 
-bool Menu::MouseReleased( Mouse *mouse )
+bool Menu::on_mouse_released( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
 		vector<Button*>::iterator i;

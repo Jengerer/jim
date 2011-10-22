@@ -22,9 +22,9 @@ public:
 	virtual void	Pack( void );
 
 	// Mouse handling.
-	virtual bool	MouseMoved( Mouse *mouse );
-	virtual bool	MouseClicked( Mouse *mouse );
-	virtual bool	MouseReleased( Mouse *mouse );
+	virtual bool	on_mouse_moved( Mouse *mouse );
+	virtual bool	on_mouse_clicked( Mouse *mouse );
+	virtual bool	on_mouse_released( Mouse *mouse );
 
 private:
 

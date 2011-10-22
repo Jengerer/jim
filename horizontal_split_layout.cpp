@@ -10,8 +10,8 @@ HorizontalSplitLayout::HorizontalSplitLayout( int width, unsigned int spacing )
 	SetConstraint( left_, 0.0f, 0.0f );
 	SetConstraint( right_, width, 0.0f );
 
-	Add( left_ );
-	Add( right_ );
+	add( left_ );
+	add( right_ );
 }
 
 void HorizontalSplitLayout::Pack()
@@ -29,10 +29,10 @@ void HorizontalSplitLayout::Pack()
 
 void HorizontalSplitLayout::AddLeft( Component* component )
 {
-	left_->Add( component );
+	left_->add( component );
 }
 
 void HorizontalSplitLayout::AddRight( Component* component )
 {
-	right_->Add( component );
+	right_->add( component );
 }

@@ -19,19 +19,29 @@ EPopupState Popup::GetState( void ) const
 	return state_;
 }
 
-bool Popup::MouseClicked( Mouse* mouse )
+bool Popup::on_mouse_clicked( Mouse* mouse )
 {
 	return mouse->IsTouching( this );
 }
 
-bool Popup::MouseReleased( Mouse* mouse )
+bool Popup::on_mouse_released( Mouse* mouse )
 {
 	return mouse->IsTouching( this );
 }
 
-bool Popup::MouseMoved( Mouse* mouse )
+bool Popup::on_mouse_moved( Mouse* mouse )
 {
 	return mouse->IsTouching( this );
+}
+
+bool Popup::on_key_pressed( Key key )
+{
+	return false;
+}
+
+bool Popup::on_key_released( Key key )
+{
+	return false;
 }
 
 void Popup::CenterTo( const Container* parent )

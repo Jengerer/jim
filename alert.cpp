@@ -3,8 +3,8 @@
 Alert::Alert( const std::string& message ) : Notice( message )
 {
 	// Make OK button.
-	okButton_ = Button::CreateLabelButton( "okay" );
-	content_->Add( okButton_ );
+	ok_ = Button::CreateLabelButton( "okay" );
+	content_->add( ok_ );
 	Pack();
 }
 
@@ -13,42 +13,36 @@ Alert::~Alert()
 	// Button removed as component.
 }
 
-void Alert::Pack()
-{
-	okButton_->Pack();
-	Notice::Pack();
-}
-
-void Alert::SetMessage( const std::string& message )
-{
-	Notice::SetMessage( message );
-}
-
 const Button* Alert::GetButton( void ) const
 {
-	return okButton_;
+	return ok_;
 }
 
-bool Alert::MouseMoved( Mouse *mouse )
+bool Alert::on_key_released( Key key )
 {
-	// Parent behaviour.
-	okButton_->MouseMoved( mouse );
-	return Notice::MouseMoved( mouse );
-}
-
-bool Alert::MouseClicked( Mouse *mouse )
-{
-	if (mouse->IsTouching( this )) {
-		return true;
+	if (key == VK_RETURN) {
+		SetState( POPUP_STATE_KILLED );
 	}
 
-	return false;
+	return true;
 }
 
-bool Alert::MouseReleased( Mouse *mouse )
+bool Alert::on_mouse_moved( Mouse *mouse )
+{
+	// Parent behaviour.
+	ok_->on_mouse_moved( mouse );
+	return Notice::on_mouse_moved( mouse );
+}
+
+bool Alert::on_mouse_clicked( Mouse *mouse )
+{
+	return Notice::on_mouse_clicked( mouse );
+}
+
+bool Alert::on_mouse_released( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
-		if (okButton_->MouseReleased( mouse )) {
+		if (ok_->on_mouse_released( mouse )) {
 			SetState( POPUP_STATE_KILLED );
 		}
 

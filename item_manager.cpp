@@ -119,6 +119,17 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_HEIGHT )
 {
+	// Create the user layer.
+	user_layer_ = new Container();
+	user_layer_->SetSize( GetWidth(), GetHeight() );
+	add( user_layer_ );
+
+	// Create popup view on top.
+	popups_ = new PopupDisplay();
+	popups_->SetSize( GetWidth(), GetHeight() );
+	add( popups_ );
+
+	// Has layout been made?
 	layoutCreated_ = false;
 
 	// Alerts and errors.
@@ -206,14 +217,16 @@ void ItemManager::load_interfaces( HINSTANCE instance )
 		notifications_->SetPosition( 
 			static_cast<float>(GetWidth() - PADDING), 
 			static_cast<float>(GetHeight() - PADDING) );
-		Add( notifications_ );
+		add( notifications_ );
 
 		// Start definition loader.
-		loadProgress_ = CreateNotice( "Preparing to load item definitions..." );
+		loadProgress_ = popups_->create_notice( "Preparing to load item definitions..." );
+		loadProgress_->CenterTo( this );
 		LoadDefinitions();
 	}
 	catch (std::runtime_error& load_ex) {
-		error_ = CreateAlert( load_ex.what() );
+		error_ = popups_->create_alert( load_ex.what() );
+		error_->CenterTo( this );
 		SetThink( &ItemManager::Exiting );
 	}
 }
@@ -309,9 +322,9 @@ void ItemManager::CreateLayout( void )
 	
 		// Create inventory button layout.
 		HorizontalLayout* inventoryButtons = new HorizontalLayout( BUTTON_SPACING );
-		inventoryButtons->Add( craftButton_ );
-		inventoryButtons->Add( equipButton_ );
-		inventoryButtons->Add( sortButton_ );
+		inventoryButtons->add( craftButton_ );
+		inventoryButtons->add( equipButton_ );
+		inventoryButtons->add( sortButton_ );
 		inventoryButtons->Pack();
 
 		// Create pages buttons/text.
@@ -324,9 +337,9 @@ void ItemManager::CreateLayout( void )
 
 		// Create pages buttons layout.
 		HorizontalLayout* pageButtons = new HorizontalLayout( BUTTON_SPACING );
-		pageButtons->Add( prevButton_ );
-		pageButtons->Add( pageDisplay_ ); // PAGE LABEL, RATHER
-		pageButtons->Add( nextButton_ );
+		pageButtons->add( prevButton_ );
+		pageButtons->add( pageDisplay_ ); // PAGE LABEL, RATHER
+		pageButtons->add( nextButton_ );
 		pageButtons->Pack();
 
 		HorizontalSplitLayout* buttonLayout = new HorizontalSplitLayout( inventoryView_->GetWidth() );
@@ -344,18 +357,18 @@ void ItemManager::CreateLayout( void )
 		titleText->SetColour( TITLE_COLOUR );
 
 		// Organize layout.
-		layout->Add( titleText );
-		layout->Add( inventoryView_ );
-		layout->Add( buttonLayout );
-		layout->Add( excludedView_ );
+		layout->add( titleText );
+		layout->add( inventoryView_ );
+		layout->add( buttonLayout );
+		layout->add( excludedView_ );
 		layout->Pack();
 		layout->SetPosition( (GetWidth() - layout->GetWidth()) / 2.0f, 
 			(GetHeight() - layout->GetHeight()) / 2.0f );
-		Add( layout );
+		user_layer_->add( layout );
 
 		// Create item display.
 		itemDisplay_ = new ItemDisplay();
-		Add( itemDisplay_ );
+		user_layer_->add( itemDisplay_ );
 
 		layoutCreated_ = true;
 	}
@@ -384,7 +397,8 @@ void ItemManager::Loading()
 		switch (definitionLoader_->get_state()){
 		case LOADING_STATE_ERROR:
 			// Show error first.
-			error_ = CreateAlert( definitionLoader_->get_progress_msg() );
+			error_ = popups_->create_alert( definitionLoader_->get_progress_msg() );
+			error_->CenterTo( this );
 
 			// Remove threaded loader.
 			delete definitionLoader_;
@@ -402,7 +416,8 @@ void ItemManager::Loading()
 				steamItems_->load_interfaces();
 			}
 			catch (const std::runtime_error& ex) {
-				error_ = CreateAlert( ex.what() );
+				error_ = popups_->create_alert( ex.what() );
+				error_->CenterTo( this );
 				SetThink( &ItemManager::Exiting );
 				break;
 			}
@@ -422,7 +437,7 @@ void ItemManager::Loading()
 		HandleCallbacks();
 		if (backpack_ != nullptr && backpack_->IsLoaded()) {
 			SetThink( &ItemManager::Running );
-			RemovePopup( loadProgress_ );
+			popups_->remove_popup( loadProgress_ );
 #ifndef SORT_NOT_IMPLEMENTED
 			sortButton_->SetEnabled( true );
 #endif
@@ -443,14 +458,11 @@ void ItemManager::Exiting()
 	// Just wait for exit.
 }
 
-bool ItemManager::MouseClicked( Mouse *mouse )
+bool ItemManager::on_mouse_clicked( Mouse *mouse )
 {
 	// Mouse clicked.
-	if (!popups_.empty()) {
-		Popup* top = popups_.back();
-		if (top->MouseClicked( mouse )) {
-			return true;
-		}
+	if (popups_->on_mouse_clicked( mouse )) {
+		return true;
 	}
 	else if (layoutCreated_) {
 		if (draggedView_ != nullptr) {
@@ -486,7 +498,7 @@ bool ItemManager::MouseClicked( Mouse *mouse )
 				mouse->IsTouching( prevButton_ )) {
 					return true;
 			}
-			else if (notifications_->MouseClicked( mouse )) {
+			else if (notifications_->on_mouse_clicked( mouse )) {
 				return true;
 			}
 		}
@@ -501,23 +513,10 @@ bool ItemManager::MouseClicked( Mouse *mouse )
 	return false;
 }
 
-bool ItemManager::MouseReleased( Mouse *mouse )
+bool ItemManager::on_mouse_released( Mouse *mouse )
 {
-	if (!popups_.empty()) {
-		Popup *top = popups_.back();
-		if (top->MouseReleased( mouse )) {
-			// Check for error.
-			if (top == error_ && top->GetState() == POPUP_STATE_KILLED) {
-				if (updateError_) {
-					LaunchUpdater();
-				}
-
-				ExitApplication();
-			}
-
-			HandlePopup( top );
-			return true;
-		}
+	if (popups_->on_mouse_released( mouse )) {
+		return true;
 	}
 	else {
 		if (layoutCreated_) {
@@ -526,15 +525,15 @@ bool ItemManager::MouseReleased( Mouse *mouse )
 				SlotReleased( slotView );
 			}
 			else {
-				if (craftButton_->MouseReleased( mouse )) {
+				if (craftButton_->on_mouse_released( mouse )) {
 					steamItems_->CraftSelected();
 					UpdateButtons();
 				}
-				else if (nextButton_->MouseReleased( mouse )) {
+				else if (nextButton_->on_mouse_released( mouse )) {
 					inventoryView_->NextPage();
 					UpdatePageDisplay();
 				}
-				else if (prevButton_->MouseReleased( mouse )) {
+				else if (prevButton_->on_mouse_released( mouse )) {
 					inventoryView_->PreviousPage();
 					UpdatePageDisplay();
 				}
@@ -545,29 +544,28 @@ bool ItemManager::MouseReleased( Mouse *mouse )
 	return false;
 }
 
-bool ItemManager::MouseMoved( Mouse *mouse )
+bool ItemManager::on_mouse_moved( Mouse *mouse )
 {
 	// Update buttons.
 	// TODO: Have a button frame mouse hover state.
 	if (layoutCreated_) {
 		itemDisplay_->SetItem( nullptr );
 
-		craftButton_->MouseMoved( mouse );
-		equipButton_->MouseMoved( mouse );
-		sortButton_->MouseMoved( mouse );
-		nextButton_->MouseMoved( mouse );
-		prevButton_->MouseMoved( mouse );
+		craftButton_->on_mouse_moved( mouse );
+		equipButton_->on_mouse_moved( mouse );
+		sortButton_->on_mouse_moved( mouse );
+		nextButton_->on_mouse_moved( mouse );
+		prevButton_->on_mouse_moved( mouse );
 	}
 
-	// Pass message to highest popup.
-	if (!popups_.empty()) {
-		Popup* top = popups_.back();
-		top->MouseMoved( mouse );
+	// Pass to highest popup.
+	if (popups_->on_mouse_moved( mouse )) {
+		return true;
 	}
 	else if (layoutCreated_) {
 		// Check if dragging.
 		if (draggedView_ != nullptr) {
-			draggedView_->MouseMoved( mouse );
+			draggedView_->on_mouse_moved( mouse );
 			ClampChild( draggedView_ );
 
 			// Check if we're switching page.
@@ -650,7 +648,7 @@ void ItemManager::SlotClicked( SlotView* slotView, Mouse* mouse )
 				draggedView_->GetSlot()->SetItem( item );
 				slot->SetItem( nullptr );
 
-				Add( draggedView_ );
+				add( draggedView_ );
 				break;
 			}
 
@@ -679,7 +677,7 @@ void ItemManager::SlotReleased( SlotView* slotView )
 
 	// Delete temporary dragged.
 	SlotView* selectTarget = dragTarget_;
-	Remove( draggedView_ );
+	remove( draggedView_ );
 	delete draggedView_;
 	draggedView_ = nullptr;
 	dragTarget_ = nullptr;
@@ -745,18 +743,8 @@ void ItemManager::HandleKeyboard( void )
 		ExitApplication();
 	}
 	else {
-		if (!popups_.empty()) {
-			Popup *top = popups_.back();
-			if (top == error_) {
-				if (IsKeyPressed( VK_RETURN )) {
-					if (updateError_) {
-						LaunchUpdater();
-					}
-
-					ExitApplication();
-					RemovePopup( top );
-				}
-			}
+		if (IsKeyClicked( VK_RETURN )) {
+			popups_->on_key_pressed( VK_RETURN );
 		}
 		else {
 			if (IsKeyClicked( VK_CONTROL )) {
@@ -1247,7 +1235,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 					if (draggedSlot->HasItem()) {
 						Item* item = draggedSlot->GetItem();
 						if (item == targettedItem) {
-							Remove( draggedView_ );
+							remove( draggedView_ );
 							delete draggedView_;
 							draggedView_ = nullptr;
 						}
@@ -1264,52 +1252,32 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 	}
 }
 
-Notice* ItemManager::CreateNotice( const std::string& message )
+void ItemManager::on_popup_clicked( Popup* popup )
 {
-	Notice* notice = new Notice( message );
-	notice->CenterTo( this );
-	ShowPopup( notice );
-	return notice;
+	// Nothing.
 }
 
-Alert* ItemManager::CreateAlert( const std::string& message )
+void ItemManager::on_popup_released( Popup* popup )
 {
-	Alert* alert = new Alert( message );
-	alert->CenterTo( this );
-	ShowPopup( alert );
-	return alert;
-}
-
-void ItemManager::ShowPopup( Popup* popup )
-{
-	popup->SetState( POPUP_STATE_ACTIVE );
-	popups_.push_back( popup );
-	Add( popup );
-}
-
-void ItemManager::HidePopup( Popup* popup )
-{
-	Remove( popup );
-	vector<Popup*>::iterator i = find( popups_.begin(), popups_.end(), popup );
-	if (i != popups_.end()) {
-		popups_.erase( i );
+	// Exit application if error is killed.
+	if (popup == error_) {
+		if (error_->GetState() == POPUP_STATE_KILLED) {
+			ExitApplication();
+		}
 	}
 }
 
-void ItemManager::RemovePopup( Popup* popup )
+void ItemManager::on_popup_key_pressed( Popup* popup )
 {
-	HidePopup( popup );
-	delete popup;
+	// Nothing.
 }
 
-void ItemManager::HandlePopup( Popup* popup )
+void ItemManager::on_popup_key_released( Popup* popup )
 {
-	switch (popup->GetState()) {
-	case POPUP_STATE_KILLED:
-		RemovePopup( popup );
-		break;
-	case POPUP_STATE_HIDDEN:
-		HidePopup( popup );
-		break;
+	// Exit application if error is killed.
+	if (popup == error_) {
+		if (error_->GetState() == POPUP_STATE_KILLED) {
+			ExitApplication();
+		}
 	}
 }

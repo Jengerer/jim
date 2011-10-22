@@ -4,7 +4,7 @@
 #include <sstream>
 #include <vector>
 
-#include "keyboard_handler.h"
+#include "keyboard.h"
 #include "imouse_handler.h"
 #include "container.h"
 #include "graphics_2d.h"

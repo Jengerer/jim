@@ -28,7 +28,7 @@ Button::Button( float localX, float localY ) : RoundedRectangleContainer( BUTTON
 {
 	// Generate layout.
 	layout_ = new HorizontalLayout( BUTTON_SPACING, ALIGN_MIDDLE );
-	Add( layout_ );
+	add( layout_ );
 
 	// Set rounded container attributes.
 	SetContent( layout_ );
@@ -84,7 +84,7 @@ bool Button::IsEnabled() const
 	return isEnabled_;
 }
 
-bool Button::MouseMoved( Mouse *mouse )
+bool Button::on_mouse_moved( Mouse *mouse )
 {
 	// Mouse moved.
 	bool isHovering = mouse->IsTouching( this );
@@ -92,12 +92,12 @@ bool Button::MouseMoved( Mouse *mouse )
 	return isHovering;
 }
 
-bool Button::MouseClicked( Mouse *mouse )
+bool Button::on_mouse_clicked( Mouse *mouse )
 {
 	return IsEnabled() && mouse->IsTouching( this );
 }
 
-bool Button::MouseReleased( Mouse *mouse )
+bool Button::on_mouse_released( Mouse *mouse )
 {
 	return IsEnabled() && mouse->IsTouching( this );
 }
@@ -134,7 +134,7 @@ Button* Button::CreateIconButton( Texture* texture )
 
 	Image *icon = new Image( texture );
 
-	layout->Add( icon );
+	layout->add( icon );
 
 	button->Pack();
 	return button;
@@ -148,7 +148,7 @@ Button* Button::CreateLabelButton( const std::string& label, Font* font )
 	Text *text = new Text( font );
 	text->SetColour( BUTTON_FONT_COLOUR );
 	text->SetText( label );
-	layout->Add( text );
+	layout->add( text );
 	button->Pack();
 
 	return button;
@@ -165,8 +165,8 @@ Button* Button::CreateIconLabelButton( Texture* texture, const std::string& labe
 	Text* text = new Text( font );
 	text->SetColour( BUTTON_FONT_COLOUR );
 	text->SetText( label );
-	layout->Add( icon );
-	layout->Add( text );
+	layout->add( icon );
+	layout->add( text );
 	button->Pack();
 
 	return button;
