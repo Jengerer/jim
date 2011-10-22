@@ -42,19 +42,19 @@ SlotView::SlotView( Slot* slot )
 	// Image of slot.
 	slotImage_ = new Image( normalSlot_->GetTexture() );
 	slotImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
-	Add( slotImage_ );
+	add( slotImage_ );
 	SetConstraint( slotImage_, 0.0f, 0.0f );
 
 	// Image of item.
 	itemImage_ = new Image( nullptr );
 	itemImage_->SetSize( ITEM_SIZE, ITEM_SIZE );
-	Add( itemImage_ );
+	add( itemImage_ );
 	SetConstraint( itemImage_, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, (SLOT_HEIGHT - ITEM_SIZE) / 2.0f );
 
 	// Image of quality stroke.
 	strokeImage_ = new Image( nullptr );
 	strokeImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
-	Add( strokeImage_ );
+	add( strokeImage_ );
 	SetConstraint( strokeImage_, 0.0f, 0.0f );
 
 	SetSize( SLOT_WIDTH, SLOT_HEIGHT );

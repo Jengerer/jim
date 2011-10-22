@@ -21,7 +21,7 @@ Container::~Container( void )
 	}
 }
 
-void Container::Add( Component* component )
+void Container::add( Component* component )
 {
 	components_.push_back( component );
 }
@@ -30,7 +30,7 @@ void Container::Add( Component* component )
 // Purpose: Removes a child from the container, but does
 //			NOT destroy it.
 //=============================================================
-void Container::Remove( Component* component )
+void Container::remove( Component* component )
 {
 	std::vector<Component*>::iterator i = find( components_.begin(), components_.end(), component );
 	if (i != components_.end()) {

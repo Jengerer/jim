@@ -10,16 +10,16 @@ DraggedSlotView::~DraggedSlotView()
 	delete GetSlot();
 }
 
-bool DraggedSlotView::MouseClicked( Mouse* mouse )
+bool DraggedSlotView::on_mouse_clicked( Mouse* mouse )
 {
 	return mouse->IsTouching( this );
 }
-bool DraggedSlotView::MouseReleased( Mouse* mouse )
+bool DraggedSlotView::on_mouse_released( Mouse* mouse )
 {
 	return mouse->IsTouching( this );
 }
 
-bool DraggedSlotView::MouseMoved( Mouse* mouse )
+bool DraggedSlotView::on_mouse_moved( Mouse* mouse )
 {
 	SetPosition( mouse->GetX() + offsetX_, mouse->GetY() + offsetY_ );
 	return true;

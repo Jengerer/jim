@@ -16,9 +16,9 @@ void ConstrainedContainer::SetPosition( float x, float y )
 	ApplyConstraints();
 }
 
-void ConstrainedContainer::Remove( Component* child )
+void ConstrainedContainer::remove( Component* child )
 {
-	Container::Remove( child );
+	Container::remove( child );
 	RemoveConstraint( child );
 }
 

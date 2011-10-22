@@ -2,6 +2,8 @@
 
 #include "container.h"
 #include "draggable.h"
+#include "imouse_handler.h"
+#include "ikeyboard_handler.h"
 
 enum EPopupState
 {
@@ -10,7 +12,7 @@ enum EPopupState
 	POPUP_STATE_KILLED,
 };
 
-class Popup: public ConstrainedContainer, public IMouseHandler
+class Popup: public ConstrainedContainer, public IMouseHandler, public IKeyboardHandler
 {
 public:
 
@@ -22,9 +24,13 @@ public:
 	EPopupState		GetState( void ) const;
 
 	// Mouse handling.
-	virtual bool	MouseClicked( Mouse* mouse );
-	virtual bool	MouseReleased( Mouse* mouse );
-	virtual bool	MouseMoved( Mouse* mouse );
+	virtual bool	on_mouse_clicked( Mouse* mouse );
+	virtual bool	on_mouse_released( Mouse* mouse );
+	virtual bool	on_mouse_moved( Mouse* mouse );
+
+	// Keyboard handling.
+	virtual bool	on_key_pressed( Key key );
+	virtual bool	on_key_released( Key key );
 
 	// Position alignment.
 	void			CenterTo( const Container* parent );

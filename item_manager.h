@@ -8,10 +8,12 @@
 #include "definition_loader.h"
 #include "dragged_slot_view.h"
 #include "horizontal_split_layout.h"
+#include "ipopup_handler.h"
 #include "item_display.h"
 #include "notice.h"
 #include "notification_queue.h"
 #include "notification.h"
+#include "popup_display.h"
 #include "steam_item_handler.h"
 #include "toggle_set.h"
 #include "vertical_layout.h"
@@ -24,7 +26,7 @@
 
 const unsigned int BUTTON_SPACING = 5;
 
-class ItemManager: public Application
+class ItemManager: public Application, public IPopupHandler
 {
 public:
 
@@ -65,9 +67,9 @@ public:
 	void HandleKeyboard( void );
 
 	// Mouse input handling.
-	virtual bool MouseClicked( Mouse *mouse );
-	virtual bool MouseReleased( Mouse *mouse );
-	virtual bool MouseMoved( Mouse *mouse );
+	virtual bool on_mouse_clicked( Mouse *mouse );
+	virtual bool on_mouse_released( Mouse *mouse );
+	virtual bool on_mouse_moved( Mouse *mouse );
 
 	// Slot selection handling.
 	void SlotClicked( SlotView* slotView, Mouse* mouse );
@@ -75,28 +77,23 @@ public:
 	void UpdateButtons();
 
 	// Popup handling.
-	void OnPopupClicked( Popup* popup );
-	void OnPopupReleased( Popup* popup );
-
-	// Interface handling.
-	Notice*	CreateNotice( const std::string& message );
-	Alert*	CreateAlert( const std::string& message );
+	void on_popup_clicked( Popup* popup );
+	void on_popup_released( Popup* popup );
+	void on_popup_key_pressed( Popup* popup );
+	void on_popup_key_released( Popup* popup );
 
 	// Updating displays.
 	void UpdateItemDisplay( void );
 	void UpdatePageDisplay( void );
-
-	// Popup handling.
-	void ShowPopup( Popup* popup );
-	void HidePopup( Popup* popup );
-	void RemovePopup( Popup* popup );
-	void HandlePopup( Popup* popup );
 
 private:
 
 	// Application interfaces.
 	SteamItemHandler*	steamItems_;
 	Backpack*			backpack_;
+
+	// Display layers.
+	Container*			user_layer_;
 
 	// User interface members.
 	bool				layoutCreated_;
@@ -126,8 +123,8 @@ private:
 	Font*				titleFont_;
 	Font*				pageFont_;
 
-	// User interface stacks.
-	std::vector<Popup*>	popups_;
+	// Popup manager.
+	PopupDisplay*		popups_;
 
 	// Display for item information.
 	ItemDisplay*		itemDisplay_;

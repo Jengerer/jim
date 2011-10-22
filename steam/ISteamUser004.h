@@ -64,7 +64,7 @@ public:
 	// registering/unregistration game launches functions
 	// unclear as to where these should live
 	// These are dead.
-	virtual OBSOLETE_FUNCTION int NClientGameIDAdd( int nGameID ) = 0;
+	virtual OBSOLETE_FUNCTION int NClientGameIDadd( int nGameID ) = 0;
 	virtual OBSOLETE_FUNCTION void RemoveClientGame( int nClientGameID )  = 0;
 	virtual OBSOLETE_FUNCTION void SetClientGameServer( int nClientGameID, uint32 unIPServer, uint16 usPortServer ) = 0;
 

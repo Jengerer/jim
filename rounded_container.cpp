@@ -10,7 +10,7 @@ RoundedRectangleContainer::RoundedRectangleContainer( unsigned int radius, unsig
 	roundedRect_ = new RoundedRectangle( 
 		padding_ * 2, padding_ * 2, 
 		radius, ROUNDED_RECTANGLE_DEFAULT_COLOUR );
-	Add( roundedRect_ );
+	add( roundedRect_ );
 	SetConstraint( roundedRect_, 0.0f, 0.0f );
 }
 

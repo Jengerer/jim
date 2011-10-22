@@ -9,7 +9,7 @@ void SlotGridView::AddSlot( Slot* slot )
 {
 	SlotView* slotView = new SlotView( slot );
 	slotViews_.push_back( slotView );
-	Add( slotView );
+	add( slotView );
 }
 
 void SlotGridView::AddSlots( const SlotVector* slots )

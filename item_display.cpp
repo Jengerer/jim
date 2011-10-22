@@ -35,11 +35,11 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 	// Add to layout.
 	textLayout_ = new VerticalLayout();
 	textLayout_->SetSpacing( ITEM_DISPLAY_SPACING );
-	textLayout_->Add( nameText_ );
-	textLayout_->Add( infoText_ );
+	textLayout_->add( nameText_ );
+	textLayout_->add( infoText_ );
 
 	// Pack so we can create a temporary rectangle.
-	Add( textLayout_ );
+	add( textLayout_ );
 	SetContent( textLayout_ );
 	Pack();
 }

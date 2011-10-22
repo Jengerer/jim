@@ -42,13 +42,13 @@ void NotificationQueue::UpdateNotifications( void )
 	}
 }
 
-bool NotificationQueue::MouseMoved( Mouse *mouse )
+bool NotificationQueue::on_mouse_moved( Mouse *mouse )
 {
 	// Mouse moved.
 	return false;
 }
 
-bool NotificationQueue::MouseClicked( Mouse *mouse )
+bool NotificationQueue::on_mouse_clicked( Mouse *mouse )
 {
 	// Left clicked.
 	if (HasNotification()) {
@@ -62,7 +62,7 @@ bool NotificationQueue::MouseClicked( Mouse *mouse )
 	return false;
 }
 
-bool NotificationQueue::MouseReleased( Mouse *mouse )
+bool NotificationQueue::on_mouse_released( Mouse *mouse )
 {
 	// Left released.
 	return false;
@@ -72,7 +72,7 @@ void NotificationQueue::AddNotification( const std::string& message, const Textu
 {
 	Notification *notification = new Notification( message, texture );
 	notification->SetAlpha( 0 );
-	Add( notification );
+	add( notification );
 
 	// Add and set to next, if empty.
 	notificationQueue_.push( notification );
@@ -85,7 +85,7 @@ void NotificationQueue::SetNextNotification( void )
 {
 	// Remove previous.
 	if ( HasNotification() ) {
-		Remove( current_ );
+		remove( current_ );
 		delete current_;
 		current_ = nullptr;
 	}

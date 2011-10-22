@@ -13,8 +13,8 @@ public:
 	virtual ~Container();
 
 	// Container resource handling.
-	virtual void	Add( Component *component );
-	virtual void	Remove( Component *component );
+	virtual void	add( Component *component );
+	virtual void	remove( Component *component );
 
 	// Drawing functions.
 	virtual void	Draw( Graphics2D* graphics );

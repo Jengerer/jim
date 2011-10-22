@@ -13,17 +13,18 @@ public:
 	Alert( const std::string& message );
 	virtual ~Alert( void );
 
-	virtual void	Pack( void );
-	virtual void	SetMessage( const std::string& message );
 	const Button*	GetButton( void ) const;
 
+	// Keyboard handling.
+	virtual bool	on_key_released( Key key );
+
 	// Mouse handling.
-	virtual bool	MouseClicked( Mouse *mouse );
-	virtual bool	MouseReleased( Mouse *mouse );
-	virtual bool	MouseMoved( Mouse *mouse );
+	virtual bool	on_mouse_clicked( Mouse *mouse );
+	virtual bool	on_mouse_released( Mouse *mouse );
+	virtual bool	on_mouse_moved( Mouse *mouse );
 
 private:
 
-	Button*			okButton_;
+	Button*			ok_;
 
 };

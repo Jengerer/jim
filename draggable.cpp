@@ -19,7 +19,7 @@ void Draggable::Draw( Graphics2D* graphics )
 	Container::Draw( graphics );
 }
 
-bool Draggable::MouseMoved( Mouse *mouse )
+bool Draggable::on_mouse_moved( Mouse *mouse )
 {
 	if (isDragging_) {
 		SetPosition( mouse->GetX() + offsetX_, mouse->GetY() + offsetY_ );
@@ -32,7 +32,7 @@ bool Draggable::MouseMoved( Mouse *mouse )
 	return false;
 }
 
-bool Draggable::MouseClicked( Mouse *mouse )
+bool Draggable::on_mouse_clicked( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
 		BeginDragging( mouse );
@@ -42,7 +42,7 @@ bool Draggable::MouseClicked( Mouse *mouse )
 	return false;
 }
 
-bool Draggable::MouseReleased( Mouse *mouse )
+bool Draggable::on_mouse_released( Mouse *mouse )
 {
 	if (mouse->IsTouching( this )) {
 		EndDragging();

@@ -12,7 +12,7 @@ SlotGridPages::SlotGridPages( unsigned int pageWidth, unsigned int pageHeight,
 
 	pagesLayout_ = new HorizontalLayout( pageSpacing, ALIGN_TOP );
 	pagesLayout_->SetParent( this );
-	Add( pagesLayout_ );
+	add( pagesLayout_ );
 	pagesConstraint_ = SetConstraint( pagesLayout_, viewOffset_, 0.0f );
 	Pack();
 }
@@ -28,7 +28,7 @@ void SlotGridPages::AddPages( const SlotVector* slots )
  		SlotGridView* gridView = new SlotGridView( pageWidth_, slotSpacing_ );
 		gridView->AddSlots( slots, startIndex, startIndex + pageSize );
 		slotGridViews_.push_back( gridView );
-		pagesLayout_->Add( gridView );
+		pagesLayout_->add( gridView );
 	}
 
 	Pack();

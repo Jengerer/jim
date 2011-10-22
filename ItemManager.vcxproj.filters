@@ -99,9 +99,6 @@
     <ClCompile Include="image.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="keyboard_handler.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
     <ClCompile Include="layout.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
@@ -226,6 +223,15 @@
       <Filter>headers\ui</Filter>
     </ClCompile>
     <ClCompile Include="renderable_string.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_display.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="confirmation.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="keyboard.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -971,9 +977,6 @@
     <ClInclude Include="wrapped_text.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="keyboard_handler.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="text.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
@@ -1071,6 +1074,21 @@
       <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="renderable_string.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="confirmation.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_display.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ipopup_handler.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="keyboard.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ikeyboard_handler.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
   </ItemGroup>

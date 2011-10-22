@@ -16,7 +16,7 @@ public:
 	virtual void SetPosition( float x, float y );
 
 	// Container overrides.
-	virtual void Remove( Component* child );
+	virtual void remove( Component* child );
 	
 	// Constraint management.
 	Constraint* SetConstraint( Component* child, float localX, float localY );

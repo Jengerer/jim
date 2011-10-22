@@ -27,19 +27,19 @@ Notice::Notice( const std::string& message ) : Popup( 0.0f, 0.0f )
 	roundedRect->SetStrokeType( STROKE_TYPE_OUTER );
 	roundedRect->SetColour( NOTICE_COLOUR );
 	roundedRect->RemoveTexture();
-	Add( roundedContainer_ );
+	add( roundedContainer_ );
 	SetConstraint( roundedContainer_, 0.0f, 0.0f );
 
 	// Create layout for container.
 	content_ = new VerticalLayout();
 	content_->SetSpacing( NOTICE_SPACING );
-	roundedContainer_->Add( content_ );
+	roundedContainer_->add( content_ );
 	roundedContainer_->SetContent( content_ );
 
 	// Add default text to layout.
 	text_ = new WrappedText( font_, NOTICE_TEXT_WIDTH );
 	text_->SetTextFormatting( DT_CENTER );
-	content_->Add( text_ );
+	content_->add( text_ );
 	SetMessage( message );
 	Pack();
 }

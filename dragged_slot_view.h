@@ -13,9 +13,9 @@ public:
 	DraggedSlotView( Slot* slot );
 	virtual ~DraggedSlotView();
 
-	bool MouseClicked( Mouse* mouse );
-	bool MouseReleased( Mouse* mouse );
-	bool MouseMoved( Mouse* mouse );
+	bool on_mouse_clicked( Mouse* mouse );
+	bool on_mouse_released( Mouse* mouse );
+	bool on_mouse_moved( Mouse* mouse );
 
 	void DragSlot( Slot* slot );
 	Item* ReleaseSlot();

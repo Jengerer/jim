@@ -8,9 +8,9 @@ class IMouseHandler
 
 public:
 
-	virtual bool MouseClicked( Mouse *mouse ) = 0;
-	virtual bool MouseReleased( Mouse *mouse ) = 0;
-	virtual bool MouseMoved( Mouse *mouse ) = 0;
+	virtual bool on_mouse_clicked( Mouse *mouse ) = 0;
+	virtual bool on_mouse_released( Mouse *mouse ) = 0;
+	virtual bool on_mouse_moved( Mouse *mouse ) = 0;
 
 };
 

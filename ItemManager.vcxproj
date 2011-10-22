@@ -104,6 +104,7 @@
     <ClCompile Include="attribute.cpp" />
     <ClCompile Include="attribute_information.cpp" />
     <ClCompile Include="colour.cpp" />
+    <ClCompile Include="confirmation.cpp" />
     <ClCompile Include="constraint.cpp" />
     <ClCompile Include="dragged_slot_view.cpp" />
     <ClCompile Include="file_texture.cpp" />
@@ -113,6 +114,7 @@
     <ClCompile Include="horizontal_split_layout.cpp" />
     <ClCompile Include="index_slot.cpp" />
     <ClCompile Include="opengl_shared.cpp" />
+    <ClCompile Include="popup_display.cpp" />
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc" />
     <ClCompile Include="renderable_cstring.cpp" />
     <ClCompile Include="renderable_string.cpp" />
@@ -141,7 +143,7 @@
     <ClCompile Include="item_display.cpp" />
     <ClCompile Include="item_information.cpp" />
     <ClCompile Include="item_manager.cpp" />
-    <ClCompile Include="keyboard_handler.cpp" />
+    <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="layout.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="mouse.cpp" />
@@ -168,14 +170,18 @@
     <ClInclude Include="animated_grid_pages.h" />
     <ClInclude Include="attribute.h" />
     <ClInclude Include="colour.h" />
+    <ClInclude Include="confirmation.h" />
     <ClInclude Include="constraint.h" />
     <ClInclude Include="dragged_slot_view.h" />
     <ClInclude Include="file_texture.h" />
     <ClInclude Include="font_factory.h" />
     <ClInclude Include="graphics_2d.h" />
     <ClInclude Include="horizontal_split_layout.h" />
+    <ClInclude Include="ikeyboard_handler.h" />
     <ClInclude Include="index_slot.h" />
     <ClInclude Include="attribute_information.h" />
+    <ClInclude Include="ipopup_handler.h" />
+    <ClInclude Include="popup_display.h" />
     <ClInclude Include="renderable_string.h" />
     <ClInclude Include="opengl_shared.h" />
     <ClInclude Include="protobuf\tf_gcmessages.pb.h" />
@@ -209,7 +215,7 @@
     <ClInclude Include="item_information.h" />
     <ClInclude Include="item_manager.h" />
     <ClInclude Include="item_shared.h" />
-    <ClInclude Include="keyboard_handler.h" />
+    <ClInclude Include="keyboard.h" />
     <ClInclude Include="layout.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="mouse.h" />
