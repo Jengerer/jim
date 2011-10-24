@@ -1029,7 +1029,6 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 				case 7:
 					{
 						if (steamItems_->get_steam_id() == subscribedMsg.owner()) {
-							// TODO: Handle backpack expansions.
 							for (int i = 0; i < subscribedType.object_data_size(); i++) {
 								CSOEconGameAccountClient gameAccountClient;
 								gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
