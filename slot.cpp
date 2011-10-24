@@ -5,20 +5,20 @@
 //=============================================================
 Slot::Slot()
 {
-	SetItem( nullptr );
+	set_item( nullptr );
 }
 
-bool Slot::HasItem() const
+bool Slot::has_item() const
 {
 	return item_ != nullptr;
 }
 
-Item* Slot::GetItem() const
+Item* Slot::get_item() const
 {
 	return item_;
 }
 
-void Slot::SetItem( Item* item )
+void Slot::set_item( Item* item )
 {
 	item_ = item;
 }

@@ -7,7 +7,7 @@ ItemInformation::ItemInformation(
 	EItemSlot slot )
 {
 	SetName( name );
-	SetTexture( texture );
+	set_texture( texture );
 	SetClassFlags( classFlags );
 	SetSlot( slot );
 }
@@ -20,37 +20,37 @@ ItemInformation::~ItemInformation( void )
 	}
 }
 
-const std::string& ItemInformation::GetName( void ) const
+const std::string& ItemInformation::get_name( void ) const
 {
 	return name_;
 }
 
-const Texture* ItemInformation::GetTexture( void ) const
+const Texture* ItemInformation::get_texture( void ) const
 {
 	return texture_;
 }
 
-uint32 ItemInformation::GetClassFlags( void ) const
+uint32 ItemInformation::get_class_flags( void ) const
 {
 	return classFlags_;
 }
 
-uint8 ItemInformation::GetClassCount( void ) const
+uint8 ItemInformation::get_class_count( void ) const
 {
 	return classCount_;
 }
 
-EItemSlot ItemInformation::GetSlot( void ) const
+EItemSlot ItemInformation::get_slot( void ) const
 {
 	return slot_;
 }
 
-void ItemInformation::AddAttribute( Attribute* attribute )
+void ItemInformation::add_attribute( Attribute* attribute )
 {
 	attributes_.push_back( attribute );
 }
 
-size_t ItemInformation::GetAttributeCount() const
+size_t ItemInformation::get_attribute_count() const
 {
 	return attributes_.size();
 }
@@ -65,7 +65,7 @@ void ItemInformation::SetName( const std::string& name )
 	name_ = name;
 }
 
-void ItemInformation::SetTexture( const Texture *texture )
+void ItemInformation::set_texture( const Texture *texture )
 {
 	texture_ = texture;
 }

@@ -13,17 +13,13 @@ public:
 
 	Backpack( unsigned int excludedSlots );
 
-	SlotGridPages*	CreateInventoryView( unsigned int width, unsigned int height ) const;
-	SlotGridView*	CreateExcludedView() const;
-
 	// Has backpack been loaded yet?
-	bool	IsLoaded( void ) const;
-	void	SetLoaded( bool isLoaded );
+	bool	is_loaded( void ) const;
+	void	set_loaded( bool isLoaded );
 
 private:
 
-	// Is backpack loaded yet?
-	bool				isLoaded_;
+	bool is_loaded_;
 
 };
 

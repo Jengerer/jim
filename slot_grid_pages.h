@@ -14,20 +14,20 @@ public:
 	SlotGridPages( unsigned int pageWidth, unsigned int pageHeight,
 		unsigned int pageSpacing, unsigned int slotSpacing );
 
-	void AddPages( const SlotVector* slots );
+	void add_pages( const SlotVector* slots );
 
-	void Pack();
+	void pack();
 
-	SlotView* GetTouchingSlot( Mouse* mouse ) const;
-	SlotGridView* GetCurrentPage() const;
+	SlotView* get_touching_slot( Mouse* mouse ) const;
+	SlotGridView* get_current_page() const;
 
-	unsigned int GetPageIndex() const;
-	unsigned int GetPageCount() const;
+	unsigned int get_page_index() const;
+	unsigned int get_page_count() const;
 
-	bool NextPage();
-	bool PreviousPage();
-	void UpdateOffset();
-	virtual void UpdateView();
+	bool next_page();
+	bool previous_page();
+	void update_offset();
+	virtual void update_view();
 
 protected:
 

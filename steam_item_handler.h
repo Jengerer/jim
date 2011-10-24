@@ -20,22 +20,23 @@ public:
 	virtual ~SteamItemHandler();
 
 	// Selection handling.
-	void Select( SlotView* slotView );
-	void Deselect( SlotView* slotView );
-	void ToggleSelect( SlotView* slotView );
-	void DeselectAll();
-	bool IsSelected( SlotView* select ) const;
-	size_t GetSelectedCount() const;
-	void SetSelectMode( SelectMode selectMode );
-	SelectMode GetSelectMode() const;
+	void select( SlotView* slotView );
+	void deselect( SlotView* slotView );
+	void toggle_select( SlotView* slotView );
+	void deselect_all();
+	bool is_selected( SlotView* select ) const;
+	size_t get_selected_count() const;
+	void set_select_mode( SelectMode selectMode );
+	SelectMode get_select_mode() const;
 
 	// Item handling.
-	void UpdateItem( const Item* item ) const;
+	void update_item( const Item* item ) const;
 
 	// Handling Steam updating.
-	void CraftSelected();
-	void EquipSelected( EClassEquip whichClass, bool setEquip );
-	bool CanEquipSelected() const;
+	bool is_selected_tradable( void ) const;
+	void craft_selected( void );
+	void equip_selected( EClassEquip whichClass, bool setEquip );
+	bool can_equip_selected() const;
 
 private:
 

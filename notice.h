@@ -17,7 +17,7 @@ public:
 	virtual ~Notice( void );
 
 	// Resizes the notification based on new text.
-	virtual void	Pack( void );
+	virtual void	pack( void );
 
 	// Message handling.
 	const std::string*	get_message( void ) const;
@@ -25,7 +25,7 @@ public:
 	void			AppendMessage( const std::string& message );
 
 	// Loading class-wide resources.
-	static void		Precache( Graphics2D* graphics );
+	static void		precache( Graphics2D* graphics );
 	static void		Release( void );
 
 protected:

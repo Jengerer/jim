@@ -41,13 +41,13 @@ void Container::remove( Component* component )
 //=============================================================
 // Purpose: Draws all children.
 //=============================================================
-void Container::Draw( Graphics2D* graphics )
+void Container::draw( Graphics2D* graphics )
 {
 	// Draw all children.
 	for (auto i = components_.begin(), end = components_.end(); i != end; ++i) {
 		Component* child = *i;
 		if (IsVisible( child )) {
-			child->Draw( graphics );
+			child->draw( graphics );
 		}
 	}
 }
@@ -55,12 +55,12 @@ void Container::Draw( Graphics2D* graphics )
 //=============================================================
 // Purpose: Sets alpha for all children.
 //=============================================================
-void Container::SetAlpha( int alpha )
+void Container::set_alpha( int alpha )
 {
-	Component::SetAlpha( alpha );
+	Component::set_alpha( alpha );
 	for (auto i = components_.begin(), end = components_.end(); i != end; ++i) {
 		Component* child = *i;
-		child->SetAlpha( alpha );
+		child->set_alpha( alpha );
 	}
 }
 
@@ -70,14 +70,14 @@ void Container::SetAlpha( int alpha )
 //=============================================================
 bool Container::WithinBounds( Component *component ) const
 {
-	float childX = component->GetX();
-	float childY = component->GetY();
-	float parentX = GetX();
-	float parentY = GetY();
-	return (childX > parentX - component->GetWidth()) && 
-		(childX < parentX + GetWidth()) && 
-		(childY > parentY - component->GetHeight()) && 
-		(childY < parentY + GetHeight());
+	float childX = component->get_x();
+	float childY = component->get_y();
+	float parentX = get_x();
+	float parentY = get_y();
+	return (childX > parentX - component->get_width()) && 
+		(childX < parentX + get_width()) && 
+		(childY > parentY - component->get_height()) && 
+		(childY < parentY + get_height());
 }
 
 //=============================================================
@@ -93,12 +93,12 @@ bool Container::IsVisible( Component *component ) const
 // Purpose: Constrains a component's position based on the
 //			size and position of this container.
 //=============================================================
-void Container::ClampChild( Component *component, float padding ) const
+void Container::clamp_child( Component *component, float padding ) const
 {
-	float childX = component->GetX();
-	float childY = component->GetY();
-	float parentX = GetX();
-	float parentY = GetY();
+	float childX = component->get_x();
+	float childY = component->get_y();
+	float parentX = get_x();
+	float parentY = get_y();
 	
 	// Generate bounds.
 	float leftBound = parentX + padding;
@@ -109,7 +109,7 @@ void Container::ClampChild( Component *component, float padding ) const
 		childX = leftBound;
 	}
 	else {
-		float rightBound = parentX + GetWidth() - component->GetWidth() - padding;
+		float rightBound = parentX + get_width() - component->get_width() - padding;
 		if (childX > rightBound) {
 			childX = rightBound;
 		}
@@ -120,11 +120,11 @@ void Container::ClampChild( Component *component, float padding ) const
 		childY = topBound;
 	}
 	else {
-		int bottomBound = parentY + GetHeight() - component->GetHeight() - padding;
+		float bottomBound = parentY + get_height() - component->get_height() - padding;
 		if (childY > bottomBound) {
 			childY = bottomBound;
 		}
 	}
 
-	component->SetPosition( childX, childY );
+	component->set_position( childX, childY );
 }

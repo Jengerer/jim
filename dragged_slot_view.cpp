@@ -7,21 +7,21 @@ DraggedSlotView::DraggedSlotView( Slot* slot ) : SlotView( slot )
 
 DraggedSlotView::~DraggedSlotView()
 {
-	delete GetSlot();
+	delete get_slot();
 }
 
 bool DraggedSlotView::on_mouse_clicked( Mouse* mouse )
 {
-	return mouse->IsTouching( this );
+	return mouse->is_touching( this );
 }
 bool DraggedSlotView::on_mouse_released( Mouse* mouse )
 {
-	return mouse->IsTouching( this );
+	return mouse->is_touching( this );
 }
 
 bool DraggedSlotView::on_mouse_moved( Mouse* mouse )
 {
-	SetPosition( mouse->GetX() + offsetX_, mouse->GetY() + offsetY_ );
+	set_position( mouse->get_x() + offsetX_, mouse->get_y() + offsetY_ );
 	return true;
 }
 
@@ -33,14 +33,14 @@ void DraggedSlotView::SetOffset( float offsetX, float offsetY )
 
 void DraggedSlotView::DragSlot( Slot* slot )
 {
-	GetSlot()->SetItem( slot->GetItem() );
-	slot->SetItem( nullptr );
+	get_slot()->set_item( slot->get_item() );
+	slot->set_item( nullptr );
 }
 
 Item* DraggedSlotView::ReleaseSlot()
 {
-	Slot* slot = GetSlot();
-	Item* item = slot->GetItem();
-	slot->SetItem( nullptr );
+	Slot* slot = get_slot();
+	Item* item = slot->get_item();
+	slot->set_item( nullptr );
 	return item;
 }

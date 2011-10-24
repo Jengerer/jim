@@ -1,9 +1,13 @@
 #include "steam_item_handler.h"
 #include "serialized_buffer.h"
 
+enum EItemOrigins {
+	ORIGIN_ACHIEVEMENT = 1
+};
+
 SteamItemHandler::SteamItemHandler()
 {
-	SetSelectMode( SELECT_MODE_SINGLE );
+	set_select_mode( SELECT_MODE_SINGLE );
 }
 
 SteamItemHandler::~SteamItemHandler()
@@ -11,78 +15,96 @@ SteamItemHandler::~SteamItemHandler()
 	close_interfaces();
 }
 
-void SteamItemHandler::Select( SlotView* slotView )
+void SteamItemHandler::select( SlotView* slotView )
 {
-	if (GetSelectMode() == SELECT_MODE_SINGLE) {
-		DeselectAll();
+	if (get_select_mode() == SELECT_MODE_SINGLE) {
+		deselect_all();
 	}
 
 	selected_.insert( slotView );
-	slotView->SetSelected( true );
+	slotView->set_selected( true );
 }
 
-void SteamItemHandler::Deselect( SlotView* slotView )
+void SteamItemHandler::deselect( SlotView* slotView )
 {
 	selected_.erase( slotView );
-	slotView->SetSelected( false );
+	slotView->set_selected( false );
 }
 
-void SteamItemHandler::ToggleSelect( SlotView* slotView )
+void SteamItemHandler::toggle_select( SlotView* slotView )
 {
-	if (IsSelected( slotView )) {
-		Deselect( slotView );
+	if (is_selected( slotView )) {
+		deselect( slotView );
 	}
 	else {
-		Select( slotView );
+		select( slotView );
 	}
 }
 
-void SteamItemHandler::DeselectAll()
+void SteamItemHandler::deselect_all()
 {
 	for (auto i = selected_.begin(); i != selected_.end(); i = selected_.erase( i )) {
 		SlotView* slotView = *i;
-		slotView->SetSelected( false );
+		slotView->set_selected( false );
 	}
 }
 
-bool SteamItemHandler::IsSelected( SlotView* slotView ) const
+bool SteamItemHandler::is_selected( SlotView* slotView ) const
 {
 	return selected_.find( slotView ) != selected_.end();
 }
 
-size_t SteamItemHandler::GetSelectedCount() const
+size_t SteamItemHandler::get_selected_count() const
 {
 	return selected_.size();
 }
 
-void SteamItemHandler::SetSelectMode( SelectMode selectMode )
+void SteamItemHandler::set_select_mode( SelectMode selectMode )
 {
 	selectMode_ = selectMode;
 }
 
-SelectMode SteamItemHandler::GetSelectMode() const
+SelectMode SteamItemHandler::get_select_mode() const
 {
 	return selectMode_;
 }
 
-void SteamItemHandler::UpdateItem( const Item* item ) const
+void SteamItemHandler::update_item( const Item* item ) const
 {
-	GCSetItemPosition_t message;
+	GCset_itemPosition_t message;
 	memset( &message, 0xFF, sizeof( message ) );
-	message.itemID = item->GetUniqueId();
-	message.position = item->GetFlags();
+	message.itemID = item->get_unique_id();
+	message.position = item->get_flags();
 
 	// Send it.
 	send_message( 
-		static_cast<uint32>(GCSetItemPosition_t::k_iMessage), 
+		static_cast<uint32>(GCset_itemPosition_t::k_iMessage), 
 		(void*)&message,
 		sizeof( message ) );
 }
 
-void SteamItemHandler::CraftSelected()
+bool SteamItemHandler::is_selected_tradable( void ) const
+{
+	for (auto i = selected_.begin(); i != selected_.end(); ++i) {
+		Slot* slot = (*i)->get_slot();
+		if (slot->has_item()) {
+			Item* item = slot->get_item();
+
+			// Check that the item can be traded.
+			if (item->get_origin() == ORIGIN_ACHIEVEMENT ||
+				item->get_attribute_by_name( "cannot trade" ) != nullptr) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+void SteamItemHandler::craft_selected()
 {
 	// Number of items to craft.
-	uint16 itemCount = GetSelectedCount();
+	uint16 itemCount = get_selected_count();
 	if (itemCount != 0) {
 		// Allocate and set.
 		unsigned int messageSize = sizeof( struct GCCraft_t ) + sizeof( uint64 ) * itemCount;
@@ -102,15 +124,15 @@ void SteamItemHandler::CraftSelected()
 		// Write all item IDs.
 		for (auto i = selected_.begin(); i != selected_.end(); ++i) {
 			SlotView* slotView = *i;
-			Item* item = slotView->GetSlot()->GetItem();
+			Item* item = slotView->get_slot()->get_item();
 
 			// Get ID and write.
-			uint64 itemId = item->GetUniqueId();
+			uint64 itemId = item->get_unique_id();
 			serialBuffer.write( &itemId, sizeof( itemId ) );
 		}
 
 		// Deselect everything.
-		DeselectAll();
+		deselect_all();
 
 		// Send message.
 		send_message( GCCraft_t::k_iMessage, message, messageSize );
@@ -118,17 +140,17 @@ void SteamItemHandler::CraftSelected()
 	}
 }
 
-void SteamItemHandler::EquipSelected( EClassEquip whichClass, bool setEquip )
+void SteamItemHandler::equip_selected( EClassEquip whichClass, bool setEquip )
 {
 	// To be implemented.
 }
 
-bool SteamItemHandler::CanEquipSelected() const
+bool SteamItemHandler::can_equip_selected() const
 {
-	if (GetSelectedCount() == 1) {
+	if (get_selected_count() == 1) {
 		SlotView* selected = *selected_.begin();
-		Item* item = selected->GetSlot()->GetItem();
-		return item->GetEquipClassCount() != 0;
+		Item* item = selected->get_slot()->get_item();
+		return item->get_equip_class_count() != 0;
 	}
 
 	return false;

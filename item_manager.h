@@ -38,33 +38,31 @@ public:
 	void close_interfaces();
 
 	// Inventory and definition loading.
-	void LoadDefinitions();
-	void LoadItemsFromWeb();
+	void load_definitions();
+	void load_items_from_web();
 
 	// Startup testing.
-	bool IsLatestVersion() const;
-	bool IsTF2Running() const;
-	bool IsManagerRunning() const;
-	void LaunchUpdater() const;
+	bool is_latest_version() const;
+	void launch_updater() const;
 
 	// User interface creation.
-	void CreateLayout();
+	void create_layout( void );
 
 	// Application running functions.
-	void RunApplication();
-	void SetThink( void (ItemManager::*thinkFunction)( void ) );
-	void DoThink( void );
-	void Loading( void );
-	void Running( void );
-	void Exiting( void );
+	void run();
+	void set_think( void (ItemManager::*thinkFunction)( void ) );
+	void think( void );
+	void loading( void );
+	void running( void );
+	void exiting( void );
 
 	// Steam handling.
-	void HandleCallbacks( void );
-	void HandleMessage( uint32 id, void* message, size_t size );
-	void HandleProtobuf( uint32 id, void* message, size_t size );
+	void handle_callback( void );
+	void handle_message( uint32 id, void* message, size_t size );
+	void handle_protobuf( uint32 id, void* message, size_t size );
 
 	// Input handling.
-	void HandleKeyboard( void );
+	void handle_keyboard( void );
 
 	// Mouse input handling.
 	virtual bool on_mouse_clicked( Mouse *mouse );
@@ -72,9 +70,9 @@ public:
 	virtual bool on_mouse_moved( Mouse *mouse );
 
 	// Slot selection handling.
-	void SlotClicked( SlotView* slotView, Mouse* mouse );
-	void SlotReleased( SlotView* slotView );
-	void UpdateButtons();
+	void on_slot_clicked( SlotView* slotView, Mouse* mouse );
+	void on_slot_released( SlotView* slotView );
+	void update_buttons();
 
 	// Popup handling.
 	void on_popup_clicked( Popup* popup );
@@ -83,8 +81,8 @@ public:
 	void on_popup_key_released( Popup* popup );
 
 	// Updating displays.
-	void UpdateItemDisplay( void );
-	void UpdatePageDisplay( void );
+	void update_item_display( void );
+	void update_page_display( void );
 
 private:
 
@@ -96,7 +94,6 @@ private:
 	Container*			user_layer_;
 
 	// User interface members.
-	bool				layoutCreated_;
 	SlotGridPages*		inventoryView_;
 	SlotGridView*		excludedView_;
 	Button*				craftButton_;
@@ -137,6 +134,8 @@ private:
 	Alert				*error_;
 	bool				updateError_;
 	Notice				*loadProgress_;
+	Confirmation		*craft_check_;
+	Confirmation		*delete_check_;
 
 };
 

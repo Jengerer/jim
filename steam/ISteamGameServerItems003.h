@@ -58,7 +58,7 @@ public:
 	virtual SteamAPICall_t UpdateQuantity( ItemID item, uint32 quantity ) = 0;
 
 	virtual SteamAPICall_t GetItemBlob( ItemID item ) = 0;
-	virtual SteamAPICall_t SetItemBlob( ItemID item, void const* blob, uint32 size ) = 0;
+	virtual SteamAPICall_t set_itemBlob( ItemID item, void const* blob, uint32 size ) = 0;
 
 };
 

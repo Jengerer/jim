@@ -13,21 +13,21 @@ public:
 	~SlotVector();
 
 	// Managing slots.
-	void AddSlots( unsigned int slots );
-	void RemoveSlots();
+	void add_slots( unsigned int slots );
+	void remove_slots( void );
 
 	// Getting slots.
-	Slot* GetSlotByItem( Item* item ) const;
-	Slot* GetSlotByIndex( unsigned int index ) const;
+	Slot* get_slot_by_item( Item* item ) const;
+	Slot* get_slot_by_index( unsigned int index ) const;
 
 	// Index and size comparison.
-	bool IsSlotEmpty( unsigned int index ) const;
-	bool IsValidIndex( unsigned int index ) const;
-	unsigned int GetSlotCount() const;
+	bool is_slot_empty( unsigned int index ) const;
+	bool is_valid_index( unsigned int index ) const;
+	unsigned int get_slot_count( void ) const;
 
 	// Managing items.
-	void RemoveItem( Item* item );
-	void EmptySlots();
+	void remove_item( Item* item );
+	void empty_slots();
 
 private:
 

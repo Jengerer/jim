@@ -17,11 +17,11 @@ public:
 	virtual void	remove( Component *component );
 
 	// Drawing functions.
-	virtual void	Draw( Graphics2D* graphics );
-	virtual void	SetAlpha( int alpha );
+	virtual void	draw( Graphics2D* graphics );
+	virtual void	set_alpha( int alpha );
 
 	// Local/global child position handling.
-	void			ClampChild( Component *child, float padding = 0.0f ) const;
+	void			clamp_child( Component *child, float padding = 0.0f ) const;
 	virtual bool	IsVisible( Component* child ) const;
 	virtual bool	WithinBounds( Component* child ) const;
 

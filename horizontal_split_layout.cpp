@@ -2,37 +2,38 @@
 
 HorizontalSplitLayout::HorizontalSplitLayout( int width, unsigned int spacing )
 {
-	SetSize( width, 0 );
+	set_size( width, 0 );
 
 	// Create layouts.
 	left_ = new HorizontalLayout( spacing, ALIGN_TOP );
 	right_ = new HorizontalLayout( spacing, ALIGN_TOP );
-	SetConstraint( left_, 0.0f, 0.0f );
-	SetConstraint( right_, width, 0.0f );
+	set_constraint( left_, 0.0f, 0.0f );
+	set_constraint( right_, static_cast<float>(width), 0.0f );
 
 	add( left_ );
 	add( right_ );
 }
 
-void HorizontalSplitLayout::Pack()
+void HorizontalSplitLayout::pack()
 {
-	left_->Pack();
-	right_->Pack();
-	SetConstraint( right_, GetWidth() - right_->GetWidth(), 0.0f );
+	left_->pack();
+	right_->pack();
+	set_constraint( right_,
+		static_cast<float>(get_width() - right_->get_width()), 0.0f );
 
 	// Set height as maximum.
-	int leftHeight = left_->GetHeight();
-	int rightHeight = right_->GetHeight();
+	int leftHeight = left_->get_height();
+	int rightHeight = right_->get_height();
 	int maxHeight = leftHeight > rightHeight ? leftHeight : rightHeight;
-	SetSize( GetWidth(), maxHeight );
+	set_size( get_width(), maxHeight );
 }
 
-void HorizontalSplitLayout::AddLeft( Component* component )
+void HorizontalSplitLayout::add_left( Component* component )
 {
 	left_->add( component );
 }
 
-void HorizontalSplitLayout::AddRight( Component* component )
+void HorizontalSplitLayout::add_right( Component* component )
 {
 	right_->add( component );
 }

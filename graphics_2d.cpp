@@ -31,7 +31,7 @@ void Graphics2D::initialize( void )
 	pixelDesc.cDepthBits = 16;
 
 	// Get device context.
-	dc_ = GetDC( window_->getHandle() );
+	dc_ = GetDC( window_->get_handle() );
 	if (dc_ == nullptr) {
 		throw std::runtime_error( "Failed to get device context for window." );
 	}
@@ -76,8 +76,8 @@ void Graphics2D::initialize( void )
 	glGenFramebuffersEXT( 1, &fbo_ );
 
 	// Show window.
-	SetForegroundWindow( window_->getHandle() );
-	SetFocus( window_->getHandle() );
+	SetForegroundWindow( window_->get_handle() );
+	SetFocus( window_->get_handle() );
 
 	// Set scene up.
 	setup_scene();
@@ -116,7 +116,7 @@ void Graphics2D::clean_up()
 
 	// Release device context.
 	if (dc_ != nullptr) {
-		if (ReleaseDC( window_->getHandle(), dc_ ) == 0) {
+		if (ReleaseDC( window_->get_handle(), dc_ ) == 0) {
 			throw std::runtime_error( "Failed to release device context." );
 		}
 	}
@@ -125,7 +125,7 @@ void Graphics2D::clean_up()
 void Graphics2D::setup_scene()
 {
 	// Set background colour.
-	glClearColor( 0.16f, 0.15f, 0.145, 1.0f );
+	glClearColor( 0.16f, 0.15f, 0.145f, 1.0f );
 	glDisable( GL_DEPTH_TEST );
 
 	// Enable alpha blending.
@@ -145,12 +145,12 @@ void Graphics2D::setup_scene()
 	glShadeModel( GL_FLAT );
 	
 	// Size scene to window.
-	resize_scene( window_->GetWidth(), window_->GetHeight() );
+	resize_scene( window_->get_width(), window_->get_height() );
 }
 
 void Graphics2D::resize_scene( GLsizei width, GLsizei height )
 {
-	glViewport( 0.0f, 0.0f, width, height );
+	glViewport( 0, 0, width, height );
 
 	// Set up orthographic projection.
 	glMatrixMode( GL_PROJECTION );
@@ -355,11 +355,13 @@ void Graphics2D::draw_rectangle( GLfloat x, GLfloat y, GLfloat width, GLfloat he
 
 void Graphics2D::draw_rounded_rect( GLfloat x, GLfloat y, GLfloat width, GLfloat height, GLfloat radius )
 {
+	GLsizei size_radius = static_cast<GLsizei>(radius);
+
 	// Corners.
-	draw_texture( rounded_corner_, x, y, radius, radius ); // Top-left.
-	draw_texture( rounded_corner_, x + width, y, -radius, radius ); // Top-right.
-	draw_texture( rounded_corner_, x + width, y + height, -radius, -radius ); // Bottom-right.
-	draw_texture( rounded_corner_, x, y + height, radius, -radius ); // Bottom-left.
+	draw_texture( rounded_corner_, x, y, size_radius, size_radius ); // Top-left.
+	draw_texture( rounded_corner_, x + width, y, -size_radius, size_radius ); // Top-right.
+	draw_texture( rounded_corner_, x + width, y + height, -size_radius, -size_radius ); // Bottom-right.
+	draw_texture( rounded_corner_, x, y + height, size_radius, -size_radius ); // Bottom-left.
 
 	// Double radius.
 	GLfloat double_radius = radius * 2.0f;
@@ -420,12 +422,12 @@ HGLRC Graphics2D::get_loading_context() const
 
 bool Graphics2D::set_render_context( HGLRC context )
 {
-	return wglMakeCurrent( dc_, context );
+	return wglMakeCurrent( dc_, context ) != 0;
 }
 
 bool Graphics2D::unset_render_context()
 {
-	return wglMakeCurrent( nullptr, nullptr );
+	return wglMakeCurrent( nullptr, nullptr ) != 0;
 }
 
 void Graphics2D::set_blend_state( GLenum src_blend, GLenum dest_blend )
@@ -448,7 +450,7 @@ void Graphics2D::render_to_texture( const Texture* texture )
 	// Flip rendering for texture order.
 	glMatrixMode( GL_PROJECTION );
 	glScalef( 1.0f, -1.0f, 1.0f );
-	glTranslatef( 0.0f, -texture->get_height(), 0.0f );
+	glTranslatef( 0.0f, static_cast<GLfloat>(-texture->get_height()),0.0f );
 	glMatrixMode( GL_MODELVIEW );
 }
 
@@ -457,5 +459,5 @@ void Graphics2D::reset_render_target()
 	// Unbind texture/buffer.
 	glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 0, 0 );
 	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
-	resize_scene( window_->GetWidth(), window_->GetHeight() );
+	resize_scene( window_->get_width(), window_->get_height() );
 }

@@ -11,17 +11,18 @@ const Colour MENU_BACKGROUND_COLOUR( 42, 39, 37 );
 Menu::Menu( void )
 {
 	SetClicked( nullptr );
-	SetState( POPUP_STATE_HIDDEN );
+	set_state( POPUP_STATE_HIDDEN );
 
 	// Create rounded rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
 	roundedRect_->SetStroke( MENU_STROKE_SIZE, MENU_STROKE_COLOUR );
-	SetConstraint( roundedRect_, 0.0f, 0.0f );
+	set_constraint( roundedRect_, 0.0f, 0.0f );
 	add( roundedRect_ );
 
 	// Create layout.
 	layout_ = new VerticalLayout();
-	SetConstraint( layout_, MENU_PADDING, MENU_PADDING );
+	float constraint_padding = static_cast<float>(MENU_PADDING);
+	set_constraint( layout_, constraint_padding, constraint_padding );
 	add( layout_ );
 }
 
@@ -46,12 +47,12 @@ Button* Menu::GetClicked( void ) const
 	return clicked_;
 }
 
-void Menu::Pack( void )
+void Menu::pack( void )
 {
-	layout_->Pack();
-	roundedRect_->SetSize( layout_->GetWidth() + MENU_PADDING * 2,
-		layout_->GetHeight() + MENU_PADDING * 2 );
-	SetSize( roundedRect_->GetWidth(), roundedRect_->GetHeight() );
+	layout_->pack();
+	roundedRect_->set_size( layout_->get_width() + MENU_PADDING * 2,
+		layout_->get_height() + MENU_PADDING * 2 );
+	set_size( roundedRect_->get_width(), roundedRect_->get_height() );
 }
 
 bool Menu::on_mouse_moved( Mouse *mouse )
@@ -69,8 +70,8 @@ bool Menu::on_mouse_moved( Mouse *mouse )
 bool Menu::on_mouse_clicked( Mouse *mouse )
 {
 	SetClicked( nullptr );
-	if ( !mouse->IsTouching( this ) ) {
-		SetState( POPUP_STATE_HIDDEN );
+	if ( !mouse->is_touching( this ) ) {
+		set_state( POPUP_STATE_HIDDEN );
 	}
 
 	// Menu has priority over all under it.
@@ -79,14 +80,14 @@ bool Menu::on_mouse_clicked( Mouse *mouse )
 
 bool Menu::on_mouse_released( Mouse *mouse )
 {
-	if (mouse->IsTouching( this )) {
+	if (mouse->is_touching( this )) {
 		vector<Button*>::iterator i;
 		for (i = options_.begin(); i != options_.end(); i++) {
 			Button *button = *i;
 
 			// Set selected button, and go inactive.
-			if (mouse->IsTouching( button )) {
-				SetState( POPUP_STATE_HIDDEN );
+			if (mouse->is_touching( button )) {
+				set_state( POPUP_STATE_HIDDEN );
 				SetClicked( button );
 				break;
 			}

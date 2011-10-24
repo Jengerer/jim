@@ -25,22 +25,25 @@ public:
 
 	virtual void	load_interfaces( const char* title, HINSTANCE instance );
 	virtual void	close_interfaces( void );
-	void			ExitApplication( void );
+	void			exit_application( void );
+
+	// Application singularity/dependency checks.
+	static unsigned int get_process_count( const char* process_name );
 
 	// Drawing functions.
-	void			DrawFrame( void );
-	Window*			GetWindow( void ) const;
+	void			draw_frame( void );
+	Window*			get_window( void ) const;
 
 	// Main running functions.
-	virtual void	RunApplication( void );
+	virtual void	run( void );
 
 	// Input handling.
-	virtual void	HandleKeyboard() = 0;
+	virtual void	handle_keyboard() = 0;
 
 private:
 
 	// Only application should be able to update mouse.
-	void			UpdateMouse( void );
+	void			update_mouse( void );
 
 protected:
 

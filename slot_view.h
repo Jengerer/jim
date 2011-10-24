@@ -19,17 +19,17 @@ public:
 
 	// Over-ridden drawing function.
 	void Update();
-	void Draw( Graphics2D* graphics );
+	void draw( Graphics2D* graphics );
 
 	// Getting the slot.
-	Slot* GetSlot() const;
+	Slot* get_slot() const;
 
 	// Select type.
-	void SetSelected( bool isSelected );
-	bool IsSelected() const;
+	void set_selected( bool is_selected );
+	bool is_selected() const;
 
 	// Precaching class-wide resources.
-	static void	Precache( Graphics2D* graphics );
+	static void	precache( Graphics2D* graphics );
 	static void Release();
 
 private:
@@ -49,7 +49,7 @@ private:
 	Image* itemImage_;
 
 	Slot* slot_;
-	bool isSelected_;
+	bool is_selected_;
 
 };
 

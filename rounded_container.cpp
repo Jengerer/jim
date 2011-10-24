@@ -11,18 +11,19 @@ RoundedRectangleContainer::RoundedRectangleContainer( unsigned int radius, unsig
 		padding_ * 2, padding_ * 2, 
 		radius, ROUNDED_RECTANGLE_DEFAULT_COLOUR );
 	add( roundedRect_ );
-	SetConstraint( roundedRect_, 0.0f, 0.0f );
+	set_constraint( roundedRect_, 0.0f, 0.0f );
 }
 
-void RoundedRectangleContainer::Pack( void )
+void RoundedRectangleContainer::pack( void )
 {
-	SetConstraint( content_, padding_, padding_ );
+	float padding_value = static_cast<float>(padding_);
+	set_constraint( content_, padding_value, padding_value );
 
 	// Set rectangle size.
-	int rectWidth = content_->GetWidth() + (padding_ * 2);
-	int rectHeight = content_->GetHeight() + (padding_ * 2);
-	roundedRect_->SetSize( rectWidth, rectHeight );
-	SetSize( rectWidth, rectHeight );
+	int rectWidth = content_->get_width() + (padding_ * 2);
+	int rectHeight = content_->get_height() + (padding_ * 2);
+	roundedRect_->set_size( rectWidth, rectHeight );
+	set_size( rectWidth, rectHeight );
 }
 
 void RoundedRectangleContainer::SetContent( Component* content )

@@ -28,23 +28,23 @@ ToggleSet::ToggleSet( const std::string& nameSetA, const std::string& nameSetB, 
 	// Create titles.
 	titleSetA_ = new Text( titleFont_ );
 	titleSetA_->SetText( nameSetA );
-	titleSetA_->Pack();
+	titleSetA_->pack();
 
 	titleSetB_ = new Text( titleFont_ );
 	titleSetB_->SetText( nameSetB );
-	titleSetB_->Pack();
+	titleSetB_->pack();
 
 	// Create rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, TOGGLE_SET_RADIUS, TOGGLE_SET_COLOUR );
 	roundedRect_->SetStroke( TOGGLE_SET_STROKE_SIZE, COLOUR_WHITE );
 	add( roundedRect_ );
-	SetConstraint( roundedRect_, 0.0f, 0.0f );
+	set_constraint( roundedRect_, 0.0f, 0.0f );
 
 	// Create okay and cancel buttons.
 	okayButton_ = Button::CreateLabelButton( "okay", buttonFont_ );
 	cancelButton_ = Button::CreateLabelButton( "cancel", buttonFont_ );
-	okayButton_->Pack();
-	cancelButton_->Pack();
+	okayButton_->pack();
+	cancelButton_->pack();
 
 	// Create layouts.
 	//layoutSetA_ = new GridLayout( TOGGLE_SET_GRID_WIDTH );
@@ -59,20 +59,22 @@ ToggleSet::ToggleSet( const std::string& nameSetA, const std::string& nameSetB, 
 	buttonLayout_->SetSpacing( TOGGLE_SET_SPACING );
 	buttonLayout_->add( okayButton_ );
 	buttonLayout_->add( cancelButton_ );
-	buttonLayout_->Pack();
+	buttonLayout_->pack();
 
 	setLayout_ = new VerticalLayout();
 	setLayout_->SetSpacing( TOGGLE_SET_SPACING );
-	setLayout_->SetAlignType( ALIGN_CENTER );
+	setLayout_->set_align_type( ALIGN_CENTER );
 	setLayout_->add( titleSetA_ );
 	setLayout_->add( layoutSetA_ );
 	setLayout_->add( titleSetB_ );
 	setLayout_->add( layoutSetB_ );
 	setLayout_->add( buttonLayout_ );
 	add( setLayout_ );
-	SetConstraint( setLayout_, TOGGLE_SET_PADDING, TOGGLE_SET_PADDING );
+	set_constraint( setLayout_,
+		static_cast<float>(TOGGLE_SET_PADDING),
+		static_cast<float>(TOGGLE_SET_PADDING) );
 
-	Pack();
+	pack();
 }
 
 ToggleSet::~ToggleSet( void )
@@ -89,13 +91,13 @@ ToggleSet::~ToggleSet( void )
 	}
 }
 
-void ToggleSet::Pack( void )
+void ToggleSet::pack( void )
 {
-	layoutSetA_->Pack();
-	layoutSetB_->Pack();
-	setLayout_->Pack();
-	roundedRect_->SetSize( setLayout_->GetWidth() + TOGGLE_SET_PADDING * 2, setLayout_->GetHeight() + TOGGLE_SET_PADDING * 2 );
-	SetSize( roundedRect_->GetWidth(), roundedRect_->GetHeight() );
+	layoutSetA_->pack();
+	layoutSetB_->pack();
+	setLayout_->pack();
+	roundedRect_->set_size( setLayout_->get_width() + TOGGLE_SET_PADDING * 2, setLayout_->get_height() + TOGGLE_SET_PADDING * 2 );
+	set_size( roundedRect_->get_width(), roundedRect_->get_height() );
 }
 
 void ToggleSet::AddSetA( Button *button )
@@ -177,13 +179,13 @@ bool ToggleSet::on_mouse_moved( Mouse *mouse )
 
 bool ToggleSet::on_mouse_clicked( Mouse *mouse )
 {
-	SetState( POPUP_STATE_KILLED );
+	set_state( POPUP_STATE_KILLED );
 	return false;
 }
 
 bool ToggleSet::on_mouse_released( Mouse *mouse )
 {
-	if (!mouse->IsTouching( this )) {
+	if (!mouse->is_touching( this )) {
 		return false;
 	}
 
@@ -192,7 +194,7 @@ bool ToggleSet::on_mouse_released( Mouse *mouse )
 	bool hitButton_ = false;
 	for (i = buttonSetA_.begin(), end = buttonSetA_.end(); i != end; ++i) {
 		Button *button = *i;
-		if (mouse->IsTouching( button )) {
+		if (mouse->is_touching( button )) {
 			RemoveSetA( button );
 			AddSetB( button );
 			hitButton_ = true;
@@ -203,7 +205,7 @@ bool ToggleSet::on_mouse_released( Mouse *mouse )
 	if (!hitButton_) {
 		for (i = buttonSetB_.begin(), end = buttonSetB_.end(); i != end; ++i) {
 			Button *button = *i;
-			if (mouse->IsTouching( button )) {
+			if (mouse->is_touching( button )) {
 				RemoveSetB( button );
 				AddSetA( button );
 				break;
@@ -212,21 +214,21 @@ bool ToggleSet::on_mouse_released( Mouse *mouse )
 	}
 
 	// Get old size for repositioning.
-	int oldWidth = GetWidth();
-	int oldHeight = GetHeight();
+	int oldWidth = get_width();
+	int oldHeight = get_height();
 
-	Pack();
+	pack();
 
 	// Reposition aligned center.
 	// TODO: Maybe have a component-based alignment feature.
-	/*SetPosition( 
-		GetX() - ((GetWidth() - oldWidth) >> 1),
-		GetY() - ((GetHeight() - oldHeight) >> 1 ) );*/
+	/*set_position( 
+		get_x() - ((get_width() - oldWidth) >> 1),
+		get_y() - ((get_height() - oldHeight) >> 1 ) );*/
 
 	return true;
 }
 
-void ToggleSet::Precache()
+void ToggleSet::precache()
 {
 	titleFont_ = FontFactory::create_font( TOGGLE_SET_FONT_FACE, TOGGLE_SET_FONT_SIZE );
 	buttonFont_ = FontFactory::create_font( TOGGLE_SET_BUTTON_FONT_FACE, TOGGLE_SET_BUTTON_FONT_SIZE );

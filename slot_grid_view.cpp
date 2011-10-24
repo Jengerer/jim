@@ -12,27 +12,27 @@ void SlotGridView::AddSlot( Slot* slot )
 	add( slotView );
 }
 
-void SlotGridView::AddSlots( const SlotVector* slots )
+void SlotGridView::add_slots( const SlotVector* slots )
 {
-	AddSlots( slots, 0, slots->GetSlotCount() );
+	add_slots( slots, 0, slots->get_slot_count() );
 }
 
-void SlotGridView::AddSlots( const SlotVector* slots, unsigned int startIndex, unsigned int endIndex )
+void SlotGridView::add_slots( const SlotVector* slots, unsigned int startIndex, unsigned int endIndex )
 {
 	for (unsigned int i = startIndex; i < endIndex; ++i) {
-		Slot* slot = slots->GetSlotByIndex( i );
+		Slot* slot = slots->get_slot_by_index( i );
 		AddSlot( slot );
 	}
 
-	Pack();
+	pack();
 }
 
-SlotView* SlotGridView::GetTouchingSlot( Mouse* mouse ) const
+SlotView* SlotGridView::get_touching_slot( Mouse* mouse ) const
 {
 	vector<SlotView*>::const_iterator i, end;
 	for (i = slotViews_.begin(), end = slotViews_.end(); i != end; ++i) {
 		SlotView* slotView = *i;
-		if (mouse->IsTouching( slotView )) {
+		if (mouse->is_touching( slotView )) {
 			return slotView;
 		}
 	}

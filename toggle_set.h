@@ -24,7 +24,7 @@ public:
 	ToggleSet( const std::string& nameSetA, const std::string& nameSetB, float x = 0.0f, float y = 0.0f );
 	virtual ~ToggleSet( void );
 
-	virtual void Pack( void );
+	virtual void pack( void );
 
 	void	AddSetA( Button *button );
 	void	AddSetB( Button *button );
@@ -39,7 +39,7 @@ public:
 	virtual bool on_mouse_clicked( Mouse *mouse );
 	virtual bool on_mouse_released( Mouse *mouse );
 
-	static void Precache();
+	static void precache();
 	static void Release();
 
 private:

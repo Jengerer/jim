@@ -13,17 +13,17 @@ public:
 	virtual ~ConstrainedContainer();
 
 	// Component override.
-	virtual void SetPosition( float x, float y );
+	virtual void set_position( float x, float y );
 
 	// Container overrides.
 	virtual void remove( Component* child );
 	
 	// Constraint management.
-	Constraint* SetConstraint( Component* child, float localX, float localY );
+	Constraint* set_constraint( Component* child, float localX, float localY );
 	void RemoveConstraint( Component* child );
 	void RemoveAllConstraints();
-	void ApplyConstraint( Constraint* constraint );
-	void ApplyConstraints();
+	void apply_constraint( Constraint* constraint );
+	void apply_constraints();
 
 private:
 

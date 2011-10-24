@@ -21,16 +21,16 @@ const int ITEM_DISPLAY_ALPHA_MAX		= 210;
 
 ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_PADDING )
 {
-	SetAlpha( 0 );
+	set_alpha( 0 );
 	GetRoundedRectangle()->SetColour( ITEM_DISPLAY_COLOUR );
-	SetItem( nullptr );
+	set_item( nullptr );
 	SetActive( false );
 
 	// Create text objects.
 	nameText_ = new WrappedText( nameFont_, ITEM_DISPLAY_TEXT_WIDTH );
-	nameText_->SetTextFormatting( DT_CENTER );
+	nameText_->set_text_formatting( DT_CENTER );
 	infoText_ = new WrappedText( infoFont_, ITEM_DISPLAY_TEXT_WIDTH );
-	infoText_->SetTextFormatting( DT_CENTER );
+	infoText_->set_text_formatting( DT_CENTER );
 
 	// Add to layout.
 	textLayout_ = new VerticalLayout();
@@ -41,7 +41,7 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 	// Pack so we can create a temporary rectangle.
 	add( textLayout_ );
 	SetContent( textLayout_ );
-	Pack();
+	pack();
 }
 
 ItemDisplay::~ItemDisplay( void )
@@ -51,16 +51,16 @@ ItemDisplay::~ItemDisplay( void )
 void ItemDisplay::UpdateDisplay()
 {
 	// Alter display based on quality.
-	nameText_->SetColour( item_->GetQualityColour() );
-	SetName( item_->GetName() );
+	nameText_->SetColour( item_->get_qualityColour() );
+	SetName( item_->get_name() );
 
 	// Build information text.
 	std::stringstream infoStream;
-	infoStream << "LEVEL " << static_cast<uint16>(item_->GetLevel());
+	infoStream << "LEVEL " << static_cast<uint16>(item_->get_level());
 
 #if defined( _DEBUG )
-	infoStream << "\nFLAGS: " << std::hex << item_->GetFlags();
-	infoStream << "\nORIGIN: " << item_->GetOrigin();
+	infoStream << "\nFLAGS: " << std::hex << item_->get_flags();
+	infoStream << "\nORIGIN: " << item_->get_origin();
 	for (size_t i = 0; i < item_->get_attribute_count(); i++) {
 		const Attribute* attrib = item_->get_attribute_at( i );
 		if (attrib->has_description()) {
@@ -85,34 +85,34 @@ void ItemDisplay::UpdateDisplay()
 		delete wide_buffer;
 	}
 
-	Pack();
+	pack();
 }
 
 void ItemDisplay::UpdateAlpha( void )
 {
 	if ( IsActive() ) {
-		SetAlpha( GetAlpha() + ITEM_DISPLAY_ALPHA_SPEED );
+		set_alpha( GetAlpha() + ITEM_DISPLAY_ALPHA_SPEED );
 		if (GetAlpha() > ITEM_DISPLAY_ALPHA_MAX) {
-			SetAlpha( ITEM_DISPLAY_ALPHA_MAX );
+			set_alpha( ITEM_DISPLAY_ALPHA_MAX );
 		}
 	}
 	else {
-		SetAlpha( GetAlpha() - ITEM_DISPLAY_ALPHA_SPEED );
+		set_alpha( GetAlpha() - ITEM_DISPLAY_ALPHA_SPEED );
 	}
 }
 
-void ItemDisplay::Pack( void )
+void ItemDisplay::pack( void )
 {
-	textLayout_->Pack();
-	RoundedRectangleContainer::Pack();
+	textLayout_->pack();
+	RoundedRectangleContainer::pack();
 }
 
-const Item* ItemDisplay::GetItem( void ) const
+const Item* ItemDisplay::get_item( void ) const
 {
 	return item_;
 }
 
-void ItemDisplay::SetItem( const Item *item )
+void ItemDisplay::set_item( const Item *item )
 {
 	if (item_ != item) {
 		item_ = item;
@@ -126,7 +126,7 @@ void ItemDisplay::SetItem( const Item *item )
 	}
 }
 
-const std::string& ItemDisplay::GetName( void ) const
+const std::string& ItemDisplay::get_name( void ) const
 {
 	return itemName_;
 }
@@ -139,15 +139,15 @@ void ItemDisplay::SetName( const std::string& name )
 
 bool ItemDisplay::IsActive( void ) const
 {
-	return isActive_;
+	return is_active_;
 }
 
-void ItemDisplay::SetActive( bool isActive )
+void ItemDisplay::SetActive( bool is_active )
 {
-	isActive_ = isActive;
+	is_active_ = is_active;
 }
 
-void ItemDisplay::Precache()
+void ItemDisplay::precache()
 {
 	nameFont_ = FontFactory::create_font( 
 		ITEM_DISPLAY_TITLE_FONT_FACE, ITEM_DISPLAY_TITLE_FONT_SIZE );

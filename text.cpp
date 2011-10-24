@@ -19,14 +19,14 @@ void Text::SetText( const std::string& text )
 {
 	// Set renderable std::string and pack.
 	str_ = new RenderableCString( text.c_str(), text.length() );
-	Pack();
+	pack();
 }
 
 void Text::SetText( const wchar_t* text, size_t length )
 {
 	// Set renderable wide std::string and pack.
 	str_ = new RenderableWideString( text, length );
-	Pack();
+	pack();
 }
 
 void Text::SetColour( const Colour& colour )
@@ -41,16 +41,16 @@ const Colour& Text::GetColour( void ) const
 	return colour_;
 }
 
-void Text::SetAlpha( int alpha )
+void Text::set_alpha( int alpha )
 {
-	Component::SetAlpha( alpha );
+	Component::set_alpha( alpha );
 	colour_.a = GetAlpha();
 }
 
-void Text::Draw( Graphics2D* graphics )
+void Text::draw( Graphics2D* graphics )
 {
 	glPushMatrix();
-	glTranslatef( GetX(), GetY(), 0.0f );
+	glTranslatef( get_x(), get_y(), 0.0f );
 	graphics->set_colour( colour_ );
 	glCallList( list_ );
 	glPopMatrix();
@@ -66,19 +66,19 @@ void Text::SetFont( Font *font )
 	font_ = font;
 }
 
-void Text::Pack( void )
+void Text::pack( void )
 {
 	if (str_ != nullptr) {
 		// Pack on renderable std::string size.
 		RECT size;
 		font_->prepare_draw( &size, str_, list_ );
-		SetSize( size.right, size.bottom );
+		set_size( size.right, size.bottom );
 
 		// Remove temporary renderable string.
 		delete str_;
 		str_ = nullptr;
 	}
 	else {
-		SetSize( 0, 0 );
+		set_size( 0, 0 );
 	}
 }

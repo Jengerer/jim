@@ -10,7 +10,7 @@ public:
 	AnimatedGridPages( unsigned int pageWidth, unsigned int pageHeight,
 		unsigned int pageSpacing, unsigned int slotSpacing );
 
-	void UpdateView();
+	void update_view();
 
 private:
 

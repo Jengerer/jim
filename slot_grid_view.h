@@ -14,10 +14,10 @@ public:
 
 	SlotGridView( unsigned int width, unsigned int spacing );
 
-	void AddSlots( const SlotVector* slots );
-	void AddSlots( const SlotVector* slots, unsigned int startIndex, unsigned int endIndex );
+	void add_slots( const SlotVector* slots );
+	void add_slots( const SlotVector* slots, unsigned int startIndex, unsigned int endIndex );
 
-	SlotView* GetTouchingSlot( Mouse* mouse ) const;
+	SlotView* get_touching_slot( Mouse* mouse ) const;
 
 private:
 

@@ -28,7 +28,7 @@ Notice::Notice( const std::string& message ) : Popup( 0.0f, 0.0f )
 	roundedRect->SetColour( NOTICE_COLOUR );
 	roundedRect->RemoveTexture();
 	add( roundedContainer_ );
-	SetConstraint( roundedContainer_, 0.0f, 0.0f );
+	set_constraint( roundedContainer_, 0.0f, 0.0f );
 
 	// Create layout for container.
 	content_ = new VerticalLayout();
@@ -38,10 +38,10 @@ Notice::Notice( const std::string& message ) : Popup( 0.0f, 0.0f )
 
 	// Add default text to layout.
 	text_ = new WrappedText( font_, NOTICE_TEXT_WIDTH );
-	text_->SetTextFormatting( DT_CENTER );
+	text_->set_text_formatting( DT_CENTER );
 	content_->add( text_ );
 	SetMessage( message );
-	Pack();
+	pack();
 }
 
 Notice::~Notice()
@@ -49,18 +49,18 @@ Notice::~Notice()
 	// Notice is destroyed.
 }
 
-void Notice::Pack( void )
+void Notice::pack( void )
 {
-	content_->Pack();
-	roundedContainer_->Pack();
-	SetSize( roundedContainer_->GetWidth(), roundedContainer_->GetHeight() );
+	content_->pack();
+	roundedContainer_->pack();
+	set_size( roundedContainer_->get_width(), roundedContainer_->get_height() );
 }
 
 void Notice::SetMessage( const std::string& message )
 {
 	message_ = message;
 	text_->SetText( message );
-	Pack();
+	pack();
 }
 
 void Notice::AppendMessage( const std::string& message )
@@ -68,7 +68,7 @@ void Notice::AppendMessage( const std::string& message )
 	SetMessage( message_ + message );
 }
 
-void Notice::Precache( Graphics2D* graphics )
+void Notice::precache( Graphics2D* graphics )
 {
 	font_ = FontFactory::create_font( NOTICE_FONT_FACE, NOTICE_FONT_SIZE );
 }

@@ -14,7 +14,7 @@ public:
 	RoundedRectangleContainer( unsigned int radius, unsigned int padding, float localX = 0.0f, float localY = 0.0f );
 
 	// Container functions.
-	virtual void		Pack();
+	virtual void		pack();
 
 	// Content and rectangle.
 	void				SetContent( Component* content );

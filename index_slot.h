@@ -10,12 +10,12 @@ public:
 
 	IndexSlot( unsigned int index );
 
-	unsigned int GetIndex( void ) const;
-	void			SetItem( Item* item );
+	unsigned int get_index( void ) const;
+	void			set_item( Item* item );
 
 private:
 
-	void			SetIndex( unsigned int index );
+	void			set_index( unsigned int index );
 
 private:
 

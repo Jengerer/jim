@@ -12,7 +12,7 @@ AnimatedGridPages::AnimatedGridPages( unsigned int pageWidth, unsigned int pageH
 	viewPosition_ = viewOffset_;
 }
 
-void AnimatedGridPages::UpdateView()
+void AnimatedGridPages::update_view()
 {
 	// Move view to end.
 	float viewDistance = viewOffset_ - viewPosition_;
@@ -27,6 +27,6 @@ void AnimatedGridPages::UpdateView()
 		viewPosition_ += viewSpeed_;
 	}
 
-	pagesConstraint_->SetConstraint( viewPosition_, pagesConstraint_->GetConstraintY() );
-	ApplyConstraint( pagesConstraint_ );
+	pagesConstraint_->set_constraint( viewPosition_, pagesConstraint_->get_constraint_y() );
+	apply_constraint( pagesConstraint_ );
 }
