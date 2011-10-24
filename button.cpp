@@ -39,10 +39,10 @@ Button::Button( float localX, float localY ) : RoundedRectangleContainer( BUTTON
 	UpdateButton();
 }
 
-void Button::Pack( void )
+void Button::pack( void )
 {
-	layout_->Pack();
-	RoundedRectangleContainer::Pack();
+	layout_->pack();
+	RoundedRectangleContainer::pack();
 }
 
 Layout* Button::GetContentLayout() const
@@ -87,19 +87,19 @@ bool Button::IsEnabled() const
 bool Button::on_mouse_moved( Mouse *mouse )
 {
 	// Mouse moved.
-	bool isHovering = mouse->IsTouching( this );
+	bool isHovering = mouse->is_touching( this );
 	SetHovering( isHovering );
 	return isHovering;
 }
 
 bool Button::on_mouse_clicked( Mouse *mouse )
 {
-	return IsEnabled() && mouse->IsTouching( this );
+	return IsEnabled() && mouse->is_touching( this );
 }
 
 bool Button::on_mouse_released( Mouse *mouse )
 {
-	return IsEnabled() && mouse->IsTouching( this );
+	return IsEnabled() && mouse->is_touching( this );
 }
 
 void Button::SetHovering( bool isHovering )
@@ -113,7 +113,7 @@ bool Button::IsHovering( void ) const
 	return isHovering_;
 }
 
-void Button::Precache( Graphics2D* graphics )
+void Button::precache( Graphics2D* graphics )
 {
 	defaultFont_ = FontFactory::create_font( BUTTON_DEFAULT_FONT_FACE,
 		BUTTON_DEFAULT_FONT_SIZE );
@@ -136,7 +136,7 @@ Button* Button::CreateIconButton( Texture* texture )
 
 	layout->add( icon );
 
-	button->Pack();
+	button->pack();
 	return button;
 }
 
@@ -149,7 +149,7 @@ Button* Button::CreateLabelButton( const std::string& label, Font* font )
 	text->SetColour( BUTTON_FONT_COLOUR );
 	text->SetText( label );
 	layout->add( text );
-	button->Pack();
+	button->pack();
 
 	return button;
 }
@@ -160,14 +160,14 @@ Button* Button::CreateIconLabelButton( Texture* texture, const std::string& labe
 	Layout* layout = button->GetContentLayout();
 
 	Image* icon = new Image( texture );
-	icon->SetSize( BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
+	icon->set_size( BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
 
 	Text* text = new Text( font );
 	text->SetColour( BUTTON_FONT_COLOUR );
 	text->SetText( label );
 	layout->add( icon );
 	layout->add( text );
-	button->Pack();
+	button->pack();
 
 	return button;
 }

@@ -13,11 +13,11 @@ Confirmation::Confirmation( const std::string& question ) : Notice( question )
 	HorizontalLayout* layout = new HorizontalLayout( BUTTON_SPACING );
 	layout->add( yes_ );
 	layout->add( no_ );
-	layout->Pack();
+	layout->pack();
 	content_->add( layout );
 
 	// Pack it up!
-	Pack();
+	pack();
 }
 
 Confirmation::~Confirmation( void )
@@ -44,7 +44,7 @@ bool Confirmation::on_mouse_released( Mouse* mouse )
 	}
 
 	// Responded.
-	SetState( POPUP_STATE_KILLED );
+	set_state( POPUP_STATE_KILLED );
 	return true;
 }
 

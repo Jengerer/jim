@@ -13,20 +13,20 @@ public:
 	virtual ~Component( void );
 
 	// Position functions.
-	virtual void	SetPosition( float x, float y );
+	virtual void	set_position( float x, float y );
 	
 	// Position getters.
-	virtual float	GetX() const;
-	virtual float	GetY() const;
+	virtual float	get_x() const;
+	virtual float	get_y() const;
 
 	// Visibility functions.
-	virtual void	SetAlpha( int alpha ); // Using int to handle underflow.
+	virtual void	set_alpha( int alpha ); // Using int to handle underflow.
 	GLubyte	GetAlpha( void ) const;
 
 	// Size functions.
-	virtual void	SetSize( int width, int height );
-	virtual int		GetWidth( void ) const;
-	virtual int		GetHeight( void ) const;
+	virtual void	set_size( int width, int height );
+	virtual int		get_width( void ) const;
+	virtual int		get_height( void ) const;
 
 private:
 

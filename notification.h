@@ -17,10 +17,10 @@ public:
 	Notification( const std::string& message, const Texture *texture = nullptr );
 	virtual ~Notification( void );
 
-	virtual void	Pack( void );
+	virtual void	pack( void );
 	void			SetMessage( const std::string& message );
 
-	static void		Precache();
+	static void		precache();
 	static void		Release();
 
 protected:

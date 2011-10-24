@@ -17,7 +17,7 @@ public:
 	virtual ~NotificationQueue( void );
 
 	// Drawing and container functions.
-	virtual void	Draw( Graphics2D* graphics );
+	virtual void	draw( Graphics2D* graphics );
 
 	// Updating notification state.
 	void			UpdateNotifications( void );
@@ -28,7 +28,7 @@ public:
 	virtual bool	on_mouse_released( Mouse *mouse );
 
 	// Notification handling.
-	void			AddNotification( const std::string& message, const Texture *texture );
+	void			add_notification( const std::string& message, const Texture *texture );
 	void			SetNextNotification( void );
 
 private:

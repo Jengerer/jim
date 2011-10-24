@@ -11,7 +11,7 @@ public:
 	GridLayout( int gridWidth, unsigned int spacing );
 	virtual ~GridLayout( void );
 
-	virtual void Pack( void );
+	virtual void pack( void );
 
 private:
 

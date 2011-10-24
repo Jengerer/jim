@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <crtdbg.h>
+#include <fstream>
 #include <math.h>
 #include <shellapi.h>
-#include <tlhelp32.h>
 #include <json/json.h>
 
 #include "curl.h"
@@ -61,6 +61,10 @@ const int PAGE_COUNT		= 6;
 const int TRIAL_PAGE_COUNT	= 1;
 const int EXCLUDED_SIZE		= 5;
 
+// Slot layout.
+const int SLOT_SPACING			= 5;
+const int PAGE_SPACING			= 50;
+
 const unsigned int PADDING	= 20;
 const unsigned int SPACING	= 10;
 
@@ -79,6 +83,11 @@ LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+
+#ifdef _DEBUG
+	_CrtDumpMemoryLeaks();
+#endif
+
 	ItemManager* itemManager = new ItemManager();
 
 	try {
@@ -102,9 +111,10 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 			}
 		}
 
-		itemManager->RunApplication();
+		itemManager->run();
 	}
 
+	// Clean item manager.
 	if (itemManager != nullptr) {
 		delete itemManager;
 		itemManager = nullptr;
@@ -121,16 +131,14 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 {
 	// Create the user layer.
 	user_layer_ = new Container();
-	user_layer_->SetSize( GetWidth(), GetHeight() );
+	user_layer_->set_size( get_width(), get_height() );
 	add( user_layer_ );
 
 	// Create popup view on top.
 	popups_ = new PopupDisplay();
-	popups_->SetSize( GetWidth(), GetHeight() );
+	popups_->set_size( get_width(), get_height() );
+	popups_->set_popup_handler( this );
 	add( popups_ );
-
-	// Has layout been made?
-	layoutCreated_ = false;
 
 	// Alerts and errors.
 	alert_ = nullptr;
@@ -147,7 +155,10 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	// Dragged slot.
 	dragTarget_ = nullptr;
 	draggedView_ = nullptr;
-	backpack_ = nullptr;
+
+	// Create backpack of one page.
+	backpack_ = new Backpack( EXCLUDED_SIZE );
+	backpack_->add_slots( PAGE_WIDTH * PAGE_HEIGHT );
 
 	// Threaded loader.
 	definitionLoader_ = nullptr;
@@ -162,7 +173,7 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 	pageDelay_ = 0;
 
 	// Set default running function.
-	SetThink( &ItemManager::Loading );
+	set_think( &ItemManager::loading );
 
 	// Listen for input keys.
 	AddKey( VK_LEFT );
@@ -184,29 +195,29 @@ void ItemManager::load_interfaces( HINSTANCE instance )
 
 	// Necessary to display progress/status.
 	FontFactory::initialize();
-	Notice::Precache( graphics_ );
-	Button::Precache( graphics_ );
+	Notice::precache( graphics_ );
+	Button::precache( graphics_ );
 
 	try {
 		// Check for latest version.
-		if (!IsLatestVersion()) {
+		if (!is_latest_version()) {
 			updateError_ = true;
 			throw std::runtime_error( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
 		}
 
 		// Ensure TF2's not running.
-		if (IsTF2Running()) {
+		if (get_process_count( "tf2.exe" ) > 0) {
 			throw std::runtime_error( "Please close Team Fortress 2 before running the item manager." );
 		}
-		else if (IsManagerRunning()) {
+		else if (get_process_count( "item_manager.exe" ) > 1) {
 			throw std::runtime_error( "Another instance of the item manager is already running!" );
 		}
 
-		// Precache secondary resources.
-		ToggleSet::Precache();
-		ItemDisplay::Precache();
-		Notification::Precache();
-		SlotView::Precache( graphics_ );
+		// precache secondary resources.
+		ToggleSet::precache();
+		ItemDisplay::precache();
+		Notification::precache();
+		SlotView::precache( graphics_ );
 
 		// Load title font.
 		titleFont_ = FontFactory::create_font( TITLE_FONT_FACE, TITLE_FONT_SIZE );
@@ -214,20 +225,21 @@ void ItemManager::load_interfaces( HINSTANCE instance )
 
 		// Create notification queue.
 		notifications_ = new NotificationQueue();
-		notifications_->SetPosition( 
-			static_cast<float>(GetWidth() - PADDING), 
-			static_cast<float>(GetHeight() - PADDING) );
+		notifications_->set_position( 
+			static_cast<float>(get_width() - PADDING), 
+			static_cast<float>(get_height() - PADDING) );
 		add( notifications_ );
+
+		// Generate UI.
+		create_layout();
 
 		// Start definition loader.
 		loadProgress_ = popups_->create_notice( "Preparing to load item definitions..." );
-		loadProgress_->CenterTo( this );
-		LoadDefinitions();
+		load_definitions();
 	}
 	catch (std::runtime_error& load_ex) {
 		error_ = popups_->create_alert( load_ex.what() );
-		error_->CenterTo( this );
-		SetThink( &ItemManager::Exiting );
+		set_think( &ItemManager::exiting );
 	}
 }
 
@@ -297,113 +309,113 @@ void ItemManager::close_interfaces( void )
 	google::protobuf::ShutdownProtobufLibrary();
 }
 
-void ItemManager::CreateLayout( void )
+void ItemManager::create_layout( void )
 {
-	if (!layoutCreated_) {
-		// Create layout.
-		VerticalLayout* layout = new VerticalLayout( SPACING, ALIGN_LEFT );
+	// Create layout.
+	VerticalLayout* layout = new VerticalLayout( SPACING, ALIGN_LEFT );
 
-		// Create views.
-		inventoryView_ = backpack_->CreateInventoryView( PAGE_WIDTH, PAGE_HEIGHT );
-		excludedView_ = backpack_->CreateExcludedView();
+	// Create inventory view.
+	inventoryView_ = new AnimatedGridPages( PAGE_WIDTH, PAGE_HEIGHT,
+		PAGE_SPACING, SLOT_SPACING );
+	inventoryView_->add_pages( backpack_->get_inventory_slots() );
 
-		// Create button layout.
-		Texture *craftTexture = graphics_->get_texture( "manager/gear" );
-		Texture *equipTexture = graphics_->get_texture( "manager/equip" );
-		Texture *sortTexture = graphics_->get_texture( "manager/sort" );
+	// Create excluded view.
+	excludedView_ = new SlotGridView( EXCLUDED_SIZE, SLOT_SPACING );
+	excludedView_->add_slots( backpack_->get_excluded_slots() );
 
-		// Create inventory buttons.
-		craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
-		equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
-		sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
-		craftButton_->SetEnabled( false );
-		equipButton_->SetEnabled( false );
-		sortButton_->SetEnabled( false );
+	// Create button layout.
+	Texture *craftTexture = graphics_->get_texture( "manager/gear" );
+	Texture *equipTexture = graphics_->get_texture( "manager/equip" );
+	Texture *sortTexture = graphics_->get_texture( "manager/sort" );
+
+	// Create inventory buttons.
+	craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
+	equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
+	sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
+	craftButton_->SetEnabled( false );
+	equipButton_->SetEnabled( false );
+	sortButton_->SetEnabled( false );
 	
-		// Create inventory button layout.
-		HorizontalLayout* inventoryButtons = new HorizontalLayout( BUTTON_SPACING );
-		inventoryButtons->add( craftButton_ );
-		inventoryButtons->add( equipButton_ );
-		inventoryButtons->add( sortButton_ );
-		inventoryButtons->Pack();
+	// Create inventory button layout.
+	HorizontalLayout* inventoryButtons = new HorizontalLayout( BUTTON_SPACING );
+	inventoryButtons->add( craftButton_ );
+	inventoryButtons->add( equipButton_ );
+	inventoryButtons->add( sortButton_ );
+	inventoryButtons->pack();
 
-		// Create pages buttons/text.
-		prevButton_ = Button::CreateLabelButton( "<" );
-		nextButton_ = Button::CreateLabelButton( ">" );
-		pageDisplay_ = new WrappedText( pageFont_, PAGE_LABEL_WIDTH );
-		pageDisplay_->SetColour( PAGE_LABEL_COLOUR );
-		pageDisplay_->SetTextFormatting( DT_CENTER );
-		UpdatePageDisplay();
+	// Create pages buttons/text.
+	prevButton_ = Button::CreateLabelButton( "<" );
+	nextButton_ = Button::CreateLabelButton( ">" );
+	pageDisplay_ = new WrappedText( pageFont_, PAGE_LABEL_WIDTH );
+	pageDisplay_->SetColour( PAGE_LABEL_COLOUR );
+	pageDisplay_->set_text_formatting( DT_CENTER );
+	update_page_display();
 
-		// Create pages buttons layout.
-		HorizontalLayout* pageButtons = new HorizontalLayout( BUTTON_SPACING );
-		pageButtons->add( prevButton_ );
-		pageButtons->add( pageDisplay_ ); // PAGE LABEL, RATHER
-		pageButtons->add( nextButton_ );
-		pageButtons->Pack();
+	// Create pages buttons layout.
+	HorizontalLayout* pageButtons = new HorizontalLayout( BUTTON_SPACING );
+	pageButtons->add( prevButton_ );
+	pageButtons->add( pageDisplay_ ); // PAGE LABEL, RATHER
+	pageButtons->add( nextButton_ );
+	pageButtons->pack();
 
-		HorizontalSplitLayout* buttonLayout = new HorizontalSplitLayout( inventoryView_->GetWidth() );
-		buttonLayout->AddLeft( inventoryButtons);
-		buttonLayout->AddRight( pageButtons );
-		buttonLayout->Pack();
+	HorizontalSplitLayout* buttonLayout = new HorizontalSplitLayout( inventoryView_->get_width() );
+	buttonLayout->add_left( inventoryButtons);
+	buttonLayout->add_right( pageButtons );
+	buttonLayout->pack();
 		
-		// Create title.
-		stringstream titleStream;
-		titleStream << APPLICATION_TITLE << " " << APPLICATION_VERSION;
+	// Create title.
+	stringstream titleStream;
+	titleStream << APPLICATION_TITLE << " " << APPLICATION_VERSION;
 
-		// Add version number.
-		Text* titleText = new Text( titleFont_ );
-		titleText->SetText( titleStream.str() );
-		titleText->SetColour( TITLE_COLOUR );
+	// Add version number.
+	Text* titleText = new Text( titleFont_ );
+	titleText->SetText( titleStream.str() );
+	titleText->SetColour( TITLE_COLOUR );
 
-		// Organize layout.
-		layout->add( titleText );
-		layout->add( inventoryView_ );
-		layout->add( buttonLayout );
-		layout->add( excludedView_ );
-		layout->Pack();
-		layout->SetPosition( (GetWidth() - layout->GetWidth()) / 2.0f, 
-			(GetHeight() - layout->GetHeight()) / 2.0f );
-		user_layer_->add( layout );
+	// Organize layout.
+	layout->add( titleText );
+	layout->add( inventoryView_ );
+	layout->add( buttonLayout );
+	layout->add( excludedView_ );
+	layout->pack();
+	layout->set_position( (get_width() - layout->get_width()) / 2.0f, 
+		(get_height() - layout->get_height()) / 2.0f );
+	user_layer_->add( layout );
 
-		// Create item display.
-		itemDisplay_ = new ItemDisplay();
-		user_layer_->add( itemDisplay_ );
-
-		layoutCreated_ = true;
-	}
+	// Create item display.
+	itemDisplay_ = new ItemDisplay();
+	user_layer_->add( itemDisplay_ );
 }
 
-void ItemManager::RunApplication( void )
+void ItemManager::run( void )
 {
-	Application::RunApplication();
-	DoThink();
-	DrawFrame();
+	Application::run();
+	think();
+	draw_frame();
 }
 
-void ItemManager::SetThink( void (ItemManager::*thinkFunction)( void ) )
+void ItemManager::set_think( void (ItemManager::*thinkFunction)( void ) )
 {
 	thinkFunction_ = thinkFunction;
 }
 
-void ItemManager::DoThink()
+void ItemManager::think()
 {
 	(this->*thinkFunction_)();
 }
 
-void ItemManager::Loading()
+void ItemManager::loading()
 {
 	if (definitionLoader_ != nullptr) {
 		switch (definitionLoader_->get_state()){
 		case LOADING_STATE_ERROR:
 			// Show error first.
 			error_ = popups_->create_alert( definitionLoader_->get_progress_msg() );
-			error_->CenterTo( this );
 
 			// Remove threaded loader.
 			delete definitionLoader_;
 			definitionLoader_ = nullptr;
-			SetThink( &ItemManager::Exiting );
+			set_think( &ItemManager::exiting );
 			break;
 
 		case LOADING_STATE_FINISHED:
@@ -417,26 +429,25 @@ void ItemManager::Loading()
 			}
 			catch (const std::runtime_error& ex) {
 				error_ = popups_->create_alert( ex.what() );
-				error_->CenterTo( this );
-				SetThink( &ItemManager::Exiting );
+				set_think( &ItemManager::exiting );
 				break;
 			}
 
 			loadProgress_->SetMessage( "Waiting for Steam message..." );
-			loadProgress_->CenterTo( this );
+			loadProgress_->center_to( this );
 			break;
 
 		default:
 			definitionLoader_->update_progress_msg();
 			loadProgress_->SetMessage( definitionLoader_->get_progress_msg() );
-			loadProgress_->CenterTo( this );
+			loadProgress_->center_to( this );
 			break;
 		}
 	}
 	else {
-		HandleCallbacks();
-		if (backpack_ != nullptr && backpack_->IsLoaded()) {
-			SetThink( &ItemManager::Running );
+		handle_callback();
+		if (backpack_ != nullptr && backpack_->is_loaded()) {
+			set_think( &ItemManager::running );
 			popups_->remove_popup( loadProgress_ );
 #ifndef SORT_NOT_IMPLEMENTED
 			sortButton_->SetEnabled( true );
@@ -445,15 +456,15 @@ void ItemManager::Loading()
 	}
 }
 
-void ItemManager::Running()
+void ItemManager::running()
 {
-	HandleCallbacks();
+	handle_callback();
 	notifications_->UpdateNotifications();
-	inventoryView_->UpdateView();
-	UpdateItemDisplay();
+	inventoryView_->update_view();
+	update_item_display();
 }
 
-void ItemManager::Exiting()
+void ItemManager::exiting()
 {
 	// Just wait for exit.
 }
@@ -464,7 +475,7 @@ bool ItemManager::on_mouse_clicked( Mouse *mouse )
 	if (popups_->on_mouse_clicked( mouse )) {
 		return true;
 	}
-	else if (layoutCreated_) {
+	else {
 		if (draggedView_ != nullptr) {
 			return true;
 		}
@@ -473,11 +484,11 @@ bool ItemManager::on_mouse_clicked( Mouse *mouse )
 		bool touchedView = true;
 
 		// Attempt to get a slot.
-		if (mouse->IsTouching( inventoryView_ )) {
-			slotView = inventoryView_->GetTouchingSlot( mouse );
+		if (mouse->is_touching( inventoryView_ )) {
+			slotView = inventoryView_->get_touching_slot( mouse );
 		}
-		else if (mouse->IsTouching( excludedView_ )) {
-			slotView = excludedView_->GetTouchingSlot( mouse );
+		else if (mouse->is_touching( excludedView_ )) {
+			slotView = excludedView_->get_touching_slot( mouse );
 		}
 		else {
 			touchedView = false;
@@ -485,17 +496,17 @@ bool ItemManager::on_mouse_clicked( Mouse *mouse )
 
 		if (touchedView) {
 			if (slotView != nullptr) {
-				SlotClicked( slotView, mouse );
+				on_slot_clicked( slotView, mouse );
 				return true;
 			}
 		}
 		else if (!touchedView) {
 			// TODO: Set a 'clicked target' pointer so we can't just release on button and trigger.
-			if (mouse->IsTouching( craftButton_ ) ||
-				mouse->IsTouching( equipButton_ ) ||
-				mouse->IsTouching( sortButton_ ) ||
-				mouse->IsTouching( nextButton_ ) ||
-				mouse->IsTouching( prevButton_ )) {
+			if (mouse->is_touching( craftButton_ ) ||
+				mouse->is_touching( equipButton_ ) ||
+				mouse->is_touching( sortButton_ ) ||
+				mouse->is_touching( nextButton_ ) ||
+				mouse->is_touching( prevButton_ )) {
 					return true;
 			}
 			else if (notifications_->on_mouse_clicked( mouse )) {
@@ -504,9 +515,9 @@ bool ItemManager::on_mouse_clicked( Mouse *mouse )
 		}
 
 		// Deselect all, nothing clicked.
-		if (steamItems_->GetSelectMode() != SELECT_MODE_MULTIPLE) {
-			steamItems_->DeselectAll();
-			UpdateButtons();
+		if (steamItems_->get_select_mode() != SELECT_MODE_MULTIPLE) {
+			steamItems_->deselect_all();
+			update_buttons();
 		}
 	}
 
@@ -515,28 +526,33 @@ bool ItemManager::on_mouse_clicked( Mouse *mouse )
 
 bool ItemManager::on_mouse_released( Mouse *mouse )
 {
+	// Check top popup.
 	if (popups_->on_mouse_released( mouse )) {
 		return true;
 	}
 	else {
-		if (layoutCreated_) {
-			if (draggedView_ != nullptr) {
-				SlotView* slotView = inventoryView_->GetTouchingSlot( mouse );
-				SlotReleased( slotView );
+		// Release slot if dragging.
+		if (draggedView_ != nullptr) {
+			SlotView* slotView = inventoryView_->get_touching_slot( mouse );
+			on_slot_released( slotView );
+		}
+		else {
+			// Handle buttons.
+			if (craftButton_->on_mouse_released( mouse )) {
+				if (steamItems_->is_selected_tradable()) {
+					steamItems_->craft_selected();
+				}
+				else {
+					craft_check_ = popups_->create_confirmation( "One or more of the items you've selected are not tradable. The result will not be tradable. Continue?" );
+				}
 			}
-			else {
-				if (craftButton_->on_mouse_released( mouse )) {
-					steamItems_->CraftSelected();
-					UpdateButtons();
-				}
-				else if (nextButton_->on_mouse_released( mouse )) {
-					inventoryView_->NextPage();
-					UpdatePageDisplay();
-				}
-				else if (prevButton_->on_mouse_released( mouse )) {
-					inventoryView_->PreviousPage();
-					UpdatePageDisplay();
-				}
+			else if (nextButton_->on_mouse_released( mouse )) {
+				inventoryView_->next_page();
+				update_page_display();
+			}
+			else if (prevButton_->on_mouse_released( mouse )) {
+				inventoryView_->previous_page();
+				update_page_display();
 			}
 		}
 	}
@@ -548,71 +564,73 @@ bool ItemManager::on_mouse_moved( Mouse *mouse )
 {
 	// Update buttons.
 	// TODO: Have a button frame mouse hover state.
-	if (layoutCreated_) {
-		itemDisplay_->SetItem( nullptr );
+	itemDisplay_->set_item( nullptr );
 
-		craftButton_->on_mouse_moved( mouse );
-		equipButton_->on_mouse_moved( mouse );
-		sortButton_->on_mouse_moved( mouse );
-		nextButton_->on_mouse_moved( mouse );
-		prevButton_->on_mouse_moved( mouse );
-	}
+	// Move over all buttons.
+	craftButton_->on_mouse_moved( mouse );
+	equipButton_->on_mouse_moved( mouse );
+	sortButton_->on_mouse_moved( mouse );
+	nextButton_->on_mouse_moved( mouse );
+	prevButton_->on_mouse_moved( mouse );
 
 	// Pass to highest popup.
 	if (popups_->on_mouse_moved( mouse )) {
 		return true;
 	}
-	else if (layoutCreated_) {
+	else {
 		// Check if dragging.
 		if (draggedView_ != nullptr) {
 			draggedView_->on_mouse_moved( mouse );
-			ClampChild( draggedView_ );
+			clamp_child( draggedView_ );
 
 			// Check if we're switching page.
 			DWORD currentTick = GetTickCount();
 			if (currentTick > pageDelay_) {
-				if (draggedView_->GetX() <= 0.0f) {
-					if (inventoryView_->PreviousPage()) {
+				if (draggedView_->get_x() <= 0.0f) {
+					if (inventoryView_->previous_page()) {
 						pageDelay_ = currentTick + PAGE_DELAY_INTERVAL;
 					}
 
-					UpdatePageDisplay();
+					update_page_display();
 				}
-				else if (draggedView_->GetX() + draggedView_->GetWidth() >= GetWidth()) {
-					if (inventoryView_->NextPage()) {
+				else if (draggedView_->get_x() + draggedView_->get_width() >= get_width()) {
+					if (inventoryView_->next_page()) {
 						pageDelay_ = currentTick + PAGE_DELAY_INTERVAL;
 					}
 
-					UpdatePageDisplay();
+					update_page_display();
 				}
 			}	
 		}
 		else {
+			// Check if we've hovering over an slot view.
 			SlotView* slotView = nullptr;
-			if (mouse->IsTouching( inventoryView_ )) {
-				slotView = inventoryView_->GetTouchingSlot( mouse );
+			if (mouse->is_touching( inventoryView_ )) {
+				slotView = inventoryView_->get_touching_slot( mouse );
 			}
-			else if (mouse->IsTouching( excludedView_ )) {
-				slotView = excludedView_->GetTouchingSlot( mouse );
+			else if (mouse->is_touching( excludedView_ )) {
+				slotView = excludedView_->get_touching_slot( mouse );
 			}
 			else {
 				return false;
 			}
 			
+			// Did we get one?
 			if (slotView != nullptr) {
-				Slot* slot = slotView->GetSlot();
-				if (slot->HasItem()) {
-					itemDisplay_->SetItem( slot->GetItem() );
-					float displayX = slotView->GetX() + (slotView->GetWidth() - itemDisplay_->GetWidth()) / 2.0f;
-					float displayY = slotView->GetY() + slotView->GetHeight() + ITEM_DISPLAY_SPACING;
-					if (displayY + itemDisplay_->GetHeight() > GetHeight()) {
-						displayY = slotView->GetY() - itemDisplay_->GetHeight() - ITEM_DISPLAY_SPACING;
+				Slot* slot = slotView->get_slot();
+				// Only display for full slots.
+				if (slot->has_item()) {
+					itemDisplay_->set_item( slot->get_item() );
+					float displayX = slotView->get_x() + (slotView->get_width() - itemDisplay_->get_width()) / 2.0f;
+					float displayY = slotView->get_y() + slotView->get_height() + ITEM_DISPLAY_SPACING;
+					if (displayY + itemDisplay_->get_height() > get_height()) {
+						displayY = slotView->get_y() - itemDisplay_->get_height() - ITEM_DISPLAY_SPACING;
 					}
 
-					itemDisplay_->SetPosition(
+					itemDisplay_->set_position(
 						static_cast<float>(displayX),
 						static_cast<float>(displayY) );
-					ClampChild( itemDisplay_, static_cast<float>(PADDING) );
+					clamp_child( itemDisplay_, static_cast<float>(PADDING) );
 				}
 			}
 		}
@@ -623,57 +641,57 @@ bool ItemManager::on_mouse_moved( Mouse *mouse )
 	return false;
 }
 
-void ItemManager::SlotClicked( SlotView* slotView, Mouse* mouse )
+void ItemManager::on_slot_clicked( SlotView* slotView, Mouse* mouse )
 {
-	Slot* slot = slotView->GetSlot();
-	if (slot->HasItem()) {
-		switch (steamItems_->GetSelectMode()) {
+	Slot* slot = slotView->get_slot();
+	if (slot->has_item()) {
+		switch (steamItems_->get_select_mode()) {
 		case SELECT_MODE_SINGLE:
 			{
 				assert( draggedView_ == nullptr );
-				Item* item = slot->GetItem();
-				steamItems_->DeselectAll();
+				Item* item = slot->get_item();
+				steamItems_->deselect_all();
 
 				// Start dragging.
 				dragTarget_ = slotView;
-				float viewX = slotView->GetX();
-				float viewY = slotView->GetY();
+				float viewX = slotView->get_x();
+				float viewY = slotView->get_y();
 				draggedView_ = new DraggedSlotView( new Slot );
-				draggedView_->SetPosition( viewX, viewY );
-				draggedView_->SetOffset( viewX - mouse->GetX(), viewY - mouse->GetY() );
-				draggedView_->SetAlpha( 200 );
-				steamItems_->Select( draggedView_ );
+				draggedView_->set_position( viewX, viewY );
+				draggedView_->SetOffset( viewX - mouse->get_x(), viewY - mouse->get_y() );
+				draggedView_->set_alpha( 200 );
+				steamItems_->select( draggedView_ );
 
 				// Swap items.
-				draggedView_->GetSlot()->SetItem( item );
-				slot->SetItem( nullptr );
+				draggedView_->get_slot()->set_item( item );
+				slot->set_item( nullptr );
 
 				add( draggedView_ );
 				break;
 			}
 
 		case SELECT_MODE_MULTIPLE:
-			steamItems_->ToggleSelect( slotView );
+			steamItems_->toggle_select( slotView );
 			break;
 		}
 	}
-	else if (steamItems_->GetSelectMode() != SELECT_MODE_MULTIPLE) {
-		steamItems_->DeselectAll();
+	else if (steamItems_->get_select_mode() != SELECT_MODE_MULTIPLE) {
+		steamItems_->deselect_all();
 	}
 
-	UpdateButtons();
+	update_buttons();
 }
 
-void ItemManager::SlotReleased( SlotView* slotView )
+void ItemManager::on_slot_released( SlotView* slotView )
 {
-	Slot* draggedSlot = draggedView_->GetSlot();
-	Item* draggedItem = draggedSlot->GetItem();
-	backpack_->RemoveItem( draggedItem );
-	steamItems_->DeselectAll();
+	Slot* draggedSlot = draggedView_->get_slot();
+	Item* draggedItem = draggedSlot->get_item();
+	backpack_->remove_item( draggedItem );
+	steamItems_->deselect_all();
 
 	// Move back if not excluded.
 	bool isExcluded = !backpack_->CanInsert( draggedItem );
-	Slot* targetSlot = dragTarget_->GetSlot();
+	Slot* targetSlot = dragTarget_->get_slot();
 
 	// Delete temporary dragged.
 	SlotView* selectTarget = dragTarget_;
@@ -685,32 +703,32 @@ void ItemManager::SlotReleased( SlotView* slotView )
 	bool toInventory = false;
 	if (slotView != nullptr) {
 		// Now try move slot.
-		Slot* touchedSlot = slotView->GetSlot();
-		if (touchedSlot->HasItem()) {
-			Item* touchedItem = touchedSlot->GetItem();
+		Slot* touchedSlot = slotView->get_slot();
+		if (touchedSlot->has_item()) {
+			Item* touchedItem = touchedSlot->get_item();
 			if (!isExcluded && targetSlot != touchedSlot) {
 				// Swap slots.
-				targetSlot->SetItem( touchedItem );
-				touchedSlot->SetItem( draggedItem );
-				draggedItem->SetPosition( draggedItem->GetIndex() );
-				touchedItem->SetPosition( touchedItem->GetIndex() );
-				steamItems_->UpdateItem( touchedItem );
-				steamItems_->UpdateItem( draggedItem );
+				targetSlot->set_item( touchedItem );
+				touchedSlot->set_item( draggedItem );
+				draggedItem->set_position( draggedItem->get_index() );
+				touchedItem->set_position( touchedItem->get_index() );
+				steamItems_->update_item( touchedItem );
+				steamItems_->update_item( draggedItem );
 				selectTarget = slotView;
 				toInventory = true;
 			}
 		}
 		else {
-			targetSlot->SetItem( nullptr );
-			touchedSlot->SetItem( draggedItem );
-			draggedItem->SetPosition( draggedItem->GetIndex() );
-			steamItems_->UpdateItem( draggedItem );
+			targetSlot->set_item( nullptr );
+			touchedSlot->set_item( draggedItem );
+			draggedItem->set_position( draggedItem->get_index() );
+			steamItems_->update_item( draggedItem );
 			selectTarget = slotView;
 			toInventory = true;
 		}
 	}
 	else if (!isExcluded) {
-		targetSlot->SetItem( draggedItem );
+		targetSlot->set_item( draggedItem );
 		toInventory = true;
 	}
 
@@ -722,25 +740,25 @@ void ItemManager::SlotReleased( SlotView* slotView )
 		backpack_->ToExcluded( draggedItem );
 	}
 
-	steamItems_->Select( selectTarget );
-	backpack_->UpdateExcluded();
-	UpdateButtons();
+	steamItems_->select( selectTarget );
+	backpack_->update_excluded();
+	update_buttons();
 }
 
-void ItemManager::UpdateButtons()
+void ItemManager::update_buttons()
 {
-	unsigned int selectedCount = steamItems_->GetSelectedCount();
+	unsigned int selectedCount = steamItems_->get_selected_count();
 	craftButton_->SetEnabled( selectedCount != 0 );
 
 #ifndef EQUIP_NOT_IMPLEMENTED
-	equipButton_->SetEnabled( steamItems_->CanEquipSelected() );
+	equipButton_->SetEnabled( steamItems_->can_equip_selected() );
 #endif
 }
 
-void ItemManager::HandleKeyboard( void )
+void ItemManager::handle_keyboard( void )
 {
 	if (IsKeyPressed( VK_ESCAPE )) {
-		ExitApplication();
+		exit_application();
 	}
 	else {
 		if (IsKeyClicked( VK_RETURN )) {
@@ -748,44 +766,44 @@ void ItemManager::HandleKeyboard( void )
 		}
 		else {
 			if (IsKeyClicked( VK_CONTROL )) {
-				steamItems_->SetSelectMode( SELECT_MODE_MULTIPLE );
+				steamItems_->set_select_mode( SELECT_MODE_MULTIPLE );
 			}
 			else if (this->IsKeyReleased( VK_CONTROL )) {
-				steamItems_->SetSelectMode( SELECT_MODE_SINGLE );
+				steamItems_->set_select_mode( SELECT_MODE_SINGLE );
 			}
 	
 			if (IsKeyClicked( VK_RIGHT )) {
-				inventoryView_->NextPage();
-				UpdatePageDisplay();
+				inventoryView_->next_page();
+				update_page_display();
 			}
 			else if (IsKeyClicked( VK_LEFT )) {
-				inventoryView_->PreviousPage();
-				UpdatePageDisplay();
+				inventoryView_->previous_page();
+				update_page_display();
 			}
 		}		
 	}
 }
 
-void ItemManager::UpdateItemDisplay( void )
+void ItemManager::update_item_display( void )
 {
 	itemDisplay_->UpdateAlpha();
 }
 
-void ItemManager::UpdatePageDisplay( void )
+void ItemManager::update_page_display( void )
 {
 	// Update text.
 	stringstream pageText;
-	pageText << (inventoryView_->GetPageIndex() + 1) << '/' << inventoryView_->GetPageCount();
+	pageText << (inventoryView_->get_page_index() + 1) << '/' << inventoryView_->get_page_count();
 	pageDisplay_->SetText( pageText.str() );
 
 	// Update buttons.
-	unsigned int pageIndex = inventoryView_->GetPageIndex();
-	unsigned int lastIndex = inventoryView_->GetPageCount() - 1;
+	unsigned int pageIndex = inventoryView_->get_page_index();
+	unsigned int lastIndex = inventoryView_->get_page_count() - 1;
 	prevButton_->SetEnabled( pageIndex != 0 );
 	nextButton_->SetEnabled( pageIndex != lastIndex );
 }
 
-void ItemManager::LoadDefinitions( void )
+void ItemManager::load_definitions( void )
 {
 	// Set the message and redraw.
 	loadProgress_->SetMessage("Loading item definitions...");
@@ -795,10 +813,10 @@ void ItemManager::LoadDefinitions( void )
 	definitionLoader_->begin();
 }
 
-void ItemManager::LoadItemsFromWeb( void )
+void ItemManager::load_items_from_web( void )
 {
 	loadProgress_->AppendMessage("\n\nLoading items...");
-	DrawFrame();
+	draw_frame();
 
 	uint64 userId = steamItems_->get_steam_id();
 	stringstream urlStream;
@@ -817,12 +835,12 @@ void ItemManager::LoadItemsFromWeb( void )
 
 	// Show success.
 	loadProgress_->SetMessage("Items successfully loaded!");
-	DrawFrame();
+	draw_frame();
 
-	backpack_->SetLoaded( true );
+	backpack_->set_loaded( true );
 }
 
-bool ItemManager::IsLatestVersion() const
+bool ItemManager::is_latest_version() const
 {
 	// Check for program updates.
 	try {
@@ -837,7 +855,7 @@ bool ItemManager::IsLatestVersion() const
 	return true;
 }
 
-void ItemManager::LaunchUpdater() const
+void ItemManager::launch_updater() const
 {
 	// TODO: Make an error type enum and launch this on update error.
 	int result = (int)ShellExecute( 0, 0, "auto_updater.exe", 0, 0, SW_SHOWDEFAULT );
@@ -859,45 +877,7 @@ void ItemManager::LaunchUpdater() const
 	}
 }
 
-bool ItemManager::IsTF2Running() const
-{
-	PROCESSENTRY32 entry;
-	entry.dwSize = sizeof( PROCESSENTRY32 );
-	HANDLE snapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
-	if (Process32First( snapshot, &entry )) {
-		while (Process32Next( snapshot, &entry )) {
-			if (strcmp( entry.szExeFile, "hl2.exe" ) == 0) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-bool ItemManager::IsManagerRunning() const
-{
-	PROCESSENTRY32 entry;
-	entry.dwSize = sizeof( PROCESSENTRY32 );
-	HANDLE snapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
-	bool foundFirst = false;
-	if (Process32First( snapshot, &entry )) {
-		while (Process32Next( snapshot, &entry )) {
-			if (strcmp( entry.szExeFile, "item_manager.exe" ) == 0) {
-				if (foundFirst) {
-					return true;
-				}
-				else {
-					foundFirst = true;
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
-void ItemManager::HandleCallbacks( void ) {
+void ItemManager::handle_callback( void ) {
 	CallbackMsg_t callback;
 	if ( steamItems_->get_callback( &callback ) ) {
 		switch (callback.m_iCallback) {
@@ -927,7 +907,7 @@ void ItemManager::HandleCallbacks( void ) {
 #ifdef _DEBUG
 						stringstream protoMsg;
 						protoMsg << "Protobuf message of type " << realId << " received.";
-						notifications_->AddNotification( protoMsg.str(), nullptr );
+						notifications_->add_notification( protoMsg.str(), nullptr );
 #endif
 
 						// Now get the real protobuf header.
@@ -943,10 +923,10 @@ void ItemManager::HandleCallbacks( void ) {
 						}
 
 						uint32 bodySize = size - sizeof( GCProtobufHeader_t ) - headerSize;
-						HandleProtobuf( realId, headerBuffer.here(), bodySize );
+						handle_protobuf( realId, headerBuffer.here(), bodySize );
 					}
 					else {
-						HandleMessage( id, buffer, size );
+						handle_message( id, buffer, size );
 					}
 
 					if (buffer != nullptr) {
@@ -961,14 +941,14 @@ void ItemManager::HandleCallbacks( void ) {
 	} 
 }
 
-void ItemManager::HandleMessage( uint32 id, void* message, size_t size )
+void ItemManager::handle_message( uint32 id, void* message, size_t size )
 {
 	switch (id) {
 		case GCCraftResponse_t::k_iMessage:
 		{
 			GCCraftResponse_t *craftMsg = static_cast<GCCraftResponse_t*>(message);
 			if (craftMsg->blueprint == 0xffff) {
-				notifications_->AddNotification( "Crafting failed. No such blueprint!", nullptr );
+				notifications_->add_notification( "Crafting failed. No such blueprint!", nullptr );
 			}
 
 			break;
@@ -976,9 +956,7 @@ void ItemManager::HandleMessage( uint32 id, void* message, size_t size )
 	}
 }
 
-#include <fstream>
-
-void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
+void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 {
 
 #ifdef _DEBUG
@@ -991,25 +969,19 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 	switch (id) {
 	case k_ESOMsg_CacheSubscribed:
 		{
-			bool first_cache = (backpack_ == nullptr);
-			if (first_cache) {
-				backpack_ = new Backpack( EXCLUDED_SIZE );
-			}
-			else {
-				backpack_->RemoveSlots();
-				backpack_->EmptySlots();
-			}
-
-			// Create empty backpack.
+			// Get message.
 			CMsgSOCacheSubscribed subscribedMsg;
 			subscribedMsg.ParseFromArray( message, size );
 			steamItems_->set_version( subscribedMsg.version() );
-			unsigned int slotCount = PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT;
 
 			// Check that this is our backpack.
 			if (subscribedMsg.owner() != steamItems_->get_steam_id()) {
 				break;
 			}
+
+			// Empty backpack.
+			backpack_->empty_slots();
+			backpack_->remove_items();
 								
 			// Add items.
 			for (int i = 0; i < subscribedMsg.objects_size(); i++) {
@@ -1031,6 +1003,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 									econItem.inventory(),
 									econItem.origin() );
 
+								// Add the item's attributes.
 								for (int j = 0; j < econItem.attribute_size(); ++j) {
 									const CSOEconItemAttribute& attribute = econItem.attribute( j );
 									uint32 attrib_index = attribute.def_index();
@@ -1044,10 +1017,10 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 								}
 
 								if (econItem.has_custom_name()) {
-									item->SetCustomName( econItem.custom_name() );
+									item->set_custom_name( econItem.custom_name() );
 								}
 
-								backpack_->InsertItem( item );
+								backpack_->insert_item( item );
 							}
 						}
 
@@ -1057,21 +1030,28 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 					{
 						if (steamItems_->get_steam_id() == subscribedMsg.owner()) {
 							// TODO: Handle backpack expansions.
-							if (first_cache) {
-								for (int i = 0; i < subscribedType.object_data_size(); i++) {
-									CSOEconGameAccountClient gameAccountClient;
-									gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
+							for (int i = 0; i < subscribedType.object_data_size(); i++) {
+								CSOEconGameAccountClient gameAccountClient;
+								gameAccountClient.ParseFromArray( subscribedType.object_data( i ).data(), subscribedType.object_data( i ).size() );
 
-									// Adjust slot count based on account type and slot additions.
-									if (gameAccountClient.trial_account()) {
-										backpack_->AddSlots( PAGE_WIDTH * PAGE_HEIGHT * TRIAL_PAGE_COUNT );
-									}
-									else {
-										backpack_->AddSlots( PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT );
-									}
-
-									backpack_->AddSlots( gameAccountClient.additional_backpack_slots() );
+								// Check how many slots this backpack is supposed to have.
+								unsigned int slots = gameAccountClient.additional_backpack_slots();
+								if (gameAccountClient.trial_account()) {
+									slots += PAGE_WIDTH * PAGE_HEIGHT * TRIAL_PAGE_COUNT;
 								}
+								else {
+									slots += PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT;
+								}
+
+								if (slots < backpack_->GetInventorySize()) {
+									throw std::runtime_error( "New backpack size smaller than old." );
+								}
+
+								// Add the newer slots.
+								unsigned int added_slots = slots - backpack_->GetInventorySize();
+								backpack_->add_slots( added_slots );
+								inventoryView_->add_pages( backpack_->get_inventory_slots() );
+								update_page_display();
 							}
 						}
 
@@ -1081,15 +1061,12 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			}
 
 			// Attempt to place all excluded items.
-			backpack_->ResolveExcluded();
-			backpack_->UpdateExcluded();
-			backpack_->SetLoaded( true );
+			backpack_->resolve_excluded();
+			backpack_->update_excluded();
+			backpack_->set_loaded( true );
 
 			// Create layout if this is the first cache.
-			if (first_cache) {
-				CreateLayout();
-				notifications_->AddNotification( "Backpack successfully loaded from Steam.", nullptr );
-			}
+			notifications_->add_notification( "Backpack successfully loaded from Steam.", nullptr );
 
 			break;
 		}
@@ -1129,9 +1106,9 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 				}
 
 				// Place item into excluded, to be resolved later.
-				backpack_->RemoveItem( item );
+				backpack_->remove_item( item );
 				backpack_->ToExcluded( item );
-				item->SetFlags( econItem.inventory() );
+				item->set_flags( econItem.inventory() );
 			}
 
 			break;
@@ -1156,14 +1133,14 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 					}
 
 					// Place item into excluded, to be resolved later.
-					backpack_->RemoveItem( item );
+					backpack_->remove_item( item );
 					backpack_->ToExcluded( item );
-					item->SetFlags( econItem.inventory() );
+					item->set_flags( econItem.inventory() );
 				}
 			}
 
 			// Attempt to reposition excluded slots.
-			backpack_->ResolveExcluded();
+			backpack_->resolve_excluded();
 			break;
 		}
 
@@ -1195,8 +1172,8 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 				econItem.origin() );
 
 			// Add this item to excluded.
-			backpack_->InsertItem( newItem );
-			backpack_->UpdateExcluded();
+			backpack_->insert_item( newItem );
+			backpack_->update_excluded();
 			
 			// Get the source.
 			string source;
@@ -1208,7 +1185,7 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			}
 
 			// Display message.
-			notifications_->AddNotification( "You have " + source + " a " + newItem->GetName() + ".", newItem->GetTexture() );
+			notifications_->add_notification( "You have " + source + " a " + newItem->get_name() + ".", newItem->get_texture() );
 
 			break;
 		}
@@ -1227,13 +1204,13 @@ void ItemManager::HandleProtobuf( uint32 id, void* message, size_t size )
 			// Now remove from inventory.
 			Item *targettedItem = backpack_->GetItemByUniqueId( deletedItem.id() );
 			if (targettedItem != nullptr) {
-				backpack_->RemoveItem( targettedItem );
+				backpack_->remove_item( targettedItem );
 
 				// Make sure the deleted item isn't being dragged.
 				if (draggedView_ != nullptr) {
-					Slot* draggedSlot = draggedView_->GetSlot();
-					if (draggedSlot->HasItem()) {
-						Item* item = draggedSlot->GetItem();
+					Slot* draggedSlot = draggedView_->get_slot();
+					if (draggedSlot->has_item()) {
+						Item* item = draggedSlot->get_item();
 						if (item == targettedItem) {
 							remove( draggedView_ );
 							delete draggedView_;
@@ -1259,12 +1236,18 @@ void ItemManager::on_popup_clicked( Popup* popup )
 
 void ItemManager::on_popup_released( Popup* popup )
 {
-	// Exit application if error is killed.
-	if (popup == error_) {
-		if (error_->GetState() == POPUP_STATE_KILLED) {
-			ExitApplication();
+	// Exited popup handling.
+	if (popup->is_killed()) {
+		if (popup == error_) {
+			exit_application();
 		}
-	}
+		else if (popup == craft_check_) {
+			if (craft_check_->get_response() == RESPONSE_YES) {
+				steamItems_->craft_selected();
+				update_buttons();
+			}
+		}
+	}		
 }
 
 void ItemManager::on_popup_key_pressed( Popup* popup )
@@ -1276,8 +1259,8 @@ void ItemManager::on_popup_key_released( Popup* popup )
 {
 	// Exit application if error is killed.
 	if (popup == error_) {
-		if (error_->GetState() == POPUP_STATE_KILLED) {
-			ExitApplication();
+		if (error_->get_state() == POPUP_STATE_KILLED) {
+			exit_application();
 		}
 	}
 }

@@ -11,11 +11,11 @@ Window::Window( HINSTANCE hInstance,
 	width_ = width;
 	height_ = height;
 
-	if (!registerClass( hInstance )) {
+	if (!register_class( hInstance )) {
 		throw std::runtime_error( "Failed to register class." );
 	}
 
-	createWindow( hInstance );
+	create_window( hInstance );
 }
 
 Window::~Window()
@@ -23,7 +23,7 @@ Window::~Window()
 	//Window has been destroyed.
 }
 
-bool Window::registerClass( HINSTANCE hInstance )
+bool Window::register_class( HINSTANCE hInstance )
 {
 	WNDCLASS wndCls;
 
@@ -43,21 +43,21 @@ bool Window::registerClass( HINSTANCE hInstance )
 	return RegisterClass( &wndCls ) != 0;
 }
 
-void Window::createWindow(HINSTANCE hInstance)
+void Window::create_window(HINSTANCE hInstance)
 {
 	// Get screen resolution to center window.
 	RECT screenRect;
 	GetWindowRect( GetDesktopWindow(), &screenRect );
 
-	int x = (screenRect.right - GetWidth()) / 2;
-	int y = (screenRect.bottom - GetHeight()) / 2;
+	int x = (screenRect.right - get_width()) / 2;
+	int y = (screenRect.bottom - get_height()) / 2;
 
 	// Adjust bounds based on style.
 	RECT windowRect;
 	windowRect.left	= 0;
 	windowRect.top = 0;
-	windowRect.right = GetWidth();
-	windowRect.bottom = GetHeight();
+	windowRect.right = get_width();
+	windowRect.bottom = get_height();
 
 	// Adjust size for style.
 	DWORD displayStyle = WS_CAPTION | WS_SYSMENU;
@@ -84,22 +84,22 @@ void Window::createWindow(HINSTANCE hInstance)
 	UpdateWindow( hWnd_ );
 }
 
-bool Window::isActive()
+bool Window::is_active()
 {
 	return (GetFocus() == hWnd_);
 }
 
-int Window::GetWidth() const
+int Window::get_width() const
 {
 	return width_;
 }
 
-int Window::GetHeight() const
+int Window::get_height() const
 {
 	return height_;
 }
 
-HWND Window::getHandle() const
+HWND Window::get_handle() const
 {
 	return hWnd_;
 }

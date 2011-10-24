@@ -11,9 +11,9 @@ public:
 
 	HorizontalSplitLayout( int width, unsigned int spacing = 0 );
 
-	virtual void Pack();
-	void AddLeft( Component* component );
-	void AddRight( Component* component );
+	virtual void pack();
+	void add_left( Component* component );
+	void add_right( Component* component );
 
 private:
 

@@ -37,27 +37,27 @@ const float EQUIPPED_PADDING					= 5;
 SlotView::SlotView( Slot* slot )
 {
 	slot_ = slot;
-	SetSelected( false );
+	set_selected( false );
 
 	// Image of slot.
-	slotImage_ = new Image( normalSlot_->GetTexture() );
-	slotImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
+	slotImage_ = new Image( normalSlot_->get_texture() );
+	slotImage_->set_size( SLOT_WIDTH, SLOT_HEIGHT );
 	add( slotImage_ );
-	SetConstraint( slotImage_, 0.0f, 0.0f );
+	set_constraint( slotImage_, 0.0f, 0.0f );
 
 	// Image of item.
 	itemImage_ = new Image( nullptr );
-	itemImage_->SetSize( ITEM_SIZE, ITEM_SIZE );
+	itemImage_->set_size( ITEM_SIZE, ITEM_SIZE );
 	add( itemImage_ );
-	SetConstraint( itemImage_, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, (SLOT_HEIGHT - ITEM_SIZE) / 2.0f );
+	set_constraint( itemImage_, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, (SLOT_HEIGHT - ITEM_SIZE) / 2.0f );
 
 	// Image of quality stroke.
 	strokeImage_ = new Image( nullptr );
-	strokeImage_->SetSize( SLOT_WIDTH, SLOT_HEIGHT );
+	strokeImage_->set_size( SLOT_WIDTH, SLOT_HEIGHT );
 	add( strokeImage_ );
-	SetConstraint( strokeImage_, 0.0f, 0.0f );
+	set_constraint( strokeImage_, 0.0f, 0.0f );
 
-	SetSize( SLOT_WIDTH, SLOT_HEIGHT );
+	set_size( SLOT_WIDTH, SLOT_HEIGHT );
 }
 
 #include <sstream>
@@ -65,56 +65,56 @@ SlotView::SlotView( Slot* slot )
 void SlotView::Update()
 {
 	// Update slot image.
-	slotImage_->SetTexture( (IsSelected() ? selectedSlot_ : normalSlot_)->GetTexture() );
+	slotImage_->set_texture( (is_selected() ? selectedSlot_ : normalSlot_)->get_texture() );
 
 	// Get stroke and item texture.
 	const Texture* itemTexture = nullptr;
-	if (slot_->HasItem()) {
-		Item* item = slot_->GetItem();
-		itemTexture = item->GetTexture();
-		strokeImage_->SetTexture( stroke_->GetTexture() );
-		strokeImage_->SetTint( item->GetQualityColour() );
+	if (slot_->has_item()) {
+		Item* item = slot_->get_item();
+		itemTexture = item->get_texture();
+		strokeImage_->set_texture( stroke_->get_texture() );
+		strokeImage_->set_tint( item->get_qualityColour() );
 	}
 	else {
-		strokeImage_->SetTexture( nullptr );
+		strokeImage_->set_texture( nullptr );
 	}
 	
-	itemImage_->SetTexture( itemTexture );
+	itemImage_->set_texture( itemTexture );
 }
 
-void SlotView::Draw( Graphics2D* graphics )
+void SlotView::draw( Graphics2D* graphics )
 {
 	Update();
-	Container::Draw( graphics );
+	Container::draw( graphics );
 
 	// Draw equipped text.
-	if (slot_->HasItem()) {
-		Item* item = slot_->GetItem();
-		if (item->IsEquipped()) {
-			equippedText_->SetPosition( 
-				GetX() + GetWidth() - equippedText_->GetWidth() - EQUIPPED_PADDING, 
-				GetY() + GetHeight() - equippedText_->GetHeight() - EQUIPPED_PADDING );
-			equippedText_->Draw( graphics );
+	if (slot_->has_item()) {
+		Item* item = slot_->get_item();
+		if (item->is_equipped()) {
+			equippedText_->set_position( 
+				get_x() + get_width() - equippedText_->get_width() - EQUIPPED_PADDING, 
+				get_y() + get_height() - equippedText_->get_height() - EQUIPPED_PADDING );
+			equippedText_->draw( graphics );
 		}
 	}
 }
 
-Slot* SlotView::GetSlot() const
+Slot* SlotView::get_slot() const
 {
 	return slot_;
 }
 
-void SlotView::SetSelected( bool isSelected )
+void SlotView::set_selected( bool is_selected )
 {
-	isSelected_ = isSelected;
+	is_selected_ = is_selected;
 }
 
-bool SlotView::IsSelected() const
+bool SlotView::is_selected() const
 {
-	return isSelected_;
+	return is_selected_;
 }
 
-void SlotView::Precache( Graphics2D* graphics )
+void SlotView::precache( Graphics2D* graphics )
 {
 	// Create rounded rectangles.
 	normalSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );

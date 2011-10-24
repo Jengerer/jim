@@ -17,18 +17,18 @@ public:
 	RoundedRectangle( int width, int height, int radius, const Colour& colour );
 	virtual ~RoundedRectangle( void );
 
-	virtual void	Draw( Graphics2D* graphics );
+	virtual void	draw( Graphics2D* graphics );
 
 	void			SetStroke( int size, const Colour& colour );
 	void			SetStrokeType( EStrokeType strokeType );
 	const Colour&	GetColour( void ) const;
 	void			SetColour( const Colour& colour );
-	virtual void	SetSize( int width, int height );
+	virtual void	set_size( int width, int height );
 	void			SetCornerRadius( int radius );
 
 	// TODO: Maybe make Generate protected, but a friend of IPrecachable.
 	void			Generate( Graphics2D* graphics );
-	Texture*		GetTexture( void ) const;
+	Texture*		get_texture( void ) const;
 	void			RemoveTexture( void );
 
 private:

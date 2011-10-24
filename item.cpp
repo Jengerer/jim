@@ -14,17 +14,17 @@ Item::Item(
 	uint32 origin )
 {
 	// Set basic attributes.
-	SetUniqueId( uniqueId );
-	SetTypeIndex( typeIndex );
-	SetLevel( level );
-	SetQuality( quality );
-	SetCount( count );
-	SetFlags( flags );
-	SetIndex( GetPosition() );
-	SetOrigin( origin );
+	set_unique_id( uniqueId );
+	set_type_index( typeIndex );
+	set_level( level );
+	set_quality( quality );
+	set_count( count );
+	set_flags( flags );
+	set_index( get_position() );
+	set_origin( origin );
 
 	// Get item information.
-	GetItemInformation();
+	get_item_information();
 }
 
 Item::~Item( void )
@@ -35,10 +35,10 @@ Item::~Item( void )
 	}
 }
 
-void Item::GetItemInformation( void )
+void Item::get_item_information( void )
 {
 	// Attempt to find item information.
-	InformationMap::iterator i = definitions.find( GetTypeIndex() );
+	InformationMap::iterator i = definitions.find( get_type_index() );
 	if (i != definitions.end()) {
 		information_ = i->second;
 	}
@@ -47,55 +47,55 @@ void Item::GetItemInformation( void )
 	}
 
 	// Load attributes from class definition.
-	for (size_t i = 0, len = information_->GetAttributeCount(); i < len; ++i) {
+	for (size_t i = 0, len = information_->get_attribute_count(); i < len; ++i) {
 		const Attribute* orig = information_->GetAttribute( i );
 		add_attribute( new Attribute( *orig ) );
 	}
 }
 
-uint64 Item::GetUniqueId( void ) const
+uint64 Item::get_unique_id( void ) const
 {
 	return uniqueId_;
 }
 
-uint16 Item::GetTypeIndex( void ) const
+uint16 Item::get_type_index( void ) const
 {
 	return typeIndex_;
 }
 
-uint8 Item::GetLevel( void ) const
+uint8 Item::get_level( void ) const
 {
 	return level_;
 }
 
-EItemQuality Item::GetQuality( void ) const
+EItemQuality Item::get_quality( void ) const
 {
 	return quality_;
 }
 
-uint32 Item::GetFlags( void ) const
+uint32 Item::get_flags( void ) const
 {
 	return flags_;
 }
 
-uint32 Item::GetCount( void ) const
+uint32 Item::get_count( void ) const
 {
 	return count_;
 }
 
-uint32 Item::GetOrigin( void ) const
+uint32 Item::get_origin( void ) const
 {
 	return origin_;
 }
 
-std::string Item::GetName( void ) const
+std::string Item::get_name( void ) const
 {
-	if (HasCustomName()) {
-		return '"' + GetCustomName() + '"';
+	if (has_custom_name()) {
+		return '"' + get_custom_name() + '"';
 	}
 	else {
-		std::string itemName = information_->GetName();
-		std::string qualityName = GetQualityName();
+		std::string itemName = information_->get_name();
+		std::string qualityName = get_qualityName();
 		if (!qualityName.empty()) {
 			std::string fullPrefix = qualityName + ' ';
 			itemName.insert( itemName.begin(), fullPrefix.begin(), fullPrefix.end() );
@@ -105,9 +105,9 @@ std::string Item::GetName( void ) const
 	}
 }
 
-const Colour& Item::GetQualityColour( void ) const
+const Colour& Item::get_qualityColour( void ) const
 {
-	switch (GetQuality()) {
+	switch (get_quality()) {
 	case k_EItemQuality_Vintage:
 		return QUALITY_VINTAGE_COLOUR;
 		break;
@@ -139,9 +139,9 @@ const Colour& Item::GetQualityColour( void ) const
 	}
 }
 
-const char* Item::GetQualityName( void ) const
+const char* Item::get_qualityName( void ) const
 {
-	switch (GetQuality()) {
+	switch (get_quality()) {
 	case k_EItemQuality_Vintage:
 		return "Vintage";
 		break;
@@ -176,78 +176,78 @@ const char* Item::GetQualityName( void ) const
 	}
 }
 
-uint16 Item::GetPosition( void ) const
+uint16 Item::get_position( void ) const
 {
-	return (GetFlags() & 0xFFFF) - 1;
+	return (get_flags() & 0xFFFF) - 1;
 }
 
-void Item::SetPosition( uint16 position )
+void Item::set_position( uint16 position )
 {
-	uint32 tempFlags = HasValidFlags() ? GetFlags() : FL_ITEM_VALID;
+	uint32 tempFlags = has_valid_flags() ? get_flags() : FL_ITEM_VALID;
 	tempFlags &= FL_ITEM_NONPOSITION; // Remove current position.
 	tempFlags |= (position + 1) & FL_ITEM_POSITION; // Set new.
-	SetFlags( tempFlags );
+	set_flags( tempFlags );
 }
 
-uint32 Item::GetIndex( void ) const
+uint32 Item::get_index( void ) const
 {
 	return index_;
 }
 
-void Item::SetIndex( uint32 index )
+void Item::set_index( uint32 index )
 {
 	index_ = index;
 }
 
-bool Item::HasValidFlags( void ) const
+bool Item::has_valid_flags( void ) const
 {
-	return (GetFlags() & 0xF0000000) == FL_ITEM_VALID;
+	return (get_flags() & 0xF0000000) == FL_ITEM_VALID;
 }
 
-void Item::SetCustomName( const std::string& name )
+void Item::set_custom_name( const std::string& name )
 {
 	customName_ = '"' + name + '"';
 }
 
-const std::string& Item::GetCustomName( void ) const
+const std::string& Item::get_custom_name( void ) const
 {
 	return customName_;
 }
 
-bool Item::HasCustomName( void ) const
+bool Item::has_custom_name( void ) const
 {
 	return !customName_.empty();
 }
 
-bool Item::IsEquipped( uint32 equipClass ) const
+bool Item::is_equipped( uint32 equipClass ) const
 {
 	int equipFlags = flags_ & equipClass;
-	return HasValidFlags() && (equipFlags != 0);
+	return has_valid_flags() && (equipFlags != 0);
 }
 
-bool Item::ClassUses( uint32 classFlags ) const
+bool Item::class_uses( uint32 classFlags ) const
 {
-	return (GetEquipClasses() & classFlags) != 0;
+	return (get_equip_classes() & classFlags) != 0;
 }
 
-EItemSlot Item::GetEquipSlot( void ) const
+EItemSlot Item::get_equip_slot( void ) const
 {
-	return information_->GetSlot();
+	return information_->get_slot();
 }
 
-uint32 Item::GetEquipClasses( void ) const
+uint32 Item::get_equip_classes( void ) const
 {
-	return information_->GetClassFlags();
+	return information_->get_class_flags();
 }
 
-uint8 Item::GetEquipClassCount( void ) const
+uint8 Item::get_equip_class_count( void ) const
 {
-	return information_->GetClassCount();
+	return information_->get_class_count();
 }
 
-void Item::SetEquip( uint32 equipClass, bool equip )
+void Item::set_equip( uint32 equipClass, bool equip )
 {
-	if ((GetFlags() & equipClass) != 0) {
+	if ((get_flags() & equipClass) != 0) {
 		if (!equip) {
 			// Item is equipped to this class; remove flag.
 			flags_ &= (FL_ITEM_ALL ^ equipClass);
@@ -261,9 +261,9 @@ void Item::SetEquip( uint32 equipClass, bool equip )
 	}
 }
 
-const Texture* Item::GetTexture( void )
+const Texture* Item::get_texture( void )
 {
-	return information_->GetTexture();
+	return information_->get_texture();
 }
 
 void Item::add_attribute( Attribute* attribute )
@@ -315,37 +315,37 @@ const Attribute* Item::get_attribute_by_name( const std::string& name ) const
 	return nullptr;
 }
 
-void Item::SetUniqueId( uint64 uniqueId )
+void Item::set_unique_id( uint64 uniqueId )
 {
 	uniqueId_ = uniqueId;
 }
 
-void Item::SetTypeIndex( uint16 typeIndex )
+void Item::set_type_index( uint16 typeIndex )
 {
 	typeIndex_ = typeIndex;
 }
 
-void Item::SetLevel( uint8 level )
+void Item::set_level( uint8 level )
 {
 	level_ = level;
 }
 
-void Item::SetQuality( EItemQuality quality )
+void Item::set_quality( EItemQuality quality )
 {
 	quality_ = quality;
 }
 
-void Item::SetFlags( uint32 flags )
+void Item::set_flags( uint32 flags )
 {
 	flags_ = flags;
 }
 
-void Item::SetCount( uint32 count )
+void Item::set_count( uint32 count )
 {
 	count_ = count;
 }
 
-void Item::SetOrigin( uint32 origin )
+void Item::set_origin( uint32 origin )
 {
 	origin_ = origin;
 }

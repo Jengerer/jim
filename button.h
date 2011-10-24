@@ -18,7 +18,7 @@ public:
 	Layout*			GetContentLayout() const;
 
 	// Updating colour based on state.
-	virtual void	Pack( void );
+	virtual void	pack( void );
 	void			UpdateButton( void );
 
 	// UI state handling.
@@ -32,7 +32,7 @@ public:
 
 	bool			IsHovering( void ) const;
 
-	static void		Precache( Graphics2D* graphics );
+	static void		precache( Graphics2D* graphics );
 	static void		Release();
 
 	static Button*	CreateIconButton( Texture *texture );

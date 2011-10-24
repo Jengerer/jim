@@ -2,24 +2,24 @@
 
 IndexSlot::IndexSlot( unsigned int index )
 {
-	SetIndex( index );
+	set_index( index );
 }
 
-void IndexSlot::SetIndex( unsigned int index )
+void IndexSlot::set_index( unsigned int index )
 {
 	index_ = index;
 }
 
-unsigned int IndexSlot::GetIndex( void ) const
+unsigned int IndexSlot::get_index( void ) const
 {
 	return index_;
 }
 
-void IndexSlot::SetItem( Item* item )
+void IndexSlot::set_item( Item* item )
 {
-	Slot::SetItem( item );
+	Slot::set_item( item );
 
 	if (item != nullptr) {
-		item->SetIndex( index_ );
+		item->set_index( index_ );
 	}
 }

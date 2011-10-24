@@ -24,7 +24,7 @@ Notification::Notification( const std::string& message, const Texture *texture )
 
 	layout_ = new HorizontalLayout();
 	layout_->SetSpacing( NOTIFICATION_SPACING );
-	layout_->SetAlignType( ALIGN_MIDDLE );
+	layout_->set_align_type( ALIGN_MIDDLE );
 	add( layout_ );
 	SetContent( layout_ );
 
@@ -32,7 +32,7 @@ Notification::Notification( const std::string& message, const Texture *texture )
 	image_ = nullptr;
 	if (texture != nullptr) {
 		image_ = new Image( texture );
-		image_->SetSize( NOTIFICATION_ICON_SIZE, NOTIFICATION_ICON_SIZE );
+		image_->set_size( NOTIFICATION_ICON_SIZE, NOTIFICATION_ICON_SIZE );
 		layout_->add( image_ );
 	}
 
@@ -46,7 +46,7 @@ Notification::Notification( const std::string& message, const Texture *texture )
 
 	// Now set message, texture, and pack.
 	SetMessage( message );
-	Pack();
+	pack();
 }
 
 Notification::~Notification( void )
@@ -54,11 +54,11 @@ Notification::~Notification( void )
 	// Notification destroyed.
 }
 
-void Notification::Pack( void )
+void Notification::pack( void )
 {
 	// Pack layout, add padding.
-	layout_->Pack();
-	RoundedRectangleContainer::Pack();
+	layout_->pack();
+	RoundedRectangleContainer::pack();
 }
 
 void Notification::SetMessage( const std::string& message )
@@ -66,7 +66,7 @@ void Notification::SetMessage( const std::string& message )
 	text_->SetText( message );
 }
 
-void Notification::Precache()
+void Notification::precache()
 {
 	font_ = FontFactory::create_font( NOTIFICATION_FONT_FACE, NOTIFICATION_FONT_SIZE );
 }

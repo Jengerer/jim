@@ -14,7 +14,7 @@ public:
 	virtual ~Layout( void );
 
 	// Format the elements into the appropriate layout.
-	virtual void		Pack( void ) = 0;
+	virtual void		pack( void ) = 0;
 
 	// Sets the spacing between elements.
 	int					GetSpacing( void ) const;
@@ -24,8 +24,8 @@ public:
 	virtual bool		IsVisible( Component *component ) const;
 
 	// Sets a parent to handle size constraints.
-	void				SetParent( Container *parent );
-	const Container*	GetParent( void ) const ;
+	void				set_parent( Container *parent );
+	const Container*	get_parent( void ) const ;
 
 private:
 

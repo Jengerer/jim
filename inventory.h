@@ -12,7 +12,7 @@ class item_cmp
 public:
 	bool operator()( const Item* item1, const Item* item2 )
 	{
-		return item1->GetUniqueId() < item2->GetUniqueId();
+		return item1->get_unique_id() < item2->get_unique_id();
 	}
 };
 
@@ -23,34 +23,34 @@ public:
 	Inventory( unsigned int inventorySize, unsigned int excludedSize );
 	virtual ~Inventory();
 
+	// Slot vector getters.
+	const SlotVector* get_inventory_slots() const;
+	const SlotVector* get_excluded_slots() const;
+
 	// Size getters.
 	unsigned int GetInventorySize() const;
 	unsigned int GetExcludedSize() const;
 
 	// Item handling.
 	Item*	GetItemByUniqueId( uint64 uniqueId );
-	Slot*	InsertItem( Item* item );
-	void	RemoveItem( Item* item );
-	void	RemoveItems();
+	Slot*	insert_item( Item* item );
+	void	remove_item( Item* item );
+	void	remove_items();
 	bool	CanInsert( const Item* item ) const;
 
 	// Slot resource functions.
-	void	AddSlots( unsigned int slots );
-	void	RemoveSlots();
-	void	EmptySlots();
+	void	add_slots( unsigned int slots );
+	void	remove_slots();
+	void	empty_slots();
 
 	// Handling excluded items.
 	void	SetExcludedPage( unsigned int excludedPage );
-	void	UpdateExcluded( void );
-	void	ResolveExcluded( void );
+	void	update_excluded( void );
+	void	resolve_excluded( void );
 
 	// Moving from different sets.
 	void	ToInventory( Item* item );
 	void	ToExcluded( Item* item );
-
-private:
-
-	void	CreateSlots();
 
 protected:
 
@@ -59,10 +59,6 @@ protected:
 	SlotVector*		excludedSlots_;
 
 private:
-
-	// Inventory attributes.
-	unsigned int inventorySize_;
-	unsigned int excludedSize_;
 
 	// Scrolling through excluded.
 	unsigned int excludedPage_;

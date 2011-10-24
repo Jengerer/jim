@@ -260,7 +260,7 @@ void DefinitionLoader::load()
 
 					// Create new attribute.
 					Attribute* attribute = new Attribute( attrib_info, attrib_value );
-					itemInformation->AddAttribute( attribute );
+					itemInformation->add_attribute( attribute );
 				}
 			}
 

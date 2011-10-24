@@ -11,17 +11,17 @@ GridLayout::~GridLayout( void )
 	// GridLayout destroyed.
 }
 
-void GridLayout::Pack( void )
+void GridLayout::pack( void )
 {
 	if (components_.empty()) {
-		SetSize( 0, 0 );
+		set_size( 0, 0 );
 		return;
 	}
 
 	// Base component sizes on first element.
 	Component *first = components_.front();
-	int componentWidth = first->GetWidth();
-	int componentHeight = first->GetHeight();
+	int componentWidth = first->get_width();
+	int componentHeight = first->get_height();
 	int spacing = GetSpacing();
 
 	// Grid height is components / width, + 1 if remainder.
@@ -31,7 +31,7 @@ void GridLayout::Pack( void )
 	// Calculate width and height.
 	int totalWidth = gridWidth_ * (componentWidth + spacing) - spacing;
 	int totalHeight = gridHeight * (componentHeight + spacing) - spacing;
-	SetSize( totalWidth, totalHeight );
+	set_size( totalWidth, totalHeight );
 
 	size_t index = 0;
 	float x, y;
@@ -40,7 +40,7 @@ void GridLayout::Pack( void )
 		Component *current = *i;
 		x = static_cast<float>((index % gridWidth_) * (componentWidth + spacing));
 		y = static_cast<float>((index / gridWidth_) * (componentHeight + spacing));
-		SetConstraint( current, x, y );
+		set_constraint( current, x, y );
 
 		++index;
 	}

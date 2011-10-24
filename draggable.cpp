@@ -5,7 +5,7 @@
 //=============================================================
 Draggable::Draggable( float x, float y ) : ConstrainedContainer( x, y )
 {
-	SetParent( nullptr );
+	set_parent( nullptr );
 	SetDragging( false );
 }
 
@@ -14,17 +14,17 @@ Draggable::~Draggable( void )
 	// Draggable destroyed.
 }
 
-void Draggable::Draw( Graphics2D* graphics )
+void Draggable::draw( Graphics2D* graphics )
 {
-	Container::Draw( graphics );
+	Container::draw( graphics );
 }
 
 bool Draggable::on_mouse_moved( Mouse *mouse )
 {
 	if (isDragging_) {
-		SetPosition( mouse->GetX() + offsetX_, mouse->GetY() + offsetY_ );
-		if (HasParent()) {
-			GetParent()->ClampChild( this );
+		set_position( mouse->get_x() + offsetX_, mouse->get_y() + offsetY_ );
+		if (has_parent()) {
+			get_parent()->clamp_child( this );
 		}
 		return true;
 	}
@@ -34,8 +34,8 @@ bool Draggable::on_mouse_moved( Mouse *mouse )
 
 bool Draggable::on_mouse_clicked( Mouse *mouse )
 {
-	if (mouse->IsTouching( this )) {
-		BeginDragging( mouse );
+	if (mouse->is_touching( this )) {
+		begin_dragging( mouse );
 		return true;
 	}
 
@@ -44,8 +44,8 @@ bool Draggable::on_mouse_clicked( Mouse *mouse )
 
 bool Draggable::on_mouse_released( Mouse *mouse )
 {
-	if (mouse->IsTouching( this )) {
-		EndDragging();
+	if (mouse->is_touching( this )) {
+		end_dragging();
 		return true;
 	}
 
@@ -56,27 +56,27 @@ bool Draggable::on_mouse_released( Mouse *mouse )
 // Purpose:	Returns proper X position based on whether it is
 //			being dragged right now.
 //=============================================================
-float Draggable::GetX( void ) const
+float Draggable::get_x( void ) const
 {
-	return Component::GetX();
+	return Component::get_x();
 }
 
 //=============================================================
 // Purpose:	Returns proper Y position based on whether it is
 //			being dragged right now.
 //=============================================================
-float Draggable::GetY( void ) const
+float Draggable::get_y( void ) const
 {
-	return Component::GetY();
+	return Component::get_y();
 }
 
 //=============================================================
 // Purpose:	Enables dragging and sets offset to mouse.
 //=============================================================
-void Draggable::BeginDragging( const Mouse* mouse )
+void Draggable::begin_dragging( const Mouse* mouse )
 {
 	// Set offset to mouse.
-	SetOffset( GetX() - mouse->GetX(), GetY() - mouse->GetY() );
+	SetOffset( get_x() - mouse->get_x(), get_y() - mouse->get_y() );
 	SetDragging( true );
 	mouse_ = mouse;
 }
@@ -84,27 +84,27 @@ void Draggable::BeginDragging( const Mouse* mouse )
 //=============================================================
 // Purpose: Sets current position and disables dragging.
 //=============================================================
-void Draggable::EndDragging( void )
+void Draggable::end_dragging( void )
 {
 	SetDragging( false );
 }
 
-const Container* Draggable::GetParent() const
+const Container* Draggable::get_parent() const
 {
 	return parent_;
 }
 
-bool Draggable::HasParent() const
+bool Draggable::has_parent() const
 {
 	return parent_ != nullptr;
 }
 
-void Draggable::SetParent( const Container* container )
+void Draggable::set_parent( const Container* container )
 {
 	parent_ = container;
 }
 
-bool Draggable::IsDragging( void ) const
+bool Draggable::is_dragging( void ) const
 {
 	return isDragging_;
 }

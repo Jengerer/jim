@@ -2,15 +2,15 @@
 
 SlotVector::SlotVector( unsigned int slots )
 {
-	AddSlots( slots );
+	add_slots( slots );
 }
 
 SlotVector::~SlotVector()
 {
-	RemoveSlots();
+	remove_slots();
 }
 
-void SlotVector::AddSlots( unsigned int slots )
+void SlotVector::add_slots( unsigned int slots )
 {
 	unsigned int startIndex = slots_.size();
 	for (unsigned int i = 0; i < slots; ++i) {
@@ -19,7 +19,7 @@ void SlotVector::AddSlots( unsigned int slots )
 	}
 }
 
-void SlotVector::RemoveSlots()
+void SlotVector::remove_slots()
 {
 	std::vector<Slot*>::iterator i;
 	for (i = slots_.begin(); i != slots_.end(); i = slots_.erase( i )) {
@@ -27,13 +27,13 @@ void SlotVector::RemoveSlots()
 	}
 }
 
-Slot* SlotVector::GetSlotByItem( Item* item ) const
+Slot* SlotVector::get_slot_by_item( Item* item ) const
 {
 	// Check by index.
-	uint16 index = item->GetIndex();
-	if (IsValidIndex( index )) {
-		Slot* slot = GetSlotByIndex( index );
-		if (slot->GetItem() == item) {
+	uint16 index = item->get_index();
+	if (is_valid_index( index )) {
+		Slot* slot = get_slot_by_index( index );
+		if (slot->get_item() == item) {
 			return slot;
 		}
 	}
@@ -41,39 +41,39 @@ Slot* SlotVector::GetSlotByItem( Item* item ) const
 	return nullptr;
 }
 
-Slot* SlotVector::GetSlotByIndex( unsigned int index ) const
+Slot* SlotVector::get_slot_by_index( unsigned int index ) const
 {
 	return slots_[index];
 }
 
-bool SlotVector::IsSlotEmpty( unsigned int index ) const
+bool SlotVector::is_slot_empty( unsigned int index ) const
 {
-	return IsValidIndex( index ) && (slots_[index]->GetItem() == nullptr);
+	return is_valid_index( index ) && (slots_[index]->get_item() == nullptr);
 }
 
-bool SlotVector::IsValidIndex( unsigned int index ) const
+bool SlotVector::is_valid_index( unsigned int index ) const
 {
 	return index < slots_.size();
 }
 
-unsigned int SlotVector::GetSlotCount() const
+unsigned int SlotVector::get_slot_count() const
 {
 	return slots_.size();
 }
 
-void SlotVector::RemoveItem( Item* item )
+void SlotVector::remove_item( Item* item )
 {
-	Slot* slot = GetSlotByItem( item );
+	Slot* slot = get_slot_by_item( item );
 	if (slot != nullptr) {
-		slot->SetItem( nullptr );
+		slot->set_item( nullptr );
 	}
 }
 
-void SlotVector::EmptySlots()
+void SlotVector::empty_slots()
 {
 	std::vector<Slot*>::const_iterator i, end;
 	for (i = slots_.begin(), end = slots_.end(); i != end; ++i) {
 		Slot* slot = *i;
-		slot->SetItem( nullptr );
+		slot->set_item( nullptr );
 	}
 }

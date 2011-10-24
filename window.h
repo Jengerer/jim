@@ -15,14 +15,14 @@ public:
 		int width, int height );
 	~Window();
 
-	bool	registerClass( HINSTANCE hInstance );
-	void	createWindow( HINSTANCE hInstance );
+	bool	register_class( HINSTANCE hInstance );
+	void	create_window( HINSTANCE hInstance );
 
-	bool	isActive();
+	bool	is_active();
 	
-	int		GetWidth() const;
-	int		GetHeight() const;
-	HWND	getHandle() const;
+	int		get_width() const;
+	int		get_height() const;
+	HWND	get_handle() const;
 
 
 private:

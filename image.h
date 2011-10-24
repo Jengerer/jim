@@ -9,16 +9,16 @@ public:
 
 	Image( const Texture* texture, float localX = 0.0f, float localY = 0.0f );
 
-	virtual void	Draw( Graphics2D* graphics );
-	void			SetTexture( const Texture *texture );
+	virtual void	draw( Graphics2D* graphics );
+	void			set_texture( const Texture *texture );
 
-	void			SetAlpha( int alpha );
-	void			SetTint( const Colour& tint );
-	const Colour&	GetTint( void ) const;
+	void			set_alpha( int alpha );
+	void			set_tint( const Colour& tint );
+	const Colour&	get_tint( void ) const;
 
 private:
 
-	const Texture*	GetTexture( void ) const;
+	const Texture*	get_texture( void ) const;
 
 private:
 

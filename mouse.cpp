@@ -2,58 +2,58 @@
 
 Mouse::Mouse( Window* window )
 {
-	SetWindow( window );
-	Poll();
+	set_window( window );
+	poll();
 }
 
-void Mouse::SetWindow( Window* window )
+void Mouse::set_window( Window* window )
 {
 	window_ = window;
 }
 
-void Mouse::Poll( void )
+void Mouse::poll( void )
 {
 	GetCursorPos( &position_ );
-	ScreenToClient( window_->getHandle(), &position_ );
+	ScreenToClient( window_->get_handle(), &position_ );
 
 	// Clamp X.
 	if (position_.x < 0) {
 		position_.x = 0;
 	}
-	else if (position_.x > window_->GetWidth()) {
-		position_.x = window_->GetWidth();
+	else if (position_.x > window_->get_width()) {
+		position_.x = window_->get_width();
 	}
 
 	// Clamp Y.
 	if (position_.y < 0) {
 		position_.y = 0;
 	}
-	else if (position_.y > window_->GetHeight()) {
-		position_.y = window_->GetHeight();
+	else if (position_.y > window_->get_height()) {
+		position_.y = window_->get_height();
 	}
 }
 
-int Mouse::GetX() const
+int Mouse::get_x() const
 {
 	return (int)position_.x;
 }
 
-int Mouse::GetY() const
+int Mouse::get_y() const
 {
 	return (int)position_.y;
 }
 
-bool Mouse::IsTouching( const Component* component ) const
+bool Mouse::is_touching( const Component* component ) const
 {
 	// Get mouse coordinates.
-	int x = GetX();
-	int y = GetY();
+	int x = get_x();
+	int y = get_y();
 
 	// Get object bounds.
-	int left = component->GetX();
-	int right = left + component->GetWidth();
-	int top = component->GetY();
-	int bottom = top + component->GetHeight();
+	int left = static_cast<int>(component->get_x());
+	int right = static_cast<int>(left + component->get_width());
+	int top = static_cast<int>(component->get_y());
+	int bottom = static_cast<int>(top + component->get_height());
 
 	// Check collision.
 	return (x >= left) && (x <= right) && (y >= top) && (y <= bottom);

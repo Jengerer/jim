@@ -3,26 +3,26 @@
 Constraint::Constraint( Component* component, float localX, float localY )
 {
 	component_ = component;
-	SetConstraint( localX, localY );
+	set_constraint( localX, localY );
 }
 
-void Constraint::SetConstraint( float localX, float localY )
+void Constraint::set_constraint( float localX, float localY )
 {
 	localX_ = localX;
 	localY_ = localY;
 }
 
-Component* Constraint::GetComponent() const
+Component* Constraint::get_component() const
 {
 	return component_;
 }
 
-float Constraint::GetConstraintX() const
+float Constraint::get_constraint_x() const
 {
 	return localX_;
 }
 
-float Constraint::GetConstraintY() const
+float Constraint::get_constraint_y() const
 {
 	return localY_;
 }

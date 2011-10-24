@@ -20,18 +20,18 @@ public:
 	// Drawing functions.
 	void			UpdateDisplay();
 	void			UpdateAlpha();
-	virtual void	Pack();
+	virtual void	pack();
 
 	// Item functions.
-	const Item*		GetItem( void ) const;
-	void			SetItem( const Item *item );
+	const Item*		get_item( void ) const;
+	void			set_item( const Item *item );
 
-	const std::string&	GetName( void ) const;
+	const std::string&	get_name( void ) const;
 
 	bool			IsActive( void ) const;
-	void			SetActive( bool isActive );
+	void			SetActive( bool is_active );
 
-	static void		Precache();
+	static void		precache();
 	static void		Release();
 
 private:
@@ -45,7 +45,7 @@ protected:
 
 private:
 
-	bool		isActive_;
+	bool		is_active_;
 	const Item	*item_;
 	std::string	itemName_;
 

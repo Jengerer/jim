@@ -19,7 +19,7 @@ public:
 	Button*	GetClicked( void ) const;
 
 	// Drawing functions.
-	virtual void	Pack( void );
+	virtual void	pack( void );
 
 	// Mouse handling.
 	virtual bool	on_mouse_moved( Mouse *mouse );

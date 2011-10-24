@@ -34,46 +34,46 @@ public:
 	virtual ~Item( void );
 
 	// Loading item definition by index.
-	void			GetItemInformation( void );
+	void			get_item_information( void );
 
 	// Item attribute getters.
-	uint64			GetUniqueId( void ) const;
-	uint16			GetTypeIndex( void ) const;
-	uint8			GetLevel( void ) const;
-	EItemQuality	GetQuality( void ) const;
-	uint32			GetFlags( void ) const;
-	void			SetFlags( uint32 flags );
-	uint32			GetCount( void ) const;
-	uint32			GetOrigin( void ) const;
+	uint64			get_unique_id( void ) const;
+	uint16			get_type_index( void ) const;
+	uint8			get_level( void ) const;
+	EItemQuality	get_quality( void ) const;
+	uint32			get_flags( void ) const;
+	void			set_flags( uint32 flags );
+	uint32			get_count( void ) const;
+	uint32			get_origin( void ) const;
 
 	// Secondary attributes.
-	std::string		GetName( void ) const;
-	const Colour&	GetQualityColour( void ) const;
-	const char*		GetQualityName( void ) const;
+	std::string		get_name( void ) const;
+	const Colour&	get_qualityColour( void ) const;
+	const char*		get_qualityName( void ) const;
 
 	// Position stored in Steam.
-	void			SetPosition( uint16 position );
-	uint16			GetPosition( void ) const;
+	void			set_position( uint16 position );
+	uint16			get_position( void ) const;
 
 	// Index in slot array.
-	uint32			GetIndex( void ) const;
-	void			SetIndex( uint32 position );
+	uint32			get_index( void ) const;
+	void			set_index( uint32 position );
 
-	bool			HasValidFlags( void ) const;
-	void			SetCustomName( const std::string& name );
-	const std::string& GetCustomName( void ) const;
-	bool			HasCustomName( void ) const;
+	bool			has_valid_flags( void ) const;
+	void			set_custom_name( const std::string& name );
+	const std::string& get_custom_name( void ) const;
+	bool			has_custom_name( void ) const;
 
 	// Equipment handling.
-	bool			IsEquipped( uint32 equipClass = CLASS_ALL ) const;
-	EItemSlot		GetEquipSlot( void ) const;
-	uint32			GetEquipClasses( void ) const;
-	bool			ClassUses( uint32 classFlags ) const;
-	uint8			GetEquipClassCount( void ) const;
-	void			SetEquip( uint32 equipClass, bool equip );
+	bool			is_equipped( uint32 equipClass = CLASS_ALL ) const;
+	EItemSlot		get_equip_slot( void ) const;
+	uint32			get_equip_classes( void ) const;
+	bool			class_uses( uint32 classFlags ) const;
+	uint8			get_equip_class_count( void ) const;
+	void			set_equip( uint32 equipClass, bool equip );
 
 	// Drawing and interaction.
-	const Texture*	GetTexture( void );
+	const Texture*	get_texture( void );
 
 	// Attribute handling.
 	void add_attribute( Attribute* attribute );
@@ -84,12 +84,12 @@ public:
 
 private:
 
-	void SetUniqueId( uint64 uniqueId );
-	void SetTypeIndex( uint16 typeIndex );
-	void SetLevel( uint8 level );
-	void SetQuality( EItemQuality quality );
-	void SetCount( uint32 count );
-	void SetOrigin( uint32 origin );
+	void set_unique_id( uint64 uniqueId );
+	void set_type_index( uint16 typeIndex );
+	void set_level( uint8 level );
+	void set_quality( EItemQuality quality );
+	void set_count( uint32 count );
+	void set_origin( uint32 origin );
 
 public:
 

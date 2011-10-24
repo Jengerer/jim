@@ -8,7 +8,7 @@ class IPrecachable
 
 public:
 
-	virtual void Precache( Graphics2D* graphics ) = 0;
+	virtual void precache( Graphics2D* graphics ) = 0;
 	virtual void Release( void ) = 0;
 
 };

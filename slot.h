@@ -10,9 +10,9 @@ public:
 	Slot();
 
 	// Item functions.
-	bool			HasItem( void ) const;
-	Item*			GetItem( void ) const;
-	virtual void	SetItem( Item* item );
+	bool			has_item( void ) const;
+	Item*			get_item( void ) const;
+	virtual void	set_item( Item* item );
 
 private:
 

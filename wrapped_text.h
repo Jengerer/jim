@@ -11,13 +11,13 @@ public:
 	WrappedText( Font *font, int textWidth );
 	virtual ~WrappedText( void );
 
-	virtual void	Pack( void );
+	virtual void	pack( void );
 
-	int				GetTextWidth( void ) const;
-	void			SetTextWidth( int textWidth );
+	int				get_text_width( void ) const;
+	void			set_text_width( int textWidth );
 
-	DWORD			GetTextFormatting( void ) const;
-	void			SetTextFormatting( DWORD formatting );
+	DWORD			get_text_formatting( void ) const;
+	void			set_text_formatting( DWORD formatting );
 
 private:
 

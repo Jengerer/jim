@@ -8,7 +8,7 @@ NotificationQueue::NotificationQueue( void )
 	// Notification created.
 	nextTime_ = GetTickCount();
 	current_ = nullptr;
-	SetSize( 0, 0 );
+	set_size( 0, 0 );
 }
 
 NotificationQueue::~NotificationQueue( void )
@@ -16,12 +16,12 @@ NotificationQueue::~NotificationQueue( void )
 	// Notification destroyed.
 }
 
-void NotificationQueue::Draw( Graphics2D* graphics )
+void NotificationQueue::draw( Graphics2D* graphics )
 {
 	// Draw top notification.
 	if ( HasNotification() ) {
 		Notification *top = GetCurrentNotification();
-		top->Draw( graphics );
+		top->draw( graphics );
 	}
 }
 
@@ -31,13 +31,13 @@ void NotificationQueue::UpdateNotifications( void )
 	if ( HasNotification() ) {
 		Notification *top = GetCurrentNotification();
 		if ( nextTime_ <= GetTickCount() ) {
-			top->SetAlpha( top->GetAlpha() - NOTIFICATION_ALPHA_SPEED );
+			top->set_alpha( top->GetAlpha() - NOTIFICATION_ALPHA_SPEED );
 			if (top->GetAlpha() == 0) {
 				SetNextNotification();
 			}
 		}
 		else {
-			top->SetAlpha( top->GetAlpha() + NOTIFICATION_ALPHA_SPEED );
+			top->set_alpha( top->GetAlpha() + NOTIFICATION_ALPHA_SPEED );
 		}
 	}
 }
@@ -53,7 +53,7 @@ bool NotificationQueue::on_mouse_clicked( Mouse *mouse )
 	// Left clicked.
 	if (HasNotification()) {
 		Notification *current = GetCurrentNotification();
-		if (mouse->IsTouching( current )) {
+		if (mouse->is_touching( current )) {
 			SetNextNotification();
 			return true;
 		}
@@ -68,10 +68,10 @@ bool NotificationQueue::on_mouse_released( Mouse *mouse )
 	return false;
 }
 
-void NotificationQueue::AddNotification( const std::string& message, const Texture *texture )
+void NotificationQueue::add_notification( const std::string& message, const Texture *texture )
 {
 	Notification *notification = new Notification( message, texture );
-	notification->SetAlpha( 0 );
+	notification->set_alpha( 0 );
 	add( notification );
 
 	// Add and set to next, if empty.
@@ -93,7 +93,9 @@ void NotificationQueue::SetNextNotification( void )
 	// Get and set new.
 	if ( HasMoreNotifications() ) {
 		current_ = notificationQueue_.front();
-		SetConstraint( current_, -current_->GetWidth(), -current_->GetHeight() );
+		set_constraint( current_,
+			static_cast<float>(-current_->get_width()), 
+			static_cast<float>(-current_->get_height()) );
 		notificationQueue_.pop();
 		nextTime_ = GetTickCount() + NOTIFICATION_QUEUE_DELAY;
 	}

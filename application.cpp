@@ -1,5 +1,7 @@
 #include "application.h"
 
+#include <tlhelp32.h>
+
 /* Application constructor. */
 Application::Application( int width, int height )
 {
@@ -11,7 +13,7 @@ Application::Application( int width, int height )
 	// Add mouse keys by default.
 	AddKey( VK_LBUTTON );
 
-	SetSize( width, height );
+	set_size( width, height );
 }
 
 Application::~Application()
@@ -22,7 +24,7 @@ Application::~Application()
 void Application::load_interfaces( const char* title, HINSTANCE instance )
 {
 	// Create window and 2D graphics handle.
-	window_ = new Window( instance, title, GetWidth(), GetHeight() );
+	window_ = new Window( instance, title, get_width(), get_height() );
 	graphics_ = new Graphics2D( window_ );
 	graphics_->initialize();
 
@@ -43,41 +45,60 @@ void Application::close_interfaces( void )
 	}
 }
 
-void Application::ExitApplication()
+void Application::exit_application()
 {
-	PostMessage( GetWindow()->getHandle(), WM_DESTROY, 0, 0 );
+	PostMessage( get_window()->get_handle(), WM_DESTROY, 0, 0 );
 }
 
-Window* Application::GetWindow() const
+unsigned int Application::get_process_count( const char* process_name )
+{
+	unsigned int count = 0;
+
+	// Find all processes with name process_name.
+	PROCESSENTRY32 entry;
+	entry.dwSize = sizeof( PROCESSENTRY32 );
+	HANDLE snapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+	if (Process32First( snapshot, &entry )) {
+		while (Process32Next( snapshot, &entry )) {
+			if (strcmp( entry.szExeFile, process_name ) == 0) {
+				++count;
+			}
+		}
+	}
+
+	return count;
+}
+
+Window* Application::get_window() const
 {
 	return window_;
 }
 
-void Application::RunApplication( void )
+void Application::run( void )
 {
 	UpdateKeys();
-	if ( GetFocus() == GetWindow()->getHandle() ) {
-		UpdateMouse();
-		HandleKeyboard();
+	if ( GetFocus() == get_window()->get_handle() ) {
+		update_mouse();
+		handle_keyboard();
 	}
 }
 
-void Application::DrawFrame( void )
+void Application::draw_frame( void )
 {
 	// Start redraw.
 	graphics_->clear_scene();
-	Draw( graphics_ );
+	draw( graphics_ );
 	graphics_->swap_buffers();
 }
 
-void Application::UpdateMouse( void )
+void Application::update_mouse( void )
 {
 	// Update mouse regardless of focus.
-	mouse_->Poll();
+	mouse_->poll();
 	on_mouse_moved( mouse_ );
 
 	// Skip if not in focus.
-	if ( GetFocus() == GetWindow()->getHandle() ) {
+	if ( GetFocus() == get_window()->get_handle() ) {
 		// Handle mouse events.
 		if ( IsKeyClicked( VK_LBUTTON ) )  {
 			on_mouse_clicked( mouse_ );

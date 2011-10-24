@@ -17,11 +17,11 @@ public:
 	VerticalLayout( unsigned int spacing = 0, EHorizontalAlignType alignType = ALIGN_CENTER );
 
 	// Packs elements into a horizontal layout.
-	virtual void Pack( void );
-	void SetMinimumWidth( int minimumWidth );
+	virtual void pack( void );
+	void set_minimum_width( int minimumWidth );
 
-	void					SetAlignType( EHorizontalAlignType alignType );
-	EHorizontalAlignType	GetAlignType( void ) const;
+	void					set_align_type( EHorizontalAlignType alignType );
+	EHorizontalAlignType	get_align_type( void ) const;
 
 private:
 

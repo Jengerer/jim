@@ -42,11 +42,15 @@ Confirmation* PopupDisplay::create_confirmation( const std::string& question )
 
 void PopupDisplay::add_popup( Popup* popup )
 {
+	// Keep in center.
+	popup->center_to( this );
+
+	// Add to list/container.
 	add( popup );
 	popups_.push_front( popup );
 }
 
-void PopupDisplay::remove_popup( Popup* popup )
+void PopupDisplay::hide_popup( Popup* popup )
 {
 	// Remove from list.
 	auto i = find( popups_.begin(), popups_.end(), popup );
@@ -57,6 +61,13 @@ void PopupDisplay::remove_popup( Popup* popup )
 
 	// Remove from container.
 	remove( popup );
+}
+
+void PopupDisplay::remove_popup( Popup* popup )
+{
+	// Full removal.
+	hide_popup( popup );
+	delete popup;
 };
 
 bool PopupDisplay::on_mouse_clicked( Mouse* mouse )
@@ -175,7 +186,7 @@ bool PopupDisplay::has_popup( void ) const
 void PopupDisplay::handle_popup_state( Popup* popup )
 {
 	// Check if we should remove popup.
-	switch (popup->GetState()) {
+	switch (popup->get_state()) {
 	case POPUP_STATE_KILLED: // Intentional overflow.
 		delete popup;
 	case POPUP_STATE_HIDDEN:

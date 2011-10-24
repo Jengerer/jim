@@ -167,12 +167,12 @@ void Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned i
 
 void Steam::send_message( uint32 id, void* buffer, uint32 size ) const
 {
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	std::ofstream log;
 	log.open( "message_log.txt", std::ios::app );
 	log << "Sent message of type " << id << ".\n";
 	log.close();
-//#endif
+#endif
 
 	// Check if we need a protobuf header sent.
 	if ((id & 0x80000000) != 0) {

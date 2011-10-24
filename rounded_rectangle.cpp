@@ -7,7 +7,7 @@ RoundedRectangle::RoundedRectangle( int width, int height, int radius, const Col
 	SetStrokeType( STROKE_TYPE_OUTER );
 	SetCornerRadius( radius );
 	SetColour( colour );
-	SetSize( width, height );
+	set_size( width, height );
 }
 
 RoundedRectangle::~RoundedRectangle( void )
@@ -15,7 +15,7 @@ RoundedRectangle::~RoundedRectangle( void )
 	RemoveTexture();
 }
 
-void RoundedRectangle::Draw( Graphics2D* graphics )
+void RoundedRectangle::draw( Graphics2D* graphics )
 {
 	// Check if we need to redraw.
 	if (roundedRect_ == nullptr) {
@@ -23,8 +23,8 @@ void RoundedRectangle::Draw( Graphics2D* graphics )
 	}
 
 	// Adjust position for stroke.
-	float textureX = GetX();
-	float textureY = GetY();
+	float textureX = get_x();
+	float textureY = get_y();
 	if (GetStrokeType() == STROKE_TYPE_OUTER) {
 		int strokeSize = GetStrokeSize();
 		textureX -= strokeSize;
@@ -49,9 +49,9 @@ void RoundedRectangle::SetColour( const Colour& colour )
 	colour_ = colour;
 }
 
-void RoundedRectangle::SetSize( int width, int height )
+void RoundedRectangle::set_size( int width, int height )
 {
-	Component::SetSize( width, height );
+	Component::set_size( width, height );
 	RemoveTexture();
 }
 
@@ -62,8 +62,8 @@ void RoundedRectangle::SetCornerRadius( int radius )
 
 void RoundedRectangle::Generate( Graphics2D* graphics )
 {
-	int rectWidth = GetWidth();
-	int rectHeight = GetHeight();
+	int rectWidth = get_width();
+	int rectHeight = get_height();
 	if (GetStrokeType() == STROKE_TYPE_OUTER) {
 		rectWidth += GetStrokeSize() << 1;
 		rectHeight += GetStrokeSize() << 1;
@@ -87,30 +87,36 @@ void RoundedRectangle::Generate( Graphics2D* graphics )
 	// Draw outer rectangle if needed.
 	if (strokeSize != 0) {
 		graphics->set_colour( strokeColour_ );
-		graphics->draw_rounded_rect( 0.0f, 0.0f, rectWidth, rectHeight, radius_ );
+		graphics->draw_rounded_rect( 0.0f, 0.0f,
+			static_cast<float>(rectWidth),
+			static_cast<float>(rectHeight),
+			static_cast<float>(radius_) );
 	}
 
 	// Empty inner area.
 	graphics->set_blend_state( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );
 	graphics->set_colour( COLOUR_WHITE );
 	graphics->draw_rounded_rect(
-		strokeSize, strokeSize,
-		rectWidth - strokeSize * 2, rectHeight - strokeSize * 2,
-		innerRadius );
+		static_cast<GLfloat>(strokeSize), static_cast<GLfloat>(strokeSize),
+		static_cast<GLfloat>(rectWidth - strokeSize * 2),
+		static_cast<GLfloat>(rectHeight - strokeSize * 2),
+		static_cast<GLfloat>(innerRadius) );
 	graphics->set_blend_state( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 	// Draw inner rectangle.
 	graphics->set_colour( colour_ );
 	graphics->draw_rounded_rect(
-		strokeSize, strokeSize,
-		rectWidth - strokeSize * 2, rectHeight - strokeSize * 2,
-		innerRadius );
+		static_cast<float>(strokeSize),
+		static_cast<float>(strokeSize),
+		static_cast<float>(rectWidth - strokeSize * 2), 
+		static_cast<float>(rectHeight - strokeSize * 2),
+		static_cast<float>(innerRadius) );
 
 	// Draw to backbuffer.
 	graphics->reset_render_target();
 }
 
-Texture *RoundedRectangle::GetTexture( void ) const
+Texture *RoundedRectangle::get_texture( void ) const
 {
 	return roundedRect_;
 }

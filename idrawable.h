@@ -8,7 +8,7 @@ class IDrawable
 
 public:
 
-	virtual void Draw( Graphics2D* graphics ) = 0;
+	virtual void draw( Graphics2D* graphics ) = 0;
 
 };
 

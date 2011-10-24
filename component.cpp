@@ -2,9 +2,9 @@
 
 Component::Component( float x, float y )
 {
-	SetPosition( x, y );
-	SetSize( 0, 0 );
-	SetAlpha( 255 );
+	set_position( x, y );
+	set_size( 0, 0 );
+	set_alpha( 255 );
 }
 
 Component::~Component( void )
@@ -12,39 +12,39 @@ Component::~Component( void )
 	// Component is destroyed.
 }
 
-void Component::SetPosition( float x, float y )
+void Component::set_position( float x, float y )
 {
 	x_ = x;
 	y_ = y;
 }
 
-int Component::GetWidth( void ) const
+int Component::get_width( void ) const
 {
 	return width_;
 }
 
-int Component::GetHeight( void ) const
+int Component::get_height( void ) const
 {
 	return height_;
 }
 
-void Component::SetSize( int width, int height )
+void Component::set_size( int width, int height )
 {
 	width_ = width;
 	height_ = height;
 }
 
-float Component::GetX() const
+float Component::get_x() const
 {
 	return x_;
 }
 
-float Component::GetY() const
+float Component::get_y() const
 {
 	return y_;
 }
 
-void Component::SetAlpha( int alpha )
+void Component::set_alpha( int alpha )
 {
 	if (alpha > COMPONENT_MAX) {
 		alpha_ = COMPONENT_MAX;

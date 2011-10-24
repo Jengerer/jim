@@ -20,8 +20,11 @@ public:
 	virtual ~Popup();
 
 	// Get activity state.
-	void			SetState( EPopupState state );
-	EPopupState		GetState( void ) const;
+	void			set_state( EPopupState state );
+	EPopupState		get_state( void ) const;
+	bool			is_active( void ) const;
+	bool			is_hidden( void ) const;
+	bool			is_killed( void ) const;
 
 	// Mouse handling.
 	virtual bool	on_mouse_clicked( Mouse* mouse );
@@ -33,7 +36,7 @@ public:
 	virtual bool	on_key_released( Key key );
 
 	// Position alignment.
-	void			CenterTo( const Container* parent );
+	void			center_to( const Container* parent );
 
 private:
 	EPopupState		state_;

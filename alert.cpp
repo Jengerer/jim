@@ -5,7 +5,7 @@ Alert::Alert( const std::string& message ) : Notice( message )
 	// Make OK button.
 	ok_ = Button::CreateLabelButton( "okay" );
 	content_->add( ok_ );
-	Pack();
+	pack();
 }
 
 Alert::~Alert()
@@ -21,7 +21,7 @@ const Button* Alert::GetButton( void ) const
 bool Alert::on_key_released( Key key )
 {
 	if (key == VK_RETURN) {
-		SetState( POPUP_STATE_KILLED );
+		set_state( POPUP_STATE_KILLED );
 	}
 
 	return true;
@@ -41,9 +41,9 @@ bool Alert::on_mouse_clicked( Mouse *mouse )
 
 bool Alert::on_mouse_released( Mouse *mouse )
 {
-	if (mouse->IsTouching( this )) {
+	if (mouse->is_touching( this )) {
 		if (ok_->on_mouse_released( mouse )) {
-			SetState( POPUP_STATE_KILLED );
+			set_state( POPUP_STATE_KILLED );
 		}
 
 		return true;

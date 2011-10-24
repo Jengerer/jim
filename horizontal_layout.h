@@ -17,11 +17,11 @@ public:
 	HorizontalLayout( unsigned int spacing = 0, EVerticalAlignType alignType = ALIGN_MIDDLE );
 
 	// Packs elements into a horizontal layout.
-	virtual void Pack( void );
+	virtual void pack( void );
 	void SetMinimumHeight( int minimumHeight );
 
-	void				SetAlignType( EVerticalAlignType alignType );
-	EVerticalAlignType	GetAlignType( void ) const;
+	void				set_align_type( EVerticalAlignType alignType );
+	EVerticalAlignType	get_align_type( void ) const;
 
 private:
 

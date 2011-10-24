@@ -109,7 +109,7 @@ typedef enum EGCMessages
 	k_EGCMsgMemCachedSet,
 	k_EGCMsgMemCachedDelete,
 
-	k_EMsgGCSetItemPosition = 1001,
+	k_EMsgGCset_itemPosition = 1001,
 	k_EMsgGCCraft,
 	k_EMsgGCCraftResponse,
 	k_EMsgGCDelete,
@@ -138,8 +138,8 @@ typedef enum EGCMessages
 	k_EMsgGCGiftedItems,
 	k_EMsgGCSpawnItem,
 	k_EMsgGCRespawnPostLoadoutChange,
-	k_EMsgGCRemoveItemName,
-	k_EMsgGCRemoveItemPaint,
+	k_EMsgGCremove_itemName,
+	k_EMsgGCremove_itemPaint,
 	k_EMsgGCGiftWrapItem,
 	k_EMsgGCGiftWrapItemResponse,
 	k_EMsgGCDeliverGift,
@@ -147,7 +147,7 @@ typedef enum EGCMessages
 	k_EMsgGCDeliverGiftResponseReceiver,
 	k_EMsgGCUnwrapGiftRequest,
 	k_EMsgGCUnwrapGiftResponse,
-	k_EMsgGCSetItemStyle,
+	k_EMsgGCset_itemStyle,
 	k_EMsgGCUsedClaimCodeItem,
 	k_EMsgGCSortItems,
 	k_EMsgGC_RevolvingLootList,
@@ -163,8 +163,8 @@ typedef enum EGCMessages
 	k_EMsgGCTrading_InitiateTradeRequest = 1501,
 	k_EMsgGCTrading_InitiateTradeResponse,
 	k_EMsgGCTrading_StartSession,
-	k_EMsgGCTrading_SetItem,
-	k_EMsgGCTrading_RemoveItem,
+	k_EMsgGCTrading_set_item,
+	k_EMsgGCTrading_remove_item,
 	k_EMsgGCTrading_UpdateTradeInfo,
 	k_EMsgGCTrading_SetReadiness,
 	k_EMsgGCTrading_ReadinessResponse,
@@ -409,9 +409,9 @@ struct SOMsgDeleted_t
 0100 ffffffffffffffffffffffffffffffff cff9ea0200000000 42000080 00000000
 0100 ffffffffffffffffffffffffffffffff d069ea0200000000 20000080 00000000
 */
-struct GCSetItemPosition_t
+struct GCset_itemPosition_t
 {
-	enum { k_iMessage = k_EMsgGCSetItemPosition };
+	enum { k_iMessage = k_EMsgGCset_itemPosition };
 	GCMsgHeader_t header;
 	
 	uint64 itemID;
@@ -620,9 +620,9 @@ struct GCTrading_StartSession_t
 	// char player2Name[];
 };
 
-struct GCTrading_SetItem_t
+struct GCTrading_set_item_t
 {
-	enum { k_iMessage = k_EMsgGCTrading_SetItem };
+	enum { k_iMessage = k_EMsgGCTrading_set_item };
 	GCMsgHeader_t header;
 	
 	uint8 showcase;
@@ -630,9 +630,9 @@ struct GCTrading_SetItem_t
 	uint8 slot; // Trade 'slot' it goes in, see below.
 };
 
-struct GCTrading_RemoveItem_t
+struct GCTrading_remove_item_t
 {
-	enum { k_iMessage = k_EMsgGCTrading_RemoveItem };
+	enum { k_iMessage = k_EMsgGCTrading_remove_item };
 	GCMsgHeader_t header;
 	
 	uint64 itemID;

@@ -28,15 +28,15 @@ public:
 	Mouse( Window* window );
 
 	// Mouse control and settings.
-	void SetWindow( Window* window );
-	void Poll( void );
+	void set_window( Window* window );
+	void poll( void );
 
 	// Position functions.
-	int GetX( void ) const;
-	int GetY( void ) const;
+	int get_x( void ) const;
+	int get_y( void ) const;
 
 	// Call to components.
-	bool IsTouching( const Component* component ) const;
+	bool is_touching( const Component* component ) const;
 
 private:
 

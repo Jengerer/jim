@@ -12,23 +12,23 @@ public:
 	Draggable( float x = 0.0f, float y = 0.0f );
 	virtual ~Draggable( void );
 
-	virtual void Draw( Graphics2D* graphics );
+	virtual void draw( Graphics2D* graphics );
 
 	// Mouse handling.
 	virtual bool on_mouse_moved( Mouse *mouse );
 	virtual bool on_mouse_clicked( Mouse *mouse );
 	virtual bool on_mouse_released( Mouse *mouse );
 
-	bool				HasParent() const;
-	const Container*	GetParent() const;
-	void				SetParent( const Container* container );
+	bool				has_parent() const;
+	const Container*	get_parent() const;
+	void				set_parent( const Container* container );
 
-	bool IsDragging( void ) const;
-	virtual void BeginDragging( const Mouse* mouse );
-	virtual void EndDragging( void );
+	bool is_dragging( void ) const;
+	virtual void begin_dragging( const Mouse* mouse );
+	virtual void end_dragging( void );
 
-	virtual float GetX( void ) const;
-	virtual float GetY( void ) const;
+	virtual float get_x( void ) const;
+	virtual float get_y( void ) const;
 
 private:
 

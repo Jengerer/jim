@@ -29,6 +29,7 @@ public:
 	// Popup handling.
 	bool	has_popup( void ) const;
 	void	add_popup( Popup* popup );
+	void	hide_popup( Popup* popup );
 	void	remove_popup( Popup* popup );
 	
 	// Mouse handling for popups.

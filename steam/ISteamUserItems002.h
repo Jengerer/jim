@@ -40,7 +40,7 @@ public:
 	virtual void DropItem( ItemID itemId ) = 0;
 
     virtual SteamAPICall_t GetItemBlob( ItemID itemId ) = 0;;
-    virtual SteamAPICall_t SetItemBlob( ItemID itemID, const void *blob, uint32 size ) = 0;
+    virtual SteamAPICall_t set_itemBlob( ItemID itemID, const void *blob, uint32 size ) = 0;
 };
 
 

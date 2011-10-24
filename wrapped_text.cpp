@@ -3,8 +3,8 @@
 
 WrappedText::WrappedText( Font *font, int textWidth ) : Text( font )
 {
-	SetTextFormatting( 0 );
-	SetTextWidth( textWidth );
+	set_text_formatting( 0 );
+	set_text_width( textWidth );
 }
 
 WrappedText::~WrappedText( void )
@@ -12,39 +12,39 @@ WrappedText::~WrappedText( void )
 	// Wrapped text destroyed.
 }
 
-void WrappedText::Pack( void )
+void WrappedText::pack( void )
 {	
 	if (str_ != nullptr) {
 		// Wrap renderable string.
-		RECT bounds = { 0, 0, GetTextWidth(), 0 };
+		RECT bounds = { 0, 0, get_text_width(), 0 };
 		font_->prepare_wrap_draw( &bounds, str_, list_, TEXT_ALIGN_CENTER );
-		SetSize( GetTextWidth(), bounds.bottom - bounds.top );
+		set_size( get_text_width(), bounds.bottom - bounds.top );
 
 		// Delete renderable string.
 		delete str_;
 		str_ = nullptr;
 	}
 	else {
-		SetSize( 0, 0 );
+		set_size( 0, 0 );
 	}
 }
 
-int WrappedText::GetTextWidth( void ) const
+int WrappedText::get_text_width( void ) const
 {
 	return textWidth_;
 }
 
-void WrappedText::SetTextWidth( int textWidth )
+void WrappedText::set_text_width( int textWidth )
 {
 	textWidth_ = textWidth;
 }
 
-DWORD WrappedText::GetTextFormatting( void ) const
+DWORD WrappedText::get_text_formatting( void ) const
 {
 	return formatting_;
 }
 
-void WrappedText::SetTextFormatting( DWORD formatting )
+void WrappedText::set_text_formatting( DWORD formatting )
 {
 	formatting_ = formatting;
 }

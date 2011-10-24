@@ -22,20 +22,20 @@ public:
 		EItemSlot slot );
 	~ItemInformation( void );
 
-	const std::string&	GetName( void ) const;
-	const Texture*		GetTexture( void ) const;
-	uint32			GetClassFlags( void ) const;
-	uint8			GetClassCount( void ) const;
-	EItemSlot		GetSlot( void ) const;
+	const std::string&	get_name( void ) const;
+	const Texture*		get_texture( void ) const;
+	uint32			get_class_flags( void ) const;
+	uint8			get_class_count( void ) const;
+	EItemSlot		get_slot( void ) const;
 
-	void			AddAttribute( Attribute* attribute );
-	size_t			GetAttributeCount() const;
+	void			add_attribute( Attribute* attribute );
+	size_t			get_attribute_count() const;
 	const Attribute* GetAttribute( size_t index ) const;
 
 private:
 
 	void			SetName( const std::string& name );
-	void			SetTexture( const Texture *texture );
+	void			set_texture( const Texture *texture );
 	void			SetClassFlags( uint32 classFlags );
 	void			SetSlot( EItemSlot slot );
 
