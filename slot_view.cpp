@@ -73,7 +73,7 @@ void SlotView::Update()
 		Item* item = slot_->get_item();
 		itemTexture = item->get_texture();
 		strokeImage_->set_texture( stroke_->get_texture() );
-		strokeImage_->set_tint( item->get_qualityColour() );
+		strokeImage_->set_tint( item->get_quality_colour() );
 	}
 	else {
 		strokeImage_->set_texture( nullptr );

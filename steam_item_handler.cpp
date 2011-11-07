@@ -1,10 +1,6 @@
 #include "steam_item_handler.h"
 #include "serialized_buffer.h"
 
-enum EItemOrigins {
-	ORIGIN_ACHIEVEMENT = 1
-};
-
 SteamItemHandler::SteamItemHandler()
 {
 	set_select_mode( SELECT_MODE_SINGLE );
@@ -91,8 +87,7 @@ bool SteamItemHandler::is_selected_tradable( void ) const
 			Item* item = slot->get_item();
 
 			// Check that the item can be traded.
-			if (item->get_origin() == ORIGIN_ACHIEVEMENT ||
-				item->get_attribute_by_name( "cannot trade" ) != nullptr) {
+			if (!item->is_tradable()) {
 				return false;
 			}
 		}

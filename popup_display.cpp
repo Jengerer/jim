@@ -188,9 +188,10 @@ void PopupDisplay::handle_popup_state( Popup* popup )
 	// Check if we should remove popup.
 	switch (popup->get_state()) {
 	case POPUP_STATE_KILLED: // Intentional overflow.
-		delete popup;
-	case POPUP_STATE_HIDDEN:
 		remove_popup( popup );
+		break;
+	case POPUP_STATE_HIDDEN:
+		hide_popup( popup );
 		break;
 	}
 }

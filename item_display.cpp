@@ -51,7 +51,7 @@ ItemDisplay::~ItemDisplay( void )
 void ItemDisplay::UpdateDisplay()
 {
 	// Alter display based on quality.
-	nameText_->SetColour( item_->get_qualityColour() );
+	nameText_->SetColour( item_->get_quality_colour() );
 	SetName( item_->get_name() );
 
 	// Build information text.
@@ -68,6 +68,11 @@ void ItemDisplay::UpdateDisplay()
 		}
 	}
 #endif
+
+	// Output if item is not tradable.
+	if (!item_->is_tradable()) {
+		infoStream << "\n\n(Not Tradable)";
+	}
 
 	// Get resulting string.
 	const std::string& text = infoStream.str();

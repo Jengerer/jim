@@ -33,8 +33,9 @@ public:
 		uint32 origin );
 	virtual ~Item( void );
 
-	// Loading item definition by index.
+	// Finish creating item.
 	void			get_item_information( void );
+	void			update_attributes( void );
 
 	// Item attribute getters.
 	uint64			get_unique_id( void ) const;
@@ -48,8 +49,8 @@ public:
 
 	// Secondary attributes.
 	std::string		get_name( void ) const;
-	const Colour&	get_qualityColour( void ) const;
-	const char*		get_qualityName( void ) const;
+	const Colour&	get_quality_colour( void ) const;
+	const char*		get_quality_name( void ) const;
 
 	// Position stored in Steam.
 	void			set_position( uint16 position );
@@ -65,6 +66,7 @@ public:
 	bool			has_custom_name( void ) const;
 
 	// Equipment handling.
+	bool			is_tradable( void ) const;
 	bool			is_equipped( uint32 equipClass = CLASS_ALL ) const;
 	EItemSlot		get_equip_slot( void ) const;
 	uint32			get_equip_classes( void ) const;
