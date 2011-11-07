@@ -29,7 +29,7 @@
 const char*	APPLICATION_TITLE	= "Jengerer's Item Manager Lite";
 const int	APPLICATION_WIDTH	= 795;
 const int	APPLICATION_HEIGHT	= 540;
-const char*	APPLICATION_VERSION	= "0.9.9.9.7.4";
+const char*	APPLICATION_VERSION	= "0.9.9.9.7.8";
 
 // UI attributes.
 const unsigned int EXIT_BUTTON_PADDING	= 10;
@@ -62,8 +62,8 @@ const int TRIAL_PAGE_COUNT	= 1;
 const int EXCLUDED_SIZE		= 5;
 
 // Slot layout.
-const int SLOT_SPACING			= 5;
-const int PAGE_SPACING			= 50;
+const int SLOT_SPACING		= 5;
+const int PAGE_SPACING		= 50;
 
 const unsigned int PADDING	= 20;
 const unsigned int SPACING	= 10;
@@ -199,20 +199,6 @@ void ItemManager::load_interfaces( HINSTANCE instance )
 	Button::precache( graphics_ );
 
 	try {
-		// Check for latest version.
-		if (!is_latest_version()) {
-			updateError_ = true;
-			throw std::runtime_error( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
-		}
-
-		// Ensure TF2's not running.
-		if (get_process_count( "tf2.exe" ) > 0) {
-			throw std::runtime_error( "Please close Team Fortress 2 before running the item manager." );
-		}
-		else if (get_process_count( "item_manager.exe" ) > 1) {
-			throw std::runtime_error( "Another instance of the item manager is already running!" );
-		}
-
 		// precache secondary resources.
 		ToggleSet::precache();
 		ItemDisplay::precache();
@@ -232,6 +218,20 @@ void ItemManager::load_interfaces( HINSTANCE instance )
 
 		// Generate UI.
 		create_layout();
+
+		// Check for latest version.
+		if (!is_latest_version()) {
+			updateError_ = true;
+			throw std::runtime_error( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
+		}
+
+		// Ensure TF2's not running.
+		if (get_process_count( "tf2.exe" ) > 0) {
+			throw std::runtime_error( "Please close Team Fortress 2 before running the item manager." );
+		}
+		else if (get_process_count( "item_manager.exe" ) > 1) {
+			throw std::runtime_error( "Another instance of the item manager is already running!" );
+		}
 
 		// Start definition loader.
 		loadProgress_ = popups_->create_notice( "Preparing to load item definitions..." );
@@ -327,20 +327,25 @@ void ItemManager::create_layout( void )
 	Texture *craftTexture = graphics_->get_texture( "manager/gear" );
 	Texture *equipTexture = graphics_->get_texture( "manager/equip" );
 	Texture *sortTexture = graphics_->get_texture( "manager/sort" );
+	//Texture *deleteTexture = graphics_->get_texture( "manager/delete" );
 
 	// Create inventory buttons.
-	craftButton_ = Button::CreateIconLabelButton( craftTexture, "craft" );
-	equipButton_ = Button::CreateIconLabelButton( equipTexture, "equip" );
-	sortButton_ = Button::CreateIconLabelButton( sortTexture, "sort" );
-	craftButton_->SetEnabled( false );
-	equipButton_->SetEnabled( false );
-	sortButton_->SetEnabled( false );
+	craft_button_ = Button::CreateIconLabelButton( craftTexture, "craft" );
+	equip_button_ = Button::CreateIconLabelButton( equipTexture, "equip" );
+	sort_button_ = Button::CreateIconLabelButton( sortTexture, "sort" );
+	//delete_button_ = Button::CreateIconLabelButton( deleteTexture, "delete" );
+
+	craft_button_->SetEnabled( false );
+	equip_button_->SetEnabled( false );
+	sort_button_->SetEnabled( false );
+	//delete_button_->SetEnabled( false );
 	
 	// Create inventory button layout.
 	HorizontalLayout* inventoryButtons = new HorizontalLayout( BUTTON_SPACING );
-	inventoryButtons->add( craftButton_ );
-	inventoryButtons->add( equipButton_ );
-	inventoryButtons->add( sortButton_ );
+	inventoryButtons->add( craft_button_ );
+	inventoryButtons->add( equip_button_ );
+	inventoryButtons->add( sort_button_ );
+	//inventoryButtons->add( delete_button_ );
 	inventoryButtons->pack();
 
 	// Create pages buttons/text.
@@ -450,7 +455,7 @@ void ItemManager::loading()
 			set_think( &ItemManager::running );
 			popups_->remove_popup( loadProgress_ );
 #ifndef SORT_NOT_IMPLEMENTED
-			sortButton_->SetEnabled( true );
+			sort_button_->SetEnabled( true );
 #endif
 		}
 	}
@@ -502,9 +507,9 @@ bool ItemManager::on_mouse_clicked( Mouse *mouse )
 		}
 		else if (!touchedView) {
 			// TODO: Set a 'clicked target' pointer so we can't just release on button and trigger.
-			if (mouse->is_touching( craftButton_ ) ||
-				mouse->is_touching( equipButton_ ) ||
-				mouse->is_touching( sortButton_ ) ||
+			if (mouse->is_touching( craft_button_ ) ||
+				mouse->is_touching( equip_button_ ) ||
+				mouse->is_touching( sort_button_ ) ||
 				mouse->is_touching( nextButton_ ) ||
 				mouse->is_touching( prevButton_ )) {
 					return true;
@@ -538,7 +543,7 @@ bool ItemManager::on_mouse_released( Mouse *mouse )
 		}
 		else {
 			// Handle buttons.
-			if (craftButton_->on_mouse_released( mouse )) {
+			if (craft_button_->on_mouse_released( mouse )) {
 				if (steamItems_->is_selected_tradable()) {
 					steamItems_->craft_selected();
 				}
@@ -564,12 +569,14 @@ bool ItemManager::on_mouse_moved( Mouse *mouse )
 {
 	// Update buttons.
 	// TODO: Have a button frame mouse hover state.
-	itemDisplay_->set_item( nullptr );
+	if (itemDisplay_ != nullptr) {
+		itemDisplay_->set_item( nullptr );
+	}
 
 	// Move over all buttons.
-	craftButton_->on_mouse_moved( mouse );
-	equipButton_->on_mouse_moved( mouse );
-	sortButton_->on_mouse_moved( mouse );
+	craft_button_->on_mouse_moved( mouse );
+	equip_button_->on_mouse_moved( mouse );
+	sort_button_->on_mouse_moved( mouse );
 	nextButton_->on_mouse_moved( mouse );
 	prevButton_->on_mouse_moved( mouse );
 
@@ -748,10 +755,10 @@ void ItemManager::on_slot_released( SlotView* slotView )
 void ItemManager::update_buttons()
 {
 	unsigned int selectedCount = steamItems_->get_selected_count();
-	craftButton_->SetEnabled( selectedCount != 0 );
+	craft_button_->SetEnabled( selectedCount != 0 );
 
 #ifndef EQUIP_NOT_IMPLEMENTED
-	equipButton_->SetEnabled( steamItems_->can_equip_selected() );
+	equip_button_->SetEnabled( steamItems_->can_equip_selected() );
 #endif
 }
 
@@ -1011,14 +1018,30 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 									// Get attribute information.
 									auto k = Item::attributes.find( attrib_index );
 									if (k != Item::attributes.end()) {
-										Attribute* new_attribute = new Attribute( k->second, attribute.value() );
+										const AttributeInformation* info = k->second;
+										
+										// Set value based on type.
+										uint32 int_value = attribute.value();
+										void* value = (void*)&int_value;
+										Attribute* new_attribute;
+										if (info->is_integer()) {
+											new_attribute = new Attribute( info, *(uint32*)value );
+										}
+										else {
+											new_attribute = new Attribute( info, *(float*)value );
+										}
+
 										item->add_attribute( new_attribute );
 									}
 								}
 
+								// Set custom name.
 								if (econItem.has_custom_name()) {
 									item->set_custom_name( econItem.custom_name() );
 								}
+
+								// Finalize state.
+								item->update_attributes();
 
 								backpack_->insert_item( item );
 							}
@@ -1042,6 +1065,7 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 									slots += PAGE_WIDTH * PAGE_HEIGHT * PAGE_COUNT;
 								}
 
+								// Check that we don't reduce slot count.
 								if (slots < backpack_->GetInventorySize()) {
 									throw std::runtime_error( "New backpack size smaller than old." );
 								}
@@ -1238,6 +1262,11 @@ void ItemManager::on_popup_released( Popup* popup )
 	// Exited popup handling.
 	if (popup->is_killed()) {
 		if (popup == error_) {
+			// Update if that's the reason we're exiting.
+			if (updateError_) {
+				launch_updater();
+			}
+
 			exit_application();
 		}
 		else if (popup == craft_check_) {
@@ -1259,6 +1288,11 @@ void ItemManager::on_popup_key_released( Popup* popup )
 	// Exit application if error is killed.
 	if (popup == error_) {
 		if (error_->get_state() == POPUP_STATE_KILLED) {
+			// Update if that's the reason we're exiting.
+			if (updateError_) {
+				launch_updater();
+			}
+
 			exit_application();
 		}
 	}

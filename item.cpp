@@ -53,6 +53,17 @@ void Item::get_item_information( void )
 	}
 }
 
+void Item::update_attributes( void )
+{
+	// Check if quality is elevated.
+	const Attribute* quality_attrib = get_attribute_by_name( "elevated quality" );
+	if (quality_attrib != nullptr) {
+		// First get quality number.
+		uint32 quality_num = static_cast<uint32>(quality_attrib->get_float_value());
+		set_quality( static_cast<EItemQuality>(quality_num) );
+	}
+}
+
 uint64 Item::get_unique_id( void ) const
 {
 	return uniqueId_;
@@ -95,7 +106,7 @@ std::string Item::get_name( void ) const
 	}
 	else {
 		std::string itemName = information_->get_name();
-		std::string qualityName = get_qualityName();
+		std::string qualityName = get_quality_name();
 		if (!qualityName.empty()) {
 			std::string fullPrefix = qualityName + ' ';
 			itemName.insert( itemName.begin(), fullPrefix.begin(), fullPrefix.end() );
@@ -105,7 +116,7 @@ std::string Item::get_name( void ) const
 	}
 }
 
-const Colour& Item::get_qualityColour( void ) const
+const Colour& Item::get_quality_colour( void ) const
 {
 	switch (get_quality()) {
 	case k_EItemQuality_Vintage:
@@ -117,6 +128,7 @@ const Colour& Item::get_qualityColour( void ) const
 		break;
 
 	case k_EItemQuality_Unusual:
+	case k_EItemQuality_Haunted:
 		return QUALITY_UNUSUAL_COLOUR;
 		break;
 
@@ -139,7 +151,7 @@ const Colour& Item::get_qualityColour( void ) const
 	}
 }
 
-const char* Item::get_qualityName( void ) const
+const char* Item::get_quality_name( void ) const
 {
 	switch (get_quality()) {
 	case k_EItemQuality_Vintage:
@@ -168,6 +180,10 @@ const char* Item::get_qualityName( void ) const
 
 	case k_EItemQuality_Valve:
 		return "Valve";
+		break;
+
+	case k_EItemQuality_Haunted:
+		return "Haunted";
 		break;
 
 	default:
@@ -219,22 +235,34 @@ bool Item::has_custom_name( void ) const
 	return !customName_.empty();
 }
 
+/* Checks whether an item is allowed to be traded. */
+bool Item::is_tradable( void ) const
+{
+	return ((get_origin() != ORIGIN_ACHIEVEMENT) &&
+		(get_attribute_by_name( "cannot trade" ) == nullptr)) ||
+		(get_attribute_by_name( "always tradable" ) != nullptr);
+}
+
+/* Checks whether this item is equipped. */
 bool Item::is_equipped( uint32 equipClass ) const
 {
 	int equipFlags = flags_ & equipClass;
 	return has_valid_flags() && (equipFlags != 0);
 }
 
+/* Checks if the equip flags match this item. */
 bool Item::class_uses( uint32 classFlags ) const
 {
 	return (get_equip_classes() & classFlags) != 0;
 }
 
+/* Gets the slot this item equips to. */
 EItemSlot Item::get_equip_slot( void ) const
 {
 	return information_->get_slot();
 }
 
+/* Gets all item equip flags. */
 uint32 Item::get_equip_classes( void ) const
 {
 	return information_->get_class_flags();

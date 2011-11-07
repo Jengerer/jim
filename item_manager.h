@@ -96,9 +96,10 @@ private:
 	// User interface members.
 	SlotGridPages*		inventoryView_;
 	SlotGridView*		excludedView_;
-	Button*				craftButton_;
-	Button*				equipButton_;
-	Button*				sortButton_;
+	Button*				craft_button_;
+	Button*				equip_button_;
+	Button*				sort_button_;
+	Button*				delete_button_;
 
 	// Page handling members.
 	WrappedText*		pageDisplay_;

@@ -62,6 +62,8 @@ typedef enum EItemQuality
 	k_EItemQuality_SelfMade,
 	k_EItemQuality_Unused10,
 	k_EItemQuality_Strange,
+	k_EItemQuality_Unk12,
+	k_EItemQuality_Haunted,
 
 	k_EItemQuality_Max = 0xFF,
 } EItemQuality;

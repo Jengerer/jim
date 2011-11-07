@@ -34,11 +34,15 @@ enum EItemSlot {
 	SLOT_GRENADE
 };
 
+enum EItemOrigins {
+	ORIGIN_ACHIEVEMENT = 1
+};
+
 const Colour QUALITY_COMMON_COLOUR		= Colour( 255, 215, 0 );
 const Colour QUALITY_UNUSUAL_COLOUR		= Colour( 134, 80, 172 );
 const Colour QUALITY_VINTAGE_COLOUR		= Colour( 69, 97, 141 );
 const Colour QUALITY_GENUINE_COLOUR		= Colour( 75, 115, 83 );
-const Colour QUALITY_STRANGE_COLOUR		= Colour( 205, 155, 29 );
+const Colour QUALITY_STRANGE_COLOUR		= Colour( 207, 106, 50 );
 const Colour QUALITY_COMMUNITY_COLOUR	= Colour( 112, 176, 74 );
 const Colour QUALITY_VALVE_COLOUR		= Colour( 165, 15, 121 );
 
