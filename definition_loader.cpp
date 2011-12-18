@@ -257,6 +257,9 @@ void DefinitionLoader::load()
 
 					// Get information.
 					AttributeInformation* attrib_info = name_map[attrib_name];
+					if (attrib_info == nullptr) {
+						throw std::runtime_error( "Failed to get attribute information for attribute '" + attrib_name + "'." );
+					}
 
 					// Create new attribute.
 					Attribute* attribute = new Attribute( attrib_info, attrib_value );

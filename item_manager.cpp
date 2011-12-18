@@ -29,7 +29,7 @@
 const char*	APPLICATION_TITLE	= "Jengerer's Item Manager Lite";
 const int	APPLICATION_WIDTH	= 795;
 const int	APPLICATION_HEIGHT	= 540;
-const char*	APPLICATION_VERSION	= "0.9.9.9.7.8";
+const char*	APPLICATION_VERSION	= "0.9.9.9.7.9";
 
 // UI attributes.
 const unsigned int EXIT_BUTTON_PADDING	= 10;
@@ -83,7 +83,6 @@ LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-
 #ifdef _DEBUG
 	_CrtDumpMemoryLeaks();
 #endif
@@ -394,9 +393,15 @@ void ItemManager::create_layout( void )
 
 void ItemManager::run( void )
 {
-	Application::run();
-	think();
-	draw_frame();
+	try {
+		Application::run();
+		think();
+		draw_frame();
+	}
+	catch (const std::exception& ex) {
+		error_ = popups_->create_alert( ex.what() );
+		set_think( &ItemManager::exiting );
+	}
 }
 
 void ItemManager::set_think( void (ItemManager::*thinkFunction)( void ) )
@@ -840,6 +845,45 @@ void ItemManager::load_items_from_web( void )
 		throw std::runtime_error( "Failed to read inventory from profile." );
 	}
 
+	// Parse file.
+	Json::Value root;
+	Json::Reader reader;
+	if (!reader.parse( jsonInventory, root, false )) {
+		throw new std::runtime_error( "Failed to parse inventory JSON file." );
+	}
+
+	// Get result.
+	const Json::Value& result = root["result"];
+	
+	// Check status.
+	int status = result["status"].asInt();
+	if (status != 1) {
+		throw new std::runtime_error( "Failed to get player inventory." );
+	}
+
+	// Add more slots.
+	int slots = result["num_backpack_slots"].asInt();
+	unsigned int added_slots = slots - backpack_->GetInventorySize();
+	backpack_->add_slots( added_slots );
+	inventoryView_->add_pages( backpack_->get_inventory_slots() );
+	update_page_display();
+
+	// Get items.
+	Json::Value items = result["item"];
+	for (Json::ValueIterator i = items.begin(); i != items.end(); ++i) {
+		const Json::Value& item = *i;
+		
+		Item* new_item = new Item(
+			item["id"].asUInt64(),
+			item["defindex"].asUInt(),
+			item["level"].asUInt(),
+			(EItemQuality)item["quality"].asUInt(),
+			item["quantity"].asUInt(),
+			item["inventory"].asUInt(),
+			0 );
+		backpack_->insert_item( new_item );
+	}
+
 	// Show success.
 	loadProgress_->SetMessage("Items successfully loaded!");
 	draw_frame();
@@ -896,50 +940,54 @@ void ItemManager::handle_callback( void ) {
 				if ( steamItems_->has_message( &size ) )
 				{
 					uint32 id, realSize = 0;
+					BYTE* buffer = new BYTE[size];
 
-					// Retrieve the message.
-					// WARNING: Do NOT use return before calling free on buffer.
-					void* buffer = malloc( size );
-					steamItems_->get_message( &id, buffer, size, &realSize );
+					try {
+						steamItems_->get_message( &id, buffer, size, &realSize );
 
-					// Filter protobuf messages.
-					if ((id & 0x80000000) != 0) {
-						uint32 realId = id & 0x0FFFFFFF;
+						// Filter protobuf messages.
+						if ((id & 0x80000000) != 0) {
+							uint32 realId = id & 0x0FFFFFFF;
 
-						// First get the protobuf struct header.
-						SerializedBuffer headerBuffer(buffer);
-						GCProtobufHeader_t *headerStruct = headerBuffer.get<GCProtobufHeader_t>();
-						uint32 headerSize = headerStruct->m_cubProtobufHeader;
+							// First get the protobuf struct header.
+							SerializedBuffer headerBuffer(buffer);
+							GCProtobufHeader_t *headerStruct = headerBuffer.get<GCProtobufHeader_t>();
+							uint32 headerSize = headerStruct->m_cubProtobufHeader;
 
-#ifdef _DEBUG
-						stringstream protoMsg;
-						protoMsg << "Protobuf message of type " << realId << " received.";
-						notifications_->add_notification( protoMsg.str(), nullptr );
-#endif
+	#ifdef _DEBUG
+							stringstream protoMsg;
+							protoMsg << "Protobuf message of type " << realId << " received.";
+							notifications_->add_notification( protoMsg.str(), nullptr );
+	#endif
 
-						// Now get the real protobuf header.
-						CMsgProtoBufHeader headerMsg;
-						void *headerBytes = headerBuffer.here();
-						headerMsg.ParseFromArray( headerBytes, headerSize );
-						headerBuffer.push( headerSize );
+							// Now get the real protobuf header.
+							CMsgProtoBufHeader headerMsg;
+							void *headerBytes = headerBuffer.here();
+							headerMsg.ParseFromArray( headerBytes, headerSize );
+							headerBuffer.push( headerSize );
 
-						// Check if we can set target ID.
-						// TODO: Maybe move all this horseshit into Steam.
-						if ( headerMsg.has_job_id_source() ) {
-							steamItems_->set_target_id( headerMsg.job_id_source() );
+							// Check if we can set target ID.
+							// TODO: Maybe move all this horseshit into Steam.
+							if ( headerMsg.has_job_id_source() ) {
+								steamItems_->set_target_id( headerMsg.job_id_source() );
+							}
+
+							uint32 bodySize = size - sizeof( GCProtobufHeader_t ) - headerSize;
+							handle_protobuf( realId, headerBuffer.here(), bodySize );
 						}
+						else {
+							handle_message( id, buffer, size );
+						}
+					}
+					catch (const std::bad_alloc& alloc_ex) {
+						throw alloc_ex;
+					}
+					catch (const std::runtime_error& ex) {
+						delete buffer;
+						throw ex;
+					}
 
-						uint32 bodySize = size - sizeof( GCProtobufHeader_t ) - headerSize;
-						handle_protobuf( realId, headerBuffer.here(), bodySize );
-					}
-					else {
-						handle_message( id, buffer, size );
-					}
-
-					if (buffer != nullptr) {
-						free( buffer );
-						buffer = nullptr;
-					}
+					delete buffer;
 				}
 			}
 		}
@@ -978,7 +1026,16 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 		{
 			// Get message.
 			CMsgSOCacheSubscribed subscribedMsg;
+
 			subscribedMsg.ParseFromArray( message, size );
+
+#ifdef _DEBUG
+			ofstream buf;
+			buf.open( "buf.txt", ios::binary );
+			buf.write( (const char*)message, size );
+			buf.close();
+#endif
+
 			steamItems_->set_version( subscribedMsg.version() );
 
 			// Check that this is our backpack.
