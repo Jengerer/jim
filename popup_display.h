@@ -38,8 +38,8 @@ public:
 	virtual bool	on_mouse_moved( Mouse* mouse );
 
 	// Keyboard handling for popups.
-	virtual bool	on_key_pressed( Key key );
-	virtual bool	on_key_released( Key key );
+	virtual bool	on_key_pressed( int key );
+	virtual bool	on_key_released( int key );
 
 private:
 

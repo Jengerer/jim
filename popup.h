@@ -32,8 +32,8 @@ public:
 	virtual bool	on_mouse_moved( Mouse* mouse );
 
 	// Keyboard handling.
-	virtual bool	on_key_pressed( Key key );
-	virtual bool	on_key_released( Key key );
+	virtual bool	on_key_pressed( int key_code );
+	virtual bool	on_key_released( int key_code );
 
 	// Position alignment.
 	void			center_to( const Container* parent );

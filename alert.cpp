@@ -18,7 +18,7 @@ const Button* Alert::GetButton( void ) const
 	return ok_;
 }
 
-bool Alert::on_key_released( Key key )
+bool Alert::on_key_released( int key )
 {
 	if (key == VK_RETURN) {
 		set_state( POPUP_STATE_KILLED );

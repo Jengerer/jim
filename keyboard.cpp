@@ -1,61 +1,35 @@
 #include "keyboard.h"
 
-#include <windows.h>
-
-KeyboardHandler::KeyboardHandler()
+/*
+ * Keyboard contructor.
+ */
+Keyboard::Keyboard()
 {
-	// Keyboard handler created.
+	clear_states();
 }
 
-KeyboardHandler::~KeyboardHandler()
+/*
+ * Returns true if a key is pressed.
+ */
+bool Keyboard::is_key_pressed( int key_code ) const
 {
-	// Keyboard handler destroyed.
+	return states_[key_code];
 }
 
-void KeyboardHandler::AddKey( Key keyCode )
+/*
+ * Updates a key's state.
+ */
+void Keyboard::set_key_state( int key, bool is_pressed )
 {
-	keys_.push_back( keyCode );
-	keyStates_[ keyCode ] = 0;
+	states_[key] = is_pressed;
 }
 
-void KeyboardHandler::UpdateKeys()
+/*
+ * Resets all key states.
+ */
+void Keyboard::clear_states()
 {
-	int length = keys_.size();
-	for (int i = 0; i < length; i++) {
-		Key currentKey = keys_.at( i );
-		State currentState = keyStates_[ currentKey ];
-		
-		// Set it to down and unset if it's not pressed.
-		keyStates_[ currentKey ] |= KEY_STATE_DOWN;
-		if ((GetAsyncKeyState( currentKey ) & 0x8000) == 0) {
-			keyStates_[ currentKey ] -= KEY_STATE_DOWN;
-		}
-
-		// Set flag to state change and unset if same.
-		State newState = keyStates_[ currentKey ] | KEY_STATE_CHANGED;
-		if (keyStates_[ currentKey ] == currentState ) {
-			newState -= KEY_STATE_CHANGED;
-		}
-		keyStates_[ currentKey ] = newState;
+	for (size_t i = 0; i < KEY_COUNT; ++i) {
+		states_[i] = false;
 	}
-}
-
-bool KeyboardHandler::HasChangedState( Key keyCode )
-{
-	return (keyStates_[ keyCode ] & KEY_STATE_CHANGED) != 0;
-}
-
-bool KeyboardHandler::IsKeyPressed( Key keyCode )
-{
-	return (keyStates_[ keyCode ] & KEY_STATE_DOWN) != 0;
-}
-
-bool KeyboardHandler::IsKeyClicked( Key keyCode )
-{
-	return IsKeyPressed( keyCode ) && HasChangedState( keyCode );
-}
-
-bool KeyboardHandler::IsKeyReleased( Key keyCode )
-{
-	return !IsKeyPressed( keyCode ) && HasChangedState( keyCode );
 }

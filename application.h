@@ -1,29 +1,24 @@
-#pragma once
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
-#include <string>
-#include <sstream>
-#include <vector>
-
-#include "keyboard.h"
-#include "imouse_handler.h"
 #include "container.h"
 #include "graphics_2d.h"
-#include "window.h"
+#include "imouse_handler.h"
+#include "ikeyboard_handler.h"
+#include "keyboard.h"
 #include "mouse.h"
-
-using namespace std;
-
-#define NUM_KEYCODES 255
+#include "window.h"
 
 // Main class that's the base of all applications.
-class Application: public Container, public KeyboardHandler, public IMouseHandler
+class Application: public Container, public IMouseHandler, public IKeyboardHandler
 {
 public:
 
-	Application( int width, int height );
+	Application( HINSTANCE instance );
 	virtual ~Application( void );
 
-	virtual void	load_interfaces( const char* title, HINSTANCE instance );
+	// Create interfaces.
+	virtual void	load_interfaces( void );
 	virtual void	close_interfaces( void );
 	void			exit_application( void );
 
@@ -37,18 +32,21 @@ public:
 	// Main running functions.
 	virtual void	run( void );
 
-	// Input handling.
-	virtual void	handle_keyboard() = 0;
-
-private:
-
-	// Only application should be able to update mouse.
-	void			update_mouse( void );
+	// Input event triggers.
+	void			trigger_mouse_events( void );
+	void			trigger_mouse_moved( void );
+	void			trigger_mouse_clicked( void );
+	void			trigger_mouse_released( void );
+	void			trigger_key_pressed( int key );
+	void			trigger_key_released( int key );
 
 protected:
 
-	Graphics2D*	graphics_;
-	Window*		window_;
-	Mouse*		mouse_;
+	Graphics2D*		graphics_;
+	Window*			window_;
+	Mouse*			mouse_;
+	Keyboard		keyboard_;
 
 };
+
+#endif // APPLICATION_H

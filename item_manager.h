@@ -30,11 +30,11 @@ class ItemManager: public Application, public IPopupHandler
 {
 public:
 
-	ItemManager( void );
+	ItemManager( HINSTANCE instance );
 	virtual ~ItemManager();
 
 	// Starting up.
-	void load_interfaces( HINSTANCE instance );
+	void load_interfaces();
 	void close_interfaces();
 
 	// Inventory and definition loading.
@@ -68,6 +68,10 @@ public:
 	virtual bool on_mouse_clicked( Mouse *mouse );
 	virtual bool on_mouse_released( Mouse *mouse );
 	virtual bool on_mouse_moved( Mouse *mouse );
+
+	// Keyboard input handling.
+	virtual bool on_key_pressed( int key );
+	virtual bool on_key_released( int key );
 
 	// Slot selection handling.
 	void on_slot_clicked( SlotView* slotView, Mouse* mouse );
