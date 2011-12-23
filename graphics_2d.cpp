@@ -36,6 +36,20 @@ void Graphics2D::initialize( void )
 		throw std::runtime_error( "Failed to get device context for window." );
 	}
 
+	// Create window settings if fullscreen.
+	if (window_->is_fullscreen()) {
+		DEVMODE settings;
+		memset( &settings, 0, sizeof(settings) );
+		settings.dmSize = sizeof(settings);
+		settings.dmPelsWidth = window_->get_width();
+		settings.dmPelsHeight = window_->get_height();
+		settings.dmBitsPerPel = 16;
+		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+		if (ChangeDisplaySettings( &settings, CDS_FULLSCREEN ) != DISP_CHANGE_SUCCESSFUL) {
+			throw std::runtime_error( "Failed to set fullscreen mode." );
+		}
+	}
+
 	// Choose pixel format.
 	GLuint pixelFormat = ChoosePixelFormat( dc_, &pixelDesc );
 	if (pixelFormat == 0) {
