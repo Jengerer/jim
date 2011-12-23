@@ -53,10 +53,6 @@ void Window::create_window()
 	RECT screen;
 	GetWindowRect( GetDesktopWindow(), &screen );
 
-	// Center window position.
-	int x = (screen.right - get_width()) / 2;
-	int y = (screen.bottom - get_height()) / 2;
-
 	// Adjust bounds based on style.
 	RECT windowRect;
 	windowRect.left	= 0;
@@ -65,13 +61,7 @@ void Window::create_window()
 	windowRect.bottom = get_height();
 
 	// Adjust size for style.
-	DWORD display_style;
-	if (is_fullscreen() || !has_border()) {
-		display_style = WS_POPUP;
-	}
-	else {
-		display_style = WS_CAPTION | WS_SYSMENU;
-	}
+	DWORD display_style = (is_fullscreen() || !has_border() ? WS_POPUP : WS_CAPTION | WS_SYSMENU);
 	if (!AdjustWindowRect( &windowRect, display_style, false )) {
 		throw std::runtime_error( "Failed to adjust window rectangle." );
 	}
@@ -80,7 +70,7 @@ void Window::create_window()
 	HWND wnd = CreateWindow(
 		title_, title_,
 		display_style | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-		x, y,
+		CW_USEDEFAULT, CW_USEDEFAULT,
 		windowRect.right - windowRect.left, 
 		windowRect.bottom - windowRect.top,
 		NULL, NULL,

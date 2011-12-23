@@ -43,11 +43,19 @@ void Application::load_interfaces( void )
  */
 void Application::close_interfaces( void )
 {
+	// Delete graphics.
 	if (graphics_ != nullptr) {
 		delete graphics_;
 		graphics_ = nullptr;
 	}
 
+	// Delete mouse.
+	if (mouse_ != nullptr) {
+		delete mouse_;
+		mouse_ = nullptr;
+	}
+
+	// Delete window.
 	if (window_ != nullptr) {
 		delete window_;
 		window_ = nullptr;
