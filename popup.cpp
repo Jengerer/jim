@@ -49,12 +49,12 @@ bool Popup::on_mouse_moved( Mouse* mouse )
 	return mouse->is_touching( this );
 }
 
-bool Popup::on_key_pressed( Key key )
+bool Popup::on_key_pressed( int key )
 {
 	return false;
 }
 
-bool Popup::on_key_released( Key key )
+bool Popup::on_key_released( int key )
 {
 	return false;
 }

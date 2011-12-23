@@ -8,28 +8,59 @@
 
 class Window
 {
+
 public:
+
 	//Class constructor.
-	Window( HINSTANCE hInstance,
-		const char* title,
-		int width, int height );
+	Window( HINSTANCE hInstance );
 	~Window();
 
-	bool	register_class( HINSTANCE hInstance );
-	void	create_window( HINSTANCE hInstance );
-
-	bool	is_active();
+	// Window creation.
+	void		create_window();
 	
-	int		get_width() const;
-	int		get_height() const;
-	HWND	get_handle() const;
+	// Get window external parameters.
+	HWND		get_handle() const;
+	const char* get_title() const;
 
+	// Setting window display parameters.
+	void		set_title( const char* title );
+	void		set_size( int width, int height );
+	void		set_fullscreen( bool is_fullscreen );
+	void		set_border( bool has_border );
+
+	// Get window display parameters.
+	int			get_width() const;
+	int			get_height() const;
+	bool		is_fullscreen() const;
+	bool		has_border() const;
+
+	// Window status parameters.
+	bool		is_active();
 
 private:
 
-	HWND		hWnd_;
+	// Creating window class.
+	bool	register_class();
+
+	// Setting window external parameters.
+	void		set_handle( HWND hwnd );
+	void		set_instance( HINSTANCE instance );
+	HINSTANCE	get_instance() const;
+
+private:
+
+	// Window handle.
+	HWND		wnd_;
+
+	// Window external parameters.
 	const char*	title_;
-	int			width_, height_;
+	HINSTANCE	instance_;
+
+	// Window display parameters.
+	int			width_;
+	int			height_;
+	bool		is_fullscreen_;
+	bool		has_border_;
 
 };
 

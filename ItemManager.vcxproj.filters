@@ -231,8 +231,11 @@
     <ClCompile Include="confirmation.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
     <ClCompile Include="keyboard.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1086,10 +1089,10 @@
       <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="keyboard.h">
-      <Filter>headers\ui</Filter>
+      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="ikeyboard_handler.h">
-      <Filter>headers\ui</Filter>
+      <Filter>source\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

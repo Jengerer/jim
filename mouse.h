@@ -29,7 +29,11 @@ public:
 
 	// Mouse control and settings.
 	void set_window( Window* window );
-	void poll( void );
+	void poll();
+
+	// State getter.
+	void set_pressed( bool is_pressed );
+	bool is_pressed() const;
 
 	// Position functions.
 	int get_x( void ) const;
@@ -40,6 +44,7 @@ public:
 
 private:
 
+	bool is_pressed_;
 	Window*	window_;
 	POINT	position_;
 

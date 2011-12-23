@@ -68,66 +68,17 @@ const int PAGE_SPACING		= 50;
 const unsigned int PADDING	= 20;
 const unsigned int SPACING	= 10;
 
-LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 {
-	switch (message) {
-	case WM_CLOSE:
-	case WM_DESTROY:
-		PostQuitMessage( 0 );
-		return 0;
-		break;
-	}
+	// Set application size.
+	set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
 
-	return DefWindowProc( hWnd, message, wParam, lParam );
-}
+	// Set window parameters.
+	Window* window = get_window();
+	window->set_title( APPLICATION_TITLE );
+	window->set_border( true );
+	window->set_fullscreen( false );
 
-int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-{
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-
-	ItemManager* itemManager = new ItemManager();
-
-	try {
-		itemManager->load_interfaces( hInstance );
-	}
-	catch (std::runtime_error ex) {
-		MessageBox( NULL, ex.what(), "Initialization failed!", MB_OK );
-	}
-
-	// Enter main program loop.
-	MSG msg;
-	bool running = true;
-	while (running) {
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-			if (msg.message == WM_QUIT) {
-				running = false;
-			}
-			else {
-				TranslateMessage( &msg );
-				DispatchMessage( &msg );
-			}
-		}
-
-		itemManager->run();
-	}
-
-	// Clean item manager.
-	if (itemManager != nullptr) {
-		delete itemManager;
-		itemManager = nullptr;
-	}
-
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-
-	return EXIT_SUCCESS;
-}
-
-ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_HEIGHT )
-{
 	// Create the user layer.
 	user_layer_ = new Container();
 	user_layer_->set_size( get_width(), get_height() );
@@ -173,13 +124,6 @@ ItemManager::ItemManager( void ) : Application( APPLICATION_WIDTH, APPLICATION_H
 
 	// Set default running function.
 	set_think( &ItemManager::loading );
-
-	// Listen for input keys.
-	AddKey( VK_LEFT );
-	AddKey( VK_RIGHT );
-	AddKey( VK_ESCAPE );
-	AddKey( VK_RETURN );
-	AddKey( VK_CONTROL );
 }
 
 ItemManager::~ItemManager( void )
@@ -187,10 +131,10 @@ ItemManager::~ItemManager( void )
 	close_interfaces();
 }
 
-void ItemManager::load_interfaces( HINSTANCE instance )
+void ItemManager::load_interfaces()
 {
 	// Start up Graphics2D and window.
-	Application::load_interfaces( APPLICATION_TITLE, instance );
+	Application::load_interfaces();
 
 	// Necessary to display progress/status.
 	FontFactory::initialize();
@@ -767,33 +711,52 @@ void ItemManager::update_buttons()
 #endif
 }
 
-void ItemManager::handle_keyboard( void )
+/*
+ * Handle keyboard pressed input.
+ */
+bool ItemManager::on_key_pressed( int key )
 {
-	if (IsKeyPressed( VK_ESCAPE )) {
+	// Now handle ourselves.
+	switch (key) {
+	case VK_ESCAPE:
 		exit_application();
+		break;
+
+	case VK_RETURN:
+		popups_->on_key_pressed( key );
+		break;
+
+	case VK_CONTROL:
+		steamItems_->set_select_mode( SELECT_MODE_MULTIPLE );
+		break;
+
+	case VK_LEFT:
+		inventoryView_->previous_page();
+		update_page_display();
+		break;
+
+	case VK_RIGHT:
+		inventoryView_->next_page();
+		update_page_display();
+		break;
 	}
-	else {
-		if (IsKeyClicked( VK_RETURN )) {
-			popups_->on_key_pressed( VK_RETURN );
-		}
-		else {
-			if (IsKeyClicked( VK_CONTROL )) {
-				steamItems_->set_select_mode( SELECT_MODE_MULTIPLE );
-			}
-			else if (this->IsKeyReleased( VK_CONTROL )) {
-				steamItems_->set_select_mode( SELECT_MODE_SINGLE );
-			}
-	
-			if (IsKeyClicked( VK_RIGHT )) {
-				inventoryView_->next_page();
-				update_page_display();
-			}
-			else if (IsKeyClicked( VK_LEFT )) {
-				inventoryView_->previous_page();
-				update_page_display();
-			}
-		}		
+
+	return true;
+}
+
+/*
+ * Handle keyboard release input.
+ */
+bool ItemManager::on_key_released( int key )
+{
+	// Now handle ourselves.
+	switch (key) {
+	case VK_CONTROL:
+		steamItems_->set_select_mode( SELECT_MODE_SINGLE );
+		break;
 	}
+
+	return true;
 }
 
 void ItemManager::update_item_display( void )

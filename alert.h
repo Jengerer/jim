@@ -16,7 +16,7 @@ public:
 	const Button*	GetButton( void ) const;
 
 	// Keyboard handling.
-	virtual bool	on_key_released( Key key );
+	virtual bool	on_key_released( int key );
 
 	// Mouse handling.
 	virtual bool	on_mouse_clicked( Mouse *mouse );

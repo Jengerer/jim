@@ -128,7 +128,7 @@ bool PopupDisplay::on_mouse_moved( Mouse* mouse )
 	return false;
 }
 
-bool PopupDisplay::on_key_pressed( Key key )
+bool PopupDisplay::on_key_pressed( int key )
 {
 	// Check list front.
 	if (has_popup()) {
@@ -151,7 +151,7 @@ bool PopupDisplay::on_key_pressed( Key key )
 	return false;
 }
 
-bool PopupDisplay::on_key_released( Key key )
+bool PopupDisplay::on_key_released( int key )
 {
 	// Check list front.
 	if (has_popup()) {

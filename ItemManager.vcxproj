@@ -114,6 +114,8 @@
     <ClCompile Include="graphics_2d.cpp" />
     <ClCompile Include="horizontal_split_layout.cpp" />
     <ClCompile Include="index_slot.cpp" />
+    <ClCompile Include="keyboard.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="opengl_shared.cpp" />
     <ClCompile Include="popup_display.cpp" />
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc" />
@@ -144,7 +146,6 @@
     <ClCompile Include="item_display.cpp" />
     <ClCompile Include="item_information.cpp" />
     <ClCompile Include="item_manager.cpp" />
-    <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="layout.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="mouse.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="index_slot.h" />
     <ClInclude Include="attribute_information.h" />
     <ClInclude Include="ipopup_handler.h" />
+    <ClInclude Include="keyboard.h" />
     <ClInclude Include="popup_display.h" />
     <ClInclude Include="renderable_string.h" />
     <ClInclude Include="opengl_shared.h" />
@@ -216,7 +218,6 @@
     <ClInclude Include="item_information.h" />
     <ClInclude Include="item_manager.h" />
     <ClInclude Include="item_shared.h" />
-    <ClInclude Include="keyboard.h" />
     <ClInclude Include="layout.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="mouse.h" />
