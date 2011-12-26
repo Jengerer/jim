@@ -1,5 +1,7 @@
+#include <jui/font.h>
+#include <jui/font_factory.h>
+
 #include "notice.h"
-#include "font_factory.h"
 
 // Static members.
 Font* Notice::font_						= nullptr;
@@ -40,7 +42,7 @@ Notice::Notice( const std::string& message ) : Popup( 0.0f, 0.0f )
 	text_ = new WrappedText( font_, NOTICE_TEXT_WIDTH );
 	text_->set_text_formatting( DT_CENTER );
 	content_->add( text_ );
-	SetMessage( message );
+	set_message( message );
 	pack();
 }
 
@@ -56,16 +58,16 @@ void Notice::pack( void )
 	set_size( roundedContainer_->get_width(), roundedContainer_->get_height() );
 }
 
-void Notice::SetMessage( const std::string& message )
+void Notice::set_message( const std::string& message )
 {
 	message_ = message;
 	text_->SetText( message );
 	pack();
 }
 
-void Notice::AppendMessage( const std::string& message )
+void Notice::append_message( const std::string& message )
 {
-	SetMessage( message_ + message );
+	set_message( message_ + message );
 }
 
 void Notice::precache( Graphics2D* graphics )
@@ -73,7 +75,7 @@ void Notice::precache( Graphics2D* graphics )
 	font_ = FontFactory::create_font( NOTICE_FONT_FACE, NOTICE_FONT_SIZE );
 }
 
-void Notice::Release( void )
+void Notice::release( void )
 {
 	if (font_ != nullptr) {
 		delete font_;

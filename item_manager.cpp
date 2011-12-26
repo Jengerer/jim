@@ -1,21 +1,23 @@
-#include "item_manager.h"
-
 #include <algorithm>
 #include <stdlib.h>
 #include <crtdbg.h>
 #include <fstream>
 #include <math.h>
+#include <windows.h>
 #include <shellapi.h>
 #include <json/json.h>
 
-#include "curl.h"
-#include "font_factory.h"
+#include <jui/font_factory.h>
+
 #include "serialized_buffer.h"
 #include "slot_view.h"
 
 #include "protobuf/base_gcmessages.pb.h"
 #include "protobuf/steammessages.pb.h"
 #include "protobuf/gcsdk_gcmessages.pb.h"
+
+#include "http_resource_loader.h"
+#include "item_manager.h"
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
@@ -79,6 +81,8 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 	window->set_border( true );
 	window->set_fullscreen( false );
 
+	// Create resource handlers.
+
 	// Create the user layer.
 	user_layer_ = new Container();
 	user_layer_->set_size( get_width(), get_height() );
@@ -133,6 +137,15 @@ ItemManager::~ItemManager( void )
 
 void ItemManager::load_interfaces()
 {
+	// Initialize downloader.
+	FileDownloader::initialize();
+
+	// Get loader from site.
+	HttpResourceLoader site_loader( "http://www.jengerer.com/item_manager/" );
+
+	// Download rounded corner.
+	FileDownloader::check_and_get( "img/rounded_corner.png", "http://www.jengerer.com/item_manager/img/rounded_corner.png" );
+
 	// Start up Graphics2D and window.
 	Application::load_interfaces();
 
@@ -235,18 +248,15 @@ void ItemManager::close_interfaces( void )
 	}
 
 	// Free cached resources.
-	ItemDisplay::Release();
-	Button::Release();
-	Notice::Release();
-	Notification::Release();
-	SlotView::Release();
-	ToggleSet::Release();
+	ItemDisplay::release();
+	Button::release();
+	Notice::release();
+	Notification::release();
+	SlotView::release();
+	ToggleSet::release();
 
 	// Close font library.
 	FontFactory::shut_down();
-	
-	// Close curl.
-	Curl::shut_down();
 
 	// Free all protobuf library resources.
 	google::protobuf::ShutdownProtobufLibrary();
@@ -387,13 +397,13 @@ void ItemManager::loading()
 				break;
 			}
 
-			loadProgress_->SetMessage( "Waiting for Steam message..." );
+			loadProgress_->set_message( "Waiting for Steam message..." );
 			loadProgress_->center_to( this );
 			break;
 
 		default:
 			definitionLoader_->update_progress_msg();
-			loadProgress_->SetMessage( definitionLoader_->get_progress_msg() );
+			loadProgress_->set_message( definitionLoader_->get_progress_msg() );
 			loadProgress_->center_to( this );
 			break;
 		}
@@ -781,7 +791,7 @@ void ItemManager::update_page_display( void )
 void ItemManager::load_definitions( void )
 {
 	// Set the message and redraw.
-	loadProgress_->SetMessage("Loading item definitions...");
+	loadProgress_->set_message("Loading item definitions...");
 
 	// Set up loader.
 	definitionLoader_ = new DefinitionLoader( graphics_ );
@@ -790,7 +800,7 @@ void ItemManager::load_definitions( void )
 
 void ItemManager::load_items_from_web( void )
 {
-	loadProgress_->AppendMessage("\n\nLoading items...");
+	loadProgress_->append_message("\n\nLoading items...");
 	draw_frame();
 
 	uint64 userId = steamItems_->get_steam_id();
@@ -848,7 +858,7 @@ void ItemManager::load_items_from_web( void )
 	}
 
 	// Show success.
-	loadProgress_->SetMessage("Items successfully loaded!");
+	loadProgress_->set_message("Items successfully loaded!");
 	draw_frame();
 
 	backpack_->set_loaded( true );
@@ -858,12 +868,11 @@ bool ItemManager::is_latest_version() const
 {
 	// Check for program updates.
 	try {
-		Curl* curl = Curl::get_instance();
-		string versionInfo = curl->read( "http://www.jengerer.com/item_manager/item_manager.txt" );
-		return versionInfo == APPLICATION_VERSION;
+		string version = FileDownloader::read( "http://www.jengerer.com/item_manager/item_manager.txt" );
+		return version == APPLICATION_VERSION;
 	}
 	catch (const std::runtime_error&) {
-		// Failed to get version, allow it.
+		// Failed to get version, it's our fault!
 	}
 
 	return true;
@@ -871,23 +880,14 @@ bool ItemManager::is_latest_version() const
 
 void ItemManager::launch_updater() const
 {
+	// Get updater if not exists.
+	loader_->get_resource( "auto_updater.exe", "auto_updater.exe" );
+
 	// TODO: Make an error type enum and launch this on update error.
 	int result = (int)ShellExecute( 0, 0, "auto_updater.exe", 0, 0, SW_SHOWDEFAULT );
-	if (result == ERROR_FILE_NOT_FOUND || result == ERROR_PATH_NOT_FOUND) {
-		// Attempt to download the updater.
-		try {
-			Curl* curl = Curl::get_instance();
-			curl->download( "http://www.jengerer.com/item_manager/auto_updater.exe", "auto_updater.exe" );
-
-			// ShellExecute returns >32 if success.
-			int result = (int)ShellExecute( 0, 0, "auto_updater.exe", 0, 0, SW_SHOWDEFAULT );
-			if (result <= 32) {
-				throw std::runtime_error( "Failed to run auto_updater.exe" );
-			}
-		}
-		catch (const std::runtime_error&) {
-			MessageBox( nullptr, "Failed to get/run updater, try re-downloading the application if this persists.", "Update Failed", MB_ICONERROR | MB_OK );
-		}
+	if (result <= 32) {
+		// No exception, just warn to manually update.
+		MessageBox( nullptr, "Failed to run updater, try re-downloading the application if this persists.", "Automatic Update Failed", MB_ICONEXCLAMATION | MB_OK );
 	}
 }
 

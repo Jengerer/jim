@@ -1,5 +1,7 @@
+#include <jui/font.h>
+#include <jui/font_factory.h>
+
 #include "item_display.h"
-#include "font_factory.h"
 
 const char* ITEM_DISPLAY_TITLE_FONT_FACE		= "fonts/tf2build.ttf";
 const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 13;
@@ -161,7 +163,7 @@ void ItemDisplay::precache()
 		ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
 }
 
-void ItemDisplay::Release( void )
+void ItemDisplay::release( void )
 {
 	if (nameFont_ != nullptr) {
 		delete nameFont_;

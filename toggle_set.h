@@ -3,16 +3,17 @@
 
 #include <vector>
 
+#include <jui/font.h>
+#include <jui/font_factory.h>
+#include <jui/grid_layout.h>
+#include <jui/horizontal_layout.h>
+#include <jui/layout.h>
+#include <jui/text.h>
+#include <jui/vertical_layout.h>
+
 #include "button.h"
-#include "font.h"
-#include "font_factory.h"
-#include "grid_layout.h"
-#include "horizontal_layout.h"
-#include "layout.h"
 #include "popup.h"
 #include "rounded_rectangle.h"
-#include "text.h"
-#include "vertical_layout.h"
 
 typedef vector<Button*> ButtonList;
 
@@ -40,7 +41,7 @@ public:
 	virtual bool on_mouse_released( Mouse *mouse );
 
 	static void precache();
-	static void Release();
+	static void release();
 
 private:
 

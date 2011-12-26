@@ -3,10 +3,11 @@
 
 #include <queue>
 
-#include "constrained_container.h"
-#include "imouse_handler.h"
+#include <jui/constrained_container.h>
+#include <jui/imouse_handler.h>
+#include <jui/texture.h>
+
 #include "notification.h"
-#include "texture.h"
 
 class NotificationQueue : public ConstrainedContainer, public IMouseHandler
 {

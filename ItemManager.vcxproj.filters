@@ -48,15 +48,6 @@
     <ClCompile Include="protobuf\steammessages.pb.cc">
       <Filter>source\protobufs</Filter>
     </ClCompile>
-    <ClCompile Include="application.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="curl.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="font.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="item_display.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -69,37 +60,13 @@
     <ClCompile Include="steam.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="window.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="alert.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
     <ClCompile Include="button.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="component.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="container.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
     <ClCompile Include="draggable.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="grid_layout.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="horizontal_layout.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="image.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="layout.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
     <ClCompile Include="menu.cpp">
@@ -123,26 +90,11 @@
     <ClCompile Include="rounded_rectangle.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="text.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
     <ClCompile Include="toggle_set.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="vertical_layout.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="wrapped_text.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="mouse.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
     <ClCompile Include="slot.cpp">
       <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="constrained_container.cpp">
-      <Filter>source\ui</Filter>
     </ClCompile>
     <ClCompile Include="definition_loader.cpp">
       <Filter>source</Filter>
@@ -168,32 +120,8 @@
     <ClCompile Include="animated_grid_pages.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="constraint.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="horizontal_split_layout.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="file_texture.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="font_factory.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics_2d.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="GLee.c">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="opengl_shared.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc">
       <Filter>source\protobufs</Filter>
-    </ClCompile>
-    <ClCompile Include="colour.cpp">
-      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="attribute_information.cpp">
       <Filter>source\items</Filter>
@@ -216,15 +144,6 @@
     <ClCompile Include="attribute.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
-    <ClCompile Include="renderable_cstring.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="renderable_wide_string.cpp">
-      <Filter>headers\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="renderable_string.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
     <ClCompile Include="popup_display.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
@@ -234,7 +153,7 @@
     <ClCompile Include="main.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="keyboard.cpp">
+    <ClCompile Include="..\jengerer%27s item manager\http_resource_loader.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -890,15 +809,6 @@
     <ClInclude Include="protobuf\gcsdk_gcmessages.pb.h">
       <Filter>headers\protobufs</Filter>
     </ClInclude>
-    <ClInclude Include="application.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="curl.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="iprecachable.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="item_display.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -911,43 +821,13 @@
     <ClInclude Include="steam.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="window.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="alert.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="button.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="component.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="container.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="grid_layout.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="font.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="draggable.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="horizontal_layout.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="image.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="idrawable.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="layout.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="menu.h">
@@ -974,28 +854,10 @@
     <ClInclude Include="toggle_set.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="vertical_layout.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="wrapped_text.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="text.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="mouse.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="slot_view.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="constrained_container.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="definition_loader.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="imouse_handler.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="slot.h">
@@ -1018,27 +880,6 @@
     </ClInclude>
     <ClInclude Include="animated_grid_pages.h">
       <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="constraint.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="horizontal_split_layout.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="file_texture.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="font_factory.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics_2d.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="opengl_shared.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="colour.h">
-      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="protobuf\tf_gcmessages.pb.h">
       <Filter>headers\protobufs</Filter>
@@ -1070,15 +911,6 @@
     <ClInclude Include="attribute.h">
       <Filter>headers\items</Filter>
     </ClInclude>
-    <ClInclude Include="renderable_cstring.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="renderable_wide_string.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="renderable_string.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="confirmation.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
@@ -1088,11 +920,11 @@
     <ClInclude Include="ipopup_handler.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="keyboard.h">
+    <ClInclude Include="http_resource_loader.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="ikeyboard_handler.h">
-      <Filter>source\ui</Filter>
+    <ClInclude Include="..\jengerer%27s item manager\iresource_loader.h">
+      <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1107,7 +939,6 @@
     <None Include="jimIcon.ico">
       <Filter>resources</Filter>
     </None>
-    <None Include="tint.fx" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="itemManager.rc">

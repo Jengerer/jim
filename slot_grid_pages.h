@@ -1,9 +1,10 @@
 #ifndef SLOT_GRID_PAGES_H
 #define SLOT_GRID_PAGES_H
 
-#include "constrained_container.h"
-#include "horizontal_layout.h"
-#include "mouse.h"
+#include <jui/constrained_container.h>
+#include <jui/horizontal_layout.h>
+#include <jui/mouse.h>
+
 #include "slot_grid_view.h"
 #include "slot_vector.h"
 

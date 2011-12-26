@@ -1,13 +1,15 @@
-#pragma once
+#ifndef ITEM_DISPLAY_H
+#define ITEM_DISPLAY_H
 
-#include "container.h"
-#include "font.h"
-#include "graphics_2d.h"
+#include <jui/container.h>
+#include <jui/font.h>
+#include <jui/graphics_2d.h>
+#include <jui/text.h>
+#include <jui/wrapped_text.h>
+#include <jui/vertical_layout.h>
+
 #include "item.h"
 #include "rounded_container.h"
-#include "text.h"
-#include "wrapped_text.h"
-#include "vertical_layout.h"
 
 class ItemDisplay : public RoundedRectangleContainer
 {
@@ -32,7 +34,7 @@ public:
 	void			SetActive( bool is_active );
 
 	static void		precache();
-	static void		Release();
+	static void		release();
 
 private:
 
@@ -54,3 +56,5 @@ private:
 	WrappedText			*infoText_;
 
 };
+
+#endif // ITEM_DISPLAY_H

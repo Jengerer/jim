@@ -1,7 +1,8 @@
 #ifndef DRAGGED_SLOT_VIEW_H
 #define DRAGGED_SLOT_VIEW_H
 
-#include "imouse_handler.h"
+#include <jui/imouse_handler.h>
+
 #include "slot.h"
 #include "slot_view.h"
 

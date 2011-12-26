@@ -1,7 +1,9 @@
 #include <iostream>
 #include <Windows.h>
 #include <TlHelp32.h>
-#include "curl.h"
+
+#include <jui/file_downloader.h>
+#include <jui/application.h>
 
 using std::cout;
 
@@ -9,9 +11,9 @@ int main( int argc, char** argv )
 {
 	cout << "Welcome to the Inconvenient Item Manager Update System!\n\n";
 	cout << "Euthenizing item_manager.exe... ";
-
+	
 	try {
-		// Terminate application.
+		// Terminate running manager.
 		PROCESSENTRY32 entry;
 		entry.dwSize = sizeof( PROCESSENTRY32 );
 		HANDLE snapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
@@ -50,34 +52,46 @@ int main( int argc, char** argv )
 	cout << "EUTHENIZED!\n\n";
 	cout << "Preparing update interfaces... ";
 
-	Curl* curl = nullptr;
+	// Start downloading files.
 	try {
-		curl = Curl::get_instance();
+		// Set up downloader.
+		FileDownloader::initialize();
 		cout << "SUCCESS!\n";
 
+		// Download item manager executable.
 		cout << "Downloading item_manager.exe... ";
-		curl->download( "http://www.jengerer.com/item_manager/item_manager.exe", "item_manager.exe" );
+		FileDownloader::get( "item_manager.exe", "http://www.jengerer.com/item_manager/item_manager.exe" );
 		cout << "SUCCESS!\n";
 
+		// Download Steam API DLL.
 		cout << "Downloading steam_api.dll... ";
-		curl->download( "http://www.jengerer.com/item_manager/steam_api.dll", "steam_api.dll" );
+		FileDownloader::check_and_get( "steam_api.dll", "http://www.jengerer.com/item_manager/steam_api.dll" );
 		cout << "SUCCESS!\n";
 
+		// Download libpng15.dll if missing.
 		cout << "Downloading libpng15.dll... ";
-		curl->download( "http://www.jengerer.com/item_manager/libpng15.dll", "libpng15.dll" );
+		FileDownloader::check_and_get( "libpng15.dll", "http://www.jengerer.com/item_manager/libpng15.dll" );
 		cout << "SUCCESS!\n";
 	}
-	catch (const std::runtime_error&) {
-		cout << "FAILED!\n";
-		Curl::shut_down();
+	catch (const std::runtime_error& ex) {
+		// Close downloader on fail.
+		FileDownloader::close();
+
+		// Print error.
+		cout << "FAILED: " << ex.what() << "\n";
 		system( "pause" );
 		return EXIT_FAILURE;
 	}
 
+	// Close downloader.
+	FileDownloader::close();
+
+	// Print last output.
 	cout << "\n";
 	cout << "Wow, nothing broke, that's a surprise.\n";
 	cout << "Launching item manager after superfluous 3 second pause...\n";
 
+	// Run item manager after pause.
 	Sleep( 3000 );
 	ShellExecute( 0, 0, "item_manager.exe", 0, 0, SW_SHOWDEFAULT );
 

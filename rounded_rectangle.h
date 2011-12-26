@@ -1,7 +1,7 @@
 #ifndef ROUNDED_RECTANGLE_H
 #define ROUNDED_RECTANGLE_H
 
-#include "component.h"
+#include <jui/component.h>
 
 enum EStrokeType {
 	STROKE_TYPE_OUTER,

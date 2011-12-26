@@ -1,11 +1,13 @@
-#pragma once
+#ifndef BUTTON_H
+#define BUTTON_H
 
-#include "container.h"
-#include "font.h"
-#include "imouse_handler.h"
-#include "mouse.h"
+#include <jui/container.h>
+#include <jui/font.h>
+#include <jui/imouse_handler.h>
+#include <jui/mouse.h>
+#include <jui/horizontal_layout.h>
+
 #include "rounded_container.h"
-#include "horizontal_layout.h"
 
 class Button: public RoundedRectangleContainer, public IMouseHandler
 {
@@ -33,7 +35,7 @@ public:
 	bool			IsHovering( void ) const;
 
 	static void		precache( Graphics2D* graphics );
-	static void		Release();
+	static void		release();
 
 	static Button*	CreateIconButton( Texture *texture );
 	static Button*	CreateLabelButton( const std::string& label, Font* font = defaultFont_ );
@@ -52,3 +54,5 @@ private:
 	bool				isEnabled_;
 
 };
+
+#endif // BUTTON_H

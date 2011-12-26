@@ -1,16 +1,19 @@
 #ifndef DEFINITION_LOADER_H
 #define DEFINITION_LOADER_H
 
-#include "graphics_2d.h"
-#include "item.h"
-#include "item_information.h"
-#include "string_hasher.h"
+#include <jui/graphics_2d.h>
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
+
 #include <json/json.h>
 #include <sstream>
 #include <string>
+
+#include "iresource_loader.h"
+#include "item.h"
+#include "item_information.h"
+#include "string_hasher.h"
 
 enum ELoadingState
 {
@@ -31,7 +34,7 @@ class DefinitionLoader
 
 public:
 
-	DefinitionLoader( Graphics2D* graphics );
+	DefinitionLoader( Graphics2D* graphics, IResourceLoader* loader );
 	~DefinitionLoader();
 
 	// Starting and ending the worker threads.
@@ -63,6 +66,7 @@ private:
 
 	// Resource parameters.
 	Graphics2D*		graphics_;
+	IResourceLoader* loader_;
 
 	// Threading parameters.
 	volatile bool						stop_;

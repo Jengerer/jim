@@ -1,13 +1,14 @@
 #ifndef NOTIFICATION_H
 #define NOTIFICATION_H
 
-#include "container.h"
-#include "font.h"
-#include "horizontal_layout.h"
-#include "image.h"
+#include <jui/container.h>
+#include <jui/font.h>
+#include <jui/horizontal_layout.h>
+#include <jui/image.h>
+#include <jui/texture.h>
+#include <jui/wrapped_text.h>
+
 #include "rounded_container.h"
-#include "texture.h"
-#include "wrapped_text.h"
 
 class Notification : public RoundedRectangleContainer
 {
@@ -18,10 +19,10 @@ public:
 	virtual ~Notification( void );
 
 	virtual void	pack( void );
-	void			SetMessage( const std::string& message );
+	void			set_message( const std::string& message );
 
 	static void		precache();
-	static void		Release();
+	static void		release();
 
 protected:
 

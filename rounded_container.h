@@ -1,8 +1,9 @@
 #ifndef ROUNDED_RECTANGLE_CONTAINER_H
 #define ROUNDED_RECTANGLE_CONTAINER_H
 
-#include "constrained_container.h"
-#include "horizontal_layout.h"
+#include <jui/constrained_container.h>
+#include <jui/horizontal_layout.h>
+
 #include "rounded_rectangle.h"
 
 // A new record! Longest class name in the project!

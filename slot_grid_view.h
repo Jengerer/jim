@@ -3,10 +3,11 @@
 
 #include <vector>
 
+#include <jui/grid_layout.h>
+#include <jui/mouse.h>
+
 #include "slot_vector.h"
 #include "slot_view.h"
-#include "grid_layout.h"
-#include "mouse.h"
 
 class SlotGridView : public GridLayout
 {

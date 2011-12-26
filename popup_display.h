@@ -4,10 +4,11 @@
 #include <list>
 #include <string>
 
+#include <jui/ikeyboard_handler.h>
+#include <jui/imouse_handler.h>
+
 #include "alert.h"
 #include "confirmation.h"
-#include "ikeyboard_handler.h"
-#include "imouse_handler.h"
 #include "ipopup_handler.h"
 #include "notice.h"
 

@@ -45,10 +45,10 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration) Output\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProgramFiles)\lpng154\;$(ProgramFiles)\freetype-2.4.5\include;$(ProgramFiles)\protobuf-2.4.1\src;$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\boost_1_46_1\;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProgramFiles)\lpng154\;$(ProgramFiles)\freetype-2.4.5\include;$(ProgramFiles)\protobuf-2.4.1\src;$(DXSDK_DIR)\Include\;$(ProgramFiles)\LibCurl\include\;$(ProgramFiles)\Boost\boost_1_46_1;$(ProgramFiles)\JsonCpp\include\;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProgramFiles)\lpng154\projects\vstudio\Release\;$(ProgramFiles)\freetype-2.4.5\objs\win32\vc2010;$(ProgramFiles)\protobuf-2.4.1\vsprojects\Release;$(ProgramFiles)\JsonCpp\libs\Release\;$(ProgramFiles)\Boost\boost_1_46_1\lib;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Release\;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProgramFiles)\lpng154\projects\vstudio\Debug\;$(ProgramFiles)\freetype-2.4.5\objs\win32\vc2010\;$(ProgramFiles)\protobuf-2.4.1\vsprojects\Debug;$(ProgramFiles)\JsonCpp\libs\Debug\;$(ProgramFiles)\Boost\boost_1_46_1\lib;$(DXSDK_DIR)\Lib\x86\;$(ProgramFiles)\LibCurl\lib\Debug\;$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Jengerer\Documents\Visual Studio 2010\Projects\Jengerer UI\include;$(SolutionDir)\lib\protobuf\src;$(SolutionDir)\lib\jsoncpp\include;$(SolutionDir)\lib\freetype\include;$(ProgramFiles)\boost\boost_1_47;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Jengerer\Documents\Visual Studio 2010\Projects\Jengerer UI\include;$(SolutionDir)\lib\libpng;$(SolutionDir)\lib\freetype\include;$(SolutionDir)\lib\protobuf\src;$(SolutionDir)\lib\libcurl\include;$(SolutionDir)\lib\jsoncpp\include;$(ProgramFiles)\boost\boost_1_47;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Jengerer\Documents\Visual Studio 2010\Projects\Jengerer UI\build;$(SolutionDir)\lib\libpng\projects\vstudio\Release\;$(SolutionDir)\lib\freetype\objs\win32\vc2010\;$(SolutionDir)\lib\protobuf\vsprojects\Release;$(SolutionDir)\lib\jsoncpp\libs\Release\;$(SolutionDir)\lib\libcurl\lib\Release\;$(ProgramFiles)\boost\boost_1_47\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Jengerer\Documents\Visual Studio 2010\Projects\Jengerer UI\build;$(SolutionDir)\lib\protobuf\vsprojects\Debug;$(SolutionDir)\lib\jsoncpp\libs\Debug\;$(ProgramFiles)\boost\boost_1_47\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -64,7 +64,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glu32.Lib;opengl32.lib;libpng15.lib;zlib.lib;freetype245_D.lib;libprotobuf.lib;steam/steam_api.lib;libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jengerer_ui_debug.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -86,7 +86,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>GlU32.Lib;OpenGL32.lib;libpng15.lib;zlib.lib;freetype245.lib;libprotobuf.lib;steam/steam_api.lib;libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jengerer_ui.lib;GlU32.Lib;OpenGL32.lib;libpng15.lib;zlib.lib;freetype247.lib;libprotobuf.lib;steam/steam_api.lib;libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -101,54 +101,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\jengerer%27s item manager\http_resource_loader.cpp" />
     <ClCompile Include="animated_grid_pages.cpp" />
     <ClCompile Include="attribute.cpp" />
     <ClCompile Include="attribute_information.cpp" />
-    <ClCompile Include="colour.cpp" />
     <ClCompile Include="confirmation.cpp" />
-    <ClCompile Include="constraint.cpp" />
     <ClCompile Include="dragged_slot_view.cpp" />
-    <ClCompile Include="file_texture.cpp" />
-    <ClCompile Include="font_factory.cpp" />
-    <ClCompile Include="GLee.c" />
-    <ClCompile Include="graphics_2d.cpp" />
-    <ClCompile Include="horizontal_split_layout.cpp" />
     <ClCompile Include="index_slot.cpp" />
-    <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="opengl_shared.cpp" />
     <ClCompile Include="popup_display.cpp" />
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc" />
-    <ClCompile Include="renderable_cstring.cpp" />
-    <ClCompile Include="renderable_string.cpp" />
-    <ClCompile Include="renderable_wide_string.cpp" />
     <ClCompile Include="steam_item_handler.cpp" />
-    <ClCompile Include="constrained_container.cpp" />
     <ClCompile Include="definition_loader.cpp" />
     <ClCompile Include="slot_grid_pages.cpp" />
     <ClCompile Include="slot_grid_view.cpp" />
     <ClCompile Include="slot_vector.cpp" />
     <ClCompile Include="slot_view.cpp" />
     <ClCompile Include="alert.cpp" />
-    <ClCompile Include="application.cpp" />
     <ClCompile Include="backpack.cpp" />
     <ClCompile Include="button.cpp" />
-    <ClCompile Include="component.cpp" />
-    <ClCompile Include="container.cpp" />
-    <ClCompile Include="curl.cpp" />
     <ClCompile Include="draggable.cpp" />
-    <ClCompile Include="font.cpp" />
-    <ClCompile Include="grid_layout.cpp" />
-    <ClCompile Include="horizontal_layout.cpp" />
-    <ClCompile Include="image.cpp" />
     <ClCompile Include="inventory.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="item_display.cpp" />
     <ClCompile Include="item_information.cpp" />
     <ClCompile Include="item_manager.cpp" />
-    <ClCompile Include="layout.cpp" />
     <ClCompile Include="menu.cpp" />
-    <ClCompile Include="mouse.cpp" />
     <ClCompile Include="notice.cpp" />
     <ClCompile Include="notification.cpp" />
     <ClCompile Include="notification_queue.cpp" />
@@ -161,66 +139,37 @@
     <ClCompile Include="serialized_buffer.cpp" />
     <ClCompile Include="slot.cpp" />
     <ClCompile Include="steam.cpp" />
-    <ClCompile Include="text.cpp" />
-    <ClCompile Include="texture.cpp" />
     <ClCompile Include="toggle_set.cpp" />
-    <ClCompile Include="vertical_layout.cpp" />
-    <ClCompile Include="window.cpp" />
-    <ClCompile Include="wrapped_text.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\jengerer%27s item manager\iresource_loader.h" />
+    <ClInclude Include="http_resource_loader.h" />
     <ClInclude Include="animated_grid_pages.h" />
     <ClInclude Include="attribute.h" />
-    <ClInclude Include="colour.h" />
     <ClInclude Include="confirmation.h" />
-    <ClInclude Include="constraint.h" />
     <ClInclude Include="dragged_slot_view.h" />
-    <ClInclude Include="file_texture.h" />
-    <ClInclude Include="font_factory.h" />
-    <ClInclude Include="graphics_2d.h" />
-    <ClInclude Include="horizontal_split_layout.h" />
-    <ClInclude Include="ikeyboard_handler.h" />
     <ClInclude Include="index_slot.h" />
     <ClInclude Include="attribute_information.h" />
     <ClInclude Include="ipopup_handler.h" />
-    <ClInclude Include="keyboard.h" />
     <ClInclude Include="popup_display.h" />
-    <ClInclude Include="renderable_string.h" />
-    <ClInclude Include="opengl_shared.h" />
     <ClInclude Include="protobuf\tf_gcmessages.pb.h" />
-    <ClInclude Include="renderable_cstring.h" />
-    <ClInclude Include="renderable_wide_string.h" />
     <ClInclude Include="steam_item_handler.h" />
-    <ClInclude Include="constrained_container.h" />
     <ClInclude Include="definition_loader.h" />
-    <ClInclude Include="imouse_handler.h" />
     <ClInclude Include="slot.h" />
     <ClInclude Include="slot_grid_pages.h" />
     <ClInclude Include="slot_grid_view.h" />
     <ClInclude Include="slot_vector.h" />
     <ClInclude Include="alert.h" />
-    <ClInclude Include="application.h" />
     <ClInclude Include="backpack.h" />
     <ClInclude Include="button.h" />
-    <ClInclude Include="component.h" />
-    <ClInclude Include="container.h" />
-    <ClInclude Include="curl.h" />
     <ClInclude Include="draggable.h" />
-    <ClInclude Include="font.h" />
-    <ClInclude Include="grid_layout.h" />
-    <ClInclude Include="horizontal_layout.h" />
-    <ClInclude Include="idrawable.h" />
-    <ClInclude Include="image.h" />
     <ClInclude Include="inventory.h" />
-    <ClInclude Include="iprecachable.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="item_display.h" />
     <ClInclude Include="item_information.h" />
     <ClInclude Include="item_manager.h" />
     <ClInclude Include="item_shared.h" />
-    <ClInclude Include="layout.h" />
     <ClInclude Include="menu.h" />
-    <ClInclude Include="mouse.h" />
     <ClInclude Include="notice.h" />
     <ClInclude Include="notification.h" />
     <ClInclude Include="notification_queue.h" />
@@ -448,18 +397,12 @@
     <ClInclude Include="steam\UserStatsCommon.h" />
     <ClInclude Include="steam\UtilsCommon.h" />
     <ClInclude Include="string_hasher.h" />
-    <ClInclude Include="text.h" />
-    <ClInclude Include="texture.h" />
     <ClInclude Include="toggle_set.h" />
-    <ClInclude Include="vertical_layout.h" />
-    <ClInclude Include="window.h" />
-    <ClInclude Include="wrapped_text.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="steam\steam_api.lib" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="tint.fx" />
     <None Include="steam\steamworks.vcproj" />
     <None Include="jimIcon.ico" />
   </ItemGroup>

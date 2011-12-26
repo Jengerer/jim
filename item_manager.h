@@ -1,13 +1,15 @@
 #ifndef ITEM_MANAGER_H
 #define ITEM_MANAGER_H
 
+#include <jui/application.h>
+#include <jui/horizontal_split_layout.h>
+#include <jui/vertical_layout.h>
+
 #include "alert.h"
-#include "application.h"
 #include "backpack.h"
 #include "button.h"
 #include "definition_loader.h"
 #include "dragged_slot_view.h"
-#include "horizontal_split_layout.h"
 #include "ipopup_handler.h"
 #include "item_display.h"
 #include "notice.h"
@@ -16,7 +18,6 @@
 #include "popup_display.h"
 #include "steam_item_handler.h"
 #include "toggle_set.h"
-#include "vertical_layout.h"
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -93,6 +94,7 @@ private:
 	// Application interfaces.
 	SteamItemHandler*	steamItems_;
 	Backpack*			backpack_;
+	HttpResourceLoader*	loader_;
 
 	// Display layers.
 	Container*			user_layer_;

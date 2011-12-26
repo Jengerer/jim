@@ -234,7 +234,7 @@ void ToggleSet::precache()
 	buttonFont_ = FontFactory::create_font( TOGGLE_SET_BUTTON_FONT_FACE, TOGGLE_SET_BUTTON_FONT_SIZE );
 }
 
-void ToggleSet::Release( void )
+void ToggleSet::release( void )
 {
 	if (titleFont_ != nullptr) {
 		delete titleFont_;

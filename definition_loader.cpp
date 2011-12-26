@@ -1,5 +1,6 @@
 #include "definition_loader.h"
-#include "curl.h"
+
+#include <jui/file_downloader.h>
 
 Json::Value& get_member( Json::Value& root, const std::string& member )
 {
@@ -10,9 +11,10 @@ Json::Value& get_member( Json::Value& root, const std::string& member )
 	return root[member];
 }
 
-DefinitionLoader::DefinitionLoader( Graphics2D *graphics )
+DefinitionLoader::DefinitionLoader( Graphics2D *graphics, IResourceLoader* loader )
 {
 	graphics_ = graphics;
+	loader_ = loader;
 
 	set_progress( 0.0f );
 	set_state( LOADING_STATE_NONE );
@@ -75,10 +77,10 @@ void DefinitionLoader::load()
 
 	try {
 		// Get definition file.
-		string definition;
+		std::string definition;
 		try {
-			Curl* curl = Curl::get_instance();
-			definition = curl->read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
+			FileDownloader::initialize();
+			definition = FileDownloader::read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
 		}
 		catch (std::runtime_error&) {
 			throw std::runtime_error( "Failed to read item definition file from Steam Web API." );
@@ -94,7 +96,7 @@ void DefinitionLoader::load()
 		Json::Value& attributes = get_member( result, "attributes" );
 
 		// Create table of class/attribute pairs.
-		std::hash_map<string, AttributeInformation*, StringHasher> name_map;
+		std::hash_map<std::string, AttributeInformation*, StringHasher> name_map;
 		
 		// Start loading attributes.
 		size_t loaded_attribs = 0;
@@ -109,12 +111,12 @@ void DefinitionLoader::load()
 			Json::Value& attribute = *i;
 
 			// Get necessary members.
-			string name = get_member( attribute, "name" ).asString();
+			std::string name = get_member( attribute, "name" ).asString();
 			uint32 index = get_member( attribute, "defindex" ).asUInt();
-			string attribute_class = get_member( attribute, "attribute_class" ).asString();
+			std::string attribute_class = get_member( attribute, "attribute_class" ).asString();
 			float min_value = static_cast<float>(get_member( attribute, "min_value" ).asDouble());
 			float max_value = static_cast<float>(get_member( attribute, "max_value" ).asDouble());
-			string effect_type_name = get_member( attribute, "effect_type" ).asString();
+			std::string effect_type_name = get_member( attribute, "effect_type" ).asString();
 			bool hidden = get_member( attribute, "hidden" ).asBool();
 			bool is_integer = get_member( attribute, "stored_as_integer" ).asBool();
 
@@ -145,8 +147,8 @@ void DefinitionLoader::load()
 
 			// Check for optional members.
 			if (attribute.isMember( "description_string" ) && attribute.isMember( "description_format" )) {
-				string desc_string = attribute[ "description_string" ].asString();
-				string desc_format = attribute[ "description_format" ].asString();
+				std::string desc_string = attribute[ "description_string" ].asString();
+				std::string desc_format = attribute[ "description_format" ].asString();
 				attrib_info->set_description( desc_string, desc_format );
 			}
 
@@ -186,9 +188,9 @@ void DefinitionLoader::load()
 
 			// Check that all necessary attributes exist.
 			unsigned int defindex	= get_member( item, "defindex" ).asUInt();
-			string item_name		= get_member( item, "item_name" ).asString();
-			string image_inventory	= get_member( item, "image_inventory" ).asString();
-			string image_url		= get_member( item, "image_url" ).asString();
+			std::string item_name		= get_member( item, "item_name" ).asString();
+			std::string image_inventory	= get_member( item, "image_inventory" ).asString();
+			std::string image_url		= get_member( item, "image_url" ).asString();
 
 			// Fallback image.
 			if (image_inventory.empty()) {
@@ -202,7 +204,7 @@ void DefinitionLoader::load()
 
 			EItemSlot item_slot = SLOT_NONE;
 			if (item.isMember( "item_slot" )) {
-				string slot_name = item["item_slot"].asString();
+				std::string slot_name = item["item_slot"].asString();
 				auto j = slots_.find( slot_name );
 				if (j == slots_.end()) {
 					throw std::runtime_error( "Failed to parse item definitions. Unexpected item slot type '" + slot_name + "' found." );
@@ -218,7 +220,7 @@ void DefinitionLoader::load()
 				item_classes = CLASS_NONE;
 				Json::Value classes = item["used_by_classes"];
 				for (size_t i = 0; i < classes.size(); i++) {
-					string class_name = classes[i].asString();
+					std::string class_name = classes[i].asString();
 
 					auto k = classes_.find( class_name );
 					if (k == classes_.end()) {
@@ -232,6 +234,7 @@ void DefinitionLoader::load()
 			// Load the image.
 			Texture *texture = nullptr;
 			try {
+				
 				texture = graphics_->get_texture( image_inventory, image_url );
 			}
 			catch (const std::runtime_error&) {
@@ -252,7 +255,7 @@ void DefinitionLoader::load()
 					Json::Value& item_attrib = *j;
 
 					// Get class and value.
-					string attrib_name = get_member( item_attrib, "name" ).asString();
+					std::string attrib_name = get_member( item_attrib, "name" ).asString();
 					float attrib_value = static_cast<float>(get_member( item_attrib, "value" ).asDouble());
 
 					// Get information.
@@ -339,7 +342,7 @@ const std::string& DefinitionLoader::get_progress_msg() const
 
 void DefinitionLoader::update_progress_msg()
 {
-	stringstream message;
+	std::stringstream message;
 	message.precision( 3 );
 
 	switch (get_state()) {
