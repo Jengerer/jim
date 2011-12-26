@@ -1,5 +1,7 @@
+#include <jui/font.h>
+#include <jui/font_factory.h>
+
 #include "notification.h"
-#include "font_factory.h"
 
 const unsigned int NOTIFICATION_ICON_SIZE	= 48;
 const unsigned int NOTIFICATION_TEXT_WIDTH	= 160;
@@ -45,7 +47,7 @@ Notification::Notification( const std::string& message, const Texture *texture )
 	roundedRect->RemoveTexture();
 
 	// Now set message, texture, and pack.
-	SetMessage( message );
+	set_message( message );
 	pack();
 }
 
@@ -61,7 +63,7 @@ void Notification::pack( void )
 	RoundedRectangleContainer::pack();
 }
 
-void Notification::SetMessage( const std::string& message )
+void Notification::set_message( const std::string& message )
 {
 	text_->SetText( message );
 }
@@ -71,7 +73,7 @@ void Notification::precache()
 	font_ = FontFactory::create_font( NOTIFICATION_FONT_FACE, NOTIFICATION_FONT_SIZE );
 }
 
-void Notification::Release( void )
+void Notification::release( void )
 {
 	if (font_ != nullptr) {
 		delete font_;

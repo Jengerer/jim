@@ -134,7 +134,7 @@ void SlotView::precache( Graphics2D* graphics )
 	equippedText_->SetText( "EQUIPPED" );
 }
 
-void SlotView::Release()
+void SlotView::release()
 {
 	if (normalSlot_ != nullptr) {
 		delete normalSlot_;

@@ -1,14 +1,15 @@
 #ifndef SLOT_VIEW_H
 #define SLOT_VIEW_H
 
-#include "constrained_container.h"
-#include "font.h"
-#include "font_factory.h"
-#include "image.h"
+#include <jui/constrained_container.h>
+#include <jui/font.h>
+#include <jui/font_factory.h>
+#include <jui/image.h>
+#include <jui/text.h>
+
 #include "item.h"
 #include "rounded_rectangle.h"
 #include "slot.h"
-#include "text.h"
 
 class SlotView: public ConstrainedContainer
 {
@@ -30,7 +31,7 @@ public:
 
 	// Precaching class-wide resources.
 	static void	precache( Graphics2D* graphics );
-	static void Release();
+	static void release();
 
 private:
 

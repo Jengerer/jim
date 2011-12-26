@@ -1,8 +1,8 @@
 #include "button.h"
 
-#include "font_factory.h"
-#include "image.h"
-#include "text.h"
+#include <jui/font_factory.h>
+#include <jui/image.h>
+#include <jui/text.h>
 
 Font* Button::defaultFont_ = nullptr;
 
@@ -119,7 +119,7 @@ void Button::precache( Graphics2D* graphics )
 		BUTTON_DEFAULT_FONT_SIZE );
 }
 
-void Button::Release()
+void Button::release()
 {
 	if (defaultFont_ != nullptr) {
 		delete defaultFont_;

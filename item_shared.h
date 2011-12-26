@@ -1,8 +1,8 @@
 #ifndef ITEM_DEFINITIONS_H
 #define ITEM_DEFINITIONS_H
 
-#include "texture.h"
-#include "graphics_2d.h"
+#include <jui/colour.h>
+
 #include "steam/SteamTypes.h"
 
 enum EClassEquip {

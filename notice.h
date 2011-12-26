@@ -1,12 +1,11 @@
 #ifndef NOTICE_H
 #define NOTICE_H
 
-#include "idrawable.h"
-#include "iprecachable.h"
+#include <jui/wrapped_text.h>
+#include <jui/vertical_layout.h>
+
 #include "popup.h"
 #include "rounded_container.h"
-#include "wrapped_text.h"
-#include "vertical_layout.h"
 
 class Notice : public Popup
 {
@@ -21,12 +20,12 @@ public:
 
 	// Message handling.
 	const std::string*	get_message( void ) const;
-	void			SetMessage( const std::string& message );
-	void			AppendMessage( const std::string& message );
+	void			set_message( const std::string& message );
+	void			append_message( const std::string& message );
 
 	// Loading class-wide resources.
 	static void		precache( Graphics2D* graphics );
-	static void		Release( void );
+	static void		release( void );
 
 protected:
 

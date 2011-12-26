@@ -1,10 +1,11 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include <jui/vertical_layout.h>
+
 #include "button.h"
 #include "popup.h"
 #include "rounded_rectangle.h"
-#include "vertical_layout.h"
 
 class Menu: public Popup
 {

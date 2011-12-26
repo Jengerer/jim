@@ -1,9 +1,11 @@
-#pragma once
+#ifndef ALERT_H
+#define ALERT_H
 
-#include "container.h"
+#include <jui/container.h>
+#include <jui/mouse.h>
+
 #include "button.h"
 #include "notice.h"
-#include "mouse.h"
 
 class Alert: public Notice
 {
@@ -28,3 +30,5 @@ private:
 	Button*			ok_;
 
 };
+
+#endif // ALERT_H

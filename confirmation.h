@@ -1,8 +1,9 @@
 #ifndef CONFIRMATION_H
 #define CONFIRMATION_H
 
+#include <jui/mouse.h>
+
 #include "notice.h"
-#include "mouse.h"
 #include "button.h"
 
 enum ConfirmationResponse

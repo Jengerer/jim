@@ -1,9 +1,11 @@
-#pragma once
+#ifndef POPUP_H
+#define POPUP_H
 
-#include "container.h"
+#include <jui/container.h>
+#include <jui/imouse_handler.h>
+#include <jui/ikeyboard_handler.h>
+
 #include "draggable.h"
-#include "imouse_handler.h"
-#include "ikeyboard_handler.h"
 
 enum EPopupState
 {
@@ -41,3 +43,5 @@ public:
 private:
 	EPopupState		state_;
 };
+
+#endif // POPUP_H

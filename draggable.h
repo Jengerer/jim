@@ -1,8 +1,8 @@
 #ifndef DRAGGABLE_H
 #define DRAGGABLE_H
 
-#include "constrained_container.h"
-#include "imouse_handler.h"
+#include <jui/constrained_container.h>
+#include <jui/imouse_handler.h>
 
 class Draggable: public ConstrainedContainer, public IMouseHandler
 {

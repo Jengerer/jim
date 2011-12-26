@@ -4,9 +4,10 @@
 #include <string>
 #include <vector>
 
+#include <jui/texture.h>
+
 #include "item_shared.h"
 #include "attribute.h"
-#include "texture.h"
 
 #include "steam/SteamTypes.h"
 

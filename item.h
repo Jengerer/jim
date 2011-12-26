@@ -15,7 +15,8 @@
 #include "item_information.h"
 #include "item_shared.h"
 #include "string_hasher.h"
-#include "texture.h"
+
+#include <jui/texture.h>
 
 typedef std::map<int, ItemInformation*> InformationMap;
 typedef std::map<uint32, AttributeInformation*>	AttributeMap;
