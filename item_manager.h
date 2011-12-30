@@ -10,6 +10,7 @@
 #include "button.h"
 #include "definition_loader.h"
 #include "dragged_slot_view.h"
+#include "http_resource_loader.h"
 #include "ipopup_handler.h"
 #include "item_display.h"
 #include "notice.h"
@@ -94,7 +95,7 @@ private:
 	// Application interfaces.
 	SteamItemHandler*	steamItems_;
 	Backpack*			backpack_;
-	HttpResourceLoader*	loader_;
+	HttpResourceLoader*	site_loader_;
 
 	// Display layers.
 	Container*			user_layer_;
@@ -124,8 +125,8 @@ private:
 	DefinitionLoader*	definitionLoader_;
 
 	// Top-level fonts.
-	Font*				titleFont_;
-	Font*				pageFont_;
+	IFont*				titleFont_;
+	IFont*				pageFont_;
 
 	// Popup manager.
 	PopupDisplay*		popups_;

@@ -3,9 +3,10 @@
 /*
  * Resource loader constructor.
  */
-HttpResourceLoader::HttpResourceLoader( const std::string& url )
+HttpResourceLoader::HttpResourceLoader( const std::string& url, FileDownloader* downloader )
 {
 	set_url( url );
+	set_downloader( downloader );
 }
 
 /*
@@ -13,7 +14,15 @@ HttpResourceLoader::HttpResourceLoader( const std::string& url )
  */
 void HttpResourceLoader::get_resource( const std::string& file, const std::string& target ) const
 {
-	FileDownloader::check_and_get( file, url_ + target );
+	downloader_->check_and_get( file, url_ + target );
+}
+
+/*
+ * Set file downloader.
+ */
+void HttpResourceLoader::set_downloader( FileDownloader* downloader )
+{
+	downloader_ = downloader;
 }
 
 /*

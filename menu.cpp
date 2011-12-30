@@ -15,7 +15,7 @@ Menu::Menu( void )
 
 	// Create rounded rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
-	roundedRect_->SetStroke( MENU_STROKE_SIZE, MENU_STROKE_COLOUR );
+	roundedRect_->set_stroke( MENU_STROKE_SIZE, MENU_STROKE_COLOUR );
 	set_constraint( roundedRect_, 0.0f, 0.0f );
 	add( roundedRect_ );
 
@@ -33,7 +33,7 @@ Menu::~Menu( void )
 
 Button* Menu::AddOption( const std::string& caption )
 {
-	Button* button = Button::CreateLabelButton( caption );
+	Button* button = Button::create_label_button( caption );
 
 	// Add to layout and list.
 	options_.push_back( button );

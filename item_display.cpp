@@ -1,4 +1,4 @@
-#include <jui/font.h>
+#include <jui/ifont.h>
 #include <jui/font_factory.h>
 
 #include "item_display.h"
@@ -11,8 +11,8 @@ const Colour& ITEM_DISPLAY_COLOUR				= COLOUR_BLACK;
 const char* ITEM_DISPLAY_INFO_FONT_FACE			= "fonts/tf2secondary.ttf";
 const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE	= 11;
 
-Font *ItemDisplay::nameFont_ = nullptr;
-Font *ItemDisplay::infoFont_ = nullptr;
+IFont *ItemDisplay::nameFont_ = nullptr;
+IFont *ItemDisplay::infoFont_ = nullptr;
 
 const unsigned int ITEM_DISPLAY_PADDING	= 20;
 const unsigned int ITEM_DISPLAY_SPACING	= 5;
@@ -24,7 +24,7 @@ const int ITEM_DISPLAY_ALPHA_MAX		= 210;
 ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_PADDING )
 {
 	set_alpha( 0 );
-	GetRoundedRectangle()->SetColour( ITEM_DISPLAY_COLOUR );
+	GetRoundedRectangle()->set_colour( ITEM_DISPLAY_COLOUR );
 	set_item( nullptr );
 	SetActive( false );
 
@@ -36,7 +36,7 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 
 	// Add to layout.
 	textLayout_ = new VerticalLayout();
-	textLayout_->SetSpacing( ITEM_DISPLAY_SPACING );
+	textLayout_->set_spacing( ITEM_DISPLAY_SPACING );
 	textLayout_->add( nameText_ );
 	textLayout_->add( infoText_ );
 
@@ -53,7 +53,7 @@ ItemDisplay::~ItemDisplay( void )
 void ItemDisplay::UpdateDisplay()
 {
 	// Alter display based on quality.
-	nameText_->SetColour( item_->get_quality_colour() );
+	nameText_->set_colour( item_->get_quality_colour() );
 	SetName( item_->get_name() );
 
 	// Build information text.
@@ -86,7 +86,7 @@ void ItemDisplay::UpdateDisplay()
 	// Convert to wide string.
 	if (wide_buffer != nullptr) {
 		MultiByteToWideChar( CP_UTF8, 0, text.c_str(), text.length(), wide_buffer, wide_size );
-		infoText_->SetText( wide_buffer, wide_size );
+		infoText_->set_text( wide_buffer, wide_size );
 
 		// Delete wide string.
 		delete wide_buffer;
@@ -98,13 +98,13 @@ void ItemDisplay::UpdateDisplay()
 void ItemDisplay::UpdateAlpha( void )
 {
 	if ( IsActive() ) {
-		set_alpha( GetAlpha() + ITEM_DISPLAY_ALPHA_SPEED );
-		if (GetAlpha() > ITEM_DISPLAY_ALPHA_MAX) {
+		set_alpha( get_alpha() + ITEM_DISPLAY_ALPHA_SPEED );
+		if (get_alpha() > ITEM_DISPLAY_ALPHA_MAX) {
 			set_alpha( ITEM_DISPLAY_ALPHA_MAX );
 		}
 	}
 	else {
-		set_alpha( GetAlpha() - ITEM_DISPLAY_ALPHA_SPEED );
+		set_alpha( get_alpha() - ITEM_DISPLAY_ALPHA_SPEED );
 	}
 }
 
@@ -141,7 +141,7 @@ const std::string& ItemDisplay::get_name( void ) const
 void ItemDisplay::SetName( const std::string& name )
 {
 	itemName_ = name;
-	nameText_->SetText( name );
+	nameText_->set_text( name );
 }
 
 bool ItemDisplay::IsActive( void ) const

@@ -2,7 +2,8 @@
 #define NOTIFICATION_H
 
 #include <jui/container.h>
-#include <jui/font.h>
+#include <jui/ifont.h>
+#include <jui/font_factory.h>
 #include <jui/horizontal_layout.h>
 #include <jui/image.h>
 #include <jui/texture.h>
@@ -26,7 +27,7 @@ public:
 
 protected:
 
-	static Font		*font_;
+	static IFont		*font_;
 
 private:
 

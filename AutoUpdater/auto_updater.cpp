@@ -55,27 +55,27 @@ int main( int argc, char** argv )
 	// Start downloading files.
 	try {
 		// Set up downloader.
-		FileDownloader::initialize();
 		cout << "SUCCESS!\n";
+		FileDownloader* loader = FileDownloader::get_instance();
 
 		// Download item manager executable.
 		cout << "Downloading item_manager.exe... ";
-		FileDownloader::get( "item_manager.exe", "http://www.jengerer.com/item_manager/item_manager.exe" );
+		loader->get( "item_manager.exe", "http://www.jengerer.com/item_manager/item_manager.exe" );
 		cout << "SUCCESS!\n";
 
 		// Download Steam API DLL.
 		cout << "Downloading steam_api.dll... ";
-		FileDownloader::check_and_get( "steam_api.dll", "http://www.jengerer.com/item_manager/steam_api.dll" );
+		loader->check_and_get( "steam_api.dll", "http://www.jengerer.com/item_manager/steam_api.dll" );
 		cout << "SUCCESS!\n";
 
 		// Download libpng15.dll if missing.
 		cout << "Downloading libpng15.dll... ";
-		FileDownloader::check_and_get( "libpng15.dll", "http://www.jengerer.com/item_manager/libpng15.dll" );
+		loader->check_and_get( "libpng15.dll", "http://www.jengerer.com/item_manager/libpng15.dll" );
 		cout << "SUCCESS!\n";
 	}
 	catch (const std::runtime_error& ex) {
 		// Close downloader on fail.
-		FileDownloader::close();
+		FileDownloader::shut_down();
 
 		// Print error.
 		cout << "FAILED: " << ex.what() << "\n";
@@ -84,7 +84,7 @@ int main( int argc, char** argv )
 	}
 
 	// Close downloader.
-	FileDownloader::close();
+	FileDownloader::shut_down();
 
 	// Print last output.
 	cout << "\n";

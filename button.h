@@ -2,7 +2,8 @@
 #define BUTTON_H
 
 #include <jui/container.h>
-#include <jui/font.h>
+#include <jui/ifont.h>
+#include <jui/font_factory.h>
 #include <jui/imouse_handler.h>
 #include <jui/mouse.h>
 #include <jui/horizontal_layout.h>
@@ -38,8 +39,8 @@ public:
 	static void		release();
 
 	static Button*	CreateIconButton( Texture *texture );
-	static Button*	CreateLabelButton( const std::string& label, Font* font = defaultFont_ );
-	static Button*	CreateIconLabelButton( Texture *texture, const std::string& label, Font* font = defaultFont_ );
+	static Button*	create_label_button( const std::string& label, IFont* font = defaultFont_ );
+	static Button*	CreateIconLabelButton( Texture *texture, const std::string& label, IFont* font = defaultFont_ );
 
 private:
 
@@ -47,7 +48,7 @@ private:
 
 private:
 
-	static Font			*defaultFont_;
+	static IFont		*defaultFont_;
 	HorizontalLayout	*layout_;
 
 	bool				isHovering_;

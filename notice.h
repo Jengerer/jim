@@ -30,7 +30,7 @@ public:
 protected:
 
 	// Class-wide texture and font.
-	static Font*	font_;
+	static IFont*	font_;
 	VerticalLayout*	content_;
 
 private:

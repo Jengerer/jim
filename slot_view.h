@@ -2,7 +2,7 @@
 #define SLOT_VIEW_H
 
 #include <jui/constrained_container.h>
-#include <jui/font.h>
+#include <jui/ifont.h>
 #include <jui/font_factory.h>
 #include <jui/image.h>
 #include <jui/text.h>
@@ -16,6 +16,7 @@ class SlotView: public ConstrainedContainer
 
 public:
 
+	// Constructor.
 	SlotView( Slot* slot );
 
 	// Over-ridden drawing function.
@@ -34,20 +35,19 @@ public:
 	static void release();
 
 private:
-
-	// TODO: Maybe come up with a better set up, mixing together.
-	static RoundedRectangle* normalSlot_;
-	static RoundedRectangle* selectedSlot_;
-	static RoundedRectangle* stroke_;
 	
-	static Font* equippedFont_;
-	static Text* equippedText_;
+	// Font and text for indicating equipped.
+	static IFont* equipped_font_;
+	static Text* equipped_text_;
 
 private:
 
-	Image* slotImage_;
-	Image* strokeImage_;
-	Image* itemImage_;
+	// Rounded rectangle pointers.
+	RoundedRectangle* slot_rectangle_;
+	RoundedRectangle* stroke_;
+
+	// Item icon image.
+	Image* item_image_;
 
 	Slot* slot_;
 	bool is_selected_;

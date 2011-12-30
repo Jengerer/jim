@@ -20,49 +20,49 @@ const bool TOGGLE_SET_BUTTON_FONT_BOLDED		= false;
 
 const unsigned int TOGGLE_SET_MIN_WIDTH			= 150;
 
-Font* ToggleSet::titleFont_ = nullptr;
-Font* ToggleSet::buttonFont_ = nullptr;
+IFont* ToggleSet::titleFont_ = nullptr;
+IFont* ToggleSet::buttonFont_ = nullptr;
 
 ToggleSet::ToggleSet( const std::string& nameSetA, const std::string& nameSetB, float x, float y ) : Popup( x, y )
 {
 	// Create titles.
 	titleSetA_ = new Text( titleFont_ );
-	titleSetA_->SetText( nameSetA );
+	titleSetA_->set_text( nameSetA );
 	titleSetA_->pack();
 
 	titleSetB_ = new Text( titleFont_ );
-	titleSetB_->SetText( nameSetB );
+	titleSetB_->set_text( nameSetB );
 	titleSetB_->pack();
 
 	// Create rectangle.
 	roundedRect_ = new RoundedRectangle( 0, 0, TOGGLE_SET_RADIUS, TOGGLE_SET_COLOUR );
-	roundedRect_->SetStroke( TOGGLE_SET_STROKE_SIZE, COLOUR_WHITE );
+	roundedRect_->set_stroke( TOGGLE_SET_STROKE_SIZE, COLOUR_WHITE );
 	add( roundedRect_ );
 	set_constraint( roundedRect_, 0.0f, 0.0f );
 
 	// Create okay and cancel buttons.
-	okayButton_ = Button::CreateLabelButton( "okay", buttonFont_ );
-	cancelButton_ = Button::CreateLabelButton( "cancel", buttonFont_ );
+	okayButton_ = Button::create_label_button( "okay", buttonFont_ );
+	cancelButton_ = Button::create_label_button( "cancel", buttonFont_ );
 	okayButton_->pack();
 	cancelButton_->pack();
 
 	// Create layouts.
 	//layoutSetA_ = new GridLayout( TOGGLE_SET_GRID_WIDTH );
 	layoutSetA_ = new HorizontalLayout();
-	layoutSetA_->SetSpacing( TOGGLE_SET_SPACING );
+	layoutSetA_->set_spacing( TOGGLE_SET_SPACING );
 
 	//layoutSetB_ = new GridLayout( TOGGLE_SET_GRID_WIDTH );
 	layoutSetB_ = new HorizontalLayout();
-	layoutSetB_->SetSpacing( TOGGLE_SET_SPACING );
+	layoutSetB_->set_spacing( TOGGLE_SET_SPACING );
 
 	buttonLayout_ = new HorizontalLayout();
-	buttonLayout_->SetSpacing( TOGGLE_SET_SPACING );
+	buttonLayout_->set_spacing( TOGGLE_SET_SPACING );
 	buttonLayout_->add( okayButton_ );
 	buttonLayout_->add( cancelButton_ );
 	buttonLayout_->pack();
 
 	setLayout_ = new VerticalLayout();
-	setLayout_->SetSpacing( TOGGLE_SET_SPACING );
+	setLayout_->set_spacing( TOGGLE_SET_SPACING );
 	setLayout_->set_align_type( ALIGN_CENTER );
 	setLayout_->add( titleSetA_ );
 	setLayout_->add( layoutSetA_ );
@@ -82,12 +82,12 @@ ToggleSet::~ToggleSet( void )
 	// Remove all buttons.
 	while (!buttonSetA_.empty()) {
 		Button *button = buttonSetA_.back();
-		RemoveSetA( button );
+		remove_set_a( button );
 	}
 
 	while (!buttonSetB_.empty()) {
 		Button *button = buttonSetB_.back();
-		RemoveSetB( button );
+		remove_set_b( button );
 	}
 }
 
@@ -100,25 +100,25 @@ void ToggleSet::pack( void )
 	set_size( roundedRect_->get_width(), roundedRect_->get_height() );
 }
 
-void ToggleSet::AddSetA( Button *button )
+void ToggleSet::add_set_a( Button *button )
 {
 	layoutSetA_->add( button );
 	buttonSetA_.push_back( button );
 }
 
-void ToggleSet::AddSetB( Button *button )
+void ToggleSet::add_set_b( Button *button )
 {
 	layoutSetB_->add( button );
 	buttonSetB_.push_back( button );
 }
 
-void ToggleSet::RemoveSetA( Button *button )
+void ToggleSet::remove_set_a( Button *button )
 {
 	RemoveSet( &buttonSetA_, button );
 	layoutSetA_->remove( button );
 }
 
-void ToggleSet::RemoveSetB( Button *button )
+void ToggleSet::remove_set_b( Button *button )
 {
 	RemoveSet( &buttonSetB_, button );
 	layoutSetB_->remove( button );
@@ -135,12 +135,12 @@ void ToggleSet::RemoveSet( ButtonList *set, Button *button )
 	}
 }
 
-bool ToggleSet::InSetA( Button *button ) const
+bool ToggleSet::in_set_a( Button *button ) const
 {
 	return InSet( &buttonSetA_, button );
 }
 
-bool ToggleSet::InSetB( Button *button ) const
+bool ToggleSet::in_set_b( Button *button ) const
 {
 	return InSet( &buttonSetB_, button );
 }
@@ -195,8 +195,8 @@ bool ToggleSet::on_mouse_released( Mouse *mouse )
 	for (i = buttonSetA_.begin(), end = buttonSetA_.end(); i != end; ++i) {
 		Button *button = *i;
 		if (mouse->is_touching( button )) {
-			RemoveSetA( button );
-			AddSetB( button );
+			remove_set_a( button );
+			add_set_b( button );
 			hitButton_ = true;
 			break;
 		}
@@ -206,8 +206,8 @@ bool ToggleSet::on_mouse_released( Mouse *mouse )
 		for (i = buttonSetB_.begin(), end = buttonSetB_.end(); i != end; ++i) {
 			Button *button = *i;
 			if (mouse->is_touching( button )) {
-				RemoveSetB( button );
-				AddSetA( button );
+				remove_set_b( button );
+				add_set_a( button );
 				break;
 			}
 		}

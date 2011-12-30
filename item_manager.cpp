@@ -137,22 +137,22 @@ ItemManager::~ItemManager( void )
 
 void ItemManager::load_interfaces()
 {
-	// Initialize downloader.
-	FileDownloader::initialize();
+	// Get downloader.
+	FileDownloader* downloader = FileDownloader::get_instance();
 
 	// Get loader from site.
-	HttpResourceLoader site_loader( "http://www.jengerer.com/item_manager/" );
+	site_loader_ = new HttpResourceLoader( "http://www.jengerer.com/item_manager/", downloader );
 
 	// Download rounded corner.
-	FileDownloader::check_and_get( "img/rounded_corner.png", "http://www.jengerer.com/item_manager/img/rounded_corner.png" );
+	site_loader_->get_resource( "img/manager/rounded_corner.png", "img/manager/rounded_corner.png" );
 
 	// Start up Graphics2D and window.
 	Application::load_interfaces();
 
 	// Necessary to display progress/status.
-	FontFactory::initialize();
 	Notice::precache( graphics_ );
 	Button::precache( graphics_ );
+	RoundedRectangle::precache( graphics_ );
 
 	try {
 		// precache secondary resources.
@@ -247,6 +247,12 @@ void ItemManager::close_interfaces( void )
 		Item::fallback = nullptr;
 	}
 
+	// Delete site loader.
+	if (site_loader_ != nullptr) {
+		delete site_loader_;
+		site_loader_ = nullptr;
+	}
+
 	// Free cached resources.
 	ItemDisplay::release();
 	Button::release();
@@ -260,6 +266,9 @@ void ItemManager::close_interfaces( void )
 
 	// Free all protobuf library resources.
 	google::protobuf::ShutdownProtobufLibrary();
+
+	// Close downloader.
+	FileDownloader::shut_down();
 }
 
 void ItemManager::create_layout( void )
@@ -277,9 +286,9 @@ void ItemManager::create_layout( void )
 	excludedView_->add_slots( backpack_->get_excluded_slots() );
 
 	// Create button layout.
-	Texture *craftTexture = graphics_->get_texture( "manager/gear" );
-	Texture *equipTexture = graphics_->get_texture( "manager/equip" );
-	Texture *sortTexture = graphics_->get_texture( "manager/sort" );
+	Texture *craftTexture = graphics_->get_texture( "img/manager/gear.png" );
+	Texture *equipTexture = graphics_->get_texture( "img/manager/equip.png" );
+	Texture *sortTexture = graphics_->get_texture( "img/manager/sort.png" );
 	//Texture *deleteTexture = graphics_->get_texture( "manager/delete" );
 
 	// Create inventory buttons.
@@ -302,10 +311,10 @@ void ItemManager::create_layout( void )
 	inventoryButtons->pack();
 
 	// Create pages buttons/text.
-	prevButton_ = Button::CreateLabelButton( "<" );
-	nextButton_ = Button::CreateLabelButton( ">" );
+	prevButton_ = Button::create_label_button( "<" );
+	nextButton_ = Button::create_label_button( ">" );
 	pageDisplay_ = new WrappedText( pageFont_, PAGE_LABEL_WIDTH );
-	pageDisplay_->SetColour( PAGE_LABEL_COLOUR );
+	pageDisplay_->set_colour( PAGE_LABEL_COLOUR );
 	pageDisplay_->set_text_formatting( DT_CENTER );
 	update_page_display();
 
@@ -327,8 +336,8 @@ void ItemManager::create_layout( void )
 
 	// Add version number.
 	Text* titleText = new Text( titleFont_ );
-	titleText->SetText( titleStream.str() );
-	titleText->SetColour( TITLE_COLOUR );
+	titleText->set_text( titleStream.str() );
+	titleText->set_colour( TITLE_COLOUR );
 
 	// Organize layout.
 	layout->add( titleText );
@@ -779,7 +788,7 @@ void ItemManager::update_page_display( void )
 	// Update text.
 	stringstream pageText;
 	pageText << (inventoryView_->get_page_index() + 1) << '/' << inventoryView_->get_page_count();
-	pageDisplay_->SetText( pageText.str() );
+	pageDisplay_->set_text( pageText.str() );
 
 	// Update buttons.
 	unsigned int pageIndex = inventoryView_->get_page_index();
@@ -811,8 +820,8 @@ void ItemManager::load_items_from_web( void )
 	// Attempt to read the file.
 	string jsonInventory;
 	try {
-		Curl* curl = Curl::get_instance();
-		jsonInventory = curl->read( apiUrl );
+		FileDownloader* downloader = FileDownloader::get_instance();
+		jsonInventory = downloader->read( apiUrl );
 	}
 	catch (std::runtime_error curl_ex) {
 		throw std::runtime_error( "Failed to read inventory from profile." );
@@ -868,7 +877,8 @@ bool ItemManager::is_latest_version() const
 {
 	// Check for program updates.
 	try {
-		string version = FileDownloader::read( "http://www.jengerer.com/item_manager/item_manager.txt" );
+		FileDownloader* downloader = FileDownloader::get_instance();
+		string version = downloader->read( "http://www.jengerer.com/item_manager/item_manager.txt" );
 		return version == APPLICATION_VERSION;
 	}
 	catch (const std::runtime_error&) {
@@ -881,7 +891,7 @@ bool ItemManager::is_latest_version() const
 void ItemManager::launch_updater() const
 {
 	// Get updater if not exists.
-	loader_->get_resource( "auto_updater.exe", "auto_updater.exe" );
+	site_loader_->get_resource( "auto_updater.exe", "auto_updater.exe" );
 
 	// TODO: Make an error type enum and launch this on update error.
 	int result = (int)ShellExecute( 0, 0, "auto_updater.exe", 0, 0, SW_SHOWDEFAULT );

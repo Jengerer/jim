@@ -1,4 +1,4 @@
-#include "rounded_container.h"
+#include "jui/rounded_container.h"
 
 const Colour& ROUNDED_RECTANGLE_DEFAULT_COLOUR = COLOUR_WHITE;
 
@@ -20,10 +20,10 @@ void RoundedRectangleContainer::pack( void )
 	set_constraint( content_, padding_value, padding_value );
 
 	// Set rectangle size.
-	int rectWidth = content_->get_width() + (padding_ * 2);
-	int rectHeight = content_->get_height() + (padding_ * 2);
-	roundedRect_->set_size( rectWidth, rectHeight );
-	set_size( rectWidth, rectHeight );
+	int rect_width = content_->get_width() + (padding_ * 2);
+	int rect_height = content_->get_height() + (padding_ * 2);
+	roundedRect_->set_size( rect_width, rect_height );
+	set_size( rect_width, rect_height );
 }
 
 void RoundedRectangleContainer::SetContent( Component* content )

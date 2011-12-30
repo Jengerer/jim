@@ -3,7 +3,7 @@
 Alert::Alert( const std::string& message ) : Notice( message )
 {
 	// Make OK button.
-	ok_ = Button::CreateLabelButton( "okay" );
+	ok_ = Button::create_label_button( "okay" );
 	content_->add( ok_ );
 	pack();
 }
