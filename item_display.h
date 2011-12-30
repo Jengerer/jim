@@ -2,7 +2,7 @@
 #define ITEM_DISPLAY_H
 
 #include <jui/container.h>
-#include <jui/font.h>
+#include <jui/ifont.h>
 #include <jui/graphics_2d.h>
 #include <jui/text.h>
 #include <jui/wrapped_text.h>
@@ -42,8 +42,8 @@ private:
 
 protected:
 
-	static Font *nameFont_;
-	static Font *infoFont_;
+	static IFont *nameFont_;
+	static IFont *infoFont_;
 
 private:
 

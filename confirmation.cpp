@@ -5,8 +5,8 @@ const int BUTTON_SPACING = 10;
 Confirmation::Confirmation( const std::string& question ) : Notice( question )
 {
 	// Create response buttons.
-	yes_ = Button::CreateLabelButton( "yes" );
-	no_ = Button::CreateLabelButton( "no" );
+	yes_ = Button::create_label_button( "yes" );
+	no_ = Button::create_label_button( "no" );
 	response_ = RESPONSE_NULL;
 	
 	// Organize in layout and add.

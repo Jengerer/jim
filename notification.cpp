@@ -1,4 +1,4 @@
-#include <jui/font.h>
+#include <jui/ifont.h>
 #include <jui/font_factory.h>
 
 #include "notification.h"
@@ -17,15 +17,15 @@ const char* NOTIFICATION_FONT_FACE			= "fonts/tf2build.ttf";
 const unsigned int NOTIFICATION_FONT_SIZE	= 10;
 const Colour& NOTIFICATION_FONT_COLOUR		= COLOUR_WHITE;
 
-Font *Notification::font_ = nullptr;
+IFont *Notification::font_ = nullptr;
 
 Notification::Notification( const std::string& message, const Texture *texture ) : RoundedRectangleContainer( NOTIFICATION_RADIUS, NOTIFICATION_PADDING )
 {
 	text_ = new WrappedText( font_, NOTIFICATION_TEXT_WIDTH );
-	text_->SetColour( NOTIFICATION_FONT_COLOUR );
+	text_->set_colour( NOTIFICATION_FONT_COLOUR );
 
 	layout_ = new HorizontalLayout();
-	layout_->SetSpacing( NOTIFICATION_SPACING );
+	layout_->set_spacing( NOTIFICATION_SPACING );
 	layout_->set_align_type( ALIGN_MIDDLE );
 	add( layout_ );
 	SetContent( layout_ );
@@ -42,9 +42,8 @@ Notification::Notification( const std::string& message, const Texture *texture )
 
 	// Set rectangle attributes.
 	RoundedRectangle* roundedRect = GetRoundedRectangle();
-	roundedRect->SetColour( NOTIFICATION_COLOUR );
-	roundedRect->SetStroke( NOTIFICATION_STROKE_SIZE, NOTIFICATION_STROKE_COLOUR );
-	roundedRect->RemoveTexture();
+	roundedRect->set_colour( NOTIFICATION_COLOUR );
+	roundedRect->set_stroke( NOTIFICATION_STROKE_SIZE, NOTIFICATION_STROKE_COLOUR );
 
 	// Now set message, texture, and pack.
 	set_message( message );
@@ -65,7 +64,7 @@ void Notification::pack( void )
 
 void Notification::set_message( const std::string& message )
 {
-	text_->SetText( message );
+	text_->set_text( message );
 }
 
 void Notification::precache()

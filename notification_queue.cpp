@@ -31,13 +31,13 @@ void NotificationQueue::UpdateNotifications( void )
 	if ( HasNotification() ) {
 		Notification *top = GetCurrentNotification();
 		if ( nextTime_ <= GetTickCount() ) {
-			top->set_alpha( top->GetAlpha() - NOTIFICATION_ALPHA_SPEED );
-			if (top->GetAlpha() == 0) {
+			top->set_alpha( top->get_alpha() - NOTIFICATION_ALPHA_SPEED );
+			if (top->get_alpha() == 0) {
 				SetNextNotification();
 			}
 		}
 		else {
-			top->set_alpha( top->GetAlpha() + NOTIFICATION_ALPHA_SPEED );
+			top->set_alpha( top->get_alpha() + NOTIFICATION_ALPHA_SPEED );
 		}
 	}
 }

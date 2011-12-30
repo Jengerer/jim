@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <jui/font.h>
+#include <jui/ifont.h>
 #include <jui/font_factory.h>
 #include <jui/grid_layout.h>
 #include <jui/horizontal_layout.h>
@@ -27,14 +27,14 @@ public:
 
 	virtual void pack( void );
 
-	void	AddSetA( Button *button );
-	void	AddSetB( Button *button );
+	void	add_set_a( Button *button );
+	void	add_set_b( Button *button );
 
-	void	RemoveSetA( Button *button );
-	void	RemoveSetB( Button *button );
+	void	remove_set_a( Button *button );
+	void	remove_set_b( Button *button );
 
-	bool	InSetA( Button *button ) const;
-	bool	InSetB( Button *button ) const;
+	bool	in_set_a( Button *button ) const;
+	bool	in_set_b( Button *button ) const;
 
 	virtual bool on_mouse_moved( Mouse *mouse );
 	virtual bool on_mouse_clicked( Mouse *mouse );
@@ -50,8 +50,8 @@ private:
 
 protected:
 
-	static Font* titleFont_;
-	static Font* buttonFont_;
+	static IFont* titleFont_;
+	static IFont* buttonFont_;
 
 private:
 

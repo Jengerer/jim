@@ -16,17 +16,19 @@ class HttpResourceLoader : public IResourceLoader
 
 public:
 
-	HttpResourceLoader( const std::string& url );
+	HttpResourceLoader( const std::string& url, FileDownloader* downloader );
 
 	// Resource loader interface function.
 	void get_resource( const std::string& file, const std::string& target ) const;
 
 private:
 
+	void set_downloader( FileDownloader* downloader );
 	void set_url( const std::string& url );
 
 private:
 
+	FileDownloader* downloader_;
 	std::string url_;
 
 };

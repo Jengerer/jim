@@ -19,14 +19,9 @@ const Colour SLOT_SELECTED_COLOUR( 90, 80, 72 );
 const unsigned int DRAG_ALPHA					= 185;
 const unsigned int SLOT_RADIUS					= 5;
 
-// Class-wide components.
-RoundedRectangle* SlotView::normalSlot_			= nullptr;
-RoundedRectangle* SlotView::selectedSlot_		= nullptr;
-RoundedRectangle* SlotView::stroke_				= nullptr;
-
 // Class-wide font/text resources.
-Font* SlotView::equippedFont_					= nullptr;
-Text* SlotView::equippedText_					= nullptr;
+IFont* SlotView::equipped_font_					= nullptr;
+Text* SlotView::equipped_text_					= nullptr;
 
 // Equipped text attributes.
 const char* EQUIPPED_FONT_FACE					= "fonts/tf2build.ttf";
@@ -39,24 +34,19 @@ SlotView::SlotView( Slot* slot )
 	slot_ = slot;
 	set_selected( false );
 
-	// Image of slot.
-	slotImage_ = new Image( normalSlot_->get_texture() );
-	slotImage_->set_size( SLOT_WIDTH, SLOT_HEIGHT );
-	add( slotImage_ );
-	set_constraint( slotImage_, 0.0f, 0.0f );
+	// Set default rectangle.
+	slot_rectangle_ = new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
+	add( slot_rectangle_ );
+	set_constraint( slot_rectangle_, 0.0f, 0.0f );
+	stroke_ = nullptr;
 
 	// Image of item.
-	itemImage_ = new Image( nullptr );
-	itemImage_->set_size( ITEM_SIZE, ITEM_SIZE );
-	add( itemImage_ );
-	set_constraint( itemImage_, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, (SLOT_HEIGHT - ITEM_SIZE) / 2.0f );
+	item_image_ = new Image( nullptr );
+	item_image_->set_size( ITEM_SIZE, ITEM_SIZE );
+	add( item_image_ );
+	set_constraint( item_image_, (SLOT_WIDTH - ITEM_SIZE) / 2.0f, (SLOT_HEIGHT - ITEM_SIZE) / 2.0f );
 
-	// Image of quality stroke.
-	strokeImage_ = new Image( nullptr );
-	strokeImage_->set_size( SLOT_WIDTH, SLOT_HEIGHT );
-	add( strokeImage_ );
-	set_constraint( strokeImage_, 0.0f, 0.0f );
-
+	// Set slot size.
 	set_size( SLOT_WIDTH, SLOT_HEIGHT );
 }
 
@@ -64,22 +54,21 @@ SlotView::SlotView( Slot* slot )
 
 void SlotView::Update()
 {
-	// Update slot image.
-	slotImage_->set_texture( (is_selected() ? selectedSlot_ : normalSlot_)->get_texture() );
-
 	// Get stroke and item texture.
-	const Texture* itemTexture = nullptr;
 	if (slot_->has_item()) {
+		// Set item texture.
 		Item* item = slot_->get_item();
-		itemTexture = item->get_texture();
-		strokeImage_->set_texture( stroke_->get_texture() );
-		strokeImage_->set_tint( item->get_quality_colour() );
+		item_image_->set_texture( item->get_texture() );
+
+		// Set slot colour.
+		slot_rectangle_->set_colour( is_selected() ? SLOT_NORMAL_COLOUR : SLOT_SELECTED_COLOUR );
+		slot_rectangle_->set_stroke( SLOT_STROKE_WIDTH, item->get_quality_colour() );
 	}
 	else {
-		strokeImage_->set_texture( nullptr );
+		// Default colour, no stroke.
+		slot_rectangle_->set_colour( SLOT_NORMAL_COLOUR );
+		slot_rectangle_->set_stroke( 0, SLOT_NORMAL_COLOUR );
 	}
-	
-	itemImage_->set_texture( itemTexture );
 }
 
 void SlotView::draw( Graphics2D* graphics )
@@ -91,10 +80,10 @@ void SlotView::draw( Graphics2D* graphics )
 	if (slot_->has_item()) {
 		Item* item = slot_->get_item();
 		if (item->is_equipped()) {
-			equippedText_->set_position( 
-				get_x() + get_width() - equippedText_->get_width() - EQUIPPED_PADDING, 
-				get_y() + get_height() - equippedText_->get_height() - EQUIPPED_PADDING );
-			equippedText_->draw( graphics );
+			equipped_text_->set_position( 
+				get_x() + get_width() - equipped_text_->get_width() - EQUIPPED_PADDING, 
+				get_y() + get_height() - equipped_text_->get_height() - EQUIPPED_PADDING );
+			equipped_text_->draw( graphics );
 		}
 	}
 }
@@ -116,48 +105,21 @@ bool SlotView::is_selected() const
 
 void SlotView::precache( Graphics2D* graphics )
 {
-	// Create rounded rectangles.
-	normalSlot_		= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_NORMAL_COLOUR );
-	selectedSlot_	= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, SLOT_SELECTED_COLOUR );
-	stroke_			= new RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, COLOUR_BLANK );
-	stroke_->SetStroke( SLOT_STROKE_WIDTH, COLOUR_WHITE );
-	stroke_->SetStrokeType( STROKE_TYPE_INNER );
-
-	// Generate all.
-	normalSlot_->Generate( graphics );
-	selectedSlot_->Generate( graphics );
-	stroke_->Generate( graphics );
-
 	// Create equipped font.
-	equippedFont_ = FontFactory::create_font( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE );
-	equippedText_ = new Text( equippedFont_ );
-	equippedText_->SetText( "EQUIPPED" );
+	equipped_font_ = FontFactory::create_font( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE );
+	equipped_text_ = new Text( equipped_font_ );
+	equipped_text_->set_text( "EQUIPPED" );
 }
 
 void SlotView::release()
 {
-	if (normalSlot_ != nullptr) {
-		delete normalSlot_;
-		normalSlot_ = nullptr;
+	if (equipped_font_ != nullptr) {
+		delete equipped_font_;
+		equipped_font_ = nullptr;
 	}
 
-	if (selectedSlot_ != nullptr) {
-		delete selectedSlot_;
-		selectedSlot_ = nullptr;
-	}
-
-	if (stroke_ != nullptr) {
-		delete stroke_;
-		stroke_ = nullptr;
-	}
-
-	if (equippedFont_ != nullptr) {
-		delete equippedFont_;
-		equippedFont_ = nullptr;
-	}
-
-	if (equippedText_ != nullptr) {
-		delete equippedText_;
-		equippedText_ = nullptr;
+	if (equipped_text_ != nullptr) {
+		delete equipped_text_;
+		equipped_text_ = nullptr;
 	}
 }

@@ -11,10 +11,9 @@ Json::Value& get_member( Json::Value& root, const std::string& member )
 	return root[member];
 }
 
-DefinitionLoader::DefinitionLoader( Graphics2D *graphics, IResourceLoader* loader )
+DefinitionLoader::DefinitionLoader( Graphics2D *graphics )
 {
 	graphics_ = graphics;
-	loader_ = loader;
 
 	set_progress( 0.0f );
 	set_state( LOADING_STATE_NONE );
@@ -75,12 +74,15 @@ void DefinitionLoader::load()
 
 	set_state( LOADING_STATE_DOWNLOAD_DEFINITIONS );
 
+	// Get downloader instance.
+	FileDownloader* downloader = nullptr;
+
 	try {
 		// Get definition file.
 		std::string definition;
 		try {
-			FileDownloader::initialize();
-			definition = FileDownloader::read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
+			downloader = FileDownloader::get_instance();
+			definition = downloader->read( "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en" );
 		}
 		catch (std::runtime_error&) {
 			throw std::runtime_error( "Failed to read item definition file from Steam Web API." );
@@ -167,7 +169,7 @@ void DefinitionLoader::load()
 		}
 
 		// Create fallback definition.
-		Texture* unknown_item = graphics_->get_texture( "backpack/unknown_item" );
+		Texture* unknown_item = graphics_->get_texture( "img/backpack/unknown_item.png" );
 		Item::fallback = new ItemInformation(
 			"Unknown Item",
 			unknown_item,
@@ -187,7 +189,7 @@ void DefinitionLoader::load()
 			Json::Value item = *i;
 
 			// Check that all necessary attributes exist.
-			unsigned int defindex	= get_member( item, "defindex" ).asUInt();
+			unsigned int defindex		= get_member( item, "defindex" ).asUInt();
 			std::string item_name		= get_member( item, "item_name" ).asString();
 			std::string image_inventory	= get_member( item, "image_inventory" ).asString();
 			std::string image_url		= get_member( item, "image_url" ).asString();
@@ -231,14 +233,25 @@ void DefinitionLoader::load()
 				}
 			}
 
-			// Load the image.
-			Texture *texture = nullptr;
+			// Get file name.
+			std::string file_name = "img/" + image_inventory + ".png";
+
+			// Check that texture exists.
+			Texture* texture = nullptr;
+			FileDownloader* downloader = FileDownloader::get_instance();
 			try {
-				
-				texture = graphics_->get_texture( image_inventory, image_url );
+				downloader->check_and_get( file_name, image_url );
 			}
 			catch (const std::runtime_error&) {
+#ifdef _DEBUG
+				throw std::runtime_error( "Failed to get texture: " + file_name );
+#endif
 				texture = unknown_item;
+			}
+
+			// Load the image.
+			if (texture == nullptr) {
+				Texture *texture = graphics_->get_texture( image_inventory );
 			}
 
 			// Generate information object.

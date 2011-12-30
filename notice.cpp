@@ -1,10 +1,10 @@
-#include <jui/font.h>
+#include <jui/ifont.h>
 #include <jui/font_factory.h>
 
 #include "notice.h"
 
 // Static members.
-Font* Notice::font_						= nullptr;
+IFont* Notice::font_						= nullptr;
 
 // Font constants.
 const char* NOTICE_FONT_FACE			= "fonts/tf2build.ttf";
@@ -25,16 +25,15 @@ Notice::Notice( const std::string& message ) : Popup( 0.0f, 0.0f )
 	// Create rounded container.
 	roundedContainer_ = new RoundedRectangleContainer( NOTICE_RADIUS, NOTICE_PADDING );
 	RoundedRectangle *roundedRect = roundedContainer_->GetRoundedRectangle();
-	roundedRect->SetStroke( NOTICE_STROKE_WIDTH, NOTICE_STROKE_COLOUR );
-	roundedRect->SetStrokeType( STROKE_TYPE_OUTER );
-	roundedRect->SetColour( NOTICE_COLOUR );
-	roundedRect->RemoveTexture();
+	roundedRect->set_stroke( NOTICE_STROKE_WIDTH, NOTICE_STROKE_COLOUR );
+	roundedRect->set_stroke_type( STROKE_TYPE_OUTER );
+	roundedRect->set_colour( NOTICE_COLOUR );
 	add( roundedContainer_ );
 	set_constraint( roundedContainer_, 0.0f, 0.0f );
 
 	// Create layout for container.
 	content_ = new VerticalLayout();
-	content_->SetSpacing( NOTICE_SPACING );
+	content_->set_spacing( NOTICE_SPACING );
 	roundedContainer_->add( content_ );
 	roundedContainer_->SetContent( content_ );
 
@@ -61,7 +60,7 @@ void Notice::pack( void )
 void Notice::set_message( const std::string& message )
 {
 	message_ = message;
-	text_->SetText( message );
+	text_->set_text( message );
 	pack();
 }
 

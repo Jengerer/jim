@@ -34,7 +34,7 @@ class DefinitionLoader
 
 public:
 
-	DefinitionLoader( Graphics2D* graphics, IResourceLoader* loader );
+	DefinitionLoader( Graphics2D* graphics );
 	~DefinitionLoader();
 
 	// Starting and ending the worker threads.
@@ -66,7 +66,6 @@ private:
 
 	// Resource parameters.
 	Graphics2D*		graphics_;
-	IResourceLoader* loader_;
 
 	// Threading parameters.
 	volatile bool						stop_;

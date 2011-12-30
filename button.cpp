@@ -4,7 +4,7 @@
 #include <jui/image.h>
 #include <jui/text.h>
 
-Font* Button::defaultFont_ = nullptr;
+IFont* Button::defaultFont_ = nullptr;
 
 // Button icon size.
 const unsigned int BUTTON_ICON_SIZE			= 20;
@@ -53,7 +53,7 @@ Layout* Button::GetContentLayout() const
 void Button::UpdateButton( void )
 {
 	RoundedRectangle *roundedRect = GetRoundedRectangle();
-	const Colour* oldColour = &roundedRect->GetColour();
+	const Colour* oldColour = &roundedRect->get_colour();
 	const Colour* newColour = nullptr;
 	if ( IsEnabled() ) {
 		if ( IsHovering() ) {
@@ -67,10 +67,7 @@ void Button::UpdateButton( void )
 		newColour = &BUTTON_COLOUR_DISABLED;
 	}
 
-	if (newColour != oldColour) {
-		roundedRect->SetColour( *newColour );
-		roundedRect->RemoveTexture();
-	}
+	roundedRect->set_colour( *newColour );
 }
 
 void Button::SetEnabled( bool isEnabled )
@@ -140,21 +137,21 @@ Button* Button::CreateIconButton( Texture* texture )
 	return button;
 }
 
-Button* Button::CreateLabelButton( const std::string& label, Font* font )
+Button* Button::create_label_button( const std::string& label, IFont* font )
 {
 	Button* button = new Button;
 	Layout* layout = button->GetContentLayout();
 
 	Text *text = new Text( font );
-	text->SetColour( BUTTON_FONT_COLOUR );
-	text->SetText( label );
+	text->set_colour( BUTTON_FONT_COLOUR );
+	text->set_text( label );
 	layout->add( text );
 	button->pack();
 
 	return button;
 }
 
-Button* Button::CreateIconLabelButton( Texture* texture, const std::string& label, Font* font )
+Button* Button::CreateIconLabelButton( Texture* texture, const std::string& label, IFont* font )
 {
 	Button* button = new Button;
 	Layout* layout = button->GetContentLayout();
@@ -163,8 +160,8 @@ Button* Button::CreateIconLabelButton( Texture* texture, const std::string& labe
 	icon->set_size( BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
 
 	Text* text = new Text( font );
-	text->SetColour( BUTTON_FONT_COLOUR );
-	text->SetText( label );
+	text->set_colour( BUTTON_FONT_COLOUR );
+	text->set_text( label );
 	layout->add( icon );
 	layout->add( text );
 	button->pack();
