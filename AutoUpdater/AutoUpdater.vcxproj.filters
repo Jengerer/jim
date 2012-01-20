@@ -18,8 +18,5 @@
     <ClCompile Include="auto_updater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\curl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

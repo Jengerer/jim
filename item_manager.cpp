@@ -191,6 +191,7 @@ void ItemManager::load_interfaces()
 
 		// Start definition loader.
 		loadProgress_ = popups_->create_notice( "Preparing to load item definitions..." );
+		popups_->remove( loadProgress_ );
 		load_definitions();
 	}
 	catch (std::runtime_error& load_ex) {
@@ -434,10 +435,11 @@ void ItemManager::running()
 	handle_callback();
 	notifications_->UpdateNotifications();
 	inventoryView_->update_view();
-	update_item_display();
+	//update_item_display();
 }
 
 void ItemManager::exiting()
+
 {
 	// Just wait for exit.
 }

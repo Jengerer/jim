@@ -5,10 +5,10 @@
 int WINAPI WinMain( HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int show_cmd )
 {
 	// Create instance of application.
-	ApplicationController::initialize( new ItemManager( instance ) );
-
-	// Run application main loop.
-	ApplicationController::main_loop();
+	bool success = ApplicationController::initialize( new ItemManager( instance ) );
+	if (success) {
+		ApplicationController::main_loop();
+	}
 
 	// Exit application after main loop.
 	ApplicationController::exit();
