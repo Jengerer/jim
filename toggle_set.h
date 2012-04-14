@@ -50,7 +50,7 @@ private:
 
 protected:
 
-	static IFont* titleFont_;
+	static IFont* title_font_;
 	static IFont* buttonFont_;
 
 private:
@@ -66,7 +66,7 @@ private:
 	Layout			*layoutSetB_;
 	Layout			*buttonLayout_;
 
-	RoundedRectangle *roundedRect_;
+	RoundedRectangle *rounded_rect_;
 
 	ButtonList buttonSetA_;
 	ButtonList buttonSetB_;

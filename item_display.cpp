@@ -11,8 +11,8 @@ const Colour& ITEM_DISPLAY_COLOUR				= COLOUR_BLACK;
 const char* ITEM_DISPLAY_INFO_FONT_FACE			= "fonts/tf2secondary.ttf";
 const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE	= 11;
 
-IFont *ItemDisplay::nameFont_ = nullptr;
-IFont *ItemDisplay::infoFont_ = nullptr;
+IFont *ItemDisplay::name_font_ = nullptr;
+IFont *ItemDisplay::info_font_ = nullptr;
 
 const unsigned int ITEM_DISPLAY_PADDING	= 20;
 const unsigned int ITEM_DISPLAY_SPACING	= 5;
@@ -21,46 +21,58 @@ const int ITEM_DISPLAY_TEXT_WIDTH		= 200;
 const int ITEM_DISPLAY_ALPHA_SPEED		= 30;
 const int ITEM_DISPLAY_ALPHA_MAX		= 210;
 
+/*
+ * Item display constructor.
+ */
 ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_PADDING )
 {
+	// Set default attributes.
 	set_alpha( 0 );
-	GetRoundedRectangle()->set_colour( ITEM_DISPLAY_COLOUR );
+	get_rounded_rectangle()->set_colour( ITEM_DISPLAY_COLOUR );
 	set_item( nullptr );
-	SetActive( false );
-
+	set_active( false );
+	
 	// Create text objects.
-	nameText_ = new WrappedText( nameFont_, ITEM_DISPLAY_TEXT_WIDTH );
-	nameText_->set_text_formatting( DT_CENTER );
-	infoText_ = new WrappedText( infoFont_, ITEM_DISPLAY_TEXT_WIDTH );
-	infoText_->set_text_formatting( DT_CENTER );
+	name_text_ = new WrappedText( name_font_, ITEM_DISPLAY_TEXT_WIDTH );
+	name_text_->set_text_formatting( DT_CENTER );
+	info_text_ = new WrappedText( info_font_, ITEM_DISPLAY_TEXT_WIDTH );
+	info_text_->set_text_formatting( DT_CENTER );
 
 	// Add to layout.
-	textLayout_ = new VerticalLayout();
-	textLayout_->set_spacing( ITEM_DISPLAY_SPACING );
-	textLayout_->add( nameText_ );
-	textLayout_->add( infoText_ );
+	text_layout_ = new VerticalLayout();
+	text_layout_->set_spacing( ITEM_DISPLAY_SPACING );
+	text_layout_->add( name_text_ );
+	text_layout_->add( info_text_ );
 
 	// Pack so we can create a temporary rectangle.
-	add( textLayout_ );
-	SetContent( textLayout_ );
+	add( text_layout_ );
+	set_content( text_layout_ );
 	pack();
 }
 
+/*
+ * Item display destructor.
+ */
 ItemDisplay::~ItemDisplay( void )
 {
+	// Nothing.
 }
 
-void ItemDisplay::UpdateDisplay()
+/*
+ * Update item display.
+ */
+void ItemDisplay::update_display()
 {
 	// Alter display based on quality.
-	nameText_->set_colour( item_->get_quality_colour() );
-	SetName( item_->get_name() );
+	name_text_->set_colour( item_->get_quality_colour() );
+	set_name( item_->get_name() );
 
 	// Build information text.
 	std::stringstream infoStream;
 	infoStream << "LEVEL " << static_cast<uint16>(item_->get_level());
 
 #if defined( _DEBUG )
+	// Add debugging information.
 	infoStream << "\nFLAGS: " << std::hex << item_->get_flags();
 	infoStream << "\nORIGIN: " << item_->get_origin();
 	for (size_t i = 0; i < item_->get_attribute_count(); i++) {
@@ -86,7 +98,7 @@ void ItemDisplay::UpdateDisplay()
 	// Convert to wide string.
 	if (wide_buffer != nullptr) {
 		MultiByteToWideChar( CP_UTF8, 0, text.c_str(), text.length(), wide_buffer, wide_size );
-		infoText_->set_text( wide_buffer, wide_size );
+		info_text_->set_text( wide_buffer, wide_size );
 
 		// Delete wide string.
 		delete wide_buffer;
@@ -95,22 +107,29 @@ void ItemDisplay::UpdateDisplay()
 	pack();
 }
 
-void ItemDisplay::UpdateAlpha( void )
+/*
+ * Fade in/out based on activity.
+ */
+void ItemDisplay::update_alpha( void )
 {
-	if ( IsActive() ) {
-		set_alpha( get_alpha() + ITEM_DISPLAY_ALPHA_SPEED );
-		if (get_alpha() > ITEM_DISPLAY_ALPHA_MAX) {
-			set_alpha( ITEM_DISPLAY_ALPHA_MAX );
+	if (is_active()) {
+		// Increase and clamp alpha if active.
+		int alpha = get_alpha() + ITEM_DISPLAY_ALPHA_SPEED;
+		if (alpha > ITEM_DISPLAY_ALPHA_MAX) {
+			alpha = ITEM_DISPLAY_ALPHA_MAX;
 		}
+
+		set_alpha( alpha );
 	}
 	else {
+		// Decrease alpha if inactive.
 		set_alpha( get_alpha() - ITEM_DISPLAY_ALPHA_SPEED );
 	}
 }
 
 void ItemDisplay::pack( void )
 {
-	textLayout_->pack();
+	text_layout_->pack();
 	RoundedRectangleContainer::pack();
 }
 
@@ -124,54 +143,54 @@ void ItemDisplay::set_item( const Item *item )
 	if (item_ != item) {
 		item_ = item;
 		if (item != nullptr) {
-			SetActive( true );
-			UpdateDisplay();
+			set_active( true );
+			update_display();
 		}
 		else {
-			SetActive( false );
+			set_active( false );
 		}
 	}
 }
 
 const std::string& ItemDisplay::get_name( void ) const
 {
-	return itemName_;
+	return item_name_;
 }
 
-void ItemDisplay::SetName( const std::string& name )
+void ItemDisplay::set_name( const std::string& name )
 {
-	itemName_ = name;
-	nameText_->set_text( name );
+	item_name_ = name;
+	name_text_->set_text( name );
 }
 
-bool ItemDisplay::IsActive( void ) const
+bool ItemDisplay::is_active( void ) const
 {
 	return is_active_;
 }
 
-void ItemDisplay::SetActive( bool is_active )
+void ItemDisplay::set_active( bool is_active )
 {
 	is_active_ = is_active;
 }
 
 void ItemDisplay::precache()
 {
-	nameFont_ = FontFactory::create_font( 
+	name_font_ = FontFactory::create_font( 
 		ITEM_DISPLAY_TITLE_FONT_FACE, ITEM_DISPLAY_TITLE_FONT_SIZE );
 
-	infoFont_ = FontFactory::create_font(
+	info_font_ = FontFactory::create_font(
 		ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
 }
 
 void ItemDisplay::release( void )
 {
-	if (nameFont_ != nullptr) {
-		delete nameFont_;
-		nameFont_ = nullptr;
+	if (name_font_ != nullptr) {
+		delete name_font_;
+		name_font_ = nullptr;
 	}
 
-	if (infoFont_ != nullptr ) {
-		delete infoFont_;
-		infoFont_ = nullptr;
+	if (info_font_ != nullptr ) {
+		delete info_font_;
+		info_font_ = nullptr;
 	}
 }

@@ -2,75 +2,46 @@
 
 #include <algorithm>
 
-Inventory::Inventory( unsigned int inventorySize, unsigned int excludedSize )
+/*
+ * Inventory constructor.
+ */
+Inventory::Inventory( SlotBook* book, DynamicSlotBook* excluded )
 {
-	inventorySlots_ = new SlotVector( inventorySize );
-	excludedSlots_ = new SlotVector( excludedSize );
-	excludedPage_ = 0;
+	set_book( book );
+	set_excluded_book( excluded );
 }
 
+/*
+ * Inventory destructor.
+ */
 Inventory::~Inventory()
 {
 	remove_items();
-	remove_slots();
 }
 
-const SlotVector* Inventory::get_inventory_slots() const
+/*
+ * Get inventory slot book.
+ */
+const SlotBook* Inventory::get_book( void ) const
 {
-	return inventorySlots_;
+	return book_;
 }
 
-const SlotVector* Inventory::get_excluded_slots() const
+/*
+ * Get excluded slot book.
+ */
+const DynamicSlotBook* Inventory::get_excluded_book( void ) const
 {
-	return excludedSlots_;
+	return excluded_book_;
 }
 
-void Inventory::remove_slots()
+/*
+ * Find item by unique ID.
+ */
+Item* Inventory::find_item( uint64 unique_id ) const
 {
-	if (inventorySlots_ != nullptr) {
-		delete inventorySlots_;
-		inventorySlots_ = nullptr;
-	}
-
-	if (excludedSlots_ != nullptr) {
-		delete excludedSlots_;
-		excludedSlots_ = nullptr;
-	}
-}
-
-void Inventory::add_slots( unsigned int slots )
-{
-	inventorySlots_->add_slots( slots );
-}
-
-void Inventory::empty_slots()
-{
-	inventorySlots_->empty_slots();
-	excludedSlots_->empty_slots();
-}
-
-unsigned int Inventory::GetInventorySize() const
-{
-	return inventorySlots_->get_slot_count();
-}
-
-unsigned int Inventory::GetExcludedSize() const
-{
-	return excludedSlots_->get_slot_count();
-}
-
-Item* Inventory::GetItemByUniqueId( uint64 uniqueId )
-{
-	for (auto i = inventoryItems_.begin(), end = inventoryItems_.end(); i != end; ++i) {
-		Item* item = *i;
-		if (item->get_unique_id() == uniqueId) {
-			return item;
-		}
-	}
-
-	for (auto i = excludedItems_.begin(), end = excludedItems_.end(); i != end; ++i) {
-		Item* item = *i;
-		if (item->get_unique_id() == uniqueId) {
+	for each (Item* item in items_) {
+		if (item->get_unique_id() == unique_id) {
 			return item;
 		}
 	}
@@ -78,113 +49,109 @@ Item* Inventory::GetItemByUniqueId( uint64 uniqueId )
 	return nullptr;
 }
 
-//=============================================================
-// Purpose: Inserts an item into the inventory or excluded.
-// Notes:	A call to update_excluded should be called after
-//			any series of inserts.
-// Return:	The inventory slot inserted into if succeeded,
-//			nullptr if it was added to excluded.
-//=============================================================
-Slot* Inventory::insert_item( Item* item )
+/*
+ * Insert an item into the inventory.
+ */
+void Inventory::insert_item( Item* item )
 {
-	// Check if we should/can place in inventory.
-	if (CanInsert( item )) {
-		Slot* destination = inventorySlots_->get_slot_by_index( item->get_position() );
-		destination->set_item( item );
-		ToInventory( item );
-		return destination;
-	}
-
-	ToExcluded( item );
-	return nullptr;
-}
-
-void Inventory::remove_item( Item* item )
-{
-	// Find the inventory slot.
-	auto i = inventoryItems_.find( item );
-	if (i != inventoryItems_.end()) {
-		inventorySlots_->remove_item( item );
-		inventoryItems_.erase( i );
+	// Check if item has spot in inventory.
+	items_.insert( item );
+	if (can_insert( item )) {
+		book_->insert_item( item, item->get_position() );
 	}
 	else {
-		excludedItems_.erase( item );
-		update_excluded();
+		excluded_book_->insert_item( item );
 	}
 }
 
-void Inventory::remove_items()
+/*
+ * Remove an item from the inventory.
+ */
+void Inventory::remove_item( Item* item )
 {
-	// Delete inventory items.
-	for (auto i = inventoryItems_.begin(); i != inventoryItems_.end(); i = inventoryItems_.erase( i )) {
-		delete *i;
+	// Remove item from slot.
+	if (book_->has_item( item )) {
+		book_->remove_item( item );
+	}
+	else if (excluded_book_->has_item( item )) {
+		excluded_book_->remove_item( item );
 	}
 
-	// Delete excluded items.
-	for (auto i = excludedItems_.begin(); i != excludedItems_.end(); i = excludedItems_.erase( i )) {
+	items_.erase( item );
+	// TODO: deselect item if selected.
+}
+
+/*
+ * Remove all items from inventory.
+ */
+void Inventory::remove_items( void )
+{
+	book_->empty_slots();
+	excluded_book_->empty_slots();
+
+	// Delete all items.
+	std::set<Item*>::iterator i;
+	for (i = items_.begin(); i != items_.end(); i = items_.erase( i )) {
 		delete *i;
 	}
 }
 
-bool Inventory::CanInsert( const Item* item ) const
+/*
+ * Check if an item can be inserted.
+ */
+bool Inventory::can_insert( const Item* item ) const
 {
 	if (item->has_valid_flags()) {
-		uint16 index = item->get_position();
-		return inventorySlots_->is_valid_index( index ) && inventorySlots_->is_slot_empty( index );
+		unsigned int index = item->get_position();
+		if (book_->is_valid_index( index )) {
+			if (book_->is_slot_empty( index )) {
+				return true;
+			}
+			else {
+				Slot* slot = book_->get_slot( index );
+				return false;
+			}
+		}
 	}
 
 	return false;
 }
 
-void Inventory::SetExcludedPage( unsigned int excludedPage )
-{
-	excludedPage_ = excludedPage;
-}
-
-void Inventory::update_excluded( void )
-{
-	excludedSlots_->empty_slots();
-
-	// Push iterator up to current page.
-	unsigned int iteratorIndex = 0;
-	unsigned int startIndex = excludedPage_ * excludedSlots_->get_slot_count();
-	auto i = excludedItems_.begin();
-	while (i != excludedItems_.end() && iteratorIndex < startIndex) {
-		i++;
-		iteratorIndex++;
-	}
-
-	// Now set the rest of the slots.
-	unsigned endIndex = startIndex + excludedSlots_->get_slot_count();
-	for (unsigned int slotIndex = startIndex; slotIndex < endIndex && i != excludedItems_.end(); slotIndex++) {
-		Slot* slot = excludedSlots_->get_slot_by_index( slotIndex );
-		slot->set_item( *i++ );
-	}
-}
-
+/*
+ * Attempt to place excluded items.
+ */
 void Inventory::resolve_excluded( void )
 {
-	auto i = excludedItems_.begin();
-	while (i != excludedItems_.end()) {
-		Item* item = *i;
-		if (CanInsert( item )) {
-			i = excludedItems_.erase( i );
-			insert_item( item );
+	unsigned int i = 0;
+	while (i < excluded_book_->get_slot_count()) {
+		Slot* slot = excluded_book_->get_slot( i );
+		if (slot->has_item()) {
+			Item* item = slot->get_item();
+			if (can_insert( item )) {
+				// Keep index; a new item may have moved here.
+				excluded_book_->remove_item( item );
+				insert_item( item );
+				continue;
+			}
 		}
-		else {
-			i++;
-		}
+
+		// Move to next slot.
+		i++;
 	}
 }
 
-void Inventory::ToExcluded( Item* item )
+/*
+ * Set inventory book to manage.
+ */
+void Inventory::set_book( SlotBook* book )
 {
-	inventoryItems_.erase( item );
-	excludedItems_.insert( item );
+	book_ = book;
 }
 
-void Inventory::ToInventory( Item* item )
+/*
+ * Set book for excluded items.
+ */
+void Inventory::set_excluded_book( DynamicSlotBook* excluded_book )
 {
-	excludedItems_.erase( item );
-	inventoryItems_.insert( item );
+	excluded_book_ = excluded_book;
 }

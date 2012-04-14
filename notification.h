@@ -9,7 +9,7 @@
 #include <jui/texture.h>
 #include <jui/wrapped_text.h>
 
-#include "rounded_container.h"
+#include "rounded_rectangle_container.h"
 
 class Notification : public RoundedRectangleContainer
 {
@@ -34,7 +34,7 @@ private:
 	WrappedText			*text_;
 	Image				*image_;
 	HorizontalLayout	*layout_;
-	RoundedRectangle	*roundedRect_;
+	RoundedRectangle	*rounded_rect_;
 
 };
 

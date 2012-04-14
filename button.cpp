@@ -31,7 +31,7 @@ Button::Button( float localX, float localY ) : RoundedRectangleContainer( BUTTON
 	add( layout_ );
 
 	// Set rounded container attributes.
-	SetContent( layout_ );
+	set_content( layout_ );
 
 	// Default attributes.
 	SetHovering( false );
@@ -52,7 +52,7 @@ Layout* Button::GetContentLayout() const
 
 void Button::UpdateButton( void )
 {
-	RoundedRectangle *roundedRect = GetRoundedRectangle();
+	RoundedRectangle *roundedRect = get_rounded_rectangle();
 	const Colour* oldColour = &roundedRect->get_colour();
 	const Colour* newColour = nullptr;
 	if ( IsEnabled() ) {

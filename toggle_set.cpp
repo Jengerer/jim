@@ -20,25 +20,25 @@ const bool TOGGLE_SET_BUTTON_FONT_BOLDED		= false;
 
 const unsigned int TOGGLE_SET_MIN_WIDTH			= 150;
 
-IFont* ToggleSet::titleFont_ = nullptr;
+IFont* ToggleSet::title_font_ = nullptr;
 IFont* ToggleSet::buttonFont_ = nullptr;
 
 ToggleSet::ToggleSet( const std::string& nameSetA, const std::string& nameSetB, float x, float y ) : Popup( x, y )
 {
 	// Create titles.
-	titleSetA_ = new Text( titleFont_ );
+	titleSetA_ = new Text( title_font_ );
 	titleSetA_->set_text( nameSetA );
 	titleSetA_->pack();
 
-	titleSetB_ = new Text( titleFont_ );
+	titleSetB_ = new Text( title_font_ );
 	titleSetB_->set_text( nameSetB );
 	titleSetB_->pack();
 
 	// Create rectangle.
-	roundedRect_ = new RoundedRectangle( 0, 0, TOGGLE_SET_RADIUS, TOGGLE_SET_COLOUR );
-	roundedRect_->set_stroke( TOGGLE_SET_STROKE_SIZE, COLOUR_WHITE );
-	add( roundedRect_ );
-	set_constraint( roundedRect_, 0.0f, 0.0f );
+	rounded_rect_ = new RoundedRectangle( 0, 0, TOGGLE_SET_RADIUS, TOGGLE_SET_COLOUR );
+	rounded_rect_->set_stroke( TOGGLE_SET_STROKE_SIZE, COLOUR_WHITE );
+	add( rounded_rect_ );
+	set_constraint( rounded_rect_, 0.0f, 0.0f );
 
 	// Create okay and cancel buttons.
 	okayButton_ = Button::create_label_button( "okay", buttonFont_ );
@@ -96,8 +96,8 @@ void ToggleSet::pack( void )
 	layoutSetA_->pack();
 	layoutSetB_->pack();
 	setLayout_->pack();
-	roundedRect_->set_size( setLayout_->get_width() + TOGGLE_SET_PADDING * 2, setLayout_->get_height() + TOGGLE_SET_PADDING * 2 );
-	set_size( roundedRect_->get_width(), roundedRect_->get_height() );
+	rounded_rect_->set_size( setLayout_->get_width() + TOGGLE_SET_PADDING * 2, setLayout_->get_height() + TOGGLE_SET_PADDING * 2 );
+	set_size( rounded_rect_->get_width(), rounded_rect_->get_height() );
 }
 
 void ToggleSet::add_set_a( Button *button )
@@ -230,15 +230,15 @@ bool ToggleSet::on_mouse_released( Mouse *mouse )
 
 void ToggleSet::precache()
 {
-	titleFont_ = FontFactory::create_font( TOGGLE_SET_FONT_FACE, TOGGLE_SET_FONT_SIZE );
+	title_font_ = FontFactory::create_font( TOGGLE_SET_FONT_FACE, TOGGLE_SET_FONT_SIZE );
 	buttonFont_ = FontFactory::create_font( TOGGLE_SET_BUTTON_FONT_FACE, TOGGLE_SET_BUTTON_FONT_SIZE );
 }
 
 void ToggleSet::release( void )
 {
-	if (titleFont_ != nullptr) {
-		delete titleFont_;
-		titleFont_ = nullptr;
+	if (title_font_ != nullptr) {
+		delete title_font_;
+		title_font_ = nullptr;
 	}
 
 	if (buttonFont_ != nullptr) {

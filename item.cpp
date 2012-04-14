@@ -48,7 +48,7 @@ void Item::get_item_information( void )
 
 	// Load attributes from class definition.
 	for (size_t i = 0, len = information_->get_attribute_count(); i < len; ++i) {
-		const Attribute* orig = information_->GetAttribute( i );
+		const Attribute* orig = information_->get_attribute( i );
 		add_attribute( new Attribute( *orig ) );
 	}
 }

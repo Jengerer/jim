@@ -61,7 +61,7 @@ void SlotView::Update()
 		item_image_->set_texture( item->get_texture() );
 
 		// Set slot colour.
-		slot_rectangle_->set_colour( is_selected() ? SLOT_NORMAL_COLOUR : SLOT_SELECTED_COLOUR );
+		slot_rectangle_->set_colour( is_selected() ? SLOT_SELECTED_COLOUR : SLOT_NORMAL_COLOUR );
 		slot_rectangle_->set_stroke( SLOT_STROKE_WIDTH, item->get_quality_colour() );
 	}
 	else {

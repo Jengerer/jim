@@ -241,17 +241,10 @@ void DefinitionLoader::load()
 			FileDownloader* downloader = FileDownloader::get_instance();
 			try {
 				downloader->check_and_get( file_name, image_url );
+				texture = graphics_->get_texture( file_name );
 			}
 			catch (const std::runtime_error&) {
-#ifdef _DEBUG
-				throw std::runtime_error( "Failed to get texture: " + file_name );
-#endif
 				texture = unknown_item;
-			}
-
-			// Load the image.
-			if (texture == nullptr) {
-				Texture *texture = graphics_->get_texture( image_inventory );
 			}
 
 			// Generate information object.

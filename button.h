@@ -8,7 +8,7 @@
 #include <jui/mouse.h>
 #include <jui/horizontal_layout.h>
 
-#include "rounded_container.h"
+#include "rounded_rectangle_container.h"
 
 class Button: public RoundedRectangleContainer, public IMouseHandler
 {

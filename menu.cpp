@@ -10,14 +10,14 @@ const Colour MENU_BACKGROUND_COLOUR( 42, 39, 37 );
 // Menu created.
 Menu::Menu( void )
 {
-	SetClicked( nullptr );
+	set_clicked( nullptr );
 	set_state( POPUP_STATE_HIDDEN );
 
 	// Create rounded rectangle.
-	roundedRect_ = new RoundedRectangle( 0, 0, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
-	roundedRect_->set_stroke( MENU_STROKE_SIZE, MENU_STROKE_COLOUR );
-	set_constraint( roundedRect_, 0.0f, 0.0f );
-	add( roundedRect_ );
+	rounded_rect_ = new RoundedRectangle( 0, 0, MENU_RADIUS, MENU_BACKGROUND_COLOUR );
+	rounded_rect_->set_stroke( MENU_STROKE_SIZE, MENU_STROKE_COLOUR );
+	set_constraint( rounded_rect_, 0.0f, 0.0f );
+	add( rounded_rect_ );
 
 	// Create layout.
 	layout_ = new VerticalLayout();
@@ -50,9 +50,9 @@ Button* Menu::GetClicked( void ) const
 void Menu::pack( void )
 {
 	layout_->pack();
-	roundedRect_->set_size( layout_->get_width() + MENU_PADDING * 2,
+	rounded_rect_->set_size( layout_->get_width() + MENU_PADDING * 2,
 		layout_->get_height() + MENU_PADDING * 2 );
-	set_size( roundedRect_->get_width(), roundedRect_->get_height() );
+	set_size( rounded_rect_->get_width(), rounded_rect_->get_height() );
 }
 
 bool Menu::on_mouse_moved( Mouse *mouse )
@@ -69,7 +69,7 @@ bool Menu::on_mouse_moved( Mouse *mouse )
 
 bool Menu::on_mouse_clicked( Mouse *mouse )
 {
-	SetClicked( nullptr );
+	set_clicked( nullptr );
 	if ( !mouse->is_touching( this ) ) {
 		set_state( POPUP_STATE_HIDDEN );
 	}
@@ -88,7 +88,7 @@ bool Menu::on_mouse_released( Mouse *mouse )
 			// Set selected button, and go inactive.
 			if (mouse->is_touching( button )) {
 				set_state( POPUP_STATE_HIDDEN );
-				SetClicked( button );
+				set_clicked( button );
 				break;
 			}
 		}
@@ -99,7 +99,7 @@ bool Menu::on_mouse_released( Mouse *mouse )
 	return false;
 }
 
-void Menu::SetClicked( Button *clicked )
+void Menu::set_clicked( Button *clicked )
 {
 	clicked_ = clicked;
 }

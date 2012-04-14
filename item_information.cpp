@@ -6,10 +6,10 @@ ItemInformation::ItemInformation(
 	uint32 classFlags,
 	EItemSlot slot )
 {
-	SetName( name );
+	set_name( name );
 	set_texture( texture );
-	SetClassFlags( classFlags );
-	SetSlot( slot );
+	set_class_flags( classFlags );
+	set_slot( slot );
 }
 
 ItemInformation::~ItemInformation( void )
@@ -55,12 +55,12 @@ size_t ItemInformation::get_attribute_count() const
 	return attributes_.size();
 }
 
-const Attribute* ItemInformation::GetAttribute( size_t index ) const
+const Attribute* ItemInformation::get_attribute( size_t index ) const
 {
 	return attributes_[index];
 }
 
-void ItemInformation::SetName( const std::string& name )
+void ItemInformation::set_name( const std::string& name )
 {
 	name_ = name;
 }
@@ -70,7 +70,7 @@ void ItemInformation::set_texture( const Texture *texture )
 	texture_ = texture;
 }
 
-void ItemInformation::SetClassFlags( uint32 classFlags )
+void ItemInformation::set_class_flags( uint32 classFlags )
 {
 	classFlags_ = classFlags;
 
@@ -85,7 +85,7 @@ void ItemInformation::SetClassFlags( uint32 classFlags )
 	}
 }
 
-void ItemInformation::SetSlot( EItemSlot slot )
+void ItemInformation::set_slot( EItemSlot slot )
 {
 	slot_ = slot;
 }
