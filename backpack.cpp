@@ -6,7 +6,7 @@
 #include "protobuf/gcsdk_gcmessages.pb.h"
 #include "protobuf/steammessages.pb.h"
 
-Backpack::Backpack( unsigned int excludedSize ) : Inventory( 0, excludedSize )
+Backpack::Backpack( SlotBook* book, DynamicSlotBook* excluded_book ) : Inventory( book, excluded_book )
 {
 	set_loaded( false );
 }

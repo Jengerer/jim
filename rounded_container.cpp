@@ -1,19 +1,25 @@
-#include "jui/rounded_container.h"
+#include "rounded_rectangle_container.h"
 
 const Colour& ROUNDED_RECTANGLE_DEFAULT_COLOUR = COLOUR_WHITE;
 
+/*
+ * Rounded rectangle container constructor.
+ */
 RoundedRectangleContainer::RoundedRectangleContainer( unsigned int radius, unsigned int padding, float x, float y ) : ConstrainedContainer( x, y )
 {
-	SetPadding( padding );
+	set_padding( padding );
 
 	// Create rounded rectangle.
-	roundedRect_ = new RoundedRectangle( 
+	rounded_rect_ = new RoundedRectangle( 
 		padding_ * 2, padding_ * 2, 
 		radius, ROUNDED_RECTANGLE_DEFAULT_COLOUR );
-	add( roundedRect_ );
-	set_constraint( roundedRect_, 0.0f, 0.0f );
+	add( rounded_rect_ );
+	set_constraint( rounded_rect_, 0.0f, 0.0f );
 }
 
+/*
+ * Pack contents to container.
+ */
 void RoundedRectangleContainer::pack( void )
 {
 	float padding_value = static_cast<float>(padding_);
@@ -22,21 +28,21 @@ void RoundedRectangleContainer::pack( void )
 	// Set rectangle size.
 	int rect_width = content_->get_width() + (padding_ * 2);
 	int rect_height = content_->get_height() + (padding_ * 2);
-	roundedRect_->set_size( rect_width, rect_height );
+	rounded_rect_->set_size( rect_width, rect_height );
 	set_size( rect_width, rect_height );
 }
 
-void RoundedRectangleContainer::SetContent( Component* content )
+void RoundedRectangleContainer::set_content( Component* content )
 {
 	content_ = content;
 }
 
-RoundedRectangle* RoundedRectangleContainer::GetRoundedRectangle() const
+RoundedRectangle* RoundedRectangleContainer::get_rounded_rectangle() const
 {
-	return roundedRect_;
+	return rounded_rect_;
 }
 
-void RoundedRectangleContainer::SetPadding( unsigned int padding )
+void RoundedRectangleContainer::set_padding( unsigned int padding )
 {
 	padding_ = padding;
 }

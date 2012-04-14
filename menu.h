@@ -29,11 +29,11 @@ public:
 
 private:
 
-	void			SetClicked( Button *clicked );
+	void			set_clicked( Button *clicked );
 
 private:
 
-	RoundedRectangle		*roundedRect_;
+	RoundedRectangle		*rounded_rect_;
 	VerticalLayout			*layout_;
 	Button*			clicked_;
 	vector<Button*>	options_;

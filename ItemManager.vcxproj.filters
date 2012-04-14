@@ -11,9 +11,6 @@
     <Filter Include="headers\ui">
       <UniqueIdentifier>{957f0045-9501-4099-ba1c-f5c8844a2648}</UniqueIdentifier>
     </Filter>
-    <Filter Include="headers\steam">
-      <UniqueIdentifier>{ac5fe77c-21da-45b0-9bd2-9801d59e7af7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="resources">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
@@ -27,9 +24,6 @@
     </Filter>
     <Filter Include="source\protobufs">
       <UniqueIdentifier>{a628c3dd-565f-4484-b1de-6ecfd708f51d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hlsl">
-      <UniqueIdentifier>{e7c270a7-86f0-4368-bd25-91e149d68f29}</UniqueIdentifier>
     </Filter>
     <Filter Include="headers\items">
       <UniqueIdentifier>{13ec254b-52c7-4800-858e-e19883df257d}</UniqueIdentifier>
@@ -99,13 +93,7 @@
     <ClCompile Include="definition_loader.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="slot_grid_pages.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="slot_grid_view.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="slot_vector.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="slot_view.cpp">
@@ -113,12 +101,6 @@
     </ClCompile>
     <ClCompile Include="dragged_slot_view.cpp">
       <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="index_slot.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="animated_grid_pages.cpp">
-      <Filter>source\ui</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc">
       <Filter>source\protobufs</Filter>
@@ -156,650 +138,26 @@
     <ClCompile Include="..\jengerer%27s item manager\http_resource_loader.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\jengerer%27s item manager\slot_array.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jengerer%27s item manager\slot_container.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jengerer%27s item manager\slot_book.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="slot_book_view.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="animated_book_view.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jengerer%27s item manager\dynamic_slot_book.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="steam\AppsCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\BillingCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\BridgeCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\CCallback.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="CDialog.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\CGameID.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ClientCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ContentServerCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\csteamid.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EAccountType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EAppState.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EAppUsageEvent.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EAuthSessionResponse.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EAvatarSize.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EBeginAuthSessionResult.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ECallState.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EChatEntryType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EChatMemberStateChange.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EChatRoomEnterResponse.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EChatRoomType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EChatRoomVoiceStatus.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EClanRank.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EClanRelationship.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EConnectionPriority.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ECurrencyCode.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EDenyReason.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EDepotBuildStatus.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EDetailedPlatformErrorType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EFriendFlags.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EFriendMsgType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EFriendRelationship.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EGCMsgResponse.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EItemCriteriaOperator.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EItemQuality.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EItemRequestResult.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ELeaderboardDataRequest.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ELeaderboardDisplayType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ELeaderboardSortMethod.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ELicenseFlags.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ELobbyComparison.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ELobbyType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ELogonState.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EMatchMakingServerResponse.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EMatchMakingType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ENewsUpdateType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ENotificationPosition.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EnumString.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EPaymentMethod.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EPersonaChange.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EPersonaState.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EPurchaseResultDetail.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EPurchaseStatus.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ERegistrySubTree.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EResult.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EServerMode.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESNetSocketConnectionType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESNetSocketState.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamAPICallFailure.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamAppUpdateStatsQueryType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamBillingType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamBufferMethod.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamError.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamFindFilter.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamNotificationCallbackEvent.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamPaymentCardType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamSeekMethod.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamServerType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamSubscriptionBillingInfoType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamSubscriptionStatus.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESteamUserStatType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ESystemIMType.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EUniverse.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EVACBan.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\EVoiceResult.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\FriendGameInfo.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\FriendsCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\GameCoordinatorCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\GameServerCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\gameserveritem.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\GameServerItemsCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\GameStatsCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientAppManager.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientApps.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientBilling.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientContentServer.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientDepotBuilder.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientEngine.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientFriends.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientGameCoordinator.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientGameServer.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientGameStats.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientMatchmaking.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientUser.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IClientUtils.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\Interface_OSW.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\IP2PController.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteam003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteam004.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteam005.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteam006.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteam2Bridge001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteam2Bridge002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamApps001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamApps002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamApps003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamBilling001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamBilling002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamClient006.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamClient007.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamClient008.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamContentServer001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamContentServer002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamFriends001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamFriends002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamFriends003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamFriends004.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamFriends005.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameCoordinator001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServer002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServer003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServer004.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServer005.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServer006.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServer007.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServer008.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServer009.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServerItems002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServerItems003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameServerItems004.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamGameStats001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMasterServerUpdater001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMatchmaking001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMatchmaking002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMatchmaking003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMatchmaking004.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMatchmaking005.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMatchmaking006.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMatchmaking007.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMatchmakingServers001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamMatchmakingServers002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamNetworking001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamNetworking002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamNetworking003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamRemoteStorage001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamRemoteStorage002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser004.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser005.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser006.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser007.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser008.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser009.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser010.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser011.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser012.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUser013.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserItems001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserItems002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserItems003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserItems004.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserStats001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserStats002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserStats003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserStats004.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserStats005.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUserStats006.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUtils001.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUtils002.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUtils003.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUtils004.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\ISteamUtils005.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\LeaderboardEntry.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\MasterServerUpdaterCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\MatchmakingCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\matchmakingkeyvaluepair.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\MatchmakingServersCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\NetMessages.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\NetworkingCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\RemoteStorageCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\servernetadr.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\Steam.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\steamapi.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\Steamclient.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\SteamclientAPI.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\SteamSalt.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\SteamTypes.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\Steamworks.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\string_t.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamApp.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamAppDependencyInfo.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamAppLaunchOption.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamAppStats.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamAppVersion.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamDiscountQualifier.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamElemInfo.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamError.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamExternalBillingInfo.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamGlobalUserID.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamOfflineStatus.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamPaymentCardInfo.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamPaymentCardReceiptInfo.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamPrepurchaseInfo.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamPrepurchaseReceiptInfo.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamProgress.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamSplitLocalUserID.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamSubscription.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamSubscriptionBillingInfo.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamSubscriptionDiscount.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamSubscriptionReceipt.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamSubscriptionStats.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\TSteamUpdateStats.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\UserCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\UserItemsCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\UserStatsCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
-    <ClInclude Include="steam\UtilsCommon.h">
-      <Filter>headers\steam</Filter>
-    </ClInclude>
     <ClInclude Include="protobuf\base_gcmessages.pb.h">
       <Filter>headers\protobufs</Filter>
     </ClInclude>
@@ -845,9 +203,6 @@
     <ClInclude Include="popup.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="rounded_container.h">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="rounded_rectangle.h">
       <Filter>headers\ui</Filter>
     </ClInclude>
@@ -860,26 +215,11 @@
     <ClInclude Include="definition_loader.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="slot.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="slot_grid_pages.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="slot_grid_view.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="slot_vector.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="dragged_slot_view.h">
       <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="index_slot.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="animated_grid_pages.h">
-      <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="protobuf\tf_gcmessages.pb.h">
       <Filter>headers\protobufs</Filter>
@@ -926,16 +266,32 @@
     <ClInclude Include="..\jengerer%27s item manager\iresource_loader.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="rounded_rectangle_container.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="slot.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jengerer%27s item manager\slot_book.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jengerer%27s item manager\slot_array.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_container.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_book_view.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jengerer%27s item manager\animated_book_view.h">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jengerer%27s item manager\dynamic_slot_book.h">
+      <Filter>headers\items</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="steam\steam_api.lib">
-      <Filter>headers\steam</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="steam\steamworks.vcproj">
-      <Filter>headers\steam</Filter>
-    </None>
     <None Include="jimIcon.ico">
       <Filter>resources</Filter>
     </None>

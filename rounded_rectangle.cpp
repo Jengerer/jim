@@ -36,61 +36,60 @@ void RoundedRectangle::precache( Graphics2D* graphics )
  */
 void RoundedRectangle::draw( Graphics2D* graphics )
 {
-	glPushMatrix();
-	glTranslatef( get_x(), get_y(), 0.0f );
+	// Translate to position.
+	graphics->push_matrix();
+	graphics->translate( get_x(), get_y() );
 
-	int rect_width = get_width();
-	int rect_height = get_height();
+	// Get starting position.
+	int x = 0;
+	int y = 0;
+	int radius = get_radius();
+	int width = get_width();
+	int height = get_height();
 	if (get_stroke_type() == STROKE_TYPE_OUTER) {
-		rect_width += get_stroke_size() << 1;
-		rect_height += get_stroke_size() << 1;
+		x -= get_stroke_size();
+		y -= get_stroke_size();
+		radius += get_stroke_size();
+		width += get_stroke_size() * 2;
+		height += get_stroke_size() * 2;
 	}
 
-	// Adjust radius of inner and outer based on stroke type.
-	int innerRadius = radius_;
-	int outerRadius = radius_;
-	int strokeSize = get_stroke_size();
-	EStrokeType strokeType = get_stroke_type();
-	if (strokeType == STROKE_TYPE_OUTER) {
-		outerRadius += strokeSize;
+	// Draw outer stroke.
+	if (get_stroke_size() != 0) {
+		// Get average of colour.
+		float stroke_alpha = static_cast<float>(get_alpha()) * static_cast<float>(stroke_colour_.a) / (255.0f);
+		graphics->set_colour( stroke_colour_.r, stroke_colour_.g, stroke_colour_.b, static_cast<GLubyte>(stroke_alpha) );
+		graphics->draw_rounded_rectangle(
+			x, y,
+			width, height,
+			radius );
+
+		x += get_stroke_size();
+		y += get_stroke_size();
+		radius -= get_stroke_size();
+		width -= get_stroke_size() * 2;
+		height -= get_stroke_size() * 2;
+
+		// Empty inner area.
+		graphics->set_blend_state( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );
+		graphics->set_colour( COLOUR_WHITE );
+		graphics->draw_rounded_rectangle(
+			x, y,
+			width, height,
+			radius );
+		graphics->set_blend_state( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	}
-	else {
-		innerRadius -= strokeSize;
-	}
 
-	// Draw outer rectangle if needed.
-	if (strokeSize != 0) {
-		graphics->set_colour( get_stroke_colour() );
-		draw_rounded_rectangle(
-			graphics,
-			0.0f, 0.0f,
-			static_cast<float>(rect_width),
-			static_cast<float>(rect_height),
-			static_cast<float>(radius_) );
-	}
+	// Draw inner.
+	float fill_alpha = static_cast<float>(get_alpha()) * static_cast<float>(colour_.a) / (255.0f);
+	graphics->set_colour( colour_.r, colour_.g, colour_.b, fill_alpha );
+	graphics->draw_rounded_rectangle(
+		x, y,
+		width, height,
+		radius );
 
-	// Empty inner area.
-	graphics->set_blend_state( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );
-	graphics->set_colour( COLOUR_WHITE );
-	draw_rounded_rectangle(
-		graphics,
-		static_cast<GLfloat>(strokeSize), static_cast<GLfloat>(strokeSize),
-		static_cast<GLfloat>(rect_width - strokeSize * 2),
-		static_cast<GLfloat>(rect_height - strokeSize * 2),
-		static_cast<GLfloat>(innerRadius) );
-	graphics->set_blend_state( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-	// Draw inner rectangle.
-	graphics->set_colour( colour_ );
-	draw_rounded_rectangle(
-		graphics,
-		static_cast<float>(strokeSize),
-		static_cast<float>(strokeSize),
-		static_cast<float>(rect_width - strokeSize * 2), 
-		static_cast<float>(rect_height - strokeSize * 2),
-		static_cast<float>(innerRadius) );
-
-	glPopMatrix();
+	// Pop translation.
+	graphics->pop_matrix();
 }
 
 void RoundedRectangle::draw_rounded_rectangle( Graphics2D* graphics, float x, float y, float width, float height, float radius )
@@ -126,6 +125,11 @@ void RoundedRectangle::set_colour( const Colour& colour )
 void RoundedRectangle::set_radius( int radius )
 {
 	radius_ = radius;
+}
+
+int RoundedRectangle::get_radius() const
+{
+	return radius_;
 }
 
 const Colour& RoundedRectangle::get_colour( void ) const

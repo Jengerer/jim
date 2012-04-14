@@ -28,7 +28,7 @@ Notification::Notification( const std::string& message, const Texture *texture )
 	layout_->set_spacing( NOTIFICATION_SPACING );
 	layout_->set_align_type( ALIGN_MIDDLE );
 	add( layout_ );
-	SetContent( layout_ );
+	set_content( layout_ );
 
 	// Only add image if there is one.
 	image_ = nullptr;
@@ -41,7 +41,7 @@ Notification::Notification( const std::string& message, const Texture *texture )
 	layout_->add( text_ );
 
 	// Set rectangle attributes.
-	RoundedRectangle* roundedRect = GetRoundedRectangle();
+	RoundedRectangle* roundedRect = get_rounded_rectangle();
 	roundedRect->set_colour( NOTIFICATION_COLOUR );
 	roundedRect->set_stroke( NOTIFICATION_STROKE_SIZE, NOTIFICATION_STROKE_COLOUR );
 

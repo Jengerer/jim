@@ -9,51 +9,62 @@
 #include <jui/vertical_layout.h>
 
 #include "item.h"
-#include "rounded_container.h"
+#include "rounded_rectangle_container.h"
 
+/*
+ * Class for displaying item information.
+ */
 class ItemDisplay : public RoundedRectangleContainer
 {
 
 public:
 
+	// Constructor.
 	ItemDisplay( void );
 	virtual ~ItemDisplay( void );
 
 	// Drawing functions.
-	void			UpdateDisplay();
-	void			UpdateAlpha();
+	void			update_display();
+	void			update_alpha();
 	virtual void	pack();
 
 	// Item functions.
 	const Item*		get_item( void ) const;
 	void			set_item( const Item *item );
 
+	// Getting item name.
 	const std::string&	get_name( void ) const;
 
-	bool			IsActive( void ) const;
-	void			SetActive( bool is_active );
+	// Activity functions.
+	bool			is_active( void ) const;
+	void			set_active( bool is_active );
 
+	// Load and release display resources.
 	static void		precache();
 	static void		release();
 
 private:
 
-	void			SetName( const std::string& name );
+	// Name setter.
+	void			set_name( const std::string& name );
 
 protected:
 
-	static IFont *nameFont_;
-	static IFont *infoFont_;
+	// Shared fonts.
+	static IFont *name_font_;
+	static IFont *info_font_;
 
 private:
 
-	bool		is_active_;
-	const Item	*item_;
-	std::string	itemName_;
+	// Attributes.
+	bool			is_active_;
+	const Item*		item_;
+	std::string		item_name_;
 
-	VerticalLayout		*textLayout_;
-	WrappedText			*nameText_;
-	WrappedText			*infoText_;
+	// Layout.
+	VerticalLayout	*text_layout_;
+	WrappedText		*name_text_;
+	WrappedText		*info_text_;
 
 };
 

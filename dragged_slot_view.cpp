@@ -34,13 +34,13 @@ void DraggedSlotView::SetOffset( float offsetX, float offsetY )
 void DraggedSlotView::DragSlot( Slot* slot )
 {
 	get_slot()->set_item( slot->get_item() );
-	slot->set_item( nullptr );
+	slot->remove_item();
 }
 
 Item* DraggedSlotView::ReleaseSlot()
 {
 	Slot* slot = get_slot();
 	Item* item = slot->get_item();
-	slot->set_item( nullptr );
+	slot->remove_item();
 	return item;
 }

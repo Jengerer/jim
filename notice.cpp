@@ -24,7 +24,7 @@ Notice::Notice( const std::string& message ) : Popup( 0.0f, 0.0f )
 {
 	// Create rounded container.
 	roundedContainer_ = new RoundedRectangleContainer( NOTICE_RADIUS, NOTICE_PADDING );
-	RoundedRectangle *roundedRect = roundedContainer_->GetRoundedRectangle();
+	RoundedRectangle *roundedRect = roundedContainer_->get_rounded_rectangle();
 	roundedRect->set_stroke( NOTICE_STROKE_WIDTH, NOTICE_STROKE_COLOUR );
 	roundedRect->set_stroke_type( STROKE_TYPE_OUTER );
 	roundedRect->set_colour( NOTICE_COLOUR );
@@ -35,7 +35,7 @@ Notice::Notice( const std::string& message ) : Popup( 0.0f, 0.0f )
 	content_ = new VerticalLayout();
 	content_->set_spacing( NOTICE_SPACING );
 	roundedContainer_->add( content_ );
-	roundedContainer_->SetContent( content_ );
+	roundedContainer_->set_content( content_ );
 
 	// Add default text to layout.
 	text_ = new WrappedText( font_, NOTICE_TEXT_WIDTH );

@@ -10,6 +10,7 @@
 #include "button.h"
 #include "definition_loader.h"
 #include "dragged_slot_view.h"
+#include "dynamic_slot_book.h"
 #include "http_resource_loader.h"
 #include "ipopup_handler.h"
 #include "item_display.h"
@@ -18,6 +19,7 @@
 #include "notification.h"
 #include "popup_display.h"
 #include "steam_item_handler.h"
+#include "slot_book.h"
 #include "toggle_set.h"
 
 #include <boost/bind.hpp>
@@ -93,57 +95,59 @@ public:
 private:
 
 	// Application interfaces.
-	SteamItemHandler*	steamItems_;
-	Backpack*			backpack_;
-	HttpResourceLoader*	site_loader_;
+	SteamItemHandler* steam_items_;
+	SlotBook* inventory_book_;
+	DynamicSlotBook* excluded_book_;
+	Backpack* backpack_;
+	HttpResourceLoader* site_loader_;
 
 	// Display layers.
-	Container*			user_layer_;
+	Container* user_layer_;
 
 	// User interface members.
-	SlotGridPages*		inventoryView_;
-	SlotGridView*		excludedView_;
-	Button*				craft_button_;
-	Button*				equip_button_;
-	Button*				sort_button_;
-	Button*				delete_button_;
+	SlotBookView* inventory_view_;
+	SlotBookView* excluded_view_;
+	Button* craft_button_;
+	Button* equip_button_;
+	Button* sort_button_;
+	Button* delete_button_;
 
 	// Page handling members.
-	WrappedText*		pageDisplay_;
-	Button*				prevButton_;
-	Button*				nextButton_;
+	WrappedText* page_display_;
+	Button* prev_button_;
+	Button* next_button_;
 
 	// Item selection handling.
-	SlotView*			dragTarget_;
-	DraggedSlotView*	draggedView_;
-	DWORD				pageDelay_;
+	SlotView* drag_target_;
+	DraggedSlotView* dragged_view_;
+	DWORD page_delay_;
 
 	// Running think function.
-	void (ItemManager::*thinkFunction_)( void );
+	void (ItemManager::*think_function_)( void );
 
 	// Threaded loader for resources.
-	DefinitionLoader*	definitionLoader_;
+	DefinitionLoader* definition_loader_;
 
 	// Top-level fonts.
-	IFont*				titleFont_;
-	IFont*				pageFont_;
+	IFont* title_font_;
+	IFont* page_font_;
 
 	// Popup manager.
-	PopupDisplay*		popups_;
+	PopupDisplay* popups_;
 
 	// Display for item information.
-	ItemDisplay*		itemDisplay_;
+	ItemDisplay* item_display_;
 
 	// Information notifications.
-	NotificationQueue	*notifications_;
+	NotificationQueue* notifications_;
 
 	// Popups.
-	Alert				*alert_;
-	Alert				*error_;
-	bool				updateError_;
-	Notice				*loadProgress_;
-	Confirmation		*craft_check_;
-	Confirmation		*delete_check_;
+	Alert* alert_;
+	Alert* error_;
+	bool update_error_;
+	Notice* load_progress_;
+	Confirmation* craft_check_;
+	Confirmation* delete_check_;
 
 };
 

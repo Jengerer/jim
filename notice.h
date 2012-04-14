@@ -5,7 +5,7 @@
 #include <jui/vertical_layout.h>
 
 #include "popup.h"
-#include "rounded_container.h"
+#include "rounded_rectangle_container.h"
 
 class Notice : public Popup
 {

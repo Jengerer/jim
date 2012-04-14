@@ -1,41 +1,47 @@
 #include "slot_grid_view.h"
 
-SlotGridView::SlotGridView( unsigned int gridWidth, unsigned int spacing ) : GridLayout( gridWidth, spacing )
+/*
+ * Slot grid view constructor.
+ */
+SlotGridView::SlotGridView( const SlotArray* slots, unsigned int grid_width, unsigned int spacing ) : GridLayout( grid_width, spacing )
 {
-	// SlotGridView created.
+	add_slots( slots );
 }
 
-void SlotGridView::AddSlot( Slot* slot )
+/*
+ * Add slots from an array to the grid.
+ */
+void SlotGridView::add_slots( const SlotArray* slots )
 {
-	SlotView* slotView = new SlotView( slot );
-	slotViews_.push_back( slotView );
-	add( slotView );
-}
-
-void SlotGridView::add_slots( const SlotVector* slots )
-{
-	add_slots( slots, 0, slots->get_slot_count() );
-}
-
-void SlotGridView::add_slots( const SlotVector* slots, unsigned int startIndex, unsigned int endIndex )
-{
-	for (unsigned int i = startIndex; i < endIndex; ++i) {
-		Slot* slot = slots->get_slot_by_index( i );
-		AddSlot( slot );
+	unsigned int end = slots->get_slot_count();
+	for (unsigned int i = 0; i < end; ++i) {
+		Slot* slot = slots->get_slot( i );
+		add_slot( slot );
 	}
 
+	// Pack grid.
 	pack();
 }
 
 SlotView* SlotGridView::get_touching_slot( Mouse* mouse ) const
 {
-	vector<SlotView*>::const_iterator i, end;
-	for (i = slotViews_.begin(), end = slotViews_.end(); i != end; ++i) {
-		SlotView* slotView = *i;
-		if (mouse->is_touching( slotView )) {
-			return slotView;
+	// Find view being touched.
+	// TODO: Can this be done mathematically?
+	for each (SlotView* view in slot_views_) {
+		if (mouse->is_touching( view )) {
+			return view;
 		}
 	}
 
 	return nullptr;
+}
+
+/*
+ * Add a slot to the grid.
+ */
+void SlotGridView::add_slot( Slot* slot )
+{
+	SlotView* view = new SlotView( slot );
+	slot_views_.push_back( view );
+	add( view );
 }
