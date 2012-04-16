@@ -78,8 +78,8 @@ public:
 	virtual bool on_key_released( int key );
 
 	// Slot selection handling.
-	void on_slot_clicked( SlotView* slotView, Mouse* mouse );
-	void on_slot_released( SlotView* slotView );
+	void on_slot_clicked( SlotView* slot_view, Mouse* mouse );
+	void on_slot_released( SlotView* slot_view );
 	void update_buttons();
 
 	// Popup handling.
@@ -118,7 +118,6 @@ private:
 	Button* next_button_;
 
 	// Item selection handling.
-	SlotView* drag_target_;
 	DraggedSlotView* dragged_view_;
 	DWORD page_delay_;
 

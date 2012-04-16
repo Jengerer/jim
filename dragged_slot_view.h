@@ -6,26 +6,29 @@
 #include "slot.h"
 #include "slot_view.h"
 
+/*
+ * Slot view that can be carried by mouse.
+ */
 class DraggedSlotView: public SlotView, public IMouseHandler
 {
 
 public:
 
 	DraggedSlotView( Slot* slot );
-	virtual ~DraggedSlotView();
+	virtual ~DraggedSlotView( void );
 
-	bool on_mouse_clicked( Mouse* mouse );
-	bool on_mouse_released( Mouse* mouse );
-	bool on_mouse_moved( Mouse* mouse );
+	// Mouse handling.
+	bool	on_mouse_clicked( Mouse* mouse );
+	bool	on_mouse_released( Mouse* mouse );
+	bool	on_mouse_moved( Mouse* mouse );
 
-	void DragSlot( Slot* slot );
-	Item* ReleaseSlot();
-	void SetOffset( float offsetX, float offsetY );
+	// Offset functions.
+	void	set_offset( float x, float y );
 
 private:
 
-	float offsetX_;
-	float offsetY_;
+	float offset_x_;
+	float offset_y_;
 
 };
 

@@ -65,6 +65,25 @@ void Inventory::insert_item( Item* item )
 }
 
 /*
+ * Move an item to an index in the inventory book. Assumes valid index and
+ * that the item exists in the inventory/excluded already.
+ */
+void Inventory::move_item( Item* item, unsigned int index )
+{
+	// Remove item from its 
+	if (is_excluded( item )) {
+		excluded_book_->remove_item( item );
+	}
+	else {
+		book_->remove_item( item );
+	}
+
+	// Move to new slot.
+	item->set_position( index );
+	book_->insert_item( item, index );
+}
+
+/*
  * Remove an item from the inventory.
  */
 void Inventory::remove_item( Item* item )
@@ -78,7 +97,6 @@ void Inventory::remove_item( Item* item )
 	}
 
 	items_.erase( item );
-	// TODO: deselect item if selected.
 }
 
 /*
@@ -104,17 +122,20 @@ bool Inventory::can_insert( const Item* item ) const
 	if (item->has_valid_flags()) {
 		unsigned int index = item->get_position();
 		if (book_->is_valid_index( index )) {
-			if (book_->is_slot_empty( index )) {
-				return true;
-			}
-			else {
-				Slot* slot = book_->get_slot( index );
-				return false;
-			}
+			// Allow insertion to existing slot.
+			return book_->is_slot_empty( index );
 		}
 	}
 
 	return false;
+}
+
+/*
+ * Checks if an item is excluded. Assumes item is in inventory/excluded.
+ */
+bool Inventory::is_excluded( const Item* item ) const
+{
+	return excluded_book_->has_item( item );
 }
 
 /*

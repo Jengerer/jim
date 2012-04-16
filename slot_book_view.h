@@ -36,6 +36,10 @@ public:
 	void update_offset( void );
 	virtual void update_view( void );
 
+	// Slot view handling.
+	void set_enabled( bool is_enabled ) const;
+	void disable_full( void ) const;
+
 protected:
 
 	// Navigation functions.

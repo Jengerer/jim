@@ -107,7 +107,6 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 	excluded_view_ = nullptr;
 
 	// Dragged slot.
-	drag_target_ = nullptr;
 	dragged_view_ = nullptr;
 
 	// Create books.
@@ -478,27 +477,20 @@ bool ItemManager::on_mouse_clicked( Mouse *mouse )
 			return true;
 		}
 
-		SlotView* slotView = nullptr;
-		bool touchedView = true;
-
-		// Attempt to get a slot.
+		// Find slot view if touched.
+		SlotView* slot_view = nullptr;
 		if (mouse->is_touching( inventory_view_ )) {
-			slotView = inventory_view_->get_touching_slot( mouse );
+			slot_view = inventory_view_->get_touching_slot( mouse );
 		}
 		else if (mouse->is_touching( excluded_view_ )) {
-			slotView = excluded_view_->get_touching_slot( mouse );
-		}
-		else {
-			touchedView = false;
+			slot_view = excluded_view_->get_touching_slot( mouse );
 		}
 
-		if (touchedView) {
-			if (slotView != nullptr) {
-				on_slot_clicked( slotView, mouse );
-				return true;
-			}
+		if (slot_view != nullptr) {
+			on_slot_clicked( slot_view, mouse );
+			return true;
 		}
-		else if (!touchedView) {
+		else {
 			// TODO: Set a 'clicked target' pointer so we can't just release on button and trigger.
 			if (mouse->is_touching( craft_button_ ) ||
 				mouse->is_touching( equip_button_ ) ||
@@ -531,8 +523,8 @@ bool ItemManager::on_mouse_released( Mouse *mouse )
 	else {
 		// Release slot if dragging.
 		if (dragged_view_ != nullptr) {
-			SlotView* slotView = inventory_view_->get_touching_slot( mouse );
-			on_slot_released( slotView );
+			SlotView* slot_view = inventory_view_->get_touching_slot( mouse );
+			on_slot_released( slot_view );
 		}
 		else {
 			// Handle buttons.
@@ -634,37 +626,43 @@ bool ItemManager::on_mouse_moved( Mouse *mouse )
 	return false;
 }
 
-void ItemManager::on_slot_clicked( SlotView* slotView, Mouse* mouse )
+void ItemManager::on_slot_clicked( SlotView* slot_view, Mouse* mouse )
 {
-	Slot* slot = slotView->get_slot();
+	Slot* slot = slot_view->get_slot();
 	if (slot->has_item()) {
 		switch (steam_items_->get_select_mode()) {
 		case SELECT_MODE_SINGLE:
 			{
-				assert( dragged_view_ == nullptr );
+				// Don't allow movement into full slots if excluded.
 				Item* item = slot->get_item();
+				if (backpack_->is_excluded( item )) {
+					inventory_view_->disable_full();
+				}
+				else {
+					// Just disable self.
+					slot_view->set_enabled( false );
+				}
+
+				// Excluded are never allowed as targets.
+				excluded_view_->set_enabled( false );
+				
+				assert( dragged_view_ == nullptr );
 				steam_items_->deselect_all();
 
 				// Start dragging.
-				drag_target_ = slotView;
-				float viewX = slotView->get_x();
-				float viewY = slotView->get_y();
-				dragged_view_ = new DraggedSlotView( new Slot );
-				dragged_view_->set_position( viewX, viewY );
-				dragged_view_->SetOffset( viewX - mouse->get_x(), viewY - mouse->get_y() );
+				float view_x = slot_view->get_x();
+				float view_y = slot_view->get_y();
+				dragged_view_ = new DraggedSlotView( slot );
+				dragged_view_->set_position( view_x, view_y );
+				dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
 				dragged_view_->set_alpha( 200 );
 				steam_items_->select( dragged_view_ );
-
-				// Swap items.
-				dragged_view_->get_slot()->set_item( item );
-				slot->remove_item();
-
 				add( dragged_view_ );
 				break;
 			}
 
 		case SELECT_MODE_MULTIPLE:
-			steam_items_->toggle_select( slotView );
+			steam_items_->toggle_select( slot_view );
 			break;
 		}
 	}
@@ -675,53 +673,46 @@ void ItemManager::on_slot_clicked( SlotView* slotView, Mouse* mouse )
 	update_buttons();
 }
 
-void ItemManager::on_slot_released( SlotView* slotView )
+void ItemManager::on_slot_released( SlotView* slot_view )
 {
+	// Remove item from backpack temporarily.
 	Slot* dragged_slot = dragged_view_->get_slot();
-	Item* draggedItem = dragged_slot->get_item();
-	backpack_->remove_item( draggedItem );
-	steam_items_->deselect_all();
+	Item* dragged_item = dragged_slot->get_item();
 
-	// Move back if not excluded.
-	bool isExcluded = !backpack_->can_insert( draggedItem );
-	Slot* targetSlot = drag_target_->get_slot();
+	// Reset selections.
+	inventory_view_->set_enabled( true );
+	excluded_view_->set_enabled( true );
+
+	// Check if item came from excluded.
+	bool is_excluded = backpack_->is_excluded( dragged_item );
 
 	// Delete temporary dragged.
-	SlotView* selectTarget = drag_target_;
 	remove( dragged_view_ );
 	delete dragged_view_;
 	dragged_view_ = nullptr;
-	drag_target_ = nullptr;
 
-	bool toInventory = false;
-	if (slotView != nullptr) {
-		// Now try move slot.
-		Slot* touchedSlot = slotView->get_slot();
-		if (touchedSlot->has_item()) {
-			Item* touchedItem = touchedSlot->get_item();
-			if (!isExcluded && targetSlot != touchedSlot) {
-				// Swap slots.
-				touchedSlot->set_item( draggedItem );
-				steam_items_->update_item( draggedItem );
-				touchedSlot->set_item( touchedItem );
-				toInventory = true;
+	// Do we have a slot to place it in?
+	if (slot_view != nullptr) {
+		Slot* touched_slot = slot_view->get_slot();
+		if (touched_slot->has_item()) {
+			// Swap slots if not excluded.
+			if (!is_excluded) {
+				Item* touched_item = touched_slot->get_item();
+				unsigned int old_index = dragged_item->get_index();
+				unsigned int new_index = touched_item->get_index();
+				backpack_->move_item( dragged_item, new_index );
+				backpack_->move_item( touched_item, old_index );
+				steam_items_->update_item( dragged_item );
+				steam_items_->update_item( touched_item );
 			}
 		}
 		else {
-			targetSlot->remove_item();
-			touchedSlot->set_item( draggedItem );
-			draggedItem->set_position( draggedItem->get_index() );
-			steam_items_->update_item( draggedItem );
-			selectTarget = slotView;
-			toInventory = true;
+			dragged_slot->remove_item();
+			backpack_->move_item( dragged_item, touched_slot->get_index() );
+			steam_items_->update_item( dragged_item );
 		}
 	}
-	else if (!isExcluded) {
-		targetSlot->set_item( draggedItem );
-		toInventory = true;
-	}
 
-	steam_items_->select( selectTarget );
 	update_buttons();
 }
 

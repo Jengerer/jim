@@ -64,7 +64,7 @@ void DynamicSlotBook::remove_item( Item* item )
 		unsigned int last_index = get_page_count() - 1;
 		const SlotArray* last_page = get_page( last_index );
 		if (last_page->is_empty()) {
-			remove_page( last_index );
+			remove_page();
 		}
 	}
 }
