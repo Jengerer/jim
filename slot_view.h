@@ -20,19 +20,22 @@ public:
 	SlotView( Slot* slot );
 
 	// Over-ridden drawing function.
-	void Update();
+	void update();
 	void draw( Graphics2D* graphics );
 
 	// Getting the slot.
-	Slot* get_slot() const;
+	Slot* get_slot( void ) const;
+	void set_slot( Slot* slot );
 
-	// Select type.
+	// Status functions.
 	void set_selected( bool is_selected );
-	bool is_selected() const;
+	bool is_selected( void ) const;
+	void set_enabled( bool is_enabled );
+	bool is_enabled( void ) const;
 
 	// Precaching class-wide resources.
 	static void	precache( Graphics2D* graphics );
-	static void release();
+	static void release( void );
 
 private:
 	
@@ -44,13 +47,13 @@ private:
 
 	// Rounded rectangle pointers.
 	RoundedRectangle* slot_rectangle_;
-	RoundedRectangle* stroke_;
 
 	// Item icon image.
 	Image* item_image_;
 
 	Slot* slot_;
 	bool is_selected_;
+	bool is_enabled_;
 
 };
 

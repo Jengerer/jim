@@ -24,9 +24,11 @@ public:
 	// Item handling.
 	Item*	find_item( uint64 unique_id ) const;
 	void	insert_item( Item* item );
+	void	move_item( Item* item, unsigned int index );
 	void	remove_item( Item* item );
-	void	remove_items();
+	void	remove_items( void );
 	bool	can_insert( const Item* item ) const;
+	bool	is_excluded( const Item* item ) const;
 
 	// Excluded handling.
 	void	resolve_excluded( void );
@@ -47,6 +49,7 @@ private:
 
 	// Item vectors.
 	std::set<Item*> items_;
+	std::set<Item*> selected_;
 
 };
 

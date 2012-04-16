@@ -3,10 +3,10 @@
 /*
  * Slot array constructor.
  */
-SlotArray::SlotArray( unsigned int size )
+SlotArray::SlotArray( unsigned int size, unsigned int start_index )
 {
 	set_size( size );
-	create_slots();
+	create_slots( start_index );
 }
 
 /*
@@ -44,14 +44,14 @@ void SlotArray::set_size( unsigned int size )
 /*
  * Create slots.
  */
-void SlotArray::create_slots( void )
+void SlotArray::create_slots( unsigned int start_index )
 {
 	unsigned int slot_count = get_slot_count();
 	slots_ = new Slot*[ slot_count ];
 
 	// Initialize slots.
 	for (unsigned int i = 0; i < slot_count; i++) {
-		slots_[i] = new Slot();
+		slots_[i] = new Slot( i + start_index );
 	}
 }
 

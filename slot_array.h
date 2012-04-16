@@ -13,7 +13,7 @@ class SlotArray : public SlotContainer
 
 public:
 
-	SlotArray( unsigned int size );
+	SlotArray( unsigned int size, unsigned int start_index = 0 );
 	~SlotArray( void );
 
 	// Slot management functions.
@@ -26,7 +26,7 @@ private:
 
 	// Slot management functions.
 	void	set_size( unsigned int size );
-	void	create_slots( void );
+	void	create_slots( unsigned int start_index );
 	void	destroy_slots( void );
 
 private:

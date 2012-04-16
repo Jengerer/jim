@@ -29,11 +29,33 @@ SlotView* SlotGridView::get_touching_slot( Mouse* mouse ) const
 	// TODO: Can this be done mathematically?
 	for each (SlotView* view in slot_views_) {
 		if (mouse->is_touching( view )) {
-			return view;
+			return (view->is_enabled() ? view : nullptr);
 		}
 	}
 
 	return nullptr;
+}
+
+/*
+ * Enable all slot views.
+ */
+void SlotGridView::set_enabled( bool is_enabled ) const
+{
+	for each (SlotView* slot_view in slot_views_) {
+		slot_view->set_enabled( is_enabled );
+	}
+}
+
+/*
+ * Disable slot views with an item in them.
+ */
+void SlotGridView::disable_full( void ) const
+{
+	for each (SlotView* slot_view in slot_views_) {
+		if (slot_view->get_slot()->has_item()) {
+			slot_view->set_enabled( false );
+		}
+	}
 }
 
 /*

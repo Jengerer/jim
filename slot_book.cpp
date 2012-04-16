@@ -22,7 +22,7 @@ SlotBook::~SlotBook( void )
  */
 const SlotArray* SlotBook::add_page( void )
 {
-	SlotArray* page = new SlotArray( get_page_size() );
+	SlotArray* page = new SlotArray( get_page_size(), get_slot_count() );
 	pages_.push_back( page );
 	return page;
 }
@@ -38,13 +38,14 @@ void SlotBook::add_pages( unsigned int pages )
 }
 
 /*
- * Remove page from book.
+ * Remove last page from book.
  */
-void SlotBook::remove_page( unsigned int page )
+void SlotBook::remove_page( void )
 {
-	if (page < get_page_count()) {
-		SlotArray* target = pages_[page];
-		pages_.erase( pages_.begin() + page );
+	if (get_page_count() != 0) {
+		unsigned int end_index = get_page_count() - 1;
+		SlotArray* target = pages_[ end_index ];
+		pages_.erase( pages_.begin() + end_index );
 		delete target;
 	}
 }

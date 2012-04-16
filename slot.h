@@ -8,7 +8,7 @@ class Slot
 
 public:
 
-	Slot( void );
+	Slot( unsigned int index );
 
 	// Item functions.
 	bool			has_item( void ) const;
@@ -16,9 +16,18 @@ public:
 	void			set_item( Item* item );
 	void			remove_item( void );
 
+	// Index functions.
+	unsigned int	get_index( void ) const;
+
+private:
+
+	// Index functions.
+	void			set_index( unsigned int index );
+
 private:
 
 	Item*			item_;
+	unsigned int	index_;
 
 };
 

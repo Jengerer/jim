@@ -34,7 +34,7 @@ bool SlotContainer::is_valid_index( unsigned int index ) const
 /*
  * Checks whether an item exists in the container.
  */
-bool SlotContainer::has_item( Item* item ) const
+bool SlotContainer::has_item( const Item* item ) const
 {
 	// Find slot by index.
 	unsigned int index = item->get_index();

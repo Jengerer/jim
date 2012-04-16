@@ -15,7 +15,7 @@ public:
 	bool is_empty( void ) const;
 	bool is_slot_empty( unsigned int index ) const;
 	bool is_valid_index( unsigned int index ) const;
-	bool has_item( Item* item ) const;
+	bool has_item( const Item* item ) const;
 	virtual void insert_item( Item* item, unsigned int index ) const;
 	virtual void remove_item( Item* item ) const;
 	virtual void empty_slots( void ) const;

@@ -161,6 +161,26 @@ void SlotBookView::update_view()
 }
 
 /*
+ * Enable all slot views.
+ */
+void SlotBookView::set_enabled( bool is_enabled ) const
+{
+	for each (SlotGridView* grid_view in slot_grid_views_) {
+		grid_view->set_enabled( is_enabled );
+	}
+}
+
+/*
+ * Disable all slot views with an item.
+ */
+void SlotBookView::disable_full( void ) const
+{
+	for each (SlotGridView* grid_view in slot_grid_views_) {
+		grid_view->disable_full();
+	}
+}
+
+/*
  * Set book to be viewed.
  */
 void SlotBookView::set_slot_book( const SlotBook* slot_book )

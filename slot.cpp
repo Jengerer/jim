@@ -3,9 +3,10 @@
 /*
  * Slot constructor.
  */
-Slot::Slot( void )
+Slot::Slot( unsigned int index )
 {
 	remove_item();
+	set_index( index );
 }
 
 /*
@@ -38,4 +39,20 @@ void Slot::set_item( Item* item )
 void Slot::remove_item( void )
 {
 	set_item( nullptr );
+}
+
+/*
+ * Get slot index.
+ */
+unsigned int Slot::get_index( void ) const
+{
+	return index_;
+}
+
+/*
+ * Set slot index.
+ */
+void Slot::set_index( unsigned int index )
+{
+	index_ = index;
 }

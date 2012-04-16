@@ -19,7 +19,7 @@ public:
 	// Page management.
 	const SlotArray* add_page( void );
 	void add_pages( unsigned int pages );
-	void remove_page( unsigned int page );
+	void remove_page( void );
 	const SlotArray* get_page( unsigned int page ) const;
 
 	// Page capacity functions.

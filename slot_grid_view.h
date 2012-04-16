@@ -23,6 +23,10 @@ public:
 	// Mouse handling.
 	SlotView* get_touching_slot( Mouse* mouse ) const;
 
+	// Slot view management.
+	void	set_enabled( bool is_enabled ) const;
+	void	disable_full( void ) const;
+
 private:
 
 	// Slot management.
