@@ -1,10 +1,9 @@
-#pragma once
+#ifndef ITEM_H
+#define ITEM_H
 
 #include <vector>
 #include <string>
 #include <map>
-
-#include <boost/lexical_cast.hpp>
 
 #include "steam/SteamAPI.h"
 #include "steam/SteamTypes.h"
@@ -122,3 +121,5 @@ private:
 	std::vector<Attribute*>	attributes_;
 
 };
+
+#endif // ITEM_H

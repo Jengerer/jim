@@ -101,11 +101,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\jengerer%27s item manager\dynamic_slot_book.cpp" />
-    <ClCompile Include="..\jengerer%27s item manager\http_resource_loader.cpp" />
-    <ClCompile Include="..\jengerer%27s item manager\slot_array.cpp" />
-    <ClCompile Include="..\jengerer%27s item manager\slot_book.cpp" />
-    <ClCompile Include="..\jengerer%27s item manager\slot_container.cpp" />
+    <ClCompile Include="dynamic_slot_book.cpp" />
+    <ClCompile Include="http_resource_loader.cpp" />
+    <ClCompile Include="slot_array.cpp" />
+    <ClCompile Include="slot_book.cpp" />
+    <ClCompile Include="slot_container.cpp" />
     <ClCompile Include="animated_book_view.cpp" />
     <ClCompile Include="attribute.cpp" />
     <ClCompile Include="attribute_information.cpp" />
@@ -144,12 +144,12 @@
     <ClCompile Include="toggle_set.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\jengerer%27s item manager\animated_book_view.h" />
-    <ClInclude Include="..\jengerer%27s item manager\dynamic_slot_book.h" />
-    <ClInclude Include="..\jengerer%27s item manager\iresource_loader.h" />
+    <ClInclude Include="animated_book_view.h" />
+    <ClInclude Include="dynamic_slot_book.h" />
+    <ClInclude Include="iresource_loader.h" />
     <ClInclude Include="slot_container.h" />
-    <ClInclude Include="..\jengerer%27s item manager\slot_array.h" />
-    <ClInclude Include="..\jengerer%27s item manager\slot_book.h" />
+    <ClInclude Include="slot_array.h" />
+    <ClInclude Include="slot_book.h" />
     <ClInclude Include="http_resource_loader.h" />
     <ClInclude Include="attribute.h" />
     <ClInclude Include="confirmation.h" />
