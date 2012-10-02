@@ -1,9 +1,9 @@
-#include "draggable.h"
+#include "draggable.hpp"
 
 //=============================================================
 // Constructor
 //=============================================================
-Draggable::Draggable( float x, float y ) : ConstrainedContainer( x, y )
+Draggable::Draggable( float x, float y ) : JUI::ConstrainedContainer( x, y )
 {
 	set_parent( nullptr );
 	SetDragging( false );
@@ -14,12 +14,12 @@ Draggable::~Draggable( void )
 	// Draggable destroyed.
 }
 
-void Draggable::draw( Graphics2D* graphics )
+void Draggable::draw( JUI::Graphics2D* graphics )
 {
 	Container::draw( graphics );
 }
 
-bool Draggable::on_mouse_moved( Mouse *mouse )
+bool Draggable::on_mouse_moved( JUI::Mouse* mouse )
 {
 	if (isDragging_) {
 		set_position( mouse->get_x() + offsetX_, mouse->get_y() + offsetY_ );
@@ -32,7 +32,7 @@ bool Draggable::on_mouse_moved( Mouse *mouse )
 	return false;
 }
 
-bool Draggable::on_mouse_clicked( Mouse *mouse )
+bool Draggable::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	if (mouse->is_touching( this )) {
 		begin_dragging( mouse );
@@ -42,7 +42,7 @@ bool Draggable::on_mouse_clicked( Mouse *mouse )
 	return false;
 }
 
-bool Draggable::on_mouse_released( Mouse *mouse )
+bool Draggable::on_mouse_released( JUI::Mouse* mouse )
 {
 	if (mouse->is_touching( this )) {
 		end_dragging();
@@ -73,7 +73,7 @@ float Draggable::get_y( void ) const
 //=============================================================
 // Purpose:	Enables dragging and sets offset to mouse.
 //=============================================================
-void Draggable::begin_dragging( const Mouse* mouse )
+void Draggable::begin_dragging( const JUI::Mouse* mouse )
 {
 	// Set offset to mouse.
 	SetOffset( get_x() - mouse->get_x(), get_y() - mouse->get_y() );

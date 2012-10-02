@@ -1,4 +1,4 @@
-#include "inventory.h"
+#include "inventory.hpp"
 
 #include <algorithm>
 

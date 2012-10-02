@@ -1,4 +1,4 @@
-#include "serialized_buffer.h"
+#include "serialized_buffer.hpp"
 
 SerializedBuffer::SerializedBuffer( void* buffer )
 {

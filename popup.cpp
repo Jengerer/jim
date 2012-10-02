@@ -1,6 +1,6 @@
-#include "popup.h"
+#include "popup.hpp"
 
-Popup::Popup( float x, float y ) : ConstrainedContainer( x, y )
+Popup::Popup( float x, float y ) : JUI::ConstrainedContainer( x, y )
 {
 }
 
@@ -34,17 +34,17 @@ bool Popup::is_killed( void ) const
 	return state_ == POPUP_STATE_KILLED;
 }
 
-bool Popup::on_mouse_clicked( Mouse* mouse )
+bool Popup::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	return mouse->is_touching( this );
 }
 
-bool Popup::on_mouse_released( Mouse* mouse )
+bool Popup::on_mouse_released( JUI::Mouse* mouse )
 {
 	return mouse->is_touching( this );
 }
 
-bool Popup::on_mouse_moved( Mouse* mouse )
+bool Popup::on_mouse_moved( JUI::Mouse* mouse )
 {
 	return mouse->is_touching( this );
 }

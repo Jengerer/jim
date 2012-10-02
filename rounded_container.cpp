@@ -1,11 +1,11 @@
-#include "rounded_rectangle_container.h"
+#include "rounded_rectangle_container.hpp"
 
-const Colour& ROUNDED_RECTANGLE_DEFAULT_COLOUR = COLOUR_WHITE;
+const JUI::Colour& ROUNDED_RECTANGLE_DEFAULT_COLOUR = JUI::COLOUR_WHITE;
 
 /*
  * Rounded rectangle container constructor.
  */
-RoundedRectangleContainer::RoundedRectangleContainer( unsigned int radius, unsigned int padding, float x, float y ) : ConstrainedContainer( x, y )
+RoundedRectangleContainer::RoundedRectangleContainer( unsigned int radius, unsigned int padding, float x, float y ) : JUI::ConstrainedContainer( x, y )
 {
 	set_padding( padding );
 

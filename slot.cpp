@@ -1,4 +1,4 @@
-#include "slot.h"
+#include "slot.hpp"
 
 /*
  * Slot constructor.

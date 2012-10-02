@@ -1,4 +1,4 @@
-#include "slot_view.h"
+#include "slot_view.hpp"
 
 // Slot layout attributes.
 const unsigned int SLOT_PADDING					= 5;
@@ -9,11 +9,11 @@ const unsigned int ITEM_SIZE					= 60;
 
 // Slot stroke attributes.
 const unsigned int SLOT_STROKE_WIDTH			= 2;
-const Colour SLOT_STROKE_NORMAL_COLOUR( 248, 212, 0 );
+const JUI::Colour SLOT_STROKE_NORMAL_COLOUR( 248, 212, 0 );
 
 // Slot colour attributes.
-const Colour SLOT_NORMAL_COLOUR( 60, 53, 46 );
-const Colour SLOT_SELECTED_COLOUR( 90, 80, 72 );
+const JUI::Colour SLOT_NORMAL_COLOUR( 60, 53, 46 );
+const JUI::Colour SLOT_SELECTED_COLOUR( 90, 80, 72 );
 
 // Slot display attributes.
 const unsigned int ENABLED_ALPHA				= 255;
@@ -22,8 +22,8 @@ const unsigned int DRAG_ALPHA					= 185;
 const unsigned int SLOT_RADIUS					= 5;
 
 // Class-wide font/text resources.
-IFont* SlotView::equipped_font_					= nullptr;
-Text* SlotView::equipped_text_					= nullptr;
+JUI::FontInterface* SlotView::equipped_font_					= nullptr;
+JUI::Text* SlotView::equipped_text_					= nullptr;
 
 // Equipped text attributes.
 const char* EQUIPPED_FONT_FACE					= "fonts/tf2build.ttf";
@@ -48,8 +48,8 @@ SlotView::SlotView( Slot* slot )
 	add( slot_rectangle_ );
 	set_constraint( slot_rectangle_, 0.0f, 0.0f );
 
-	// Image of item.
-	item_image_ = new Image( nullptr );
+	// JUI::Image of item.
+	item_image_ = new JUI::Image( nullptr );
 	item_image_->set_size( ITEM_SIZE, ITEM_SIZE );
 	add( item_image_ );
 	set_constraint( item_image_,
@@ -93,7 +93,7 @@ void SlotView::update( void )
 /*
  * Draw the slot view.
  */
-void SlotView::draw( Graphics2D* graphics )
+void SlotView::draw( JUI::Graphics2D* graphics )
 {
 	update();
 	Container::draw( graphics );
@@ -161,11 +161,11 @@ bool SlotView::is_selected() const
 /*
  * Precache font and text object.
  */
-void SlotView::precache( Graphics2D* graphics )
+void SlotView::precache( JUI::Graphics2D* graphics )
 {
 	// Create equipped font.
-	equipped_font_ = FontFactory::create_font( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE );
-	equipped_text_ = new Text( equipped_font_ );
+	equipped_font_ = JUI::FontFactory::create_font( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE );
+	equipped_text_ = new JUI::Text( equipped_font_ );
 	equipped_text_->set_text( "EQUIPPED" );
 }
 

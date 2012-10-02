@@ -1,5 +1,5 @@
-#include "steam_item_handler.h"
-#include "serialized_buffer.h"
+#include "steam_item_handler.hpp"
+#include "serialized_buffer.hpp"
 
 SteamItemHandler::SteamItemHandler()
 {

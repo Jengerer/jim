@@ -1,4 +1,4 @@
-#include "popup_display.h"
+#include "popup_display.hpp"
 
 #include <algorithm>
 
@@ -70,7 +70,7 @@ void PopupDisplay::remove_popup( Popup* popup )
 	delete popup;
 };
 
-bool PopupDisplay::on_mouse_clicked( Mouse* mouse )
+bool PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {
@@ -93,7 +93,7 @@ bool PopupDisplay::on_mouse_clicked( Mouse* mouse )
 	return false;
 }
 
-bool PopupDisplay::on_mouse_released( Mouse* mouse )
+bool PopupDisplay::on_mouse_released( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {
@@ -116,7 +116,7 @@ bool PopupDisplay::on_mouse_released( Mouse* mouse )
 	return false;
 }
 
-bool PopupDisplay::on_mouse_moved( Mouse* mouse )
+bool PopupDisplay::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {

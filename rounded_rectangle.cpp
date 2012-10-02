@@ -1,12 +1,12 @@
-#include "rounded_rectangle.h"
+#include "rounded_rectangle.hpp"
 
 // Static texture.
-FileTexture* RoundedRectangle::rounded_corner_ = nullptr;
+JUI::FileTexture* RoundedRectangle::rounded_corner_ = nullptr;
 
 /*
  * Rounded rectangle constructor.
  */
-RoundedRectangle::RoundedRectangle( int width, int height, int radius, const Colour& colour )
+RoundedRectangle::RoundedRectangle( int width, int height, int radius, const JUI::Colour& colour )
 {
 	set_stroke( 0, colour );
 	set_stroke_type( STROKE_TYPE_OUTER );
@@ -26,15 +26,22 @@ RoundedRectangle::~RoundedRectangle( void )
 /*
  * Precaching texture.
  */
-void RoundedRectangle::precache( Graphics2D* graphics )
+bool RoundedRectangle::precache( JUI::Graphics2D* graphics )
 {
-	rounded_corner_ = graphics->get_texture( "img/manager/rounded_corner.png" );
+    // Load rounded corner texture.
+    // TODO: Replace with rounded rectangle pixel-render.
+	if (!graphics->get_texture( "img/manager/rounded_corner.png", &rounded_corner_ ))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 /*
  * Draw rounded rectangle.
  */
-void RoundedRectangle::draw( Graphics2D* graphics )
+void RoundedRectangle::draw( JUI::Graphics2D* graphics )
 {
 	// Translate to position.
 	graphics->push_matrix();
@@ -57,8 +64,10 @@ void RoundedRectangle::draw( Graphics2D* graphics )
 	// Draw outer stroke.
 	if (get_stroke_size() != 0) {
 		// Get average of colour.
+        JUI::Colour colour( stroke_colour_ );
 		float stroke_alpha = static_cast<float>(get_alpha()) * static_cast<float>(stroke_colour_.a) / (255.0f);
-		graphics->set_colour( stroke_colour_.r, stroke_colour_.g, stroke_colour_.b, static_cast<GLubyte>(stroke_alpha) );
+        colour_.a = static_cast<GLubyte>(stroke_alpha);
+		graphics->set_colour( colour );
 		graphics->draw_rounded_rectangle(
 			x, y,
 			width, height,
@@ -72,7 +81,7 @@ void RoundedRectangle::draw( Graphics2D* graphics )
 
 		// Empty inner area.
 		graphics->set_blend_state( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );
-		graphics->set_colour( COLOUR_WHITE );
+		graphics->set_colour( JUI::COLOUR_WHITE );
 		graphics->draw_rounded_rectangle(
 			x, y,
 			width, height,
@@ -81,8 +90,10 @@ void RoundedRectangle::draw( Graphics2D* graphics )
 	}
 
 	// Draw inner.
+    JUI::Colour colour = colour_;
 	float fill_alpha = static_cast<float>(get_alpha()) * static_cast<float>(colour_.a) / (255.0f);
-	graphics->set_colour( colour_.r, colour_.g, colour_.b, fill_alpha );
+    colour_.a = static_cast<GLubyte>(fill_alpha);
+	graphics->set_colour( colour );
 	graphics->draw_rounded_rectangle(
 		x, y,
 		width, height,
@@ -92,7 +103,7 @@ void RoundedRectangle::draw( Graphics2D* graphics )
 	graphics->pop_matrix();
 }
 
-void RoundedRectangle::draw_rounded_rectangle( Graphics2D* graphics, float x, float y, float width, float height, float radius )
+void RoundedRectangle::draw_rounded_rectangle( JUI::Graphics2D* graphics, float x, float y, float width, float height, float radius )
 {
 	GLsizei size_radius = static_cast<GLsizei>(radius);
 
@@ -111,13 +122,13 @@ void RoundedRectangle::draw_rounded_rectangle( Graphics2D* graphics, float x, fl
 	graphics->draw_rectangle( x + radius, y + height - radius, width - double_radius, radius ); // Bottom.
 }
 
-void RoundedRectangle::set_stroke( int size, const Colour& colour )
+void RoundedRectangle::set_stroke( int size, const JUI::Colour& colour )
 {
 	stroke_size_ = size;
 	stroke_colour_ = colour;
 }
 
-void RoundedRectangle::set_colour( const Colour& colour )
+void RoundedRectangle::set_colour( const JUI::Colour& colour )
 {
 	colour_ = colour;
 }
@@ -132,12 +143,12 @@ int RoundedRectangle::get_radius() const
 	return radius_;
 }
 
-const Colour& RoundedRectangle::get_colour( void ) const
+const JUI::Colour& RoundedRectangle::get_colour( void ) const
 {
 	return colour_;
 }
 
-const Colour& RoundedRectangle::get_stroke_colour( void ) const
+const JUI::Colour& RoundedRectangle::get_stroke_colour( void ) const
 {
 	return stroke_colour_;
 }

@@ -1,11 +1,11 @@
-#include "menu.h"
+#include "menu.hpp"
 
 const unsigned int MENU_PADDING		= 10;
 const unsigned int MENU_SPACING		= 10;
 const unsigned int MENU_RADIUS		= 3;
 const unsigned int MENU_STROKE_SIZE	= 4;
-const Colour& MENU_STROKE_COLOUR	= COLOUR_WHITE;
-const Colour MENU_BACKGROUND_COLOUR( 42, 39, 37 );
+const JUI::Colour& MENU_STROKE_COLOUR	= COLOUR_WHITE;
+const JUI::Colour MENU_BACKGROUND_COLOUR( 42, 39, 37 );
 
 // Menu created.
 Menu::Menu( void )
@@ -20,7 +20,7 @@ Menu::Menu( void )
 	add( rounded_rect_ );
 
 	// Create layout.
-	layout_ = new VerticalLayout();
+	layout_ = new JUI::VerticalLayout();
 	float constraint_padding = static_cast<float>(MENU_PADDING);
 	set_constraint( layout_, constraint_padding, constraint_padding );
 	add( layout_ );
@@ -55,7 +55,7 @@ void Menu::pack( void )
 	set_size( rounded_rect_->get_width(), rounded_rect_->get_height() );
 }
 
-bool Menu::on_mouse_moved( Mouse *mouse )
+bool Menu::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Pass message to buttons.
 	vector<Button*>::iterator i, end;
@@ -67,7 +67,7 @@ bool Menu::on_mouse_moved( Mouse *mouse )
 	return true;
 }
 
-bool Menu::on_mouse_clicked( Mouse *mouse )
+bool Menu::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	set_clicked( nullptr );
 	if ( !mouse->is_touching( this ) ) {
@@ -78,7 +78,7 @@ bool Menu::on_mouse_clicked( Mouse *mouse )
 	return true;
 }
 
-bool Menu::on_mouse_released( Mouse *mouse )
+bool Menu::on_mouse_released( JUI::Mouse* mouse )
 {
 	if (mouse->is_touching( this )) {
 		vector<Button*>::iterator i;

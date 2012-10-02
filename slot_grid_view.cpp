@@ -1,4 +1,4 @@
-#include "slot_grid_view.h"
+#include "slot_grid_view.hpp"
 
 /*
  * Slot grid view constructor.
@@ -23,11 +23,14 @@ void SlotGridView::add_slots( const SlotArray* slots )
 	pack();
 }
 
-SlotView* SlotGridView::get_touching_slot( Mouse* mouse ) const
+SlotView* SlotGridView::get_touching_slot( JUI::Mouse* mouse ) const
 {
 	// Find view being touched.
-	// TODO: Can this be done mathematically?
-	for each (SlotView* view in slot_views_) {
+	// TODO: This can be done with math.
+    size_t i;
+    size_t length = slot_views_.get_length();
+    for (i = 0; i < length; ++i) {
+        SlotView* view = slot_views_.get( i );
 		if (mouse->is_touching( view )) {
 			return (view->is_enabled() ? view : nullptr);
 		}
@@ -41,7 +44,10 @@ SlotView* SlotGridView::get_touching_slot( Mouse* mouse ) const
  */
 void SlotGridView::set_enabled( bool is_enabled ) const
 {
-	for each (SlotView* slot_view in slot_views_) {
+    size_t i;
+    size_t length = slot_views_.get_length();
+    for (i = 0; i < length; ++i) {
+        SlotView* slot_view = slot_views_.get( i );
 		slot_view->set_enabled( is_enabled );
 	}
 }
@@ -51,7 +57,10 @@ void SlotGridView::set_enabled( bool is_enabled ) const
  */
 void SlotGridView::disable_full( void ) const
 {
-	for each (SlotView* slot_view in slot_views_) {
+	size_t i;
+    size_t length = slot_views_.get_length();
+    for (i = 0; i < length; ++i) {
+        SlotView* slot_view = slot_views_.get( i );
 		if (slot_view->get_slot()->has_item()) {
 			slot_view->set_enabled( false );
 		}
@@ -64,6 +73,6 @@ void SlotGridView::disable_full( void ) const
 void SlotGridView::add_slot( Slot* slot )
 {
 	SlotView* view = new SlotView( slot );
-	slot_views_.push_back( view );
+	slot_views_.push( view );
 	add( view );
 }

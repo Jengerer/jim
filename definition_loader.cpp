@@ -1,6 +1,6 @@
-#include "definition_loader.h"
+#include "definition_loader.hpp"
 
-#include <jui/file_downloader.h>
+#include <jui/file_downloader.hpp>
 
 Json::Value& get_member( Json::Value& root, const std::string& member )
 {
@@ -11,7 +11,7 @@ Json::Value& get_member( Json::Value& root, const std::string& member )
 	return root[member];
 }
 
-DefinitionLoader::DefinitionLoader( Graphics2D *graphics )
+DefinitionLoader::DefinitionLoader( JUI::Graphics2D* *graphics )
 {
 	graphics_ = graphics;
 
@@ -169,7 +169,7 @@ void DefinitionLoader::load()
 		}
 
 		// Create fallback definition.
-		Texture* unknown_item = graphics_->get_texture( "img/backpack/unknown_item.png" );
+		JUI::Texture* unknown_item = graphics_->get_texture( "img/backpack/unknown_item.png" );
 		Item::fallback = new ItemInformation(
 			"Unknown Item",
 			unknown_item,
@@ -237,7 +237,7 @@ void DefinitionLoader::load()
 			std::string file_name = "img/" + image_inventory + ".png";
 
 			// Check that texture exists.
-			Texture* texture = nullptr;
+			JUI::Texture* texture = nullptr;
 			FileDownloader* downloader = FileDownloader::get_instance();
 			try {
 				downloader->check_and_get( file_name, image_url );

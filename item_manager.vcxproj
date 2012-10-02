@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{ACBA57BF-AE9A-42C2-9813-1355F6BE788C}</ProjectGuid>
+    <RootNamespace>ItemManager</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>item_manager</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration) Output\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(SDK_LIB_DIR)\protobuf\src;$(SDK_LIB_DIR)\jsoncpp\include;$(SDK_LIB_DIR)\boost\;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\jui\include;$(SolutionDir)\lib\libpng;$(SolutionDir)\lib\freetype\include;$(SolutionDir)\lib\protobuf\src;$(SolutionDir)\lib\libcurl\include;$(SolutionDir)\lib\jsoncpp\include;$(ProgramFiles)\boost\boost_1_47;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\jui\build;$(SolutionDir)\lib\libpng\projects\vstudio\Release\;$(SolutionDir)\lib\freetype\objs\win32\vc2010\;$(SolutionDir)\lib\protobuf\vsprojects\Release;$(SolutionDir)\lib\jsoncpp\libs\Release\;$(SolutionDir)\lib\libcurl\lib\Release\;$(ProgramFiles)\boost\boost_1_47\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SDK_LIB_DIR)\jui\lib;$(SDK_LIB_DIR)\jutil\lib;$(SDK_LIB_DIR)\protobuf\vsprojects\Debug;$(SDK_LIB_DIR)\jsoncpp\libs\Debug\;$(SDK_LIB_DIR)\boost\boost_1_47\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <ExceptionHandling>Async</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>jutil_debug.lib;jui_debug.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>jutil.lib;jui.lib;GlU32.Lib;OpenGL32.lib;libpng15.lib;zlib.lib;freetype247.lib;libprotobuf.lib;steam/steam_api.lib;libcurl.lib;ws2_32.lib;winmm.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="dynamic_slot_book.cpp" />
+    <ClCompile Include="http_resource_loader.cpp" />
+    <ClCompile Include="slot_array.cpp" />
+    <ClCompile Include="slot_book.cpp" />
+    <ClCompile Include="slot_container.cpp" />
+    <ClCompile Include="animated_book_view.cpp" />
+    <ClCompile Include="attribute.cpp" />
+    <ClCompile Include="attribute_information.cpp" />
+    <ClCompile Include="confirmation.cpp" />
+    <ClCompile Include="dragged_slot_view.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="popup_display.cpp" />
+    <ClCompile Include="protobuf\tf_gcmessages.pb.cc" />
+    <ClCompile Include="steam_item_handler.cpp" />
+    <ClCompile Include="definition_loader.cpp" />
+    <ClCompile Include="slot_book_view.cpp" />
+    <ClCompile Include="slot_grid_view.cpp" />
+    <ClCompile Include="slot_view.cpp" />
+    <ClCompile Include="alert.cpp" />
+    <ClCompile Include="backpack.cpp" />
+    <ClCompile Include="button.cpp" />
+    <ClCompile Include="draggable.cpp" />
+    <ClCompile Include="inventory.cpp" />
+    <ClCompile Include="item.cpp" />
+    <ClCompile Include="item_display.cpp" />
+    <ClCompile Include="item_information.cpp" />
+    <ClCompile Include="item_manager.cpp" />
+    <ClCompile Include="menu.cpp" />
+    <ClCompile Include="notice.cpp" />
+    <ClCompile Include="notification.cpp" />
+    <ClCompile Include="notification_queue.cpp" />
+    <ClCompile Include="popup.cpp" />
+    <ClCompile Include="protobuf\base_gcmessages.pb.cc" />
+    <ClCompile Include="protobuf\gcsdk_gcmessages.pb.cc" />
+    <ClCompile Include="protobuf\steammessages.pb.cc" />
+    <ClCompile Include="rounded_container.cpp" />
+    <ClCompile Include="rounded_rectangle.cpp" />
+    <ClCompile Include="serialized_buffer.cpp" />
+    <ClCompile Include="slot.cpp" />
+    <ClCompile Include="steam.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="animated_book_view.hpp" />
+    <ClInclude Include="dynamic_slot_book.hpp" />
+    <ClInclude Include="iresource_loader.hpp" />
+    <ClInclude Include="slot_container.hpp" />
+    <ClInclude Include="slot_array.hpp" />
+    <ClInclude Include="slot_book.hpp" />
+    <ClInclude Include="http_resource_loader.hpp" />
+    <ClInclude Include="attribute.hpp" />
+    <ClInclude Include="confirmation.hpp" />
+    <ClInclude Include="dragged_slot_view.hpp" />
+    <ClInclude Include="attribute_information.hpp" />
+    <ClInclude Include="ipopup_handler.hpp" />
+    <ClInclude Include="popup_display.hpp" />
+    <ClInclude Include="protobuf\tf_gcmessages.pb.h" />
+    <ClInclude Include="steam_item_handler.hpp" />
+    <ClInclude Include="definition_loader.hpp" />
+    <ClInclude Include="slot.hpp" />
+    <ClInclude Include="slot_book_view.hpp" />
+    <ClInclude Include="slot_grid_view.hpp" />
+    <ClInclude Include="alert.hpp" />
+    <ClInclude Include="backpack.hpp" />
+    <ClInclude Include="button.hpp" />
+    <ClInclude Include="draggable.hpp" />
+    <ClInclude Include="inventory.hpp" />
+    <ClInclude Include="item.hpp" />
+    <ClInclude Include="item_display.hpp" />
+    <ClInclude Include="item_information.hpp" />
+    <ClInclude Include="item_manager.hpp" />
+    <ClInclude Include="item_shared.hpp" />
+    <ClInclude Include="menu.hpp" />
+    <ClInclude Include="notice.hpp" />
+    <ClInclude Include="notification.hpp" />
+    <ClInclude Include="notification_queue.hpp" />
+    <ClInclude Include="popup.hpp" />
+    <ClInclude Include="protobuf\base_gcmessages.pb.h" />
+    <ClInclude Include="protobuf\gcsdk_gcmessages.pb.h" />
+    <ClInclude Include="protobuf\steammessages.pb.h" />
+    <ClInclude Include="rounded_rectangle_container.hpp" />
+    <ClInclude Include="rounded_rectangle.hpp" />
+    <ClInclude Include="serialized_buffer.hpp" />
+    <ClInclude Include="slot_view.hpp" />
+    <ClInclude Include="steam.hpp" />
+    <ClInclude Include="string_hasher.hpp" />
+    <ClInclude Include="toggle_set.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="item_manager.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="jim_icon.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

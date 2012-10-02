@@ -1,18 +1,18 @@
-#include <jui/ifont.h>
-#include <jui/font_factory.h>
+#include <jui/gfx/font_interface.hpp>
+#include <jui/gfx/font_factory.hpp>
 
-#include "item_display.h"
+#include "item_display.hpp"
 
 const char* ITEM_DISPLAY_TITLE_FONT_FACE		= "fonts/tf2build.ttf";
 const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 13;
 
-const Colour& ITEM_DISPLAY_COLOUR				= COLOUR_BLACK;
+const JUI::Colour& ITEM_DISPLAY_COLOUR				= COLOUR_BLACK;
 
 const char* ITEM_DISPLAY_INFO_FONT_FACE			= "fonts/tf2secondary.ttf";
 const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE	= 11;
 
-IFont *ItemDisplay::name_font_ = nullptr;
-IFont *ItemDisplay::info_font_ = nullptr;
+JUI::FontInterface *ItemDisplay::name_font_ = nullptr;
+JUI::FontInterface *ItemDisplay::info_font_ = nullptr;
 
 const unsigned int ITEM_DISPLAY_PADDING	= 20;
 const unsigned int ITEM_DISPLAY_SPACING	= 5;
@@ -33,13 +33,13 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 	set_active( false );
 	
 	// Create text objects.
-	name_text_ = new WrappedText( name_font_, ITEM_DISPLAY_TEXT_WIDTH );
+	name_text_ = new JUI::WrappedText( name_font_, ITEM_DISPLAY_TEXT_WIDTH );
 	name_text_->set_text_formatting( DT_CENTER );
-	info_text_ = new WrappedText( info_font_, ITEM_DISPLAY_TEXT_WIDTH );
+	info_text_ = new JUI::WrappedText( info_font_, ITEM_DISPLAY_TEXT_WIDTH );
 	info_text_->set_text_formatting( DT_CENTER );
 
 	// Add to layout.
-	text_layout_ = new VerticalLayout();
+	text_layout_ = new JUI::VerticalLayout();
 	text_layout_->set_spacing( ITEM_DISPLAY_SPACING );
 	text_layout_->add( name_text_ );
 	text_layout_->add( info_text_ );

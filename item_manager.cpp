@@ -7,17 +7,17 @@
 #include <shellapi.h>
 #include <json/json.h>
 
-#include <jui/font_factory.h>
+#include <jui/gfx/font_factory.hpp>
 
-#include "serialized_buffer.h"
-#include "slot_view.h"
+#include "serialized_buffer.hpp"
+#include "slot_view.hpp"
 
 #include "protobuf/base_gcmessages.pb.h"
 #include "protobuf/steammessages.pb.h"
 #include "protobuf/gcsdk_gcmessages.pb.h"
 
-#include "http_resource_loader.h"
-#include "item_manager.h"
+#include "http_resource_loader.hpp"
+#include "item_manager.hpp"
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
@@ -41,13 +41,13 @@ const DWORD PAGE_DELAY_INTERVAL			= 500;
 const char* TITLE_FONT_FACE				= "fonts/tf2build.ttf";
 const unsigned int TITLE_FONT_SIZE		= 14;
 const bool TITLE_FONT_BOLDED			= false;
-const Colour TITLE_COLOUR( 241, 239, 237 );
+const JUI::Colour TITLE_COLOUR( 241, 239, 237 );
 
 // Page display.
 const char* PAGE_FONT_FACE				= "fonts/tf2build.ttf";
 const unsigned int PAGE_FONT_SIZE		= 14;
 const bool PAGE_FONT_BOLDED				= false;
-const Colour PAGE_LABEL_COLOUR( 201, 79, 57 );
+const JUI::Colour PAGE_LABEL_COLOUR( 201, 79, 57 );
 const unsigned int PAGE_LABEL_WIDTH		= 50;
 
 // Item display attributes.
@@ -159,7 +159,7 @@ void ItemManager::load_interfaces()
 	site_loader_->get_resource( "fonts/tf2build.ttf", "fonts/tf2build.ttf" );
 	site_loader_->get_resource( "fonts/tf2secondary.ttf", "fonts/tf2secondary.ttf" );
 
-	// Start up Graphics2D and window.
+	// Start up JUI::Graphics2D* and window.
 	Application::load_interfaces();
 
 	// Necessary to display progress/status.
@@ -297,7 +297,7 @@ void ItemManager::close_interfaces( void )
 void ItemManager::create_layout( void )
 {
 	// Create layout.
-	VerticalLayout* layout = new VerticalLayout( SPACING, ALIGN_LEFT );
+	JUI::VerticalLayout* layout = new JUI::VerticalLayout( SPACING, ALIGN_LEFT );
 
 	// Create inventory view.
 	inventory_view_ = new AnimatedBookView( inventory_book_,
@@ -310,9 +310,9 @@ void ItemManager::create_layout( void )
 		SLOT_SPACING );
 
 	// Create button layout.
-	Texture *craft_texture = graphics_->get_texture( "img/manager/gear.png" );
-	Texture *equip_texture = graphics_->get_texture( "img/manager/equip.png" );
-	Texture *sort_texture = graphics_->get_texture( "img/manager/sort.png" );
+	JUI::Texture *craft_texture = graphics_->get_texture( "img/manager/gear.png" );
+	JUI::Texture *equip_texture = graphics_->get_texture( "img/manager/equip.png" );
+	JUI::Texture *sort_texture = graphics_->get_texture( "img/manager/sort.png" );
 	//Texture *delete_texture = graphics_->get_texture( "manager/delete" );
 
 	// Create inventory buttons.
@@ -327,7 +327,7 @@ void ItemManager::create_layout( void )
 	//delete_button_->SetEnabled( false );
 	
 	// Create inventory button layout.
-	HorizontalLayout* inventory_buttons = new HorizontalLayout( BUTTON_SPACING );
+	JUI::HorizontalLayout* inventory_buttons = new JUI::HorizontalLayout( BUTTON_SPACING );
 	inventory_buttons->add( craft_button_ );
 	inventory_buttons->add( equip_button_ );
 	inventory_buttons->add( sort_button_ );
@@ -337,13 +337,13 @@ void ItemManager::create_layout( void )
 	// Create pages buttons/text.
 	prev_button_ = Button::create_label_button( "<" );
 	next_button_ = Button::create_label_button( ">" );
-	page_display_ = new WrappedText( page_font_, PAGE_LABEL_WIDTH );
+	page_display_ = new JUI::WrappedText( page_font_, PAGE_LABEL_WIDTH );
 	page_display_->set_colour( PAGE_LABEL_COLOUR );
 	page_display_->set_text_formatting( DT_CENTER );
 	update_page_display();
 
 	// Create pages buttons layout.
-	HorizontalLayout* pageButtons = new HorizontalLayout( BUTTON_SPACING );
+	JUI::HorizontalLayout* pageButtons = new JUI::HorizontalLayout( BUTTON_SPACING );
 	pageButtons->add( prev_button_ );
 	pageButtons->add( page_display_ ); // PAGE LABEL, RATHER
 	pageButtons->add( next_button_ );
@@ -359,7 +359,7 @@ void ItemManager::create_layout( void )
 	titleStream << APPLICATION_TITLE << " " << APPLICATION_VERSION;
 
 	// Add version number.
-	Text* titleText = new Text( title_font_ );
+	JUI::Text* titleText = new JUI::Text( title_font_ );
 	titleText->set_text( titleStream.str() );
 	titleText->set_colour( TITLE_COLOUR );
 
@@ -456,7 +456,7 @@ void ItemManager::loading()
 void ItemManager::running()
 {
 	handle_callback();
-	notifications_->UpdateNotifications();
+	notifications_->update_notifications();
 	inventory_view_->update_view();
 	update_item_display();
 }
@@ -466,9 +466,9 @@ void ItemManager::exiting()
 	// Just wait for exit.
 }
 
-bool ItemManager::on_mouse_clicked( Mouse *mouse )
+bool ItemManager::on_mouse_clicked( JUI::Mouse* mouse )
 {
-	// Mouse clicked.
+	// JUI::Mouse* clicked.
 	if (popups_->on_mouse_clicked( mouse )) {
 		return true;
 	}
@@ -514,7 +514,7 @@ bool ItemManager::on_mouse_clicked( Mouse *mouse )
 	return false;
 }
 
-bool ItemManager::on_mouse_released( Mouse *mouse )
+bool ItemManager::on_mouse_released( JUI::Mouse* mouse )
 {
 	// Check top popup.
 	if (popups_->on_mouse_released( mouse )) {
@@ -550,7 +550,7 @@ bool ItemManager::on_mouse_released( Mouse *mouse )
 	return false;
 }
 
-bool ItemManager::on_mouse_moved( Mouse *mouse )
+bool ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Update buttons.
 	// TODO: Have a button frame mouse hover state.
@@ -626,7 +626,7 @@ bool ItemManager::on_mouse_moved( Mouse *mouse )
 	return false;
 }
 
-void ItemManager::on_slot_clicked( SlotView* slot_view, Mouse* mouse )
+void ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 {
 	Slot* slot = slot_view->get_slot();
 	if (slot->has_item()) {

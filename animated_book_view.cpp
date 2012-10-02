@@ -1,4 +1,4 @@
-#include "animated_book_view.h"
+#include "animated_book_view.hpp"
 
 const float DEFAULT_VIEW_SPEED		= 0.0f;
 const float SPRING_DAMPING			= 0.15f;

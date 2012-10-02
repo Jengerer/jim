@@ -1,4 +1,4 @@
-#include "dynamic_slot_book.h"
+#include "dynamic_slot_book.hpp"
 
 /*
  * Dynamic slot book constructor.
