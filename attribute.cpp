@@ -1,4 +1,4 @@
-#include "attribute.h"
+#include "attribute.hpp"
 #include <sstream>
 
 Attribute::Attribute( const AttributeInformation* attribute_info, float value )

@@ -1,4 +1,4 @@
-#include "slot_array.h"
+#include "slot_array.hpp"
 
 /*
  * Slot array constructor.

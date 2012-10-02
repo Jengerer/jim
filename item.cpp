@@ -1,4 +1,4 @@
-#include "item.h"
+#include "item.hpp"
 
 InformationMap Item::definitions;
 AttributeMap Item::attributes;
@@ -38,16 +38,18 @@ Item::~Item( void )
 void Item::get_item_information( void )
 {
 	// Attempt to find item information.
-	InformationMap::iterator i = definitions.find( get_type_index() );
-	if (i != definitions.end()) {
-		information_ = i->second;
-	}
-	else {
-		information_ = fallback;
-	}
+    ItemInformation* information;
+    if (definitions.get( get_type_index(), &information )) {
+        information_ = information;
+    }
+    else {
+        information_ = fallback;
+    }
 
 	// Load attributes from class definition.
-	for (size_t i = 0, len = information_->get_attribute_count(); i < len; ++i) {
+    size_t i;
+    size_t len = information_->get_attribute_count();
+	for (size_t i = 0; i < len; ++i) {
 		const Attribute* orig = information_->get_attribute( i );
 		add_attribute( new Attribute( *orig ) );
 	}
@@ -116,7 +118,7 @@ std::string Item::get_name( void ) const
 	}
 }
 
-const Colour& Item::get_quality_colour( void ) const
+const JUI::Colour& Item::get_quality_colour( void ) const
 {
 	switch (get_quality()) {
 	case k_EItemQuality_Vintage:
@@ -289,7 +291,7 @@ void Item::set_equip( uint32 equipClass, bool equip )
 	}
 }
 
-const Texture* Item::get_texture( void )
+const JUI::Texture* Item::get_texture( void )
 {
 	return information_->get_texture();
 }

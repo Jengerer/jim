@@ -1,4 +1,5 @@
-#include "confirmation.h"
+#include "confirmation.hpp"
+#include <jui/layout/horizontal_layout.hpp>
 
 const int BUTTON_SPACING = 10;
 
@@ -10,7 +11,7 @@ Confirmation::Confirmation( const std::string& question ) : Notice( question )
 	response_ = RESPONSE_NULL;
 	
 	// Organize in layout and add.
-	HorizontalLayout* layout = new HorizontalLayout( BUTTON_SPACING );
+	JUI::HorizontalLayout* layout = new JUI::HorizontalLayout( BUTTON_SPACING );
 	layout->add( yes_ );
 	layout->add( no_ );
 	layout->pack();
@@ -30,7 +31,7 @@ ConfirmationResponse Confirmation::get_response( void ) const
 	return response_;
 }
 
-bool Confirmation::on_mouse_released( Mouse* mouse )
+bool Confirmation::on_mouse_released( JUI::Mouse* mouse )
 {
 	// Set response based on button clicked.
 	if (yes_->on_mouse_released( mouse )) {
@@ -48,7 +49,7 @@ bool Confirmation::on_mouse_released( Mouse* mouse )
 	return true;
 }
 
-bool Confirmation::on_mouse_moved( Mouse* mouse )
+bool Confirmation::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Notify buttons.
 	yes_->on_mouse_moved( mouse );

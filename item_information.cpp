@@ -1,8 +1,8 @@
-#include "item_information.h"
+#include "item_information.hpp"
 
 ItemInformation::ItemInformation(
-	const std::string& name,
-	Texture *texture,
+	JUTIL::String* name,
+	JUI::Texture* texture,
 	uint32 classFlags,
 	EItemSlot slot )
 {
@@ -15,17 +15,20 @@ ItemInformation::ItemInformation(
 ItemInformation::~ItemInformation( void )
 {
 	// Item information destroyed.
-	for (auto i = attributes_.begin(); i != attributes_.end(); i = attributes_.erase( i )) {
-		delete *i;
-	}
+    size_t i;
+    size_t length = attributes_.get_length();
+    for (i = 0; i < length; ++i) {
+        delete attributes_.get( i );
+    }
+    attributes_.clear();
 }
 
-const std::string& ItemInformation::get_name( void ) const
+const JUTIL::String* ItemInformation::get_name( void ) const
 {
 	return name_;
 }
 
-const Texture* ItemInformation::get_texture( void ) const
+const JUI::Texture* ItemInformation::get_texture( void ) const
 {
 	return texture_;
 }
@@ -47,12 +50,12 @@ EItemSlot ItemInformation::get_slot( void ) const
 
 void ItemInformation::add_attribute( Attribute* attribute )
 {
-	attributes_.push_back( attribute );
+	attributes_.push( attribute );
 }
 
 size_t ItemInformation::get_attribute_count() const
 {
-	return attributes_.size();
+	return attributes_.get_length();
 }
 
 const Attribute* ItemInformation::get_attribute( size_t index ) const
@@ -60,12 +63,12 @@ const Attribute* ItemInformation::get_attribute( size_t index ) const
 	return attributes_[index];
 }
 
-void ItemInformation::set_name( const std::string& name )
+void ItemInformation::set_name( JUTIL::String* name )
 {
 	name_ = name;
 }
 
-void ItemInformation::set_texture( const Texture *texture )
+void ItemInformation::set_texture( const JUI::Texture *texture )
 {
 	texture_ = texture;
 }

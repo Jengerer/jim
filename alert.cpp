@@ -1,4 +1,4 @@
-#include "alert.h"
+#include "alert.hpp"
 
 Alert::Alert( const std::string& message ) : Notice( message )
 {
@@ -27,19 +27,19 @@ bool Alert::on_key_released( int key )
 	return true;
 }
 
-bool Alert::on_mouse_moved( Mouse *mouse )
+bool Alert::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Parent behaviour.
 	ok_->on_mouse_moved( mouse );
 	return Notice::on_mouse_moved( mouse );
 }
 
-bool Alert::on_mouse_clicked( Mouse *mouse )
+bool Alert::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	return Notice::on_mouse_clicked( mouse );
 }
 
-bool Alert::on_mouse_released( Mouse *mouse )
+bool Alert::on_mouse_released( JUI::Mouse* mouse )
 {
 	if (mouse->is_touching( this )) {
 		if (ok_->on_mouse_released( mouse )) {

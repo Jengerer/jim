@@ -1,4 +1,4 @@
-#include "slot_container.h"
+#include "slot_container.hpp"
 
 /*
  * Check whether all slots are empty.

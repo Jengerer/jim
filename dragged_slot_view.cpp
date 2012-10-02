@@ -1,4 +1,4 @@
-#include "dragged_slot_view.h"
+#include "dragged_slot_view.hpp"
 
 /*
  * Dragged slot view constructor. Slot is mimicked; should
@@ -20,7 +20,7 @@ DraggedSlotView::~DraggedSlotView()
 /*
  * Return if mouse touching.
  */
-bool DraggedSlotView::on_mouse_clicked( Mouse* mouse )
+bool DraggedSlotView::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	return mouse->is_touching( this );
 }
@@ -28,7 +28,7 @@ bool DraggedSlotView::on_mouse_clicked( Mouse* mouse )
 /*
  * Return if mouse touching.
  */
-bool DraggedSlotView::on_mouse_released( Mouse* mouse )
+bool DraggedSlotView::on_mouse_released( JUI::Mouse* mouse )
 {
 	return mouse->is_touching( this );
 }
@@ -36,7 +36,7 @@ bool DraggedSlotView::on_mouse_released( Mouse* mouse )
 /*
  * Update position offset to mouse.
  */
-bool DraggedSlotView::on_mouse_moved( Mouse* mouse )
+bool DraggedSlotView::on_mouse_moved( JUI::Mouse* mouse )
 {
 	set_position( mouse->get_x() + offset_x_, mouse->get_y() + offset_y_ );
 	return true;

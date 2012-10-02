@@ -1,4 +1,4 @@
-#include "slot_book_view.h"
+#include "slot_book_view.hpp"
 
 const unsigned int DEFAULT_PAGE = 0;
 const float DEFAULT_VIEW_OFFSET = 0.0f;
@@ -17,7 +17,7 @@ SlotBookView::SlotBookView( const SlotBook* slot_book,
 	set_active_page( DEFAULT_PAGE );
 
 	// Create layout.
-	pages_layout_ = new HorizontalLayout( page_spacing, ALIGN_TOP );
+	pages_layout_ = new JUI::HorizontalLayout( page_spacing, JUI::ALIGN_TOP );
 	pages_layout_->set_parent( this );
 	add( pages_layout_ );
 
@@ -91,7 +91,7 @@ SlotGridView* SlotBookView::get_active_view( void ) const
 /*
  * Get the slot view being touched by mouse.
  */
-SlotView* SlotBookView::get_touching_slot( Mouse* mouse ) const
+SlotView* SlotBookView::get_touching_slot( JUI::Mouse* mouse ) const
 {
 	// Only check current page.
 	if (get_page_count() != 0) {

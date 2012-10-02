@@ -1,4 +1,4 @@
-#include "attribute_information.h"
+#include "attribute_information.hpp"
 
 AttributeInformation::AttributeInformation( const std::string& name,
 	unsigned int index,

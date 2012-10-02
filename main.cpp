@@ -1,5 +1,5 @@
-#include "item_manager.h"
-#include <jui/application_controller.h>
+#include "item_manager.hpp"
+#include <jui/application_controller.hpp>
 
 // Global application handle.
 int WINAPI WinMain( HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int show_cmd )

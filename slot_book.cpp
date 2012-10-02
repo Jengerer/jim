@@ -1,4 +1,4 @@
-#include "slot_book.h"
+#include "slot_book.hpp"
 
 /*
  * Slot book constructor.
