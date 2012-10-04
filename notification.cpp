@@ -43,9 +43,9 @@ Notification::Notification( const JUTIL::ConstantString& message, const JUI::Tex
 	layout_->add( text_ );
 
 	// Set rectangle attributes.
-	RoundedRectangle* roundedRect = get_rounded_rectangle();
-	roundedRect->set_colour( NOTIFICATION_COLOUR );
-	roundedRect->set_stroke( NOTIFICATION_STROKE_SIZE, NOTIFICATION_STROKE_COLOUR );
+	RoundedRectangle* rounded_rect = get_rounded_rectangle();
+	rounded_rect->set_colour( NOTIFICATION_COLOUR );
+	rounded_rect->set_stroke( NOTIFICATION_STROKE_SIZE, NOTIFICATION_STROKE_COLOUR );
 
 	// Now set message, texture, and pack.
 	set_message( message );

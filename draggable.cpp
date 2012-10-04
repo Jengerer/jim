@@ -89,7 +89,7 @@ void Draggable::end_dragging( void )
 	SetDragging( false );
 }
 
-const Container* Draggable::get_parent() const
+const JUI::Container* Draggable::get_parent( void ) const
 {
 	return parent_;
 }

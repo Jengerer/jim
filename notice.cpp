@@ -21,45 +21,80 @@ const JUI::Colour NOTICE_STROKE_COLOUR( 255, 255, 255, 100 );
 const JUI::Colour& NOTICE_COLOUR = JUI::COLOUR_BLACK;
 
 /*
- * Notice creation function for safe allocation.
+ * Notice constructor.
  */
-Notice* Notice::create( const JUTIL::ConstantString& message )
+Notice::Notice( void )
+{
+	rounded_container_ = nullptr;
+    text_ = nullptr;
+}
+
+/*
+ * Notice destructor.
+ */
+Notice::~Notice( void )
+{
+}
+
+/*
+ * Allocate layout objects for displaying notice.
+ */
+bool Notice::initialize( const JUTIL::ConstantString& message )
 {
     // Create rounded container.
-	RoundedRectangleContainer* rounded_container = new RoundedRectangleContainer( NOTICE_RADIUS, NOTICE_PADDING );
-	RoundedRectangle* rounded_rect = rounded_container->get_rounded_rectangle();
+    if (!JUTIL::BaseAllocator::allocate( &rounded_container_ )) {
+        return false;
+    }
+    rounded_container_ = new (rounded_container_) RoundedRectangleContainer( NOTICE_RADIUS, NOTICE_PADDING );
+        
+    // Style rounded rectangle.
+    RoundedRectangle* rounded_rect = rounded_container_->get_rounded_rectangle();
 	rounded_rect->set_stroke( NOTICE_STROKE_WIDTH, NOTICE_STROKE_COLOUR );
 	rounded_rect->set_stroke_type( STROKE_TYPE_OUTER );
 	rounded_rect->set_colour( NOTICE_COLOUR );
-	add( rounded_container_ );
+	if (!add( rounded_container_ )) {
+        JUTIL::BaseAllocator::destroy( rounded_container_ );
+        return false;
+    }
 	set_constraint( rounded_container_, 0.0f, 0.0f );
 
 	// Create layout for container.
-	content_ = new JUI::VerticalLayout();
+    if (!JUTIL::BaseAllocator::allocate( &content_ )) {
+        return false;
+    }
+	content_ = new (content_) JUI::VerticalLayout();
 	content_->set_spacing( NOTICE_SPACING );
-	rounded_container_->add( content_ );
+	if (!rounded_container_->add( content_ ))
+    {
+        JUTIL::BaseAllocator::destroy( content_ );
+        return false;
+    }
 	rounded_container_->set_content( content_ );
 
 	// Add default text to layout.
-	text_ = new JUI::WrappedText( font_, NOTICE_TEXT_WIDTH );
+    if (!JUTIL::BaseAllocator::allocate( &text_ )) {
+        return false;
+    }
+	text_ = new (text_) JUI::WrappedText( font_, NOTICE_TEXT_WIDTH );
 	text_->set_text_formatting( DT_CENTER );
-	content_->add( text_ );
-	set_message( message );
+	if (!content_->add( text_ ))
+    {
+        JUTIL::BaseAllocator::destroy( text_ );
+        return false;
+    }
+
+    // Set text message displayed by notice.
+    if (!set_message( message ))
+    {
+        return false;
+    }
+
+    return true;
 }
 
-Notice::Notice( RoundedRectangleContainer* rounded_container, JUI::WrappedText* text, JUTIL::StringBuilder* builder )
-    : rounded_container_( rounded_container ),
-    text_( text ),
-    message_( builder )
-{
-	// Nothing speicla.
-}
-
-Notice::~Notice()
-{
-	// Notice is destroyed.
-}
-
+/*
+ * Pack content into notice layout.
+ */
 void Notice::pack( void )
 {
 	content_->pack();
@@ -67,27 +102,55 @@ void Notice::pack( void )
 	set_size( rounded_container_->get_width(), rounded_container_->get_height() );
 }
 
-void Notice::set_message( const JUTIL::ConstantString& message )
+/*
+ * Set message to new string.
+ */
+bool Notice::set_message( const JUTIL::ConstantString& message )
 {
-	message_ = message;
+    // Remove old message.
+    message_.clear();
+
+    // Write new message to new buffer.
+    if (!message_.copy( &message )) {
+        return false;
+    }
+
+    // Update text object to show message.
 	text_->set_text( message );
 	pack();
 }
 
-void Notice::append_message( const std::string& message )
+/*
+ * Add string to message.
+ */
+bool Notice::append_message( const JUTIL::ConstantString& message )
 {
-	set_message( message_ + message );
+    // Add string to buffer.
+    if (!message_.write( "%s", message )) {
+        return false;
+    }
+	set_message( message_ );
+    return true;
 }
 
-void Notice::precache( JUI::Graphics2D* graphics )
+/*
+ * Load notice-generic resources.
+ */
+bool Notice::precache( JUI::Graphics2D* graphics )
 {
-	font_ = FontFactory::create_font( NOTICE_FONT_FACE, NOTICE_FONT_SIZE );
+    // Allocate notice-generic font.
+	font_ = JUI::FontFactory::create_font( NOTICE_FONT_FACE, NOTICE_FONT_SIZE );
+    if (font_ == nullptr) {
+        return false;
+    }
+
+    return true;
 }
 
+/*
+ * Free notice-generic resource.
+ */
 void Notice::release( void )
 {
-	if (font_ != nullptr) {
-		delete font_;
-		font_ = nullptr;
-	}
+    JUI::FontFactory::destroy_font( font_ );
 }

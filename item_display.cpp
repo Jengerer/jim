@@ -3,23 +3,23 @@
 
 #include "item_display.hpp"
 
-const char* ITEM_DISPLAY_TITLE_FONT_FACE		= "fonts/tf2build.ttf";
+const char* ITEM_DISPLAY_TITLE_FONT_FACE = "fonts/tf2build.ttf";
 const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 13;
 
-const JUI::Colour& ITEM_DISPLAY_COLOUR				= COLOUR_BLACK;
+const JUI::Colour& ITEM_DISPLAY_COLOUR = JUTIL::COLOUR_BLACK;
 
-const char* ITEM_DISPLAY_INFO_FONT_FACE			= "fonts/tf2secondary.ttf";
-const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE	= 11;
+const char* ITEM_DISPLAY_INFO_FONT_FACE = "fonts/tf2secondary.ttf";
+const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE = 11;
 
 JUI::FontInterface *ItemDisplay::name_font_ = nullptr;
 JUI::FontInterface *ItemDisplay::info_font_ = nullptr;
 
-const unsigned int ITEM_DISPLAY_PADDING	= 20;
-const unsigned int ITEM_DISPLAY_SPACING	= 5;
-const unsigned int ITEM_DISPLAY_RADIUS	= 5;
-const int ITEM_DISPLAY_TEXT_WIDTH		= 200;
-const int ITEM_DISPLAY_ALPHA_SPEED		= 30;
-const int ITEM_DISPLAY_ALPHA_MAX		= 210;
+const unsigned int ITEM_DISPLAY_PADDING = 20;
+const unsigned int ITEM_DISPLAY_SPACING = 5;
+const unsigned int ITEM_DISPLAY_RADIUS = 5;
+const int ITEM_DISPLAY_TEXT_WIDTH = 200;
+const int ITEM_DISPLAY_ALPHA_SPEED = 30;
+const int ITEM_DISPLAY_ALPHA_MAX = 210;
 
 /*
  * Item display constructor.
@@ -61,7 +61,7 @@ ItemDisplay::~ItemDisplay( void )
 /*
  * Update item display.
  */
-void ItemDisplay::update_display()
+void ItemDisplay::update_display( void )
 {
 	// Alter display based on quality.
 	name_text_->set_colour( item_->get_quality_colour() );

@@ -1,53 +1,98 @@
 #include "popup_display.hpp"
-
 #include <algorithm>
 
+/*
+ * Popup layer constructor.
+ */
 PopupDisplay::PopupDisplay( float x, float y ) : Container( x, y )
 {
 	// No default handler.
 	set_popup_handler( nullptr );
 }
 
+/*
+ * Sets the interface to call when popup events occur.
+ */
 void PopupDisplay::set_popup_handler( IPopupHandler* handler )
 {
 	handler_ = handler;
 }
 
-Notice* PopupDisplay::create_notice( const std::string& message )
+/*
+ * Creates a notice and places it on top of the popup layer.
+ * Returns pointer to notice if succeeded, nullptr otherwise.
+ */
+Notice* PopupDisplay::create_notice( const JUTIL::ConstantString& message )
 {
 	// Create new notice.
-	Notice* notice = new Notice( message );
-	add_popup( notice );
+    Notice* notice;
+    if (!JUTIL::BaseAllocator::allocate( &notice )) {
+        return nullptr;
+    }
+    notice = new (notice) Notice();
 
+    // Initialize notice layout and message.
+    if (!notice->initialize( message ) || !add_popup( notice )) {
+        JUTIL::BaseAllocator::destroy( notice );
+        return nullptr;
+    }
 	return notice;
 }
 
-Alert* PopupDisplay::create_alert( const std::string& message )
+/*
+ * Creates an alert and places it on top of the popup layer.
+ * Returns pointer to alert if succeeded, nullptr otherwise.
+ */
+Alert* PopupDisplay::create_alert( const JUTIL::ConstantString& message )
 {
 	// Create new alert.
-	Alert* alert = new Alert( message );
-	add_popup( alert );
+    Alert* alert;
+    if (!JUTIL::BaseAllocator::allocate( &alert )) {
+        return nullptr;
+    }
+    alert = new (alert) Alert();
 
+    // Initialize notice layout and message.
+    if (!alert->initialize( message ) || !add_popup( alert )) {
+        JUTIL::BaseAllocator::destroy( alert );
+        return nullptr;
+    }
 	return alert;
 }
 
-Confirmation* PopupDisplay::create_confirmation( const std::string& question )
+/*
+ * Creates a confirmation and places it on top of the popup layer.
+ * Returns pointer to confirmation if succeeded, nullptr otherwise.
+ */
+Confirmation* PopupDisplay::create_confirmation( const JUTIL::ConstantString& question )
 {
-	// Create new confirmation.
-	Confirmation* confirmation = new Confirmation( question );
-	add_popup( confirmation );
+	// Create new alert.
+    Confirmation* confirmation;
+    if (!JUTIL::BaseAllocator::allocate( &confirmation )) {
+        return nullptr;
+    }
+    confirmation = new (confirmation) Confirmation();
 
+    // Initialize notice layout and message.
+    if (!confirmation->initialize( question ) || !add_popup( confirmation )) {
+        JUTIL::BaseAllocator::destroy( confirmation );
+        return nullptr;
+    }
 	return confirmation;
 }
 
-void PopupDisplay::add_popup( Popup* popup )
+bool PopupDisplay::add_popup( Popup* popup )
 {
+    // Try adding.
+    if (!add( popup )) {
+        return false;
+    }
+    // TODO: Make sure to remove popup if pushing to list fails.
+    popups_.push_front( popup );
+
 	// Keep in center.
 	popup->center_to( this );
-
-	// Add to list/container.
-	add( popup );
-	popups_.push_front( popup );
+    return true;
 }
 
 void PopupDisplay::hide_popup( Popup* popup )
