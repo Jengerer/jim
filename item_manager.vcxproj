@@ -128,7 +128,6 @@
     <ClCompile Include="item_display.cpp" />
     <ClCompile Include="item_information.cpp" />
     <ClCompile Include="item_manager.cpp" />
-    <ClCompile Include="menu.cpp" />
     <ClCompile Include="notice.cpp" />
     <ClCompile Include="notification.cpp" />
     <ClCompile Include="notification_queue.cpp" />
@@ -172,7 +171,6 @@
     <ClInclude Include="item_information.hpp" />
     <ClInclude Include="item_manager.hpp" />
     <ClInclude Include="item_shared.hpp" />
-    <ClInclude Include="menu.hpp" />
     <ClInclude Include="notice.hpp" />
     <ClInclude Include="notification.hpp" />
     <ClInclude Include="notification_queue.hpp" />

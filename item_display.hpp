@@ -1,12 +1,12 @@
-#ifndef ITEM_DISPLAY_H
-#define ITEM_DISPLAY_H
+#ifndef ITEM_DISPLAY_HPP
+#define ITEM_DISPLAY_HPP
 
-#include <jui/layout/container.hpp>
 #include <jui/gfx/font_interface.hpp>
-#include <jui/graphics_2d.h>
-#include <jui/text.hpp>
-#include <jui/wrapped_text.h>
-#include <jui/vertical_layout.hpp>
+#include <jui/gfx/graphics_2d.hpp>
+#include <jui/gfx/text.hpp>
+#include <jui/gfx/wrapped_text.hpp>
+#include <jui/layout/container.hpp>
+#include <jui/layout/vertical_layout.hpp>
 
 #include "item.hpp"
 #include "rounded_rectangle_container.hpp"
@@ -24,29 +24,29 @@ public:
 	virtual ~ItemDisplay( void );
 
 	// Drawing functions.
-	void			update_display();
-	void			update_alpha();
-	virtual void	pack();
+	void update_display( void );
+	void update_alpha( void );
+	virtual void pack( void );
 
 	// Item functions.
-	const Item*		get_item( void ) const;
-	void			set_item( const Item *item );
+	const Item* get_item( void ) const;
+	bool set_item( const Item *item );
 
 	// Getting item name.
-	const std::string&	get_name( void ) const;
+	const JUTIL::String* get_name( void ) const;
 
 	// Activity functions.
-	bool			is_active( void ) const;
-	void			set_active( bool is_active );
+	bool is_active( void ) const;
+	void set_active( bool is_active );
 
 	// Load and release display resources.
-	static void		precache();
-	static void		release();
+	static bool precache( void );
+	static void release( void );
 
 private:
 
 	// Name setter.
-	void			set_name( const std::string& name );
+	void set_name( const JUTIL::ConstantString& name );
 
 protected:
 
@@ -57,15 +57,15 @@ protected:
 private:
 
 	// Attributes.
-	bool			is_active_;
-	const Item*		item_;
-	std::string		item_name_;
+	bool is_active_;
+	const Item* item_;
+	JUTIL::String item_name_;
 
 	// Layout.
-	JUI::VerticalLayout	*text_layout_;
-	JUI::WrappedText		*name_text_;
-	JUI::WrappedText		*info_text_;
+	JUI::VerticalLayout* text_layout_;
+	JUI::WrappedText* name_text_;
+	JUI::WrappedText* info_text_;
 
 };
 
-#endif // ITEM_DISPLAY_H
+#endif // ITEM_DISPLAY_HPP

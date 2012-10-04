@@ -1,14 +1,9 @@
-#ifndef DEFINITION_LOADER_H
-#define DEFINITION_LOADER_H
+#ifndef DEFINITION_LOADER_HPP
+#define DEFINITION_LOADER_HPP
 
-#include <jui/graphics_2d.h>
-
+#include <jui/gfx/graphics_2d.hpp>
 #include <boost/thread.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <json/json.h>
-#include <sstream>
-#include <string>
 
 #include "iresource_loader.hpp"
 #include "item.hpp"
@@ -27,8 +22,11 @@ enum ELoadingState
 	LOADING_STATE_FINISHED
 };
 
-Json::Value& get_member( Json::Value& root, const std::string& member );
+Json::Value& get_member( Json::Value& root, const JUTIL::ConstantString& member );
 
+/*
+ * Class for loading item definitions from the Steam Web API.
+ */
 class DefinitionLoader
 {
 
@@ -38,14 +36,14 @@ public:
 	~DefinitionLoader();
 
 	// Starting and ending the worker threads.
-	void begin();
-	void end();
+	void begin( void );
+	void end( void );
 
 	// Getting definition loader states.
-	ELoadingState get_state() const;
-	float get_progress() const;
-	void update_progress_msg();
-	const std::string& get_progress_msg() const;
+	ELoadingState get_state( void ) const;
+	float get_progress( void ) const;
+	void update_progress_msg( void );
+	const JUTIL::ConstantString* get_progress_msg( void ) const;
 
 private:
 
@@ -65,12 +63,12 @@ private:
 private:
 
 	// Resource parameters.
-	Graphics2D*		graphics_;
+	JUI::Graphics2D* graphics_;
 
 	// Threading parameters.
-	volatile bool						stop_;
-	boost::shared_ptr<boost::thread>	thread_;
-	boost::mutex						mutex_;		
+	volatile bool should_stop_;
+	boost::shared_ptr<boost::thread> thread_;
+	boost::mutex mutex_;		
 
 	// Parsing members.
 	Json::Value root_;
@@ -78,12 +76,12 @@ private:
 	std::hash_map<std::string, EClassEquip, StringHasher> classes_;
 
 	// State members.
-	float								progress_;
-	std::string							progress_msg_;
-	std::string							error_msg_;
-	ELoadingState						state_;
-	bool								state_changed_;
+	float progress_;
+	std::string progress_msg_;
+	std::string error_msg_;
+	ELoadingState state_;
+	bool has_state_changed_;
 	
 };
 
-#endif // DEFINITION_LOADER_H
+#endif // DEFINITION_LOADER_HPP

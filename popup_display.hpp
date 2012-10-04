@@ -2,7 +2,7 @@
 #define POPUP_DISPLAY_H
 
 #include <list>
-#include <string>
+#include <string/constant_string.hpp>
 
 #include <jui/layout/container.hpp>
 #include <jui/io/keyboard_handler_interface.hpp>
@@ -24,13 +24,13 @@ public:
 	void			set_popup_handler( IPopupHandler* handler );
 
 	// Popup creators.
-	Notice*			create_notice( const std::string& message );
-	Alert*			create_alert( const std::string& message );
-	Confirmation*	create_confirmation( const std::string& question );
+	Notice*			create_notice( const JUTIL::ConstantString& message );
+	Alert*			create_alert( const JUTIL::ConstantString& message );
+	Confirmation*	create_confirmation( const JUTIL::ConstantString& question );
 
 	// Popup handling.
 	bool	has_popup( void ) const;
-	void	add_popup( Popup* popup );
+	bool    add_popup( Popup* popup );
 	void	hide_popup( Popup* popup );
 	void	remove_popup( Popup* popup );
 	

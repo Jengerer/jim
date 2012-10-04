@@ -15,44 +15,55 @@ class Button: public RoundedRectangleContainer, public JUI::MouseHandlerInterfac
 
 public:
 
-	Button( float localX = 0.0f, float localY = 0.0f );
+	Button( float x = 0.0f, float y = 0.0f );
 
-	// Button content handling.
-	JUI::Layout*    GetContentLayout() const;
+	// Layout handling.
+    bool create_layout( void );
+	JUI::Layout* get_content_layout( void ) const;
 
 	// Updating colour based on state.
-	virtual void	pack( void );
-	void			UpdateButton( void );
+	virtual void pack( void );
+	void update_button( void );
 
 	// UI state handling.
-	void			SetEnabled( bool isEnabled );
-	bool			IsEnabled( void ) const;
+	void set_enabled( bool is_enabled );
+	bool is_enabled( void ) const;
+	bool is_hovering( void ) const;
 
-	// JUI::Mouse* handling functions.
+	// Mouse handling functions.
 	virtual bool	on_mouse_moved( JUI::Mouse* mouse );
 	virtual bool	on_mouse_clicked( JUI::Mouse* mouse );
 	virtual bool	on_mouse_released( JUI::Mouse* mouse );
 
-	bool			IsHovering( void ) const;
+    // Resource loading.
+	static bool precache( JUI::Graphics2D* graphics );
+	static void release( void );
 
-	static void		precache( JUI::Graphics2D* graphics );
-	static void		release();
-
-	static Button*	CreateIconButton( JUI::Texture *texture );
-	static Button*	create_label_button( const std::string& label, JUI::FontInterface* font = defaultFont_ );
-	static Button*	CreateIconLabelButton( JUI::Texture *texture, const std::string& label, JUI::FontInterface* font = defaultFont_ );
-
-private:
-
-	void			SetHovering( bool isHovering );
+    // Button creation.
+	static Button* create_icon_button( JUI::Texture *texture );
+	static Button* create_label_button( const JUTIL::ConstantString& label, JUI::FontInterface* font = default_font_ );
+	static Button* create_icon_label_button( JUI::Texture *texture, const JUTIL::ConstantString& label, JUI::FontInterface* font = default_font_ );
 
 private:
 
-	static JUI::FontInterface		*defaultFont_;
-	JUI::HorizontalLayout	*layout_;
+    // Button generic creation.
+    static Button* create_generic_button( void );
 
-	bool				isHovering_;
-	bool				isEnabled_;
+    // Update hover state.
+    void set_hovering( bool is_hovering );
+
+private:
+
+    // Instance-generic members.
+	static JUI::FontInterface* default_font_;
+
+private:
+
+	JUI::HorizontalLayout* layout_;
+
+    // UI state members.
+	bool is_hovering_;
+	bool is_enabled_;
 
 };
 

@@ -316,15 +316,15 @@ void ItemManager::create_layout( void )
 	//Texture *delete_texture = graphics_->get_texture( "manager/delete" );
 
 	// Create inventory buttons.
-	craft_button_ = Button::CreateIconLabelButton( craft_texture, "craft" );
-	equip_button_ = Button::CreateIconLabelButton( equip_texture, "equip" );
-	sort_button_ = Button::CreateIconLabelButton( sort_texture, "sort" );
-	//delete_button_ = Button::CreateIconLabelButton( delete_texture, "delete" );
+	craft_button_ = Button::create_icon_label_button( craft_texture, "craft" );
+	equip_button_ = Button::create_icon_label_button( equip_texture, "equip" );
+	sort_button_ = Button::create_icon_label_button( sort_texture, "sort" );
+	//delete_button_ = Button::create_icon_label_button( delete_texture, "delete" );
 
-	craft_button_->SetEnabled( false );
-	equip_button_->SetEnabled( false );
-	sort_button_->SetEnabled( false );
-	//delete_button_->SetEnabled( false );
+	craft_button_->set_enabled( false );
+	equip_button_->set_enabled( false );
+	sort_button_->set_enabled( false );
+	//delete_button_->set_enabled( false );
 	
 	// Create inventory button layout.
 	JUI::HorizontalLayout* inventory_buttons = new JUI::HorizontalLayout( BUTTON_SPACING );
@@ -447,7 +447,7 @@ void ItemManager::loading()
 			set_think( &ItemManager::running );
 			popups_->remove_popup( load_progress_ );
 #ifndef SORT_NOT_IMPLEMENTED
-			sort_button_->SetEnabled( true );
+			sort_button_->set_enabled( true );
 #endif
 		}
 	}
@@ -719,10 +719,10 @@ void ItemManager::on_slot_released( SlotView* slot_view )
 void ItemManager::update_buttons()
 {
 	unsigned int selectedCount = steam_items_->get_selected_count();
-	craft_button_->SetEnabled( selectedCount != 0 );
+	craft_button_->set_enabled( selectedCount != 0 );
 
 #ifndef EQUIP_NOT_IMPLEMENTED
-	equip_button_->SetEnabled( steam_items_->can_equip_selected() );
+	equip_button_->set_enabled( steam_items_->can_equip_selected() );
 #endif
 }
 
@@ -789,8 +789,8 @@ void ItemManager::update_page_display( void )
 	// Update buttons.
 	unsigned int page_index = inventory_view_->get_active_page();
 	unsigned int last_index = inventory_view_->get_page_count() - 1;
-	prev_button_->SetEnabled( page_index != 0 );
-	next_button_->SetEnabled( page_index != last_index );
+	prev_button_->set_enabled( page_index != 0 );
+	next_button_->set_enabled( page_index != last_index );
 }
 
 void ItemManager::load_definitions( void )

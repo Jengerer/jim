@@ -1,5 +1,5 @@
-#ifndef ITEM_INFORMATION_H
-#define ITEM_INFORMATION_H
+#ifndef ITEM_INFORMATION_HPP
+#define ITEM_INFORMATION_HPP
 
 #include "item_shared.hpp"
 #include "attribute.hpp"
@@ -32,27 +32,28 @@ public:
 	EItemSlot get_slot( void ) const;
 
 	// Attribute functions.
-	void				add_attribute( Attribute* attribute );
-	size_t				get_attribute_count() const;
-	const Attribute*	get_attribute( size_t index ) const;
+	bool add_attribute( Attribute* attribute );
+	size_t get_attribute_count( void ) const;
+	const Attribute* get_attribute( size_t index ) const;
 
 private:
 
 	// Private attribute setters.
-	void				set_name( JUTIL::String* name );
-	void				set_texture( const JUI::Texture* texture );
-	void				set_class_flags( uint32 classFlags );
-	void				set_slot( EItemSlot slot );
+	void set_name( JUTIL::String* name );
+	void set_texture( const JUI::Texture* texture );
+	void set_class_flags( uint32 classFlags );
+	void set_slot( EItemSlot slot );
 
 private:
 
-	JUTIL::String*              name_;
-	const JUI::Texture*         texture_;
-	uint32                      classFlags_;
-	uint8                       classCount_;
-	EItemSlot                   slot_;
-	JUTIL::Vector<Attribute*>   attributes_;
+    // Private item information attributes.
+	JUTIL::String* name_;
+	const JUI::Texture* texture_;
+	uint32 class_flags_;
+	uint8 class_count_;
+	EItemSlot slot_;
+	JUTIL::Vector<Attribute*> attributes_;
 
 };
 
-#endif // ITEM_INFORMATION_H
+#endif // ITEM_INFORMATION_HPP

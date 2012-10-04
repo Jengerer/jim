@@ -63,9 +63,6 @@
     <ClCompile Include="draggable.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="menu.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
     <ClCompile Include="notice.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
@@ -183,9 +180,6 @@
       <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="draggable.hpp">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="menu.hpp">
       <Filter>headers\ui</Filter>
     </ClInclude>
     <ClInclude Include="notice.hpp">
