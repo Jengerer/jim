@@ -12,37 +12,41 @@ public:
 	Draggable( float x = 0.0f, float y = 0.0f );
 	virtual ~Draggable( void );
 
+	// Drawable function.
 	virtual void draw( JUI::Graphics2D* graphics );
 
-	// JUI::Mouse* handling.
-	virtual bool on_mouse_moved( JUI::Mouse *mouse );
+	// Mouse handling.
+	virtual bool on_mouse_moved( JUI::Mouse* mouse );
 	virtual bool on_mouse_clicked( JUI::Mouse* mouse );
 	virtual bool on_mouse_released( JUI::Mouse* mouse );
 
-	bool				has_parent() const;
-	const Container*	get_parent() const;
-	void				set_parent( const Container* container );
+	// Parent handling.
+	bool has_parent( void ) const;
+	const Container* get_parent( void ) const;
+	void set_parent( const Container* container );
 
+	// Dragging session handling.
 	bool is_dragging( void ) const;
 	virtual void begin_dragging( const JUI::Mouse* mouse );
 	virtual void end_dragging( void );
 
+	// Over-written position getters for dragging case.
 	virtual float get_x( void ) const;
 	virtual float get_y( void ) const;
 
 private:
 
-	void Initialize( void );
-	void SetOffset( float x, float y );
-	void SetDragging( bool isDragging );
+	// Dragging offset functions.
+	void set_offset( float x, float y );
+	void set_dragging( bool is_dragging );
 
 private:
 
-	const JUI::Mouse*			*mouse_;
-	const Container*	parent_;
+	const JUI::Mouse* mouse_;
+	const Container* parent_;
 
-	bool				isDragging_;
-	float				offsetX_, offsetY_;
+	bool is_dragging_;
+	float offset_x_, offset_y_;
 
 };
 

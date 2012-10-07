@@ -6,7 +6,7 @@ JUI::FileTexture* RoundedRectangle::rounded_corner_ = nullptr;
 /*
  * Rounded rectangle constructor.
  */
-RoundedRectangle::RoundedRectangle( int width, int height, int radius, const JUI::Colour& colour )
+RoundedRectangle::RoundedRectangle( int width, int height, int radius, const JUI::Colour* colour )
 {
 	set_stroke( 0, colour );
 	set_stroke_type( STROKE_TYPE_OUTER );
@@ -103,6 +103,9 @@ void RoundedRectangle::draw( JUI::Graphics2D* graphics )
 	graphics->pop_matrix();
 }
 
+/*
+ * Draw rounded rectangle from corners and filling.
+ */
 void RoundedRectangle::draw_rounded_rectangle( JUI::Graphics2D* graphics, float x, float y, float width, float height, float radius )
 {
 	GLsizei size_radius = static_cast<GLsizei>(radius);
@@ -122,47 +125,74 @@ void RoundedRectangle::draw_rounded_rectangle( JUI::Graphics2D* graphics, float 
 	graphics->draw_rectangle( x + radius, y + height - radius, width - double_radius, radius ); // Bottom.
 }
 
-void RoundedRectangle::set_stroke( int size, const JUI::Colour& colour )
+/*
+ * Set the stroke colour for the rounded rectangle.
+ */
+void RoundedRectangle::set_stroke( int size, const JUI::Colour* colour )
 {
 	stroke_size_ = size;
-	stroke_colour_ = colour;
+	stroke_colour_ = *colour;
 }
 
-void RoundedRectangle::set_colour( const JUI::Colour& colour )
+/*
+ * Set the fill colour for the rectangle.
+ */
+void RoundedRectangle::set_colour( const JUI::Colour* colour )
 {
-	colour_ = colour;
+	colour_ = *colour;
 }
 
+/*
+ * Set the rounded corner radius.
+ */
 void RoundedRectangle::set_radius( int radius )
 {
 	radius_ = radius;
 }
 
-int RoundedRectangle::get_radius() const
+/*
+ * Get the rounded corner radius.
+ */
+int RoundedRectangle::get_radius( void ) const
 {
 	return radius_;
 }
 
-const JUI::Colour& RoundedRectangle::get_colour( void ) const
+/*
+ * Get the fill colour.
+ */
+const JUI::Colour* RoundedRectangle::get_colour( void ) const
 {
-	return colour_;
+	return &colour_;
 }
 
-const JUI::Colour& RoundedRectangle::get_stroke_colour( void ) const
+/*
+ * Get the stroke colour.
+ */
+const JUI::Colour* RoundedRectangle::get_stroke_colour( void ) const
 {
-	return stroke_colour_;
+	return &stroke_colour_;
 }
 
+/*
+ * Get the thickness of the stroke.
+ */
 int RoundedRectangle::get_stroke_size( void ) const
 {
 	return stroke_size_;
 }
 
+/*
+ * Set the stroke type to be rendered.
+ */
 void RoundedRectangle::set_stroke_type( EStrokeType stroke_type )
 {
 	stroke_type_ = stroke_type;
 }
 
+/*
+ * Get the stroke type setting.
+ */
 EStrokeType RoundedRectangle::get_stroke_type( void ) const
 {
 	return stroke_type_;

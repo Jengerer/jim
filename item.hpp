@@ -4,6 +4,7 @@
 #include <containers/vector.hpp>
 #include <containers/map.hpp>
 #include <string/string.hpp>
+#include <string/constant_string.hpp>
 
 #include "steam/SteamAPI.h"
 #include "steam/SteamTypes.h"
@@ -47,9 +48,9 @@ public:
 	uint32			get_origin( void ) const;
 
 	// Secondary attributes.
-	std::string         get_name( void ) const;
-	const JUI::Colour&  get_quality_colour( void ) const;
-	const char*         get_quality_name( void ) const;
+	JUTIL::ConstantString get_name( void ) const;
+	const JUI::Colour* get_quality_colour( void ) const;
+	JUTIL::ConstantString get_quality_name( void ) const;
 
 	// Position stored in Steam.
 	void			set_position( uint16 position );

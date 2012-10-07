@@ -49,9 +49,9 @@ bool Notice::initialize( const JUTIL::ConstantString& message )
         
     // Style rounded rectangle.
     RoundedRectangle* rounded_rect = rounded_container_->get_rounded_rectangle();
-	rounded_rect->set_stroke( NOTICE_STROKE_WIDTH, NOTICE_STROKE_COLOUR );
+	rounded_rect->set_stroke( NOTICE_STROKE_WIDTH, &NOTICE_STROKE_COLOUR );
 	rounded_rect->set_stroke_type( STROKE_TYPE_OUTER );
-	rounded_rect->set_colour( NOTICE_COLOUR );
+	rounded_rect->set_colour( &NOTICE_COLOUR );
 	if (!add( rounded_container_ )) {
         JUTIL::BaseAllocator::destroy( rounded_container_ );
         return false;

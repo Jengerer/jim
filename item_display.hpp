@@ -23,6 +23,9 @@ public:
 	ItemDisplay( void );
 	virtual ~ItemDisplay( void );
 
+	// Element initialization.
+	bool initialize( void );
+
 	// Drawing functions.
 	void update_display( void );
 	void update_alpha( void );
