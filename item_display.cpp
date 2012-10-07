@@ -6,7 +6,7 @@
 const char* ITEM_DISPLAY_TITLE_FONT_FACE = "fonts/tf2build.ttf";
 const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 13;
 
-const JUI::Colour& ITEM_DISPLAY_COLOUR = JUTIL::COLOUR_BLACK;
+const JUI::Colour& ITEM_DISPLAY_COLOUR = JUI::COLOUR_BLACK;
 
 const char* ITEM_DISPLAY_INFO_FONT_FACE = "fonts/tf2secondary.ttf";
 const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE = 11;
@@ -24,16 +24,64 @@ const int ITEM_DISPLAY_ALPHA_MAX = 210;
 /*
  * Item display constructor.
  */
-ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIUS, ITEM_DISPLAY_PADDING )
+ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_PADDING )
 {
 	// Set default attributes.
 	set_alpha( 0 );
-	get_rounded_rectangle()->set_colour( ITEM_DISPLAY_COLOUR );
 	set_item( nullptr );
 	set_active( false );
+
+	// Null objects.
+	name_text_ = nullptr;
+	info_text_ = nullptr;
+	text_layout_ = nullptr;
+}
+
+/*
+ * Item display destructor.
+ */
+ItemDisplay::~ItemDisplay( void )
+{
+	// Nothing.
+}
+
+/*
+ * Initialize UI elements for display.
+ */
+bool ItemDisplay::initialize( void )
+{
+	// Set up rectangle.
+	if (!RoundedRectangleContainer::initialize())
+	{
+		return false;
+	}
+
+	// Set up rounded rectangle.
+	RoundedRectangle* rectangle = get_rounded_rectangle();
+	rectangle->set_radius( ITEM_DISPLAY_RADIUS );
+	rectangle->set_colour( &ITEM_DISPLAY_COLOUR );
+
+	// Create layout.
+	if (!JUTIL::BaseAllocator::allocate( &text_layout_ )) {
+		return false;
+	}
+	text_layout_ = new (text_layout_) JUI::VerticalLayout();
+	text_layout_->set_spacing( ITEM_DISPLAY_SPACING );
+	if (!add( text_layout_ )) {
+		JUTIL::BaseAllocator::destroy( text_layout_ );
+		return false;
+	}
+	set_content( text_layout_ );
 	
-	// Create text objects.
-	name_text_ = new JUI::WrappedText( name_font_, ITEM_DISPLAY_TEXT_WIDTH );
+	// Create name text element.
+	if (!JUTIL::BaseAllocator::allocate( &name_text_ )) {
+		return false;
+	}
+	name_text_ = new (name_text_) JUI::WrappedText( name_font_, ITEM_DISPLAY_TEXT_WIDTH );
+	if (!add( name_text_ )) {
+		JUTIL::BaseAllocator::destroy( name_text_ );
+	}
+
 	name_text_->set_text_formatting( DT_CENTER );
 	info_text_ = new JUI::WrappedText( info_font_, ITEM_DISPLAY_TEXT_WIDTH );
 	info_text_->set_text_formatting( DT_CENTER );
@@ -48,14 +96,6 @@ ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_RADIU
 	add( text_layout_ );
 	set_content( text_layout_ );
 	pack();
-}
-
-/*
- * Item display destructor.
- */
-ItemDisplay::~ItemDisplay( void )
-{
-	// Nothing.
 }
 
 /*
@@ -173,24 +213,27 @@ void ItemDisplay::set_active( bool is_active )
 	is_active_ = is_active;
 }
 
-void ItemDisplay::precache()
+bool ItemDisplay::precache( void )
 {
-	name_font_ = FontFactory::create_font( 
-		ITEM_DISPLAY_TITLE_FONT_FACE, ITEM_DISPLAY_TITLE_FONT_SIZE );
+	// Font for item names.
+	name_font_ = JUI::FontFactory::create_font( ITEM_DISPLAY_TITLE_FONT_FACE, ITEM_DISPLAY_TITLE_FONT_SIZE );
+	if (name_font_ == nullptr) {
+		return false;
+	}
 
-	info_font_ = FontFactory::create_font(
-		ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
+	// Font for item description and miscellaneous information.
+	info_font_ = JUI::FontFactory::create_font( ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
+	if (info_font_ == nullptr) {
+		JUI::FontFactory::destroy_font( name_font_ );
+		return false;
+	}
 }
 
+/*
+ * Release all item display resources.
+ */
 void ItemDisplay::release( void )
 {
-	if (name_font_ != nullptr) {
-		delete name_font_;
-		name_font_ = nullptr;
-	}
-
-	if (info_font_ != nullptr ) {
-		delete info_font_;
-		info_font_ = nullptr;
-	}
+	JUI::FontFactory::destroy_font( name_font_ );
+	JUI::FontFactory::destroy_font( info_font_ );
 }

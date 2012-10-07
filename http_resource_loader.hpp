@@ -3,33 +3,34 @@
 
 #include <string>
 #include <hash_map>
-#include <jui/file_downloader.hpp>
-#include <jui/string_hasher.hpp>
+#include <jui/net/file_downloader.hpp>
+#include <string/string_hasher.hpp>
 
-#include "iresource_loader.hpp"
+#include "resource_loader_interface.hpp"
 
-// Map for file/target pairs.
-typedef std::hash_map<std::string, std::string, StringHasher> DownloadableFiles;
-
-class HttpResourceLoader : public IResourceLoader
+/*
+ * Resource loader from HTTP source.
+ */
+class HttpResourceLoader : public ResourceLoaderInterface
 {
 
 public:
 
-	HttpResourceLoader( const std::string& url, FileDownloader* downloader );
+	HttpResourceLoader( const JUTIL::ConstantString& url, JUI::FileDownloader* downloader );
 
 	// Resource loader interface function.
-	void get_resource( const std::string& file, const std::string& target ) const;
+	bool get_resource( const JUTIL::ConstantString& file, const JUTIL::ConstantString& target ) const;
 
 private:
 
-	void set_downloader( FileDownloader* downloader );
-	void set_url( const std::string& url );
+	// Internal source management.
+	void set_downloader( JUI::FileDownloader* downloader );
+	void set_url( const JUTIL::ConstantString& url );
 
 private:
 
-	FileDownloader* downloader_;
-	std::string url_;
+	JUI::FileDownloader* downloader_;
+	JUTIL::ConstantString url_;
 
 };
 

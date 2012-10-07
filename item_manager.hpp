@@ -20,7 +20,6 @@
 #include "popup_display.hpp"
 #include "steam_item_handler.hpp"
 #include "slot_book.hpp"
-#include "toggle_set.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -48,9 +47,6 @@ public:
 	// Startup testing.
 	bool is_latest_version() const;
 	void launch_updater() const;
-
-	// User interface creation.
-	void create_layout( void );
 
 	// Application running functions.
 	void run();
@@ -91,6 +87,11 @@ public:
 	// Updating displays.
 	void update_item_display( void );
 	void update_page_display( void );
+
+private:
+
+	// Layout handling.
+	bool create_layout( void );
 
 private:
 

@@ -6,7 +6,7 @@
 Draggable::Draggable( float x, float y ) : JUI::ConstrainedContainer( x, y )
 {
 	set_parent( nullptr );
-	SetDragging( false );
+	set_dragging( false );
 }
 
 Draggable::~Draggable( void )
@@ -21,8 +21,8 @@ void Draggable::draw( JUI::Graphics2D* graphics )
 
 bool Draggable::on_mouse_moved( JUI::Mouse* mouse )
 {
-	if (isDragging_) {
-		set_position( mouse->get_x() + offsetX_, mouse->get_y() + offsetY_ );
+	if (is_dragging_) {
+		set_position( mouse->get_x() + offset_x_, mouse->get_y() + offset_y_ );
 		if (has_parent()) {
 			get_parent()->clamp_child( this );
 		}
@@ -76,8 +76,8 @@ float Draggable::get_y( void ) const
 void Draggable::begin_dragging( const JUI::Mouse* mouse )
 {
 	// Set offset to mouse.
-	SetOffset( get_x() - mouse->get_x(), get_y() - mouse->get_y() );
-	SetDragging( true );
+	set_offset( get_x() - mouse->get_x(), get_y() - mouse->get_y() );
+	set_dragging( true );
 	mouse_ = mouse;
 }
 
@@ -86,7 +86,7 @@ void Draggable::begin_dragging( const JUI::Mouse* mouse )
 //=============================================================
 void Draggable::end_dragging( void )
 {
-	SetDragging( false );
+	set_dragging( false );
 }
 
 const JUI::Container* Draggable::get_parent( void ) const
@@ -106,16 +106,16 @@ void Draggable::set_parent( const Container* container )
 
 bool Draggable::is_dragging( void ) const
 {
-	return isDragging_;
+	return is_dragging_;
 }
 
-void Draggable::SetOffset( float x, float y )
+void Draggable::set_offset( float x, float y )
 {
-	offsetX_ = x;
-	offsetY_ = y;
+	offset_x_ = x;
+	offset_y_ = y;
 }
 
-void Draggable::SetDragging( bool isDragging )
+void Draggable::set_dragging( bool is_dragging )
 {
-	isDragging_ = isDragging;
+	is_dragging_ = is_dragging;
 }

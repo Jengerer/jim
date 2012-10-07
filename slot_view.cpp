@@ -44,7 +44,7 @@ SlotView::SlotView( Slot* slot )
 	slot_rectangle_ = new RoundedRectangle( SLOT_WIDTH, 
 		SLOT_HEIGHT,
 		SLOT_RADIUS,
-		SLOT_NORMAL_COLOUR );
+		&SLOT_NORMAL_COLOUR );
 	add( slot_rectangle_ );
 	set_constraint( slot_rectangle_, 0.0f, 0.0f );
 
@@ -71,12 +71,12 @@ void SlotView::update( void )
 		Item* item = slot->get_item();
 		item_image_->set_texture( item->get_texture() );
 		slot_rectangle_->set_stroke( SLOT_STROKE_WIDTH, item->get_quality_colour() );
-		slot_rectangle_->set_colour( is_selected() ? SLOT_SELECTED_COLOUR : SLOT_NORMAL_COLOUR );
+		slot_rectangle_->set_colour( is_selected() ? &SLOT_SELECTED_COLOUR : &SLOT_NORMAL_COLOUR );
 	}
 	else {
 		item_image_->set_texture( nullptr );
-		slot_rectangle_->set_stroke( 0, SLOT_STROKE_NORMAL_COLOUR );
-		slot_rectangle_->set_colour( SLOT_NORMAL_COLOUR );
+		slot_rectangle_->set_stroke( 0, &SLOT_STROKE_NORMAL_COLOUR );
+		slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
 	}
 
 	// Dim image when disabled.

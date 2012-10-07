@@ -197,9 +197,6 @@
     <ClInclude Include="rounded_rectangle.hpp">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="toggle_set.hpp">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="slot_view.hpp">
       <Filter>headers</Filter>
     </ClInclude>
@@ -272,13 +269,13 @@
     <ClInclude Include="dynamic_slot_book.hpp">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="iresource_loader.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="slot_array.hpp">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="slot_book.hpp">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource_loader_interface.hpp">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,11 +1,14 @@
 #ifndef DEFINITION_LOADER_HPP
 #define DEFINITION_LOADER_HPP
 
+#include <string/constant_string.hpp>
+#include <containers/hash_map.hpp>
+
 #include <jui/gfx/graphics_2d.hpp>
 #include <boost/thread.hpp>
 #include <json/json.h>
 
-#include "iresource_loader.hpp"
+#include "resource_loader_interface.hpp"
 #include "item.hpp"
 #include "item_information.hpp"
 #include "string_hasher.hpp"
@@ -33,7 +36,7 @@ class DefinitionLoader
 public:
 
 	DefinitionLoader( JUI::Graphics2D* graphics );
-	~DefinitionLoader();
+	~DefinitionLoader( void );
 
 	// Starting and ending the worker threads.
 	void begin( void );
@@ -47,18 +50,18 @@ public:
 
 private:
 
-	void load();
-	void clean_up();
+	void load( void );
+	void clean_up( void );
 
 	// Loading state functions.
-	bool is_state_changed() const;
+	bool is_state_changed( void ) const;
 	void set_state( ELoadingState state );
-	void set_error( const std::string& error_msg );
+	void set_error( const JUTIL::ConstantString& error_msg );
 
 	// Progress counters.
 	void set_progress( size_t loaded, size_t total );
 	void set_progress( float percentage );
-	void set_progress_msg( const std::string& progress_msg );
+	bool set_progress_msg( const JUTIL::ConstantString& progress_msg );
 
 private:
 
@@ -72,13 +75,13 @@ private:
 
 	// Parsing members.
 	Json::Value root_;
-	std::hash_map<std::string, EItemSlot, StringHasher> slots_;
-	std::hash_map<std::string, EClassEquip, StringHasher> classes_;
+	JUTIL::HashMap<unsigned int, JUTIL::ConstantString, EItemSlot, StringHasher> slots_;
+	JUTIL::HashMap<unsigned int, JUTIL::ConstantString, EClassEquip, StringHasher> classes_;
 
 	// State members.
 	float progress_;
-	std::string progress_msg_;
-	std::string error_msg_;
+	JUTIL::String progress_msg_;
+	JUTIL::String error_msg_;
 	ELoadingState state_;
 	bool has_state_changed_;
 	

@@ -144,7 +144,7 @@
   <ItemGroup>
     <ClInclude Include="animated_book_view.hpp" />
     <ClInclude Include="dynamic_slot_book.hpp" />
-    <ClInclude Include="iresource_loader.hpp" />
+    <ClInclude Include="resource_loader_interface.hpp" />
     <ClInclude Include="slot_container.hpp" />
     <ClInclude Include="slot_array.hpp" />
     <ClInclude Include="slot_book.hpp" />
@@ -184,7 +184,6 @@
     <ClInclude Include="slot_view.hpp" />
     <ClInclude Include="steam.hpp" />
     <ClInclude Include="string_hasher.hpp" />
-    <ClInclude Include="toggle_set.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="item_manager.rc" />

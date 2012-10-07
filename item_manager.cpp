@@ -72,27 +72,21 @@ const int PAGE_SPACING		= 50;
 const unsigned int PADDING	= 20;
 const unsigned int SPACING	= 10;
 
+/*
+ * Item manager constructor.
+ */
 ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 {
 	// Set application size.
 	set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
 
 	// Set window parameters.
-	Window* window = get_window();
+	JUI::Window* window = get_window();
 	window->set_title( APPLICATION_TITLE );
 	window->set_border( true );
 	window->set_fullscreen( false );
 
-	// Create the user layer.
-	user_layer_ = new Container();
-	user_layer_->set_size( get_width(), get_height() );
-	add( user_layer_ );
-
-	// Create popup view on top.
-	popups_ = new PopupDisplay();
-	popups_->set_size( get_width(), get_height() );
-	popups_->set_popup_handler( this );
-	add( popups_ );
+	
 
 	// Alerts and errors.
 	alert_ = nullptr;
@@ -133,12 +127,15 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 	set_think( &ItemManager::loading );
 }
 
+/*
+ * Item manager destructor.
+ */
 ItemManager::~ItemManager( void )
 {
 	close_interfaces();
 }
 
-void ItemManager::load_interfaces()
+JUI::Application::ReturnStatus ItemManager::load_interfaces( void )
 {
 	// Get downloader.
 	FileDownloader* downloader = FileDownloader::get_instance();
@@ -296,86 +293,7 @@ void ItemManager::close_interfaces( void )
 
 void ItemManager::create_layout( void )
 {
-	// Create layout.
-	JUI::VerticalLayout* layout = new JUI::VerticalLayout( SPACING, ALIGN_LEFT );
-
-	// Create inventory view.
-	inventory_view_ = new AnimatedBookView( inventory_book_,
-		PAGE_SPACING,
-		SLOT_SPACING );
-
-	// Create excluded view.
-	excluded_view_ = new SlotBookView( excluded_book_,
-		PAGE_SPACING,
-		SLOT_SPACING );
-
-	// Create button layout.
-	JUI::Texture *craft_texture = graphics_->get_texture( "img/manager/gear.png" );
-	JUI::Texture *equip_texture = graphics_->get_texture( "img/manager/equip.png" );
-	JUI::Texture *sort_texture = graphics_->get_texture( "img/manager/sort.png" );
-	//Texture *delete_texture = graphics_->get_texture( "manager/delete" );
-
-	// Create inventory buttons.
-	craft_button_ = Button::create_icon_label_button( craft_texture, "craft" );
-	equip_button_ = Button::create_icon_label_button( equip_texture, "equip" );
-	sort_button_ = Button::create_icon_label_button( sort_texture, "sort" );
-	//delete_button_ = Button::create_icon_label_button( delete_texture, "delete" );
-
-	craft_button_->set_enabled( false );
-	equip_button_->set_enabled( false );
-	sort_button_->set_enabled( false );
-	//delete_button_->set_enabled( false );
 	
-	// Create inventory button layout.
-	JUI::HorizontalLayout* inventory_buttons = new JUI::HorizontalLayout( BUTTON_SPACING );
-	inventory_buttons->add( craft_button_ );
-	inventory_buttons->add( equip_button_ );
-	inventory_buttons->add( sort_button_ );
-	//inventoryButtons->add( delete_button_ );
-	inventory_buttons->pack();
-
-	// Create pages buttons/text.
-	prev_button_ = Button::create_label_button( "<" );
-	next_button_ = Button::create_label_button( ">" );
-	page_display_ = new JUI::WrappedText( page_font_, PAGE_LABEL_WIDTH );
-	page_display_->set_colour( PAGE_LABEL_COLOUR );
-	page_display_->set_text_formatting( DT_CENTER );
-	update_page_display();
-
-	// Create pages buttons layout.
-	JUI::HorizontalLayout* pageButtons = new JUI::HorizontalLayout( BUTTON_SPACING );
-	pageButtons->add( prev_button_ );
-	pageButtons->add( page_display_ ); // PAGE LABEL, RATHER
-	pageButtons->add( next_button_ );
-	pageButtons->pack();
-
-	HorizontalSplitLayout* button_layout = new HorizontalSplitLayout( inventory_view_->get_width() );
-	button_layout->add_left( inventory_buttons);
-	button_layout->add_right( pageButtons );
-	button_layout->pack();
-		
-	// Create title.
-	stringstream titleStream;
-	titleStream << APPLICATION_TITLE << " " << APPLICATION_VERSION;
-
-	// Add version number.
-	JUI::Text* titleText = new JUI::Text( title_font_ );
-	titleText->set_text( titleStream.str() );
-	titleText->set_colour( TITLE_COLOUR );
-
-	// Organize layout.
-	layout->add( titleText );
-	layout->add( inventory_view_ );
-	layout->add( button_layout );
-	layout->add( excluded_view_ );
-	layout->pack();
-	layout->set_position( (get_width() - layout->get_width()) / 2.0f, 
-		(get_height() - layout->get_height()) / 2.0f );
-	user_layer_->add( layout );
-
-	// Create item display.
-	item_display_ = new ItemDisplay();
-	user_layer_->add( item_display_ );
 }
 
 void ItemManager::run( void )
@@ -1319,4 +1237,118 @@ void ItemManager::on_popup_key_released( Popup* popup )
 			exit_application();
 		}
 	}
+}
+
+bool ItemManager::create_layout( void )
+{
+	// Create the user layer.
+	if (!JUTIL::BaseAllocator::allocate( &user_layer_ ))
+	{
+		return false;
+	}
+	user_layer_ = new (user_layer_) Container();
+	user_layer_->set_size( get_width(), get_height() );
+	if (!add( user_layer_ ))
+	{
+		JUTIL::BaseAllocator::destroy( user_layer_ );
+		return false;
+	}
+
+	// Create layout.
+	JUI::VerticalLayout* layout;
+	if (!JUTIL::BaseAllocator::allocate( &layout )) {
+		return false;
+	}
+	layout = new (layout) JUI::VerticalLayout( SPACING, JUI::ALIGN_LEFT );
+	if (!user_layer_->add( layout )) {
+		JUTIL::BaseAllocator::destroy( layout );
+		return false;
+	}
+
+	// Create inventory view.
+	if (!JUTIL::BaseAllocator::allocate( &inventory_view_ )) {
+		return false;
+	}
+	inventory_view_ = new (inventory_view_) AnimatedBookView( inventory_book_,
+		PAGE_SPACING,
+		SLOT_SPACING );
+
+	// Create excluded view.
+	excluded_view_ = new SlotBookView( excluded_book_,
+		PAGE_SPACING,
+		SLOT_SPACING );
+
+	// Create button layout.
+	JUI::Texture *craft_texture = graphics_->get_texture( "img/manager/gear.png" );
+	JUI::Texture *equip_texture = graphics_->get_texture( "img/manager/equip.png" );
+	JUI::Texture *sort_texture = graphics_->get_texture( "img/manager/sort.png" );
+	//Texture *delete_texture = graphics_->get_texture( "manager/delete" );
+
+	// Create inventory buttons.
+	craft_button_ = Button::create_icon_label_button( craft_texture, "craft" );
+	equip_button_ = Button::create_icon_label_button( equip_texture, "equip" );
+	sort_button_ = Button::create_icon_label_button( sort_texture, "sort" );
+	//delete_button_ = Button::create_icon_label_button( delete_texture, "delete" );
+
+	craft_button_->set_enabled( false );
+	equip_button_->set_enabled( false );
+	sort_button_->set_enabled( false );
+	//delete_button_->set_enabled( false );
+	
+	// Create inventory button layout.
+	JUI::HorizontalLayout* inventory_buttons = new JUI::HorizontalLayout( BUTTON_SPACING );
+	inventory_buttons->add( craft_button_ );
+	inventory_buttons->add( equip_button_ );
+	inventory_buttons->add( sort_button_ );
+	//inventoryButtons->add( delete_button_ );
+	inventory_buttons->pack();
+
+	// Create pages buttons/text.
+	prev_button_ = Button::create_label_button( "<" );
+	next_button_ = Button::create_label_button( ">" );
+	page_display_ = new JUI::WrappedText( page_font_, PAGE_LABEL_WIDTH );
+	page_display_->set_colour( PAGE_LABEL_COLOUR );
+	page_display_->set_text_formatting( DT_CENTER );
+	update_page_display();
+
+	// Create pages buttons layout.
+	JUI::HorizontalLayout* pageButtons = new JUI::HorizontalLayout( BUTTON_SPACING );
+	pageButtons->add( prev_button_ );
+	pageButtons->add( page_display_ ); // PAGE LABEL, RATHER
+	pageButtons->add( next_button_ );
+	pageButtons->pack();
+
+	HorizontalSplitLayout* button_layout = new HorizontalSplitLayout( inventory_view_->get_width() );
+	button_layout->add_left( inventory_buttons);
+	button_layout->add_right( pageButtons );
+	button_layout->pack();
+		
+	// Create title.
+	stringstream titleStream;
+	titleStream << APPLICATION_TITLE << " " << APPLICATION_VERSION;
+
+	// Add version number.
+	JUI::Text* titleText = new JUI::Text( title_font_ );
+	titleText->set_text( titleStream.str() );
+	titleText->set_colour( TITLE_COLOUR );
+
+	// Organize layout.
+	layout->add( titleText );
+	layout->add( inventory_view_ );
+	layout->add( button_layout );
+	layout->add( excluded_view_ );
+	layout->pack();
+	layout->set_position( (get_width() - layout->get_width()) / 2.0f, 
+		(get_height() - layout->get_height()) / 2.0f );
+	user_layer_->add( layout );
+
+	// Create item display.
+	item_display_ = new ItemDisplay();
+	user_layer_->add( item_display_ );
+
+	// Create popup view on top.
+	popups_ = new PopupDisplay();
+	popups_->set_size( get_width(), get_height() );
+	popups_->set_popup_handler( this );
+	add( popups_ );
 }
