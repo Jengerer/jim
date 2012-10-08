@@ -12,19 +12,12 @@ SlotBookView::SlotBookView( const SlotBook* slot_book,
 {
 	set_slot_book( slot_book );
 	set_slot_spacing( slot_spacing );
-
 	set_view_offset( DEFAULT_VIEW_OFFSET );
 	set_active_page( DEFAULT_PAGE );
 
-	// Create layout.
-	pages_layout_ = new JUI::HorizontalLayout( page_spacing, JUI::ALIGN_TOP );
-	pages_layout_->set_parent( this );
-	add( pages_layout_ );
-
-	// Constrain and pack.
-	update_pages();
-	pages_constraint_ = set_constraint( pages_layout_, get_view_offset(), 0.0f );
-	pack();
+	// Pages to be created.
+	pages_layout_ = nullptr;
+	pages_constraint_ = nullptr;
 }
 
 /*
@@ -42,9 +35,28 @@ void SlotBookView::pack( void )
 }
 
 /*
+ * Create UI elements.
+ */
+bool SlotBookView::initialize( void )
+{
+	// Create layout.
+	if (!JUTIL::BaseAllocator::allocate( &pages_layout_ )) {
+		return false;
+	}
+	pages_layout_ = new (pages_layout_) JUI::HorizontalLayout( page_spacing, JUI::ALIGN_TOP );
+	pages_layout_->set_parent( this );
+	add( pages_layout_ );
+
+	// Constrain and pack.
+	update_pages();
+	pages_constraint_ = set_constraint( pages_layout_, get_view_offset(), 0.0f );
+	pack();
+}
+
+/*
  * Update pages in book view.
  */
-void SlotBookView::update_pages( void )
+bool SlotBookView::update_pages( void )
 {
 	// Add missing pages.
 	const SlotBook* slot_book = get_slot_book();
