@@ -22,7 +22,8 @@ public:
 	void pack( void );
 
 	// Page management.
-	void update_pages( void );
+	bool initialize( void );
+	bool update_pages( void );
 	unsigned int get_active_page( void ) const;
 	unsigned int get_page_count( void ) const;
 	SlotGridView* get_active_view( void ) const;
