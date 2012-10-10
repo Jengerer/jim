@@ -21,10 +21,10 @@ const JUI::Colour& NOTIFICATION_FONT_COLOUR = JUI::COLOUR_WHITE;
 
 JUI::FontInterface *Notification::font_ = nullptr;
 
-Notification::Notification( const JUTIL::ConstantString& message, const JUI::Texture *texture ) : RoundedRectangleContainer( NOTIFICATION_RADIUS, NOTIFICATION_PADDING )
+Notification::Notification( const JUTIL::String* message, const JUI::Texture *texture ) : RoundedRectangleContainer( NOTIFICATION_RADIUS, NOTIFICATION_PADDING )
 {
 	text_ = new JUI::WrappedText( font_, NOTIFICATION_TEXT_WIDTH );
-	text_->set_colour( NOTIFICATION_FONT_COLOUR );
+	text_->set_colour( &NOTIFICATION_FONT_COLOUR );
 
 	layout_ = new JUI::HorizontalLayout();
 	layout_->set_spacing( NOTIFICATION_SPACING );
@@ -64,7 +64,7 @@ void Notification::pack( void )
 	RoundedRectangleContainer::pack();
 }
 
-void Notification::set_message( const JUTIL::ConstantString& message )
+void Notification::set_message( const JUTIL::String* message )
 {
 	text_->set_text( message );
 }

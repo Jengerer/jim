@@ -33,9 +33,12 @@ public:
 		uint32 origin );
 	virtual ~Item( void );
 
+    // Initializing item name/attributes.
+    void clean( void );
+
 	// Finish creating item.
-	void			get_item_information( void );
-	void			update_attributes( void );
+	bool update_item_information( JUTIL::String* custom_name );
+	void update_attributes( void );
 
 	// Item attribute getters.
 	uint64			get_unique_id( void ) const;
@@ -48,9 +51,9 @@ public:
 	uint32			get_origin( void ) const;
 
 	// Secondary attributes.
-	JUTIL::ConstantString get_name( void ) const;
+	const JUTIL::String* get_name( void ) const;
 	const JUI::Colour* get_quality_colour( void ) const;
-	JUTIL::ConstantString get_quality_name( void ) const;
+	const JUTIL::String* get_quality_name( void ) const;
 
 	// Position stored in Steam.
 	void			set_position( uint16 position );
@@ -60,10 +63,8 @@ public:
 	uint32			get_index( void ) const;
 	void			set_index( uint32 position );
 
-	bool			has_valid_flags( void ) const;
-	void			set_custom_name( const std::string& name );
-	const std::string& get_custom_name( void ) const;
-	bool			has_custom_name( void ) const;
+    // Item flag management.
+	bool has_valid_flags( void ) const;
 
 	// Equipment handling.
 	bool			is_tradable( void ) const;
@@ -78,11 +79,11 @@ public:
 	const JUI::Texture* get_texture( void );
 
 	// Attribute handling.
-	void add_attribute( Attribute* attribute );
+	bool add_attribute( Attribute* attribute );
 	size_t get_attribute_count() const;
 	const Attribute* get_attribute_at( size_t index ) const;
 	const Attribute* get_attribute_by_index( size_t index ) const;
-	const Attribute* get_attribute_by_name( const std::string& name ) const;
+	const Attribute* get_attribute_by_name( const JUTIL::String* name ) const;
 
 private:
 
@@ -104,8 +105,8 @@ public:
 private:
 
 	// Item information.
-	uint64			uniqueId_;
-	uint16			typeIndex_;
+	uint64			unique_id_;
+	uint16			type_index_;
 	uint8			level_;
 	EItemQuality	quality_;
 	uint32			count_;
@@ -113,12 +114,12 @@ private:
 	uint32			origin_;
 
 	// Secondary information.
-	std::string customName_;
+	JUTIL::String* item_name_;
 	uint32 index_;
 
 	// Item definition information.
-	const ItemInformation*	information_;
-	std::vector<Attribute*>	attributes_;
+	const ItemInformation* information_;
+	JUTIL::Vector<Attribute*> attributes_;
 
 };
 

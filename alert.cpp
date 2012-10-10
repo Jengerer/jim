@@ -17,7 +17,7 @@ Alert::~Alert( void )
 /*
  * Add button to layout on creation.
  */
-bool Alert::initialize( const JUTIL::ConstantString& message )
+bool Alert::initialize( const JUTIL::String* message )
 {
     // Create notice.
     if (!Notice::initialize( message ))

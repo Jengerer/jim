@@ -5,6 +5,14 @@
 #include <jui/net/file_downloader.hpp>
 #include <jui/application/application.hpp>
 
+// Filenames for updating.
+const JUTIL::ConstantString item_manager_file( "item_manager.exe" );
+const JUTIL::ConstantString item_manager_url( "http://www.jengerer.com/item_manager/item_manager.exe" );
+const JUTIL::ConstantString steam_api_file( "steam_api.dll" );
+const JUTIL::ConstantString steam_api_url( "http://www.jengerer.com/item_manager/steam_api.dll" );
+const JUTIL::ConstantString libpng_file( "libpng15.dll" );
+const JUTIL::ConstantString libpng_url( "http://www.jengerer.com/item_manager/libpng15.dll" );
+
 using std::cout;
 
 int main( int argc, char** argv )
@@ -60,17 +68,17 @@ int main( int argc, char** argv )
 
 		// Download item manager executable.
 		cout << "Downloading item_manager.exe... ";
-		loader->get( "item_manager.exe", "http://www.jengerer.com/item_manager/item_manager.exe" );
+		loader->get( &item_manager_file, &item_manager_url );
 		cout << "SUCCESS!\n";
 
 		// Download Steam API DLL.
 		cout << "Downloading steam_api.dll... ";
-		loader->check_and_get( "steam_api.dll", "http://www.jengerer.com/item_manager/steam_api.dll" );
+		loader->check_and_get( &steam_api_file, &steam_api_url );
 		cout << "SUCCESS!\n";
 
 		// Download libpng15.dll if missing.
 		cout << "Downloading libpng15.dll... ";
-		loader->check_and_get( "libpng15.dll", "http://www.jengerer.com/item_manager/libpng15.dll" );
+		loader->check_and_get( &libpng_file, &libpng_url );
 		cout << "SUCCESS!\n";
 	}
 	catch (const std::runtime_error& ex) {

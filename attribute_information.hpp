@@ -1,7 +1,8 @@
-#ifndef ITEM_ATTRIBUTE_H
-#define ITEM_ATTRIBUTE_H
+#ifndef ITEM_ATTRIBUTE_HPP
+#define ITEM_ATTRIBUTE_HPP
 
 #include "item_shared.hpp"
+#include <string/string.hpp>
 
 enum EffectType
 {
@@ -15,9 +16,9 @@ class AttributeInformation
 
 public:
 
-	AttributeInformation( const std::string& name,
-		unsigned int index,
-		const std::string& attribute_class,
+	AttributeInformation( JUTIL::String* name,
+		JUTIL::String* attribute_class,
+        unsigned int index,
 		float min_value,
 		float max_value,
 		EffectType effect_type,
@@ -25,26 +26,26 @@ public:
 		bool is_integer );
 
 	// Accessing main attributes.
-	const std::string&	get_name() const;
-	unsigned int		get_index() const;
-	const std::string&	get_attribute_class() const;
-	float				get_min_value() const;
-	float				get_max_value() const;
-	EffectType			get_effect_type() const;
-	bool				is_hidden() const;
-	bool				is_integer() const;
+	const JUTIL::String* get_name( void ) const;
+	unsigned int get_index( void ) const;
+	const JUTIL::String* get_attribute_class( void ) const;
+	float				get_min_value( void ) const;
+	float				get_max_value( void ) const;
+	EffectType			get_effect_type( void ) const;
+	bool				is_hidden( void ) const;
+	bool				is_integer( void ) const;
 
 	// Optional attributes.
-	bool has_description() const;
-	void set_description( const std::string& desc_string, const std::string& desc_format );
-	const std::string& get_desc_string() const;
-	const std::string& get_desc_format() const;
+	bool has_description( void ) const;
+	void set_description( JUTIL::String* description, JUTIL::String* format );
+	const JUTIL::String* get_description( void ) const;
+	const JUTIL::String* get_format( void ) const;
 
 private:
 
-	std::string name_;
+	JUTIL::String* name_;
+    JUTIL::String* attribute_class_;
 	unsigned int index_;
-	std::string attribute_class_;
 	float min_value_;
 	float max_value_;
 	EffectType effect_type_;
@@ -52,10 +53,9 @@ private:
 	bool is_integer_;
 
 	// Optional members.
-	bool has_description_;
-	std::string desc_string_;
-	std::string desc_format_;
+	JUTIL::String* description_;
+	JUTIL::String* format_;
 
 };
 
-#endif // ITEM_ATTRIBUTE_H
+#endif // ITEM_ATTRIBUTE_HPP

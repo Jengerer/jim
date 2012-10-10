@@ -11,9 +11,12 @@ SlotBookView::SlotBookView( const SlotBook* slot_book,
 	unsigned int slot_spacing )
 {
 	set_slot_book( slot_book );
-	set_slot_spacing( slot_spacing );
 	set_view_offset( DEFAULT_VIEW_OFFSET );
 	set_active_page( DEFAULT_PAGE );
+
+    // Layout parameters.
+    page_spacing_ = page_spacing;
+    slot_spacing_ = slot_spacing;
 
 	// Pages to be created.
 	pages_layout_ = nullptr;
@@ -28,7 +31,7 @@ void SlotBookView::pack( void )
 	pages_layout_->pack();
 	
 	// Set size as active page (should all be equal).
-	bool has_page = !slot_grid_views_.empty();
+	bool has_page = !slot_grid_views_.is_empty();
 	int width = (has_page ? get_active_view()->get_width() : 0 );
 	int height = (has_page ? get_active_view()->get_height() : 0);
 	set_size( width, height );
@@ -43,7 +46,7 @@ bool SlotBookView::initialize( void )
 	if (!JUTIL::BaseAllocator::allocate( &pages_layout_ )) {
 		return false;
 	}
-	pages_layout_ = new (pages_layout_) JUI::HorizontalLayout( page_spacing, JUI::ALIGN_TOP );
+	pages_layout_ = new (pages_layout_) JUI::HorizontalLayout( page_spacing_, JUI::ALIGN_TOP );
 	pages_layout_->set_parent( this );
 	add( pages_layout_ );
 
@@ -55,6 +58,9 @@ bool SlotBookView::initialize( void )
 
 /*
  * Update pages in book view.
+ * If fails to add pages, returns false.
+ * NOTE: If adding pages was partially successful, those pages
+ * remain in book view.
  */
 bool SlotBookView::update_pages( void )
 {
@@ -66,13 +72,23 @@ bool SlotBookView::update_pages( void )
 		const SlotArray* page = slot_book->get_page( i );
 		
 		// Create grid.
-		SlotGridView* grid_view = new SlotGridView( page,
-			slot_book->get_page_width(),
-			get_slot_spacing() );
-		pages_layout_->add( grid_view );
-		slot_grid_views_.push_back( grid_view );
+        SlotGridView* grid_view;
+        if (!JUTIL::BaseAllocator::allocate( &grid_view )) {
+            return false;
+        }
+		grid_view = new (grid_view) SlotGridView( page, slot_book->get_page_width(), slot_spacing_ );
+
+        // Add to layout.
+		if (!pages_layout_->add( grid_view )) {
+            JUTIL::BaseAllocator::destroy( grid_view );
+            return false;
+        }
+		if (!slot_grid_views_.push( grid_view )) {
+            return false;
+        }
 	}
 
+    // Organize in layout.
 	pack();
 }
 
@@ -89,7 +105,7 @@ unsigned int SlotBookView::get_active_page( void ) const
  */
 unsigned int SlotBookView::get_page_count( void ) const
 {
-	return slot_grid_views_.size();
+	return slot_grid_views_.get_length();
 }
 
 /*
@@ -97,7 +113,8 @@ unsigned int SlotBookView::get_page_count( void ) const
  */
 SlotGridView* SlotBookView::get_active_view( void ) const
 {
-	return slot_grid_views_[ get_active_page() ];
+    unsigned int active_page = get_active_page();
+	return slot_grid_views_.get( active_page );
 }
 
 /*
@@ -153,7 +170,7 @@ bool SlotBookView::previous_page( void )
 /*
  * Update offset for book view.
  */
-void SlotBookView::update_offset()
+void SlotBookView::update_offset( void )
 {
 	// Move offset to acitve page.
 	if (get_page_count() != 0) {
@@ -165,7 +182,7 @@ void SlotBookView::update_offset()
 /*
  * Update book view.
  */
-void SlotBookView::update_view()
+void SlotBookView::update_view( void )
 {
 	// Set constraint.
 	pages_constraint_->set_constraint( get_view_offset(), 0.0f );
@@ -177,7 +194,11 @@ void SlotBookView::update_view()
  */
 void SlotBookView::set_enabled( bool is_enabled ) const
 {
-	for each (SlotGridView* grid_view in slot_grid_views_) {
+    // Enable all slot views.
+    size_t i;
+    size_t length = slot_grid_views_.get_length();
+    for (i = 0; i < length; ++i) {
+        SlotGridView* grid_view = slot_grid_views_.get( i );
 		grid_view->set_enabled( is_enabled );
 	}
 }
@@ -187,8 +208,12 @@ void SlotBookView::set_enabled( bool is_enabled ) const
  */
 void SlotBookView::disable_full( void ) const
 {
-	for each (SlotGridView* grid_view in slot_grid_views_) {
-		grid_view->disable_full();
+	// Enable all slot views.
+    size_t i;
+    size_t length = slot_grid_views_.get_length();
+    for (i = 0; i < length; ++i) {
+        SlotGridView* grid_view = slot_grid_views_.get( i );
+        grid_view->disable_full();
 	}
 }
 
@@ -206,22 +231,6 @@ void SlotBookView::set_slot_book( const SlotBook* slot_book )
 const SlotBook* SlotBookView::get_slot_book( void ) const
 {
 	return slot_book_;
-}
-
-/*
- * Set spacing between slots.
- */
-void SlotBookView::set_slot_spacing( unsigned int slot_spacing )
-{
-	slot_spacing_ = slot_spacing;
-}
-
-/*
- * Get spacing between slots.
- */
-unsigned int SlotBookView::get_slot_spacing( void ) const
-{
-	return slot_spacing_;
 }
 
 /*

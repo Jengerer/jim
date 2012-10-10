@@ -13,19 +13,23 @@ Attribute::Attribute( const AttributeInformation* attribute_info, uint32 value )
 	set_value( value );
 }
 
-const AttributeInformation* Attribute::get_attribute_info() const
+const AttributeInformation* Attribute::get_attribute_info( void ) const
 {
 	return attribute_info_;
 }
 
-std::string Attribute::get_description_string() const
+/*
+ * Generate description string if any.
+ * Returns true on success, false otherwise.
+ */
+bool Attribute::generate_description( void )
 {
-	// std::string to replace.
-	const char* STRING_TOKEN = "%s1";
+    // std::string to replace.
+	const JUTIL::ConstantString STRING_TOKEN = "%s1";
 
 	// Get the description string.
-	std::string desc_string = attribute_info_->get_desc_string();
-	size_t start = desc_string.find( STRING_TOKEN );
+    const JUTIL::String* description = attribute_info_->get_description();
+	size_t start = description->find( &STRING_TOKEN );
 	if (start != std::string::npos) {
 		// Convert value to string.
 		std::stringstream value_stream;
@@ -44,27 +48,32 @@ std::string Attribute::get_description_string() const
 	return desc_string;
 }
 
+const JUTIL::String* Attribute::get_description( void ) const
+{
+	return &description_;
+}
+
 unsigned int Attribute::get_index() const
 {
 	return get_attribute_info()->get_index();
 }
 
-const std::string& Attribute::get_name() const
+const JUTIL::String* Attribute::get_name() const
 {
 	return get_attribute_info()->get_name();
 }
 
-float Attribute::get_float_value() const
+float Attribute::get_float_value( void ) const
 {
-	return float_value_;
+    return value_.as_float_;
 }
 
-uint32 Attribute::get_uint32_value() const
+uint32 Attribute::get_uint32_value( void ) const
 {
-	return uint32_value_;
+    return value_.as_uint32_;
 }
 
-bool Attribute::has_description() const
+bool Attribute::has_description( void ) const
 {
 	return attribute_info_->has_description();
 }
@@ -76,10 +85,10 @@ bool Attribute::is_hidden() const
 
 void Attribute::set_value( float value )
 {
-	float_value_ = value;
+    value_.as_float_ = value;
 }
 
 void Attribute::set_value( uint32 value )
 {
-	uint32_value_ = value;
+    value_.as_uint32_ = value;
 }

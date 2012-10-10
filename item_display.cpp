@@ -101,24 +101,35 @@ bool ItemDisplay::initialize( void )
 /*
  * Update item display.
  */
-void ItemDisplay::update_display( void )
+bool ItemDisplay::update_display( void )
 {
 	// Alter display based on quality.
 	name_text_->set_colour( item_->get_quality_colour() );
 	set_name( item_->get_name() );
 
 	// Build information text.
-	std::stringstream infoStream;
-	infoStream << "LEVEL " << static_cast<uint16>(item_->get_level());
+    JUTIL::DynamicString information;
+    if (!information.write( "LEVEL %u", static_cast<uint16>(item_->get_level()) )) {
+        return false;
+    }
 
 #if defined( _DEBUG )
 	// Add debugging information.
-	infoStream << "\nFLAGS: " << std::hex << item_->get_flags();
-	infoStream << "\nORIGIN: " << item_->get_origin();
+    if (!information.write( "\nFLAGS: %x", item_->get_flags() )) {
+        return false;
+    }
+	if (!information.write( "\nORIGIN: %u", item_->get_origin() )) {
+        return false;
+    }
 	for (size_t i = 0; i < item_->get_attribute_count(); i++) {
-		const Attribute* attrib = item_->get_attribute_at( i );
-		if (attrib->has_description()) {
-			infoStream << "\n" << attrib->get_description_string();
+		const Attribute* attribute = item_->get_attribute_at( i );
+
+        // Write string if attribute has description.
+		if (attribute->has_description()) {
+            if (!information.write( "\n%s", attribute->get_description_string() ))
+            {
+                return false;
+            }
 		}
 	}
 #endif
@@ -192,12 +203,12 @@ void ItemDisplay::set_item( const Item *item )
 	}
 }
 
-const std::string& ItemDisplay::get_name( void ) const
+const JUTIL::String* ItemDisplay::get_name( void ) const
 {
 	return item_name_;
 }
 
-void ItemDisplay::set_name( const std::string& name )
+void ItemDisplay::set_name( const JUTIL::String* name )
 {
 	item_name_ = name;
 	name_text_->set_text( name );

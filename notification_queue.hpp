@@ -29,7 +29,7 @@ public:
 	virtual bool	on_mouse_released( JUI::Mouse* mouse );
 
 	// Notification handling.
-	void			add_notification( const JUTIL::ConstantString& message, const JUI::Texture *texture );
+	void			add_notification( const JUTIL::String* message, const JUI::Texture *texture );
 	void			set_next_notification( void );
 
 private:
