@@ -30,6 +30,7 @@ const char* EQUIPPED_FONT_FACE					= "fonts/tf2build.ttf";
 const unsigned int EQUIPPED_FONT_SIZE			= 6;
 const bool EQUIPPED_FONT_BOLDED					= false;
 const float EQUIPPED_PADDING					= 5;
+const JUTIL::ConstantString EQUIPPED_TEXT       = "EQUIPPED";
 
 /*
  * Slot view constructor.
@@ -166,7 +167,7 @@ void SlotView::precache( JUI::Graphics2D* graphics )
 	// Create equipped font.
 	equipped_font_ = JUI::FontFactory::create_font( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE );
 	equipped_text_ = new JUI::Text( equipped_font_ );
-	equipped_text_->set_text( "EQUIPPED" );
+	equipped_text_->set_text( &EQUIPPED_TEXT );
 }
 
 /*

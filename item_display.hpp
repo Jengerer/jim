@@ -27,7 +27,7 @@ public:
 	bool initialize( void );
 
 	// Drawing functions.
-	void update_display( void );
+	bool update_display( void );
 	void update_alpha( void );
 	virtual void pack( void );
 
@@ -49,7 +49,7 @@ public:
 private:
 
 	// Name setter.
-	void set_name( const JUTIL::ConstantString& name );
+	void set_name( const JUTIL::String* name );
 
 protected:
 
@@ -62,7 +62,7 @@ private:
 	// Attributes.
 	bool is_active_;
 	const Item* item_;
-	JUTIL::String item_name_;
+	const JUTIL::String* item_name_;
 
 	// Layout.
 	JUI::VerticalLayout* text_layout_;

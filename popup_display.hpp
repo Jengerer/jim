@@ -24,9 +24,9 @@ public:
 	void			set_popup_handler( IPopupHandler* handler );
 
 	// Popup creators.
-	Notice*			create_notice( const JUTIL::ConstantString& message );
-	Alert*			create_alert( const JUTIL::ConstantString& message );
-	Confirmation*	create_confirmation( const JUTIL::ConstantString& question );
+	Notice*			create_notice( const JUTIL::String* message );
+	Alert*			create_alert( const JUTIL::String* message );
+	Confirmation*	create_confirmation( const JUTIL::String* question );
 
 	// Popup handling.
 	bool	has_popup( void ) const;

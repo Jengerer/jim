@@ -11,20 +11,23 @@ public:
 	Attribute( const AttributeInformation* attribute_info, float value );
 	Attribute( const AttributeInformation* attribute_info, uint32 value );
 
-	const AttributeInformation* get_attribute_info() const;
-	std::string get_description_string() const;
+	const AttributeInformation* get_attribute_info( void ) const;
+
+    // Description handling.
+    bool generate_description( void );
+    bool has_description( void ) const;
+	const JUTIL::String* get_description( void ) const;
 
 	// Attribute information functions.
-	unsigned int get_index() const;
-	const std::string& get_name() const;
+	unsigned int get_index( void ) const;
+	const JUTIL::String* get_name( void ) const;
 
 	// Value getters.
-	float	get_float_value() const;
-	uint32	get_uint32_value() const;
+	float	get_float_value( void ) const;
+	uint32	get_uint32_value( void ) const;
 	
 	// Information related functions.
-	bool has_description() const;
-	bool is_hidden() const;
+	bool is_hidden( void ) const;
 
 private:
 
@@ -33,9 +36,14 @@ private:
 
 private:
 
-	float float_value_;
-	uint32 uint32_value_;
+    // Type can be either float or uint32.
+    union {
+	    float as_float_;
+	    uint32 as_uint32_;
+    } value_;
+
 	const AttributeInformation* attribute_info_;
+    JUTIL::DynamicString description_;
 
 };
 

@@ -22,7 +22,7 @@ void PopupDisplay::set_popup_handler( IPopupHandler* handler )
  * Creates a notice and places it on top of the popup layer.
  * Returns pointer to notice if succeeded, nullptr otherwise.
  */
-Notice* PopupDisplay::create_notice( const JUTIL::ConstantString& message )
+Notice* PopupDisplay::create_notice( const JUTIL::String* message )
 {
 	// Create new notice.
     Notice* notice;
@@ -43,7 +43,7 @@ Notice* PopupDisplay::create_notice( const JUTIL::ConstantString& message )
  * Creates an alert and places it on top of the popup layer.
  * Returns pointer to alert if succeeded, nullptr otherwise.
  */
-Alert* PopupDisplay::create_alert( const JUTIL::ConstantString& message )
+Alert* PopupDisplay::create_alert( const JUTIL::String* message )
 {
 	// Create new alert.
     Alert* alert;
@@ -64,7 +64,7 @@ Alert* PopupDisplay::create_alert( const JUTIL::ConstantString& message )
  * Creates a confirmation and places it on top of the popup layer.
  * Returns pointer to confirmation if succeeded, nullptr otherwise.
  */
-Confirmation* PopupDisplay::create_confirmation( const JUTIL::ConstantString& question )
+Confirmation* PopupDisplay::create_confirmation( const JUTIL::String* question )
 {
 	// Create new alert.
     Confirmation* confirmation;

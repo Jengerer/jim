@@ -4,9 +4,23 @@ InformationMap Item::definitions;
 AttributeMap Item::attributes;
 ItemInformation* Item::fallback = nullptr;
 
+// Item quality names.
+// TODO: I think somebody mentioned these quality names are available elsewhere.
+const JUTIL::ConstantString VINTAGE_QUALITY_NAME = "Vintage";
+const JUTIL::ConstantString GENUINE_QUALITY_NAME = "Genuine";
+const JUTIL::ConstantString UNUSUAL_QUALITY_NAME = "Unusual";
+const JUTIL::ConstantString STRANGE_QUALITY_NAME = "Strange";
+const JUTIL::ConstantString COMMUNITY_QUALITY_NAME = "Community";
+const JUTIL::ConstantString SELF_MADE_QUALITY_NAME = "Self-Made";
+const JUTIL::ConstantString VALVE_QUALITY_NAME = "Valve";
+const JUTIL::ConstantString HAUNTED_QUALITY_NAME = "Haunted";
+
+/*
+ * Item constructor from attributes.
+ */
 Item::Item(
-	uint64 uniqueId,
-	uint16 typeIndex,
+	uint64 unique_id,
+	uint16 type_index,
 	uint8 level,
 	EItemQuality quality,
 	uint32 count,
@@ -14,8 +28,8 @@ Item::Item(
 	uint32 origin )
 {
 	// Set basic attributes.
-	set_unique_id( uniqueId );
-	set_type_index( typeIndex );
+	set_unique_id( unique_id );
+	set_type_index( type_index );
 	set_level( level );
 	set_quality( quality );
 	set_count( count );
@@ -24,18 +38,31 @@ Item::Item(
 	set_origin( origin );
 
 	// Get item information.
-	get_item_information();
+	update_item_information();
 }
 
+/*
+ * Item destructor; remove attributes.
+ */
 Item::~Item( void )
 {
 	// Remove all attributes.
-	for (auto i = attributes_.begin(); i != attributes_.end(); i = attributes_.erase( i )) {
-		delete *i;
-	}
+    size_t i;
+    size_t length = attributes_.get_length();
+    for (i = 0; i < length; ++i) {
+        Attribute* attribute = attributes_.get( i );
+        JUTIL::BaseAllocator::destroy( attribute );
+    }
+    attributes_.clear();
 }
 
-void Item::get_item_information( void )
+/*
+ * Find the item information given the type.
+ *
+ * Parameters:
+ * - custom_name : A pointer to a custom name string if one exists, or nullptr if none.
+ */
+bool Item::update_item_information( JUTIL::String* custom_name )
 {
 	// Attempt to find item information.
     ItemInformation* information;
@@ -46,15 +73,34 @@ void Item::get_item_information( void )
         information_ = fallback;
     }
 
-	// Load attributes from class definition.
-    size_t i;
-    size_t len = information_->get_attribute_count();
-	for (size_t i = 0; i < len; ++i) {
-		const Attribute* orig = information_->get_attribute( i );
-		add_attribute( new Attribute( *orig ) );
-	}
+    // Generate full item name.
+    if (custom_name != nullptr) {
+        item_name_ = custom_name;
+    }
+    else {
+        // Put quality and item name together.
+        JUTIL::DynamicString* name;
+        if (!JUTIL::BaseAllocator::allocate( &name )) {
+            return false;
+        }
+        name = new (name) JUTIL::DynamicString();
+
+        // Write string.
+        const JUTIL::String* quality_name = get_quality_name();
+        if (!name->write( "%s %s", quality_name, information_->get_name() )) {
+            JUTIL::BaseAllocator::destroy( name );
+            return false;
+        }
+    }
+
+    // TODO: Should change attribute iteration so we don't have to make copies.
+    // Just iterate through both local and item attributes, and get from appropriate group.
+    return true;
 }
 
+/*
+ * Update item attributes based on attribute list.
+ */
 void Item::update_attributes( void )
 {
 	// Check if quality is elevated.
@@ -66,139 +112,167 @@ void Item::update_attributes( void )
 	}
 }
 
+/*
+ * Get item's 64-bit unique ID.
+ */
 uint64 Item::get_unique_id( void ) const
 {
-	return uniqueId_;
+	return unique_id_;
 }
 
+/*
+ * Get item's type index.
+ */
 uint16 Item::get_type_index( void ) const
 {
-	return typeIndex_;
+	return type_index_;
 }
 
+/*
+ * Get item level.
+ */
 uint8 Item::get_level( void ) const
 {
 	return level_;
 }
 
+/*
+ * Get item quality enumeration.
+ */
 EItemQuality Item::get_quality( void ) const
 {
 	return quality_;
 }
 
+/*
+ * Get flags for item.
+ */
 uint32 Item::get_flags( void ) const
 {
 	return flags_;
 }
 
+/*
+ * Get item count.
+ */
 uint32 Item::get_count( void ) const
 {
 	return count_;
 }
 
+/*
+ * Get item origin.
+ */
 uint32 Item::get_origin( void ) const
 {
 	return origin_;
 }
 
-std::string Item::get_name( void ) const
+/*
+ * Get string handle to item name.
+ */
+const JUTIL::String* Item::get_name( void ) const
 {
-	if (has_custom_name()) {
-		return '"' + get_custom_name() + '"';
-	}
-	else {
-		std::string itemName = information_->get_name();
-		std::string qualityName = get_quality_name();
-		if (!qualityName.empty()) {
-			std::string fullPrefix = qualityName + ' ';
-			itemName.insert( itemName.begin(), fullPrefix.begin(), fullPrefix.end() );
-		}
-
-		return itemName;
-	}
+	// Name should be generated in item.
+    return nullptr;
 }
 
-const JUI::Colour& Item::get_quality_colour( void ) const
+/*
+ * Get colour for item quality.
+ */
+const JUI::Colour* Item::get_quality_colour( void ) const
 {
 	switch (get_quality()) {
 	case k_EItemQuality_Vintage:
-		return QUALITY_VINTAGE_COLOUR;
+		return &QUALITY_VINTAGE_COLOUR;
 		break;
 
 	case k_EItemQuality_Genuine:
-		return QUALITY_GENUINE_COLOUR;
+		return &QUALITY_GENUINE_COLOUR;
 		break;
 
 	case k_EItemQuality_Unusual:
 	case k_EItemQuality_Haunted:
-		return QUALITY_UNUSUAL_COLOUR;
+		return &QUALITY_UNUSUAL_COLOUR;
 		break;
 
 	case k_EItemQuality_Strange:
-		return QUALITY_STRANGE_COLOUR;
+		return &QUALITY_STRANGE_COLOUR;
 		break;
 
 	case k_EItemQuality_Community:
 	case k_EItemQuality_SelfMade:
-		return QUALITY_COMMUNITY_COLOUR;
+		return &QUALITY_COMMUNITY_COLOUR;
 		break;
 
 	case k_EItemQuality_Valve:
-		return QUALITY_VALVE_COLOUR;
+		return &QUALITY_VALVE_COLOUR;
 		break;
 
 	default:
-		return QUALITY_COMMON_COLOUR;
+		return &QUALITY_COMMON_COLOUR;
 		break;
 	}
 }
 
-const char* Item::get_quality_name( void ) const
+/*
+ * Get quality name.
+ */
+const JUTIL::String* Item::get_quality_name( void ) const
 {
 	switch (get_quality()) {
 	case k_EItemQuality_Vintage:
-		return "Vintage";
+		return &VINTAGE_QUALITY_NAME;
 		break;
 
 	case k_EItemQuality_Genuine:
-		return "Genuine";
+		return &GENUINE_QUALITY_NAME;
 		break;
 
 	case k_EItemQuality_Unusual:
-		return "Unusual";
+		return &UNUSUAL_QUALITY_NAME;
 		break;
 
 	case k_EItemQuality_Strange:
-		return "Strange";
+		return &STRANGE_QUALITY_NAME;
 		break;
 
 	case k_EItemQuality_Community:
-		return "Community";
+		return &COMMUNITY_QUALITY_NAME;
 		break;
 
 	case k_EItemQuality_SelfMade:
-		return "Self-Made";
+		return &SELF_MADE_QUALITY_NAME;
 		break;
 
 	case k_EItemQuality_Valve:
-		return "Valve";
+		return &VALVE_QUALITY_NAME;
 		break;
 
 	case k_EItemQuality_Haunted:
-		return "Haunted";
+		return &VALVE_QUALITY_NAME;
 		break;
 
 	default:
-		return "";
+        JUTIL::JUTILBase::debug_assert( false );
+		return nullptr;
 		break;
 	}
 }
 
+/*
+ * Get item position index.
+ * Position indices are considered to start at 0 and end at one less than index count.
+ */
 uint16 Item::get_position( void ) const
 {
 	return (get_flags() & 0xFFFF) - 1;
 }
 
+/*
+ * Set item new position index.
+ * Position indices are considered to start at 0 and end at one less than index count.
+ */
 void Item::set_position( uint16 position )
 {
 	uint32 tempFlags = has_valid_flags() ? get_flags() : FL_ITEM_VALID;
@@ -207,34 +281,28 @@ void Item::set_position( uint16 position )
 	set_flags( tempFlags );
 }
 
+/*
+ * Get item slot index.
+ */
 uint32 Item::get_index( void ) const
 {
 	return index_;
 }
 
+/*
+ * Set item slot index.
+ */
 void Item::set_index( uint32 index )
 {
 	index_ = index;
 }
 
+/*
+ * Return whether this item containts valid flags.
+ */
 bool Item::has_valid_flags( void ) const
 {
 	return (get_flags() & 0xF0000000) == FL_ITEM_VALID;
-}
-
-void Item::set_custom_name( const std::string& name )
-{
-	customName_ = '"' + name + '"';
-}
-
-const std::string& Item::get_custom_name( void ) const
-{
-	return customName_;
-}
-
-bool Item::has_custom_name( void ) const
-{
-	return !customName_.empty();
 }
 
 /* Checks whether an item is allowed to be traded. */
@@ -270,11 +338,17 @@ uint32 Item::get_equip_classes( void ) const
 	return information_->get_class_flags();
 }
 
+/*
+ * Get number of classes that this item can be equipped on.
+ */
 uint8 Item::get_equip_class_count( void ) const
 {
 	return information_->get_class_count();
 }
 
+/*
+ * Set the class bit-vector that this item is equipped on.
+ */
 void Item::set_equip( uint32 equipClass, bool equip )
 {
 	if ((get_flags() & equipClass) != 0) {
@@ -291,68 +365,100 @@ void Item::set_equip( uint32 equipClass, bool equip )
 	}
 }
 
+/*
+ * Get a pointer to the texture for this item, if any.
+ */
 const JUI::Texture* Item::get_texture( void )
 {
 	return information_->get_texture();
 }
 
-void Item::add_attribute( Attribute* attribute )
+/*
+ * Add an attribute to this item.
+ */
+bool Item::add_attribute( Attribute* attribute )
 {
-	for (auto i = attributes_.begin(); i != attributes_.end(); ++i) {
-		Attribute* current = *i;
+    // Check if we should replace the attribute.
+    size_t i;
+    size_t length = attributes_.get_length();
+    for (i = 0; i < length; ++i) {
+		Attribute* current = attributes_.get( i );
 
 		// Check if we should replace.
 		if (attribute->get_index() == current->get_index()) {
-			*i = attribute;
-			delete current;
+			attributes_.set( i, attribute );
+            JUTIL::BaseAllocator::destroy( current );
 			return;
 		}
 	}
 
 	// Not overlapping, just append.
-	attributes_.push_back( attribute );
+	return attributes_.push( attribute );
 }
 
-size_t Item::get_attribute_count() const
+/*
+ * Get number of attributes this item has.
+ */
+size_t Item::get_attribute_count( void ) const
 {
-	return attributes_.size();
+    // TODO: Return this number plus the item class attributes.
+	return attributes_.get_length();
 }
 
+/*
+ * Get attribute by index.
+ */
 const Attribute* Item::get_attribute_at( size_t index ) const
 {
-	return attributes_.at( index );
+	return attributes_.get( index );
 }
 
+/*
+ * Get attribute by attribute index, if any. Returns nullptr if not found.
+ */
 const Attribute* Item::get_attribute_by_index( size_t index ) const
 {
-	for each (Attribute* i in attributes_) {
-		if (i->get_index() == index) {
-			return i;
+    // Find attribute with matching index.
+    size_t i;
+    size_t length = attributes_.get_length();
+    for (i = 0; i < length; ++i) {
+        Attribute* attribute = attributes_.get( i );
+        if (attribute->get_index() == index) {
+			return attribute;
 		}
 	}
 
+    // Not found.
 	return nullptr;
 }
 
-const Attribute* Item::get_attribute_by_name( const std::string& name ) const
+/*
+ * Find attribute by name.
+ */
+const Attribute* Item::get_attribute_by_name( const JUTIL::String* name ) const
 {
-	for each (Attribute* i in attributes_) {
-		if (i->get_name() == name) {
-			return i;
-		}
-	}
+    // Find attribute with equal name.
+    size_t i;
+    size_t length = attributes_.get_length();
+    for (i = 0; i < length; ++i) {
+        Attribute* attribute = attributes_.get( i );
+        const JUTIL::String* attribute_name = attribute->get_name();
+        if (attribute_name->is_equal( name )) {
+            return attribute;
+        }
+    }
 
 	return nullptr;
 }
 
 void Item::set_unique_id( uint64 uniqueId )
 {
-	uniqueId_ = uniqueId;
+	unique_id_ = uniqueId;
 }
 
 void Item::set_type_index( uint16 typeIndex )
 {
-	typeIndex_ = typeIndex;
+	type_index_ = typeIndex;
 }
 
 void Item::set_level( uint8 level )

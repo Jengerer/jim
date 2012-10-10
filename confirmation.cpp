@@ -21,7 +21,7 @@ Confirmation::~Confirmation( void )
 /*
  * Generate layout for confirmation.
  */
-bool Confirmation::initialize( const JUTIL::ConstantString& question )
+bool Confirmation::initialize( const JUTIL::String* question )
 {
     // Base notice initialization.
     if (!Notice::initialize( question ))

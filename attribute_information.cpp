@@ -1,8 +1,11 @@
 #include "attribute_information.hpp"
 
-AttributeInformation::AttributeInformation( const std::string& name,
+/*
+ * Attribute information constructor by attribute parameters.
+ */
+AttributeInformation::AttributeInformation( JUTIL::String* name,
+    JUTIL::String* attribute_class,
 	unsigned int index,
-	const std::string& attribute_class,
 	float min_value,
 	float max_value,
 	EffectType effect_type,
@@ -23,64 +26,93 @@ AttributeInformation::AttributeInformation( const std::string& name,
 	has_description_ = false;
 }
 
-const std::string& AttributeInformation::get_name() const
+/*
+ * Get attribute name.
+ */
+const JUTIL::String* AttributeInformation::get_name( void ) const
 {
 	return name_;
 }
 
-unsigned int AttributeInformation::get_index() const
+/*
+ * Get attribute index.
+ */
+unsigned int AttributeInformation::get_index( void ) const
 {
 	return index_;
 }
 
-const std::string& AttributeInformation::get_attribute_class() const
+/*
+ * Get name of class for this attribute.
+ */
+const JUTIL::String* AttributeInformation::get_attribute_class( void ) const
 {
 	return attribute_class_;
 }
 
-float AttributeInformation::get_min_value() const
+/*
+ * Get minimum value for this attribute.
+ */
+float AttributeInformation::get_min_value( void ) const
 {
 	return min_value_;
 }
 
-float AttributeInformation::get_max_value() const
+/*
+ * Get maximum value for this attribute.
+ */
+float AttributeInformation::get_max_value( void ) const
 {
 	return max_value_;
 }
 
-EffectType AttributeInformation::get_effect_type() const
+/*
+ * Get effect type for this attribute.
+ */
+EffectType AttributeInformation::get_effect_type( void ) const
 {
 	return effect_type_;
 }
 
-bool AttributeInformation::is_hidden() const
+/*
+ * Return whether this attribute should be hidden from the user.
+ */
+bool AttributeInformation::is_hidden( void ) const
 {
 	return hidden_;
 }
 
-bool AttributeInformation::is_integer() const
+/*
+ * Return whether this attribute value is an integer.
+ */
+bool AttributeInformation::is_integer( void ) const
 {
 	return is_integer_;
 }
 
-bool AttributeInformation::has_description() const
+/*
+ * Return whether this attribute has a description string.
+ */
+bool AttributeInformation::has_description( void ) const
 {
-	return has_description_;
+	return description_ != nullptr;
 }
 
-void AttributeInformation::set_description( const std::string& desc_string, const std::string& desc_format )
+/*
+ * Set description string for this attribute.
+ */
+void AttributeInformation::set_description( JUTIL::String* description, JUTIL::String* format )
 {
-	desc_string_ = desc_string;
-	desc_format_ = desc_format;
-	has_description_ = true;
+    description_ = description;
+    format_ = format;
 }
 
-const std::string& AttributeInformation::get_desc_string() const
+const JUTIL::String* AttributeInformation::get_description( void ) const
 {
-	return desc_string_;
+	return description_;
 }
 
-const std::string& AttributeInformation::get_desc_format() const
+const JUTIL::String* AttributeInformation::get_format( void ) const
 {
-	return desc_format_;
+	return format_;
 }

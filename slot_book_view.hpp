@@ -1,5 +1,5 @@
-#ifndef SLOT_GRID_PAGES_H
-#define SLOT_GRID_PAGES_H
+#ifndef SLOT_GRID_PAGES_HPP
+#define SLOT_GRID_PAGES_HPP
 
 #include <jui/layout/constrained_container.hpp>
 #include <jui/layout/horizontal_layout.hpp>
@@ -52,10 +52,6 @@ private:
 	void set_slot_book( const SlotBook* slot_book );
 	const SlotBook* get_slot_book( void ) const;
 
-	// Layout functions.
-	void set_slot_spacing( unsigned int slot_spacing );
-	unsigned int get_slot_spacing( void ) const;
-
 	// Navigation functions.
 	void set_active_page( unsigned int page );
 	void set_view_offset( float view_offset );
@@ -73,12 +69,13 @@ private:
 	const SlotBook* slot_book_;
 
 	// Layout attributes.
+    unsigned int page_spacing_;
 	unsigned int slot_spacing_;
 
 	// View offset.
 	unsigned int page_;
-	std::vector<SlotGridView*> slot_grid_views_;
+	JUTIL::Vector<SlotGridView*> slot_grid_views_;
 
 };
 
-#endif // SLOT_GRID_PAGES_H
+#endif // SLOT_GRID_PAGES_HPP

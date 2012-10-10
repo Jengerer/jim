@@ -26,7 +26,7 @@ public:
 	virtual ~Confirmation( void );
 
     // Layout management.
-    virtual bool initialize( const JUTIL::ConstantString& message );
+    virtual bool initialize( const JUTIL::String* question );
 
     // Get response on button press.
 	ConfirmationResponse	get_response( void ) const;

@@ -68,7 +68,7 @@ bool NotificationQueue::on_mouse_released( JUI::Mouse* mouse )
 	return false;
 }
 
-void NotificationQueue::add_notification( const JUTIL::ConstantString& message, const JUI::Texture *texture )
+void NotificationQueue::add_notification( const JUTIL::String* message, const JUI::Texture *texture )
 {
 	Notification *notification = new Notification( message, texture );
 	notification->set_alpha( 0 );

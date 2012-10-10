@@ -39,7 +39,7 @@ Notice::~Notice( void )
 /*
  * Allocate layout objects for displaying notice.
  */
-bool Notice::initialize( const JUTIL::ConstantString& message )
+bool Notice::initialize( const JUTIL::String* message )
 {
     // Create rounded container.
     if (!JUTIL::BaseAllocator::allocate( &rounded_container_ )) {
@@ -105,13 +105,13 @@ void Notice::pack( void )
 /*
  * Set message to new string.
  */
-bool Notice::set_message( const JUTIL::ConstantString& message )
+bool Notice::set_message( const JUTIL::String* message )
 {
     // Remove old message.
     message_.clear();
 
     // Write new message to new buffer.
-    if (!message_.copy( &message )) {
+    if (!message_.copy( message )) {
         return false;
     }
 
@@ -123,13 +123,13 @@ bool Notice::set_message( const JUTIL::ConstantString& message )
 /*
  * Add string to message.
  */
-bool Notice::append_message( const JUTIL::ConstantString& message )
+bool Notice::append_message( const JUTIL::String* message )
 {
     // Add string to buffer.
     if (!message_.write( "%s", message )) {
         return false;
     }
-	set_message( message_ );
+	set_message( &message_ );
     return true;
 }
 

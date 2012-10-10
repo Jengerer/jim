@@ -16,12 +16,12 @@ class Notification : public RoundedRectangleContainer
 	
 public:
 
-	Notification( const JUTIL::ConstantString& message, const JUI::Texture *texture = nullptr );
+	Notification( const JUTIL::String* message, const JUI::Texture *texture = nullptr );
 	virtual ~Notification( void );
 
     // Notification layout.
 	virtual void pack( void );
-	void set_message( const JUTIL::ConstantString& message );
+	void set_message( const JUTIL::String* message );
 
     // Resource loading.
 	static bool precache( void );

@@ -16,7 +16,7 @@ public:
 	virtual ~Alert( void );
 
     // Layout management.
-    virtual bool initialize( const JUTIL::ConstantString& message );
+    virtual bool initialize( const JUTIL::String* message );
 	const Button* get_button( void ) const;
 
 	// Keyboard handling.
