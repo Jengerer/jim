@@ -37,24 +37,25 @@ public:
 	virtual ~ItemManager();
 
 	// Starting up.
-	JUI::Application::ReturnStatus load_interfaces();
-	void close_interfaces();
+	virtual JUI::Application::ReturnStatus initialize( void );
+	virtual void close_interfaces( void );
+    bool create_resources( void );
 
 	// Inventory and definition loading.
-	void load_definitions();
-	void load_items_from_web();
+	bool start_definition_load();
+	bool load_items_from_web();
 
 	// Startup testing.
 	bool is_latest_version() const;
 	void launch_updater() const;
 
 	// Application running functions.
-	void run();
-	void set_think( void (ItemManager::*thinkFunction)( void ) );
-	void think( void );
-	void loading( void );
-	void running( void );
-	void exiting( void );
+	void run( void );
+	void set_think( bool (ItemManager::*thinkFunction)( void ) );
+	bool think( void );
+	bool loading( void );
+	bool running( void );
+	bool exiting( void );
 
 	// Steam handling.
 	void handle_callback( void );
@@ -85,8 +86,8 @@ public:
 	void on_popup_key_released( Popup* popup );
 
 	// Updating displays.
-	void update_item_display( void );
-	void update_page_display( void );
+	bool update_item_display( void );
+	bool update_page_display( void );
 
 private:
 
@@ -96,7 +97,7 @@ private:
 private:
 
 	// Application interfaces.
-	SteamItemHandler* steam_items_;
+	SteamItemHandler steam_items_;
 	SlotBook* inventory_book_;
 	DynamicSlotBook* excluded_book_;
 	Backpack* backpack_;
@@ -123,7 +124,7 @@ private:
 	DWORD page_delay_;
 
 	// Running think function.
-	void (ItemManager::*think_function_)( void );
+	bool (ItemManager::*think_function_)( void );
 
 	// Threaded loader for resources.
 	DefinitionLoader* definition_loader_;

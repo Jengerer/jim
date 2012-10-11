@@ -30,64 +30,101 @@ bool Attribute::generate_description( void )
 	// Get the description string.
     const JUTIL::String* description = attribute_info_->get_description();
 	size_t start = description->find( &STRING_TOKEN );
-	if (start != std::string::npos) {
-		// Convert value to string.
-		std::stringstream value_stream;
+    if (start != JUTIL::String::INVALID_INDEX) {
+		// Write text up to token.
+        if (!description_.copy( description->get_string(), start )) {
+            return false;
+        }
+
+        // Write value instead of token.
 		if (attribute_info_->is_integer()) {
-			value_stream << get_uint32_value();
+            if (!description_.write( "%u", get_uint32_value() )) {
+                return false;
+            }
 		}
 		else {
-			value_stream << get_float_value();
+            if (!description_.write( "%f", get_float_value() )) {
+                return false;
+            }
 		}
-		const std::string& value_string = value_stream.str();
 
-		// Replace token with value.
-		desc_string.replace( start, strlen(STRING_TOKEN), value_string );
+        // Write the rest.
+        size_t offset = start + STRING_TOKEN.get_length();
+        if (!description_.write( "%s", description->get_string() + offset )) {
+            return false;
+        }
 	}
 
-	return desc_string;
+	return true;
 }
 
+/*
+ * Return constant handle to description string.
+ */
 const JUTIL::String* Attribute::get_description( void ) const
 {
 	return &description_;
 }
 
-unsigned int Attribute::get_index() const
+/*
+ * Get attribute index.
+ */
+unsigned int Attribute::get_index( void ) const
 {
 	return get_attribute_info()->get_index();
 }
 
-const JUTIL::String* Attribute::get_name() const
+/*
+ * Get constant handle to attribute name.
+ */
+const JUTIL::String* Attribute::get_name( void ) const
 {
 	return get_attribute_info()->get_name();
 }
 
+/*
+ * Get value of attribute as a floating point.
+ */
 float Attribute::get_float_value( void ) const
 {
     return value_.as_float_;
 }
 
+/*
+ * Get value of attribute as an unsigned integer.
+ */
 uint32 Attribute::get_uint32_value( void ) const
 {
     return value_.as_uint32_;
 }
 
+/*
+ * Return whether this attribute has a text description.
+ */
 bool Attribute::has_description( void ) const
 {
 	return attribute_info_->has_description();
 }
 
-bool Attribute::is_hidden() const
+/*
+ * Return whether this attribute should be hidden from the user.
+ */
+bool Attribute::is_hidden( void ) const
 {
 	return attribute_info_->is_hidden();
 }
 
+/*
+ * Set the floating point value of this attribute.
+ */
 void Attribute::set_value( float value )
 {
     value_.as_float_ = value;
 }
 
+/*
+ * Set the unsigned integer value of this attribute.
+ */
 void Attribute::set_value( uint32 value )
 {
     value_.as_uint32_ = value;

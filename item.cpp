@@ -36,9 +36,6 @@ Item::Item(
 	set_flags( flags );
 	set_index( get_position() );
 	set_origin( origin );
-
-	// Get item information.
-	update_item_information();
 }
 
 /*
@@ -104,7 +101,8 @@ bool Item::update_item_information( JUTIL::String* custom_name )
 void Item::update_attributes( void )
 {
 	// Check if quality is elevated.
-	const Attribute* quality_attrib = get_attribute_by_name( "elevated quality" );
+    const JUTIL::ConstantString ELEVATED_QUALITY_NAME = "elevated quality";
+	const Attribute* quality_attrib = get_attribute_by_name( &ELEVATED_QUALITY_NAME );
 	if (quality_attrib != nullptr) {
 		// First get quality number.
 		uint32 quality_num = static_cast<uint32>(quality_attrib->get_float_value());
@@ -308,9 +306,11 @@ bool Item::has_valid_flags( void ) const
 /* Checks whether an item is allowed to be traded. */
 bool Item::is_tradable( void ) const
 {
+    const JUTIL::ConstantString CANNOT_TRADE_NAME = "cannot trade";
+    const JUTIL::ConstantString ALWAYS_TRADE_NAME = "always tradable";
 	return ((get_origin() != ORIGIN_ACHIEVEMENT) &&
-		(get_attribute_by_name( "cannot trade" ) == nullptr)) ||
-		(get_attribute_by_name( "always tradable" ) != nullptr);
+		(get_attribute_by_name( &CANNOT_TRADE_NAME ) == nullptr)) ||
+		(get_attribute_by_name( &ALWAYS_TRADE_NAME ) != nullptr);
 }
 
 /* Checks whether this item is equipped. */
@@ -388,7 +388,7 @@ bool Item::add_attribute( Attribute* attribute )
 		if (attribute->get_index() == current->get_index()) {
 			attributes_.set( i, attribute );
             JUTIL::BaseAllocator::destroy( current );
-			return;
+			return true;
 		}
 	}
 

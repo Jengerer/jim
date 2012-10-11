@@ -15,140 +15,140 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="source">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="source\ui">
-      <UniqueIdentifier>{22d41e19-ad81-4eb8-b7cc-97a77123162d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="headers\items">
       <UniqueIdentifier>{13ec254b-52c7-4800-858e-e19883df257d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="source\items">
+    <Filter Include="resources\source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="resources\source\ui">
+      <UniqueIdentifier>{22d41e19-ad81-4eb8-b7cc-97a77123162d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\source\items">
       <UniqueIdentifier>{ff6eaa6b-4c24-4bd2-8f93-e39a7ad71d7f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="source\items\protobufs">
+    <Filter Include="resources\source\items\protobufs">
       <UniqueIdentifier>{a628c3dd-565f-4484-b1de-6ecfd708f51d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="protobuf\gcsdk_gcmessages.pb.cc">
-      <Filter>source\items\protobufs</Filter>
+      <Filter>resources\source\items\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\base_gcmessages.pb.cc">
-      <Filter>source\items\protobufs</Filter>
+      <Filter>resources\source\items\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\steammessages.pb.cc">
-      <Filter>source\items\protobufs</Filter>
+      <Filter>resources\source\items\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="item_display.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="item_manager.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="serialized_buffer.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="steam.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="alert.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="button.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="draggable.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="notice.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="notification.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="notification_queue.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="popup.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="rounded_container.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="rounded_rectangle.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="slot.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="definition_loader.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="slot_grid_view.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="slot_view.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="dragged_slot_view.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc">
-      <Filter>source\items\protobufs</Filter>
+      <Filter>resources\source\items\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="attribute_information.cpp">
-      <Filter>source\items</Filter>
+      <Filter>resources\source\items</Filter>
     </ClCompile>
     <ClCompile Include="item.cpp">
-      <Filter>source\items</Filter>
+      <Filter>resources\source\items</Filter>
     </ClCompile>
     <ClCompile Include="item_information.cpp">
-      <Filter>source\items</Filter>
+      <Filter>resources\source\items</Filter>
     </ClCompile>
     <ClCompile Include="inventory.cpp">
-      <Filter>source\items</Filter>
+      <Filter>resources\source\items</Filter>
     </ClCompile>
     <ClCompile Include="backpack.cpp">
-      <Filter>source\items</Filter>
+      <Filter>resources\source\items</Filter>
     </ClCompile>
     <ClCompile Include="steam_item_handler.cpp">
-      <Filter>source\items</Filter>
+      <Filter>resources\source\items</Filter>
     </ClCompile>
     <ClCompile Include="attribute.cpp">
-      <Filter>source\items</Filter>
+      <Filter>resources\source\items</Filter>
     </ClCompile>
     <ClCompile Include="popup_display.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="confirmation.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="slot_book_view.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="animated_book_view.cpp">
-      <Filter>source\ui</Filter>
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
     <ClCompile Include="dynamic_slot_book.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="http_resource_loader.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="slot_array.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="slot_book.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
     <ClCompile Include="slot_container.cpp">
-      <Filter>source</Filter>
+      <Filter>resources\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

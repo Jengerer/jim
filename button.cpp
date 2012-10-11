@@ -12,7 +12,7 @@ JUI::FontInterface* Button::default_font_ = nullptr;
 const unsigned int BUTTON_ICON_SIZE			= 20;
 
 // Button default font size.
-const char* BUTTON_DEFAULT_FONT_FACE = "fonts/tf2build.ttf";
+const JUTIL::ConstantString BUTTON_DEFAULT_FONT_FACE = "fonts/tf2build.ttf";
 const unsigned int BUTTON_DEFAULT_FONT_SIZE	= 14;
 const JUI::Colour BUTTON_FONT_COLOUR( 42, 39, 37 );
 
@@ -29,15 +29,22 @@ const JUI::Colour BUTTON_COLOUR_DISABLED( 247, 231, 198, 150 );
 /*
  * Button constructor.
  */
-Button::Button( float x, float y ) : RoundedRectangleContainer( BUTTON_RADIUS, BUTTON_PADDING, x, y )
+Button::Button( float x, float y ) : RoundedRectangleContainer( BUTTON_PADDING, x, y )
 {
 }
 
 /*
  * Button layout management.
  */
-bool Button::create_layout( void )
+bool Button::initialize( void )
 {
+    // Initialize rounded container.
+    if (!RoundedRectangleContainer::initialize()) {
+        return false;
+    }
+    RoundedRectangle* rounded_rect = RoundedRectangleContainer::get_rounded_rectangle();
+    rounded_rect->set_radius( BUTTON_RADIUS );
+
     // Generate layout.
     if (!JUTIL::BaseAllocator::allocate( &layout_ )) {
         return false;
@@ -79,7 +86,7 @@ JUI::Layout* Button::get_content_layout( void ) const
 void Button::update_button( void )
 {
 	RoundedRectangle *rounded_rect = get_rounded_rectangle();
-	const JUI::Colour* old_colour = &rounded_rect->get_colour();
+	const JUI::Colour* old_colour = rounded_rect->get_colour();
 	const JUI::Colour* new_colour = nullptr;
 	if ( is_enabled() ) {
         // Toggle hover-color if enabled.
@@ -90,7 +97,7 @@ void Button::update_button( void )
 		new_colour = &BUTTON_COLOUR_DISABLED;
 	}
 
-	rounded_rect->set_colour( *new_colour );
+	rounded_rect->set_colour( new_colour );
 }
 
 /*
@@ -159,7 +166,7 @@ bool Button::is_hovering( void ) const
  */
 bool Button::precache( JUI::Graphics2D* graphics )
 {
-	default_font_ = JUI::FontFactory::create_font( BUTTON_DEFAULT_FONT_FACE, BUTTON_DEFAULT_FONT_SIZE );
+	default_font_ = JUI::FontFactory::create_font( &BUTTON_DEFAULT_FONT_FACE, BUTTON_DEFAULT_FONT_SIZE );
     if (default_font_ == nullptr) {
         return false;
     }
@@ -207,7 +214,7 @@ Button* Button::create_icon_button( JUI::Texture* texture )
 /*
  * Create a button with a label.
  */
-Button* Button::create_label_button( const JUTIL::ConstantString& label, JUI::FontInterface* font )
+Button* Button::create_label_button( const JUTIL::String* label, JUI::FontInterface* font )
 {
     // Start with generic button.
     Button* button = create_generic_button();
@@ -223,7 +230,7 @@ Button* Button::create_label_button( const JUTIL::ConstantString& label, JUI::Fo
         return nullptr;
     }
     text = new (text) JUI::Text( font );
-	text->set_colour( BUTTON_FONT_COLOUR );
+	text->set_colour( &BUTTON_FONT_COLOUR );
 	text->set_text( label );
 	if (!layout->add( text ))
     {
@@ -240,7 +247,7 @@ Button* Button::create_label_button( const JUTIL::ConstantString& label, JUI::Fo
 /*
  * Create button with both icon and label.
  */
-Button* Button::create_icon_label_button( JUI::Texture* texture, const JUTIL::ConstantString& label, JUI::FontInterface* font )
+Button* Button::create_icon_label_button( JUI::Texture* texture, const JUTIL::String* label, JUI::FontInterface* font )
 {
     // Start with generic button.
     Button* button = create_generic_button();
@@ -270,7 +277,7 @@ Button* Button::create_icon_label_button( JUI::Texture* texture, const JUTIL::Co
         return nullptr;
     }
     text = new (text) JUI::Text( font );
-	text->set_colour( BUTTON_FONT_COLOUR );
+	text->set_colour( &BUTTON_FONT_COLOUR );
 	text->set_text( label );
 	if (!layout->add( text ))
     {

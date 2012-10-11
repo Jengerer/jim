@@ -13,6 +13,7 @@ public:
 	DynamicSlotBook( unsigned int width, unsigned int height, unsigned int min_pages = DEFAULT_MIN_PAGES );
 
 	// Item management.
+    bool initialize( void );
 	void insert_item( Item* item );
 	void remove_item( Item* item );
 

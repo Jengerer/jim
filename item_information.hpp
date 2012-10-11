@@ -19,7 +19,7 @@ public:
 
 	ItemInformation(
 		JUTIL::String* name,
-		JUI::Texture *texture,
+		const JUI::Texture *texture,
 		uint32 classFlags,
 		EItemSlot slot );
 	~ItemInformation( void );

@@ -15,7 +15,7 @@ const unsigned int NOTIFICATION_SPACING		= 5;
 const unsigned int NOTIFICATION_STROKE_SIZE	= 2;
 const JUI::Colour NOTIFICATION_STROKE_COLOUR( 255, 255, 255, 100 );
 
-const char* NOTIFICATION_FONT_FACE			= "fonts/tf2build.ttf";
+const JUTIL::ConstantString NOTIFICATION_FONT_FACE = "fonts/tf2build.ttf";
 const unsigned int NOTIFICATION_FONT_SIZE	= 10;
 const JUI::Colour& NOTIFICATION_FONT_COLOUR = JUI::COLOUR_WHITE;
 
@@ -71,7 +71,7 @@ void Notification::set_message( const JUTIL::String* message )
 
 bool Notification::precache( void )
 {
-	font_ = JUI::FontFactory::create_font( NOTIFICATION_FONT_FACE, NOTIFICATION_FONT_SIZE );
+	font_ = JUI::FontFactory::create_font( &NOTIFICATION_FONT_FACE, NOTIFICATION_FONT_SIZE );
     if (font_ == nullptr) {
         return false;
     }
@@ -81,8 +81,5 @@ bool Notification::precache( void )
 
 void Notification::release( void )
 {
-	if (font_ != nullptr) {
-		delete font_;
-		font_ = nullptr;
-	}
+    JUI::FontFactory::destroy_font( font_ );
 }

@@ -3,7 +3,7 @@
 /*
  * Resource loader constructor.
  */
-HttpResourceLoader::HttpResourceLoader( const JUTIL::ConstantString& url, JUI::FileDownloader* downloader )
+HttpResourceLoader::HttpResourceLoader( const JUTIL::String* url, JUI::FileDownloader* downloader )
 {
 	set_url( url );
 	set_downloader( downloader );
@@ -12,15 +12,21 @@ HttpResourceLoader::HttpResourceLoader( const JUTIL::ConstantString& url, JUI::F
 /*
  * Get a file, or retrieve it from the target.
  */
-bool HttpResourceLoader::get_resource( const JUTIL::ConstantString& file, const JUTIL::ConstantString& target ) const
+bool HttpResourceLoader::get_resource( const JUTIL::String* file, const JUTIL::String* target ) const
 {
-	downloader_->check_and_get( file, url_ + target );
+    // Generate full URL.
+    JUTIL::DynamicString full_url;
+    if (!full_url.write( "%s%s", url_->get_string(), target->get_string() )) {
+        return false;
+    }
+
+	return downloader_->check_and_get( file, &full_url );
 }
 
 /*
  * Set file downloader.
  */
-void HttpResourceLoader::set_downloader( FileDownloader* downloader )
+void HttpResourceLoader::set_downloader( JUI::FileDownloader* downloader )
 {
 	downloader_ = downloader;
 }
@@ -28,7 +34,7 @@ void HttpResourceLoader::set_downloader( FileDownloader* downloader )
 /*
  * Set base URL for targets.
  */
-void HttpResourceLoader::set_url( const std::string& url )
+void HttpResourceLoader::set_url( const JUTIL::String* url )
 {
 	url_ = url;
 }

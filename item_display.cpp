@@ -126,7 +126,7 @@ bool ItemDisplay::update_display( void )
 
         // Write string if attribute has description.
 		if (attribute->has_description()) {
-            if (!information.write( "\n%s", attribute->get_description_string() ))
+            if (!information.write( "\n%s", attribute->get_description() ))
             {
                 return false;
             }
@@ -136,23 +136,26 @@ bool ItemDisplay::update_display( void )
 
 	// Output if item is not tradable.
 	if (!item_->is_tradable()) {
-		infoStream << "\n\n(Not Tradable)";
+        if (!information.write( "\n\n(Not Tradable)" )) {
+            return false;
+        }
 	}
 
-	// Get resulting string.
-	const std::string& text = infoStream.str();
-
 	// Get buffer of correct size.
-	int wide_size = MultiByteToWideChar( CP_UTF8, 0, text.c_str(), text.length(), nullptr, 0 );
-	wchar_t* wide_buffer = new wchar_t[ wide_size ];
+	int wide_size = MultiByteToWideChar( CP_UTF8, 0, information.get_string(), information.get_length(), nullptr, 0 );
+	wchar_t* wide_buffer;
+    if (!JUTIL::BaseAllocator::allocate_array( &wide_buffer, wide_size )) {
+        return false;
+    }
 
 	// Convert to wide string.
 	if (wide_buffer != nullptr) {
-		MultiByteToWideChar( CP_UTF8, 0, text.c_str(), text.length(), wide_buffer, wide_size );
-		info_text_->set_text( wide_buffer, wide_size );
+		MultiByteToWideChar( CP_UTF8, 0, information.get_string(), information.get_length(), wide_buffer, wide_size );
+        JUTIL::ConstantWideString wide_information( wide_buffer, wide_size );
+		info_text_->set_text( &wide_information );
 
 		// Delete wide string.
-		delete wide_buffer;
+        JUTIL::BaseAllocator::release( wide_buffer );
 	}
 
 	pack();
@@ -178,52 +181,79 @@ void ItemDisplay::update_alpha( void )
 	}
 }
 
+/*
+ * Pack item display layout.
+ */
 void ItemDisplay::pack( void )
 {
 	text_layout_->pack();
 	RoundedRectangleContainer::pack();
 }
 
+/*
+ * Get item shown by display.
+ */
 const Item* ItemDisplay::get_item( void ) const
 {
 	return item_;
 }
 
-void ItemDisplay::set_item( const Item *item )
+/*
+ * Set item to be described by display.
+ * Returns true if display updated successfully, false otherwise.
+ */
+bool ItemDisplay::set_item( const Item *item )
 {
 	if (item_ != item) {
 		item_ = item;
 		if (item != nullptr) {
 			set_active( true );
-			update_display();
+			return update_display();
 		}
 		else {
 			set_active( false );
 		}
 	}
+
+    return true;
 }
 
+/*
+ * Get name of item.
+ */
 const JUTIL::String* ItemDisplay::get_name( void ) const
 {
 	return item_name_;
 }
 
+/*
+ * Set name of item to be displayed.
+ */
 void ItemDisplay::set_name( const JUTIL::String* name )
 {
 	item_name_ = name;
 	name_text_->set_text( name );
 }
 
+/*
+ * Return whether display is active.
+ */
 bool ItemDisplay::is_active( void ) const
 {
 	return is_active_;
 }
 
+/*
+ * Set whether display is active.
+ */
 void ItemDisplay::set_active( bool is_active )
 {
 	is_active_ = is_active;
 }
 
+/*
+ * Load item display resources.
+ */
 bool ItemDisplay::precache( void )
 {
 	// Font for item names.
@@ -238,6 +268,8 @@ bool ItemDisplay::precache( void )
 		JUI::FontFactory::destroy_font( name_font_ );
 		return false;
 	}
+
+    return true;
 }
 
 /*
