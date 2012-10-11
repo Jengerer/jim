@@ -11,7 +11,7 @@ class ResourceLoaderInterface
 
 public:
 
-	virtual bool get_resource( const JUTIL::ConstantString& file, const JUTIL::ConstantString& target ) const = 0;
+	virtual bool get_resource( const JUTIL::String* file, const JUTIL::String* target ) const = 0;
 
 };
 

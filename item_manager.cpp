@@ -8,6 +8,7 @@
 #include <json/json.h>
 
 #include <jui/gfx/font_factory.hpp>
+#include <jui/application/error_stack.hpp>
 
 #include "serialized_buffer.hpp"
 #include "slot_view.hpp"
@@ -37,15 +38,27 @@ const char*	APPLICATION_VERSION	= "0.9.9.9.7.9";
 const unsigned int EXIT_BUTTON_PADDING	= 10;
 const DWORD PAGE_DELAY_INTERVAL			= 500;
 
+// Item manager resource loading URL.
+const JUTIL::ConstantString MANAGER_ROOT_URL = "http://www.jengerer.com/item_manager";
+
+// Resources for item manager.
+const JUTIL::ConstantString TF2_BUILD_FONT = "fonts/tf2build.ttf";
+const JUTIL::ConstantString TF2_SECONDARY_FONT = "fonts/tf2secondary.ttf";
+const JUTIL::ConstantString ROUNDED_CORNER_TEXTURE = "img/manager/rounded_corner.png";
+const JUTIL::ConstantString CRAFT_ICON_TEXTURE = "img/manager/gear.png";
+const JUTIL::ConstantString EQUIP_ICON_TEXTURE = "img/manager/equip.png";
+const JUTIL::ConstantString SORT_ICON_TEXTURE = "img/manager/sort.png";
+const JUTIL::ConstantString UNKNOWN_ITEM_ICON_TEXTURE = "img/backpack/unknown_item.png";
+
 // Title display.
-const char* TITLE_FONT_FACE				= "fonts/tf2build.ttf";
-const unsigned int TITLE_FONT_SIZE		= 14;
-const bool TITLE_FONT_BOLDED			= false;
+const JUTIL::String* TITLE_FONT_FACE = &TF2_BUILD_FONT;
+const unsigned int TITLE_FONT_SIZE = 14;
+const bool TITLE_FONT_BOLDED = false;
 const JUI::Colour TITLE_COLOUR( 241, 239, 237 );
 
 // Page display.
-const char* PAGE_FONT_FACE				= "fonts/tf2build.ttf";
-const unsigned int PAGE_FONT_SIZE		= 14;
+const JUTIL::String* PAGE_FONT_FACE = &TF2_SECONDARY_FONT;
+const unsigned int PAGE_FONT_SIZE = 14;
 const bool PAGE_FONT_BOLDED				= false;
 const JUI::Colour PAGE_LABEL_COLOUR( 201, 79, 57 );
 const unsigned int PAGE_LABEL_WIDTH		= 50;
@@ -84,14 +97,17 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 	JUI::Window* window = get_window();
 	window->set_title( APPLICATION_TITLE );
 	window->set_border( true );
-	window->set_fullscreen( false );
-
-	
+	window->set_fullscreen( false );	
 
 	// Alerts and errors.
 	alert_ = nullptr;
 	error_ = nullptr;
 	update_error_ = false;
+
+    // Inventory variables.
+    backpack_ = nullptr;
+    inventory_book_ = nullptr;
+    excluded_book_ = nullptr;
 
 	// Item stats.
 	item_display_ = nullptr;
@@ -103,14 +119,6 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 	// Dragged slot.
 	dragged_view_ = nullptr;
 
-	// Create books.
-	inventory_book_ = new SlotBook( PAGE_WIDTH, PAGE_HEIGHT );
-	inventory_book_->add_pages( DEFAULT_PAGE_COUNT );
-	excluded_book_ = new DynamicSlotBook( EXCLUDED_WIDTH, EXCLUDED_HEIGHT );
-
-	// Create backpack of one page.
-	backpack_ = new Backpack( inventory_book_, excluded_book_ );
-
 	// Threaded loader.
 	definition_loader_ = nullptr;
 	load_progress_ = nullptr;
@@ -120,7 +128,6 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 	title_font_ = nullptr;
 
 	// Create Steam interface.
-	steam_items_ = new SteamItemHandler();
 	page_delay_ = 0;
 
 	// Set default running function.
@@ -135,143 +142,202 @@ ItemManager::~ItemManager( void )
 	close_interfaces();
 }
 
-JUI::Application::ReturnStatus ItemManager::load_interfaces( void )
+/*
+ * Loads basic resources for item manager.
+ */
+JUI::Application::ReturnStatus ItemManager::initialize( void )
 {
+    // Prepare stack for logging.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Start up graphics and window.
+	JUI::Application::ReturnStatus status = Application::initialize();
+    if (status != Success) {
+        return status;
+    }
+
 	// Get downloader.
-	FileDownloader* downloader = FileDownloader::get_instance();
-	site_loader_ = new HttpResourceLoader( "http://www.jengerer.com/item_manager/", downloader );
+	JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
+	site_loader_ = new HttpResourceLoader( &MANAGER_ROOT_URL, downloader );
 
 	// Download rounded corner.
-	site_loader_->get_resource( "img/manager/rounded_corner.png", "img/manager/rounded_corner.png" );
+	site_loader_->get_resource( &ROUNDED_CORNER_TEXTURE, &ROUNDED_CORNER_TEXTURE );
 
 	// Download button icons.
-	site_loader_->get_resource( "img/manager/gear.png", "img/manager/gear.png" );
-	site_loader_->get_resource( "img/manager/equip.png", "img/manager/equip.png" );
-	site_loader_->get_resource( "img/manager/sort.png", "img/manager/sort.png" );
+	site_loader_->get_resource( &EQUIP_ICON_TEXTURE, &EQUIP_ICON_TEXTURE );
+	site_loader_->get_resource( &CRAFT_ICON_TEXTURE, &CRAFT_ICON_TEXTURE );
+	site_loader_->get_resource( &SORT_ICON_TEXTURE, &SORT_ICON_TEXTURE );
 
 	// Get placeholder item icon.
-	site_loader_->get_resource( "img/backpack/unknown_item.png", "img/backpack/unknown_item.png" );
+	site_loader_->get_resource( &UNKNOWN_ITEM_ICON_TEXTURE, &UNKNOWN_ITEM_ICON_TEXTURE );
 
 	// Download fonts.
-	site_loader_->get_resource( "fonts/tf2build.ttf", "fonts/tf2build.ttf" );
-	site_loader_->get_resource( "fonts/tf2secondary.ttf", "fonts/tf2secondary.ttf" );
-
-	// Start up JUI::Graphics2D* and window.
-	Application::load_interfaces();
+	site_loader_->get_resource( &TF2_BUILD_FONT, &TF2_BUILD_FONT );
+	site_loader_->get_resource( &TF2_SECONDARY_FONT, &TF2_SECONDARY_FONT );
 
 	// Necessary to display progress/status.
-	Notice::precache( graphics_ );
-	Button::precache( graphics_ );
-	RoundedRectangle::precache( graphics_ );
+	if (!Notice::precache( &graphics_ )) {
+        return PrecacheResourcesFailure;
+    }
+	else if (!Button::precache( &graphics_ )) {
+        return PrecacheResourcesFailure;
+    }
+	else if (!RoundedRectangle::precache( &graphics_ )) {
+        return PrecacheResourcesFailure;
+    }
 
-	try {
-		// precache secondary resources.
-		ToggleSet::precache();
-		ItemDisplay::precache();
-		Notification::precache();
-		SlotView::precache( graphics_ );
+    // Base resources successful; load extra resources.
+    if (!create_resources()) {
+        // Check for error to display.
+        const JUTIL::String* top = stack->get_top_error();
+        error_ = popups_->create_alert( top );
+        if (error_ == nullptr) {
+            return PrecacheResourcesFailure;
+        }
+    }
 
-		// Load title font.
-		title_font_ = FontFactory::create_font( TITLE_FONT_FACE, TITLE_FONT_SIZE );
-		page_font_ = FontFactory::create_font( PAGE_FONT_FACE, PAGE_FONT_SIZE );
+    // All base resources loaded successfully.
+    return Success;
+}
 
-		// Create notification queue.
-		notifications_ = new NotificationQueue();
-		notifications_->set_position( 
-			static_cast<float>(get_width() - PADDING), 
-			static_cast<float>(get_height() - PADDING) );
-		add( notifications_ );
+bool ItemManager::create_resources( void )
+{
+    // Enough resources loaded to show styled messages.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+    if (!ItemDisplay::precache()) {
+        return false;
+    }
+	else if (!Notification::precache()) {
+        return false;
+    }
+    else if (!SlotView::precache( &graphics_ )) {
+        return false;
+    }
 
-		// Generate UI.
-		create_layout();
+	// Load title font.
+	title_font_ = JUI::FontFactory::create_font( TITLE_FONT_FACE, TITLE_FONT_SIZE );
+    if (title_font_ == nullptr) {
+        return false;
+    }
 
-		// Check for latest version.
-		if (!is_latest_version()) {
-			update_error_ = true;
-			throw std::runtime_error( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
-		}
+    // Load page font.
+	page_font_ = JUI::FontFactory::create_font( PAGE_FONT_FACE, PAGE_FONT_SIZE );
+    if (page_font_ == nullptr) {
+        return false;
+    }
 
-		// Ensure TF2's not running.
-		if (get_process_count( "tf2.exe" ) > 0) {
-			throw std::runtime_error( "Please close Team Fortress 2 before running the item manager." );
-		}
-		else if (get_process_count( "item_manager.exe" ) > 1) {
-			throw std::runtime_error( "Another instance of the item manager is already running!" );
-		}
+	// Create notification queue.
+    if (!JUTIL::BaseAllocator::allocate( &notifications_ )) {
+        stack->log( "Failed to create notification queue!" );
+        return false;
+    }
+	notifications_ = new (notifications_) NotificationQueue();
+	notifications_->set_position(
+		static_cast<float>(get_width() - PADDING), 
+		static_cast<float>(get_height() - PADDING) );
+	if (!add( notifications_ )) {
+        stack->log( "Failed to add notification queue!" );
+        return false;
+    }
 
-		// Start definition loader.
-		load_progress_ = popups_->create_notice( "Preparing to load item definitions..." );
-		load_definitions();
+    // Create inventory.
+    if (!JUTIL::BaseAllocator::allocate( &inventory_book_ )) {
+        stack->log( "Failed to create inventory book!" );
+        return false;
+    }
+    inventory_book_ = new (inventory_book_) SlotBook( PAGE_WIDTH, PAGE_HEIGHT );
+    if (!inventory_book_->add_pages( DEFAULT_PAGE_COUNT )) {
+        stack->log( "Failed to populate inventory book!" );
+        return false;
+    }
+
+    // Create excluded slots.
+    if (!JUTIL::BaseAllocator::allocate( &excluded_book_ )) {
+        stack->log( "Failed to create excluded item book!" );
+        return false;
+    }
+    excluded_book_ = new (excluded_book_) DynamicSlotBook( EXCLUDED_WIDTH, EXCLUDED_HEIGHT );
+    if (!excluded_book_->initialize()) {
+        stack->log( "Failed to populate excluded item book!" );
+        return false;
+    }
+
+	// Create backpack.
+    if (!JUTIL::BaseAllocator::allocate( &backpack_ )) {
+        stack->log( "Failed to create backpack!" );
+        return false;
+    }
+	backpack_ = new (backpack_) Backpack( inventory_book_, excluded_book_ );
+
+	// Generate UI.
+	if (!create_layout()) {
+        return false;
+    }
+
+	// Check for latest version.
+	if (!is_latest_version()) {
+        stack->log( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
+		update_error_ = true;
+        return false;
 	}
-	catch (std::runtime_error& load_ex) {
-		error_ = popups_->create_alert( load_ex.what() );
-		set_think( &ItemManager::exiting );
+
+	// Ensure TF2's not running.
+	if (get_process_count( "tf2.exe" ) > 0) {
+		stack->log( "Please close Team Fortress 2 before running the item manager." );
+        return false;
 	}
+	else if (get_process_count( "item_manager.exe" ) > 1) {
+        stack->log( "Another instance of the item manager is already running!" );
+        return false;
+	}
+
+	// Show progress notice.
+    const JUTIL::ConstantString PREPARING_MESSAGE = "Preparing to load item definitions...";
+	load_progress_ = popups_->create_notice( &PREPARING_MESSAGE );
+    if (load_progress_ == nullptr) {
+        stack->log( "Failed to create loading notice." );
+        return false;
+    }
+
+    // Start loading item definitions.
+	if (!start_definition_load()) {
+        return false;
+    }
+
+    return true;
 }
 
 void ItemManager::close_interfaces( void )
 {
-	if (title_font_ != nullptr) {
-		delete title_font_;
-		title_font_ = nullptr;
-	}
+    // Remove font resources.
+    JUI::FontFactory::destroy_font( title_font_ );
+    JUI::FontFactory::destroy_font( page_font_ );
 
-	if (page_font_ != nullptr) {
-		delete page_font_;
-		page_font_ = nullptr;
-	}
+    // Delete backpack resources.
+    JUTIL::BaseAllocator::safe_destroy( &backpack_ );
+    JUTIL::BaseAllocator::safe_destroy( &inventory_book_ );
+    JUTIL::BaseAllocator::safe_destroy( &excluded_book_ );
 
-	if (mouse_ != nullptr) {
-		delete mouse_;
-		mouse_ = nullptr;
-	}
-
-	if (steam_items_ != nullptr) {
-		delete steam_items_;
-		steam_items_ = nullptr;
-	}
-
-	if (backpack_ != nullptr) {
-		delete backpack_;
-		backpack_ = nullptr;
-	}
-
-	if (inventory_book_ != nullptr) {
-		delete inventory_book_;
-		inventory_book_ = nullptr;
-	}
-
-	if (excluded_book_ != nullptr) {
-		delete excluded_book_;
-		excluded_book_ = nullptr;
-	}
-
-	if (definition_loader_ != nullptr) {
-		delete definition_loader_;
-		definition_loader_ = nullptr;
-	}
+    // Delete definition resources.
+    JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
+    JUTIL::BaseAllocator::safe_destroy( &Item::fallback );
 
 	// Erase item definitions.
-	for (auto i = Item::definitions.begin(); i != Item::definitions.end(); i = Item::definitions.erase( i )) {
-		delete i->second;
+    InformationMap::Iterator i;
+	for (i = Item::definitions.begin(); i.has_next(); i.next()) {
+		delete i.get_value();
 	}
+    Item::definitions.clear();
 
 	// Erase attribute definitions.
-	for (auto i = Item::attributes.begin(); i != Item::attributes.end(); i = Item::attributes.erase( i )) {
-		delete i->second;
+    AttributeMap::Iterator j;
+    for (j = Item::attributes.begin(); j.has_next(); j.next()) {
+        JUTIL::BaseAllocator::destroy( j.get_value() );
 	}
-
-	// Erase fallback definition.
-	if (Item::fallback != nullptr) {
-		delete Item::fallback;
-		Item::fallback = nullptr;
-	}
+    Item::attributes.clear();
 
 	// Delete site loader.
-	if (site_loader_ != nullptr) {
-		delete site_loader_;
-		site_loader_ = nullptr;
-	}
+    JUTIL::BaseAllocator::safe_destroy( &site_loader_ );
 
 	// Free cached resources.
 	ItemDisplay::release();
@@ -279,78 +345,83 @@ void ItemManager::close_interfaces( void )
 	Notice::release();
 	Notification::release();
 	SlotView::release();
-	ToggleSet::release();
 
 	// Close font library.
-	FontFactory::shut_down();
+	JUI::FontFactory::shut_down();
 
 	// Free all protobuf library resources.
 	google::protobuf::ShutdownProtobufLibrary();
 
 	// Close downloader.
-	FileDownloader::shut_down();
-}
-
-void ItemManager::create_layout( void )
-{
-	
+	JUI::FileDownloader::shut_down();
 }
 
 void ItemManager::run( void )
 {
-	try {
-		Application::run();
-		think();
-		draw_frame();
-	}
-	catch (const std::exception& ex) {
-		error_ = popups_->create_alert( ex.what() );
-		set_think( &ItemManager::exiting );
-	}
+    Application::run();
+	
+    // Attempt to think; print error if failed.
+    const JUTIL::ConstantString DEFAULT_ERROR = "An unknown error has occurred!";
+    if (!think()) {
+        // Create error message.
+        JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+        const JUTIL::String* error = stack->get_top_error();
+        if (error == nullptr) {
+            error = &DEFAULT_ERROR;
+        }
+        error_ = popups_->create_alert( error );
+        
+        // Fallback if couldn't display error.
+        if (error_ == nullptr) {
+            MessageBox( nullptr, "An error has occurred!", error->get_string(), MB_ICONERROR | MB_OK );
+        }
+        set_think( &ItemManager::exiting );
+    }
+	draw_frame();
 }
 
-void ItemManager::set_think( void (ItemManager::*thinkFunction)( void ) )
+void ItemManager::set_think( bool (ItemManager::*think_function)( void ) )
 {
-	think_function_ = thinkFunction;
+	think_function_ = think_function;
 }
 
-void ItemManager::think()
+bool ItemManager::think( void )
 {
-	(this->*think_function_)();
+	return (this->*think_function_)();
 }
 
-void ItemManager::loading()
+bool ItemManager::loading( void )
 {
 	if (definition_loader_ != nullptr) {
-		switch (definition_loader_->get_state()){
+		switch (definition_loader_->get_state()) {
 		case LOADING_STATE_ERROR:
-			// Show error first.
-			error_ = popups_->create_alert( definition_loader_->get_progress_msg() );
+        {
+			// Put error on stack.
+            JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+            stack->log( "%s", definition_loader_->get_progress_msg()->get_string() );
 
 			// Remove threaded loader.
-			delete definition_loader_;
-			definition_loader_ = nullptr;
-			set_think( &ItemManager::exiting );
-			break;
+            JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
+            return false;
+        }
 
 		case LOADING_STATE_FINISHED:
+        {
 			// Remove threaded loader.
-			delete definition_loader_;
-			definition_loader_ = nullptr;
-
+            JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
+			
 			// Initialize steam.
-			try {
-				steam_items_->load_interfaces();
-			}
-			catch (const std::runtime_error& ex) {
-				error_ = popups_->create_alert( ex.what() );
-				set_think( &ItemManager::exiting );
-				break;
+            if (!steam_items_.load_interfaces()) {
+                JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+                stack->log( "Failed to initialize Steam." );
+                return false;
 			}
 
-			load_progress_->set_message( "Waiting for Steam message..." );
+            const JUTIL::ConstantString WAITING_MESSAGE = "Waiting for Steam message...";
+			load_progress_->set_message( &WAITING_MESSAGE );
 			load_progress_->center_to( this );
 			break;
+        }
 
 		default:
 			definition_loader_->update_progress_msg();
@@ -371,17 +442,19 @@ void ItemManager::loading()
 	}
 }
 
-void ItemManager::running()
+bool ItemManager::running( void )
 {
 	handle_callback();
 	notifications_->update_notifications();
 	inventory_view_->update_view();
 	update_item_display();
+    return true;
 }
 
-void ItemManager::exiting()
+bool ItemManager::exiting( void )
 {
 	// Just wait for exit.
+    return true;
 }
 
 bool ItemManager::on_mouse_clicked( JUI::Mouse* mouse )
@@ -423,8 +496,8 @@ bool ItemManager::on_mouse_clicked( JUI::Mouse* mouse )
 		}
 
 		// Deselect all, nothing clicked.
-		if (steam_items_->get_select_mode() != SELECT_MODE_MULTIPLE) {
-			steam_items_->deselect_all();
+		if (steam_items_.get_select_mode() != SELECT_MODE_MULTIPLE) {
+			steam_items_.deselect_all();
 			update_buttons();
 		}
 	}
@@ -447,11 +520,12 @@ bool ItemManager::on_mouse_released( JUI::Mouse* mouse )
 		else {
 			// Handle buttons.
 			if (craft_button_->on_mouse_released( mouse )) {
-				if (steam_items_->is_selected_tradable()) {
-					steam_items_->craft_selected();
+				if (steam_items_.is_selected_tradable()) {
+					steam_items_.craft_selected();
 				}
 				else {
-					craft_check_ = popups_->create_confirmation( "One or more of the items you've selected are not tradable. The result will not be tradable. Continue?" );
+                    const JUTIL::ConstantString TRADABLE_WARNING = "One or more of the items you've selected are not tradable. The result will not be tradable. Continue?";
+					craft_check_ = popups_->create_confirmation( &TRADABLE_WARNING );
 				}
 			}
 			else if (next_button_->on_mouse_released( mouse )) {
@@ -548,7 +622,7 @@ void ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 {
 	Slot* slot = slot_view->get_slot();
 	if (slot->has_item()) {
-		switch (steam_items_->get_select_mode()) {
+		switch (steam_items_.get_select_mode()) {
 		case SELECT_MODE_SINGLE:
 			{
 				// Don't allow movement into full slots if excluded.
@@ -565,7 +639,7 @@ void ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 				excluded_view_->set_enabled( false );
 				
 				assert( dragged_view_ == nullptr );
-				steam_items_->deselect_all();
+				steam_items_.deselect_all();
 
 				// Start dragging.
 				float view_x = slot_view->get_x();
@@ -574,18 +648,18 @@ void ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 				dragged_view_->set_position( view_x, view_y );
 				dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
 				dragged_view_->set_alpha( 200 );
-				steam_items_->select( dragged_view_ );
+				steam_items_.select( dragged_view_ );
 				add( dragged_view_ );
 				break;
 			}
 
 		case SELECT_MODE_MULTIPLE:
-			steam_items_->toggle_select( slot_view );
+			steam_items_.toggle_select( slot_view );
 			break;
 		}
 	}
-	else if (steam_items_->get_select_mode() != SELECT_MODE_MULTIPLE) {
-		steam_items_->deselect_all();
+	else if (steam_items_.get_select_mode() != SELECT_MODE_MULTIPLE) {
+		steam_items_.deselect_all();
 	}
 
 	update_buttons();
@@ -620,14 +694,14 @@ void ItemManager::on_slot_released( SlotView* slot_view )
 				unsigned int new_index = touched_item->get_index();
 				backpack_->move_item( dragged_item, new_index );
 				backpack_->move_item( touched_item, old_index );
-				steam_items_->update_item( dragged_item );
-				steam_items_->update_item( touched_item );
+				steam_items_.update_item( dragged_item );
+				steam_items_.update_item( touched_item );
 			}
 		}
 		else {
 			dragged_slot->remove_item();
 			backpack_->move_item( dragged_item, touched_slot->get_index() );
-			steam_items_->update_item( dragged_item );
+			steam_items_.update_item( dragged_item );
 		}
 	}
 
@@ -636,11 +710,11 @@ void ItemManager::on_slot_released( SlotView* slot_view )
 
 void ItemManager::update_buttons()
 {
-	unsigned int selectedCount = steam_items_->get_selected_count();
+	unsigned int selectedCount = steam_items_.get_selected_count();
 	craft_button_->set_enabled( selectedCount != 0 );
 
 #ifndef EQUIP_NOT_IMPLEMENTED
-	equip_button_->set_enabled( steam_items_->can_equip_selected() );
+	equip_button_->set_enabled( steam_items_.can_equip_selected() );
 #endif
 }
 
@@ -660,7 +734,7 @@ bool ItemManager::on_key_pressed( int key )
 		break;
 
 	case VK_CONTROL:
-		steam_items_->set_select_mode( SELECT_MODE_MULTIPLE );
+		steam_items_.set_select_mode( SELECT_MODE_MULTIPLE );
 		break;
 
 	case VK_LEFT:
@@ -685,7 +759,7 @@ bool ItemManager::on_key_released( int key )
 	// Now handle ourselves.
 	switch (key) {
 	case VK_CONTROL:
-		steam_items_->set_select_mode( SELECT_MODE_SINGLE );
+		steam_items_.set_select_mode( SELECT_MODE_SINGLE );
 		break;
 	}
 
@@ -697,28 +771,44 @@ void ItemManager::update_item_display( void )
 	item_display_->update_alpha();
 }
 
-void ItemManager::update_page_display( void )
+/*
+ * Update display for page numbers.
+ */
+bool ItemManager::update_page_display( void )
 {
 	// Update text.
-	stringstream page_text;
-	page_text << (inventory_view_->get_active_page() + 1) << '/' << inventory_view_->get_page_count();
-	page_display_->set_text( page_text.str() );
+    JUTIL::DynamicString page_string;
+    unsigned int active_page = inventory_view_->get_active_page() + 1;
+    unsigned int total_pages = inventory_view_->get_page_count();
+    if (!page_string.write( "%u/%u", active_page, total_pages )) {
+        return false;
+    }
+	page_display_->set_text( &page_string );
 
 	// Update buttons.
 	unsigned int page_index = inventory_view_->get_active_page();
 	unsigned int last_index = inventory_view_->get_page_count() - 1;
 	prev_button_->set_enabled( page_index != 0 );
 	next_button_->set_enabled( page_index != last_index );
+    return true;
 }
 
-void ItemManager::load_definitions( void )
+bool ItemManager::start_definition_load( void )
 {
 	// Set the message and redraw.
-	load_progress_->set_message("Loading item definitions...");
+    const JUTIL::ConstantString LOADING_DEFINITION_MESSAGE = "Loading item definitions...";
+	load_progress_->set_message( &LOADING_DEFINITION_MESSAGE );
 
 	// Set up loader.
-	definition_loader_ = new DefinitionLoader( graphics_ );
-	definition_loader_->begin();
+    // TODO: Don't need to allocate this; can use the "done" flag in loader instead of checking pointer null.
+    if (!JUTIL::BaseAllocator::allocate( &definition_loader_ )) {
+        return false;
+    }
+    definition_loader_ = new (definition_loader_) DefinitionLoader( &graphics_ );
+	if (!definition_loader_->begin()) {
+        return false;
+    }
+    return true;
 }
 
 void ItemManager::load_items_from_web( void )
@@ -726,7 +816,7 @@ void ItemManager::load_items_from_web( void )
 	load_progress_->append_message("\n\nLoading items...");
 	draw_frame();
 
-	uint64 userId = steam_items_->get_steam_id();
+	uint64 userId = steam_items_.get_steam_id();
 	stringstream urlStream;
 	urlStream << "http://api.steampowered.com/ITFItems_440/GetPlayerItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&SteamID=" << userId << "&format=json";
 	string apiUrl = urlStream.str();
@@ -823,20 +913,20 @@ void ItemManager::launch_updater() const
 
 void ItemManager::handle_callback( void ) {
 	CallbackMsg_t callback;
-	if ( steam_items_->get_callback( &callback ) ) {
+	if ( steam_items_.get_callback( &callback ) ) {
 		switch (callback.m_iCallback) {
 		case GCMessageAvailable_t::k_iCallback:
 			{
 				GCMessageAvailable_t *message = (GCMessageAvailable_t *)callback.m_pubParam;
 				
 				uint32 size;
-				if ( steam_items_->has_message( &size ) )
+				if ( steam_items_.has_message( &size ) )
 				{
 					uint32 id, realSize = 0;
 					BYTE* buffer = new BYTE[size];
 
 					try {
-						steam_items_->get_message( &id, buffer, size, &realSize );
+						steam_items_.get_message( &id, buffer, size, &realSize );
 
 						// Filter protobuf messages.
 						if ((id & 0x80000000) != 0) {
@@ -862,7 +952,7 @@ void ItemManager::handle_callback( void ) {
 							// Check if we can set target ID.
 							// TODO: Maybe move all this horseshit into Steam.
 							if ( headerMsg.has_job_id_source() ) {
-								steam_items_->set_target_id( headerMsg.job_id_source() );
+								steam_items_.set_target_id( headerMsg.job_id_source() );
 							}
 
 							uint32 bodySize = size - sizeof( GCProtobufHeader_t ) - headerSize;
@@ -885,7 +975,7 @@ void ItemManager::handle_callback( void ) {
 			}
 		}
 
-		steam_items_->release_callback();
+		steam_items_.release_callback();
 	} 
 }
 
@@ -928,10 +1018,10 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 			buf.close();
 #endif
 
-			steam_items_->set_version( cache_msg.version() );
+			steam_items_.set_version( cache_msg.version() );
 
 			// Check that this is our backpack.
-			if (cache_msg.owner() != steam_items_->get_steam_id()) {
+			if (cache_msg.owner() != steam_items_.get_steam_id()) {
 				break;
 			}
 
@@ -997,7 +1087,7 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 					}
 				case 7:
 					{
-						if (steam_items_->get_steam_id() == cache_msg.owner()) {
+						if (steam_items_.get_steam_id() == cache_msg.owner()) {
 							for (int i = 0; i < subscribed_type.object_data_size(); i++) {
 								CSOEconGameAccountClient client;
 								client.ParseFromArray( subscribed_type.object_data( i ).data(), 
@@ -1047,14 +1137,14 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 
 			// Compare version.
 			uint64 version = check.version();
-			if (steam_items_->get_version() != version) {
-				steam_items_->set_version( version );
+			if (steam_items_.get_version() != version) {
+				steam_items_.set_version( version );
 
 				// Send refresh.
 				CMsgSOCacheSubscriptionRefresh refresh;
-				refresh.set_owner( steam_items_->get_steam_id() );
+				refresh.set_owner( steam_items_.get_steam_id() );
 				string refreshString = refresh.SerializeAsString();
-				steam_items_->send_message( 28 | 0x80000000, (void*)refreshString.c_str(), refreshString.size() );
+				steam_items_.send_message( 28 | 0x80000000, (void*)refreshString.c_str(), refreshString.size() );
 			}
 			break;
 		}
@@ -1063,7 +1153,7 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 		{
 			CMsgSOSingleObject update_msg;
 			update_msg.ParseFromArray( message, size );
-			steam_items_->set_version( update_msg.version() );
+			steam_items_.set_version( update_msg.version() );
 
 			if (update_msg.type_id() == 1) {
 				CSOEconItem updated_item;
@@ -1088,7 +1178,7 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 		{
 			CMsgSOMultipleObjects update_msg;
 			update_msg.ParseFromArray( message, size );
-			steam_items_->set_version( update_msg.version() );
+			steam_items_.set_version( update_msg.version() );
 
 			for (int i = 0; i < update_msg.objects_size(); i++) {
 				CMsgSOMultipleObjects::SingleObject current_object = update_msg.objects( i );
@@ -1121,7 +1211,7 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 			// Get object created.
 			CMsgSOSingleObject create_msg;
 			create_msg.ParseFromArray( message, size );
-			steam_items_->set_version( create_msg.version() );
+			steam_items_.set_version( create_msg.version() );
 
 			// Get item from object.
 			CSOEconItem created_item;
@@ -1160,7 +1250,7 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 			// Get deleted message.
 			CMsgSOSingleObject delete_msg;
 			delete_msg.ParseFromArray( message, size );
-			steam_items_->set_version( delete_msg.version() );
+			steam_items_.set_version( delete_msg.version() );
 
 			// Get ID of deleted item.
 			CSOEconItem deleted_item;
@@ -1212,7 +1302,7 @@ void ItemManager::on_popup_released( Popup* popup )
 		}
 		else if (popup == craft_check_) {
 			if (craft_check_->get_response() == RESPONSE_YES) {
-				steam_items_->craft_selected();
+				steam_items_.craft_selected();
 				update_buttons();
 			}
 		}

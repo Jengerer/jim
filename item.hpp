@@ -18,7 +18,7 @@
 #include <jui/gfx/texture.hpp>
 
 typedef JUTIL::Map<int, ItemInformation*> InformationMap;
-typedef JUTIL::Map<uint32, AttributeInformation*> AttributeMap;
+typedef JUTIL::Map<uint16, AttributeInformation*> AttributeMap;
 
 class Item
 {
@@ -80,7 +80,7 @@ public:
 
 	// Attribute handling.
 	bool add_attribute( Attribute* attribute );
-	size_t get_attribute_count() const;
+	size_t get_attribute_count( void ) const;
 	const Attribute* get_attribute_at( size_t index ) const;
 	const Attribute* get_attribute_by_index( size_t index ) const;
 	const Attribute* get_attribute_by_name( const JUTIL::String* name ) const;
@@ -96,8 +96,6 @@ private:
 
 public:
 
-	// Using int32 so we can have -1 index for fallback.
-	// TODO: Keep it as uint16, but store a static fallback definition.
 	static ItemInformation* fallback;
 	static InformationMap definitions;
 	static AttributeMap attributes;

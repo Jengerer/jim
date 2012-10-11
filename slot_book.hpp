@@ -1,7 +1,7 @@
 #ifndef SLOT_BOOK_H
 #define SLOT_BOOK_H
 
-#include <vector>
+#include <containers/vector.hpp>
 #include "slot_array.hpp"
 #include "slot_container.hpp"
 
@@ -18,7 +18,7 @@ public:
 
 	// Page management.
 	const SlotArray* add_page( void );
-	void add_pages( unsigned int pages );
+	bool add_pages( unsigned int pages );
 	void remove_page( void );
 	const SlotArray* get_page( unsigned int page ) const;
 
@@ -41,7 +41,7 @@ private:
 
 private:
 
-	std::vector<SlotArray*> pages_;
+	JUTIL::Vector<SlotArray*> pages_;
 	unsigned width_;
 	unsigned height_;
 

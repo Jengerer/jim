@@ -1,5 +1,8 @@
 #include "alert.hpp"
 
+// Button label strings.
+const JUTIL::ConstantString OKAY_BUTTON_LABEL = "okay";
+
 /*
  * Construct alert message.
  */
@@ -26,7 +29,7 @@ bool Alert::initialize( const JUTIL::String* message )
     }
 
     // Make OK button.
-    ok_ = Button::create_label_button( "okay" );
+    ok_ = Button::create_label_button( &OKAY_BUTTON_LABEL );
     if (ok_ == nullptr) {
         return false;
     }

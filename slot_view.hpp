@@ -34,7 +34,7 @@ public:
 	bool is_enabled( void ) const;
 
 	// Precaching class-wide resources.
-	static void	precache( JUI::Graphics2D* graphics );
+	static bool precache( JUI::Graphics2D* graphics );
 	static void release( void );
 
 private:

@@ -23,7 +23,7 @@ public:
 	virtual ~Steam( void );
 
 	// Initializing and closing.
-	virtual void load_interfaces( void );
+	virtual bool load_interfaces( void );
 	virtual void close_interfaces( void );
 
 	// Callback and message handling.
@@ -31,7 +31,7 @@ public:
 	void		release_callback( void ) const;
 	bool		has_message( uint32* size ) const;
 	void		get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const;
-	void		send_message( unsigned int id, void* buffer, uint32 size ) const;
+	bool		send_message( unsigned int id, void* buffer, uint32 size ) const;
 
 	// SO version handling.
 	void		set_version( uint64 version );
@@ -41,8 +41,8 @@ public:
 	uint64		get_steam_id( void ) const;
 
 	// For sending protobuf headers.
-	void		set_target_id( uint64 targetId );
-	void		generate_protobuf_header( CMsgProtoBufHeader *headerMsg ) const;
+	void		set_target_id( uint64 target_id );
+	void		generate_protobuf_header( CMsgProtoBufHeader *header_msg ) const;
 
 private:
 
@@ -51,19 +51,19 @@ private:
 private:
 
 	// Steam handles.
-	HSteamUser					hUser_;
-	HSteamPipe					hPipe_;
+	HSteamUser					user_;
+	HSteamPipe					pipe_;
 
 	// Steam interfaces.
-	ISteamClient008*			steamClient_;
-	ISteamUser012*				steamUser_;
-	ISteamGameCoordinator001*	gameCoordinator_;
+	ISteamClient008*			steam_client_;
+	ISteamUser012*				steam_user_;
+	ISteamGameCoordinator001*	game_coordinator_;
 
 	// Steam interface target.
-	uint64						targetId_;
+	uint64						target_id_;
 	uint64						version_;
 
 	// For function loading.
-	HMODULE						clientDll_;
+	HMODULE						client_dll_;
 
 };

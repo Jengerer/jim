@@ -25,7 +25,7 @@ enum ELoadingState
 	LOADING_STATE_FINISHED
 };
 
-Json::Value& get_member( Json::Value& root, const JUTIL::ConstantString& member );
+bool get_member( Json::Value* root, const JUTIL::String* member );
 
 /*
  * Class for loading item definitions from the Steam Web API.
@@ -39,7 +39,7 @@ public:
 	~DefinitionLoader( void );
 
 	// Starting and ending the worker threads.
-	void begin( void );
+	bool begin( void );
 	void end( void );
 
 	// Getting definition loader states.
@@ -50,18 +50,23 @@ public:
 
 private:
 
-	void load( void );
+	bool load( void );
+    bool load_item( Json::Value* item,
+        JUTIL::DynamicString* name,
+        JUTIL::DynamicString* image,
+        JUTIL::DynamicString* image_url );
+    bool load_item_attribute( Json::Value* attribute, ItemInformation* information );
 	void clean_up( void );
 
 	// Loading state functions.
 	bool is_state_changed( void ) const;
 	void set_state( ELoadingState state );
-	void set_error( const JUTIL::ConstantString& error_msg );
+	void set_error( const JUTIL::String* error_msg );
 
 	// Progress counters.
 	void set_progress( size_t loaded, size_t total );
 	void set_progress( float percentage );
-	bool set_progress_msg( const JUTIL::ConstantString& progress_msg );
+	bool set_progress_msg( const JUTIL::String* progress_msg );
 
 private:
 
@@ -70,18 +75,19 @@ private:
 
 	// Threading parameters.
 	volatile bool should_stop_;
-	boost::shared_ptr<boost::thread> thread_;
+	boost::thread* thread_;
 	boost::mutex mutex_;		
 
 	// Parsing members.
 	Json::Value root_;
-	JUTIL::HashMap<unsigned int, JUTIL::ConstantString, EItemSlot, StringHasher> slots_;
-	JUTIL::HashMap<unsigned int, JUTIL::ConstantString, EClassEquip, StringHasher> classes_;
+	JUTIL::HashMap<unsigned int, const JUTIL::String*, EItemSlot, JUTIL::StringHasher> slots_;
+	JUTIL::HashMap<unsigned int, const JUTIL::String*, EClassEquip, JUTIL::StringHasher> classes_;
+    JUTIL::HashMap<unsigned int, const JUTIL::String*, AttributeInformation*, JUTIL::StringHasher> name_map_;
 
 	// State members.
 	float progress_;
-	JUTIL::String progress_msg_;
-	JUTIL::String error_msg_;
+	JUTIL::DynamicString progress_msg_;
+	JUTIL::DynamicString error_msg_;
 	ELoadingState state_;
 	bool has_state_changed_;
 	

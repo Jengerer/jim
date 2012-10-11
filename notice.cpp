@@ -7,9 +7,9 @@
 JUI::FontInterface* Notice::font_						= nullptr;
 
 // Font constants.
-const char* NOTICE_FONT_FACE			= "fonts/tf2build.ttf";
-const unsigned int NOTICE_FONT_SIZE		= 12;
-const bool NOTICE_FONT_BOLDED			= false;
+const JUTIL::ConstantString NOTICE_FONT_FACE = "fonts/tf2build.ttf";
+const unsigned int NOTICE_FONT_SIZE = 12;
+const bool NOTICE_FONT_BOLDED = false;
 
 // Notice specifications.
 const unsigned int NOTICE_TEXT_WIDTH	= 300;
@@ -139,7 +139,7 @@ bool Notice::append_message( const JUTIL::String* message )
 bool Notice::precache( JUI::Graphics2D* graphics )
 {
     // Allocate notice-generic font.
-	font_ = JUI::FontFactory::create_font( NOTICE_FONT_FACE, NOTICE_FONT_SIZE );
+	font_ = JUI::FontFactory::create_font( &NOTICE_FONT_FACE, NOTICE_FONT_SIZE );
     if (font_ == nullptr) {
         return false;
     }

@@ -16,21 +16,21 @@ class HttpResourceLoader : public ResourceLoaderInterface
 
 public:
 
-	HttpResourceLoader( const JUTIL::ConstantString& url, JUI::FileDownloader* downloader );
+	HttpResourceLoader( const JUTIL::String* url, JUI::FileDownloader* downloader );
 
 	// Resource loader interface function.
-	bool get_resource( const JUTIL::ConstantString& file, const JUTIL::ConstantString& target ) const;
+	bool get_resource( const JUTIL::String* file, const JUTIL::String* target ) const;
 
 private:
 
 	// Internal source management.
 	void set_downloader( JUI::FileDownloader* downloader );
-	void set_url( const JUTIL::ConstantString& url );
+	void set_url( const JUTIL::String* url );
 
 private:
 
 	JUI::FileDownloader* downloader_;
-	JUTIL::ConstantString url_;
+	const JUTIL::String* url_;
 
 };
 

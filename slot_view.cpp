@@ -26,7 +26,7 @@ JUI::FontInterface* SlotView::equipped_font_					= nullptr;
 JUI::Text* SlotView::equipped_text_					= nullptr;
 
 // Equipped text attributes.
-const char* EQUIPPED_FONT_FACE					= "fonts/tf2build.ttf";
+const JUTIL::ConstantString EQUIPPED_FONT_FACE	= "fonts/tf2build.ttf";
 const unsigned int EQUIPPED_FONT_SIZE			= 6;
 const bool EQUIPPED_FONT_BOLDED					= false;
 const float EQUIPPED_PADDING					= 5;
@@ -162,12 +162,21 @@ bool SlotView::is_selected() const
 /*
  * Precache font and text object.
  */
-void SlotView::precache( JUI::Graphics2D* graphics )
+bool SlotView::precache( JUI::Graphics2D* graphics )
 {
 	// Create equipped font.
-	equipped_font_ = JUI::FontFactory::create_font( EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE );
-	equipped_text_ = new JUI::Text( equipped_font_ );
+	equipped_font_ = JUI::FontFactory::create_font( &EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE );
+    if (equipped_font_ == nullptr) {
+        return false;
+    }
+
+    // Create text.
+    if (!JUTIL::BaseAllocator::allocate( &equipped_text_ )) {
+        return false;
+    }
+	equipped_text_ = new (equipped_text_) JUI::Text( equipped_font_ );
 	equipped_text_->set_text( &EQUIPPED_TEXT );
+    return true;
 }
 
 /*
@@ -175,13 +184,6 @@ void SlotView::precache( JUI::Graphics2D* graphics )
  */
 void SlotView::release( void )
 {
-	if (equipped_font_ != nullptr) {
-		delete equipped_font_;
-		equipped_font_ = nullptr;
-	}
-
-	if (equipped_text_ != nullptr) {
-		delete equipped_text_;
-		equipped_text_ = nullptr;
-	}
+    JUI::FontFactory::destroy_font( equipped_font_ );
+    JUTIL::BaseAllocator::safe_destroy( &equipped_text_ );
 }

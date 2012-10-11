@@ -1,7 +1,12 @@
 #include "confirmation.hpp"
 #include <jui/layout/horizontal_layout.hpp>
+#include <string/string.hpp>
 
 const int BUTTON_SPACING = 10;
+
+// Button strings.
+const JUTIL::ConstantString YES_BUTTON_LABEL = "yes";
+const JUTIL::ConstantString NO_BUTTON_LABEL = "no";
 
 /*
  * Confirmation constructor.
@@ -30,12 +35,12 @@ bool Confirmation::initialize( const JUTIL::String* question )
     }
 
     // Create response buttons.
-	yes_ = Button::create_label_button( "yes" );
+	yes_ = Button::create_label_button( &YES_BUTTON_LABEL);
     if (yes_ == nullptr) {
         return false;
     }
 
-	no_ = Button::create_label_button( "no" );
+	no_ = Button::create_label_button( &NO_BUTTON_LABEL );
     if (no_ == nullptr) {
         JUTIL::BaseAllocator::destroy( yes_ );
         return false;

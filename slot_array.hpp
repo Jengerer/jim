@@ -4,6 +4,7 @@
 #include "item.hpp"
 #include "slot.hpp"
 #include "slot_container.hpp"
+#include <containers/vector.hpp>
 
 /*
  * Class for maintaining a set of slots.
@@ -17,22 +18,24 @@ public:
 	~SlotArray( void );
 
 	// Slot management functions.
+    bool initialize( void );
 	unsigned int get_slot_count( void ) const;
 
 	// Slot getter.
-	Slot*	get_slot( unsigned int index ) const;
+	Slot* get_slot( unsigned int index ) const;
 
 private:
 
 	// Slot management functions.
-	void	set_size( unsigned int size );
-	void	create_slots( unsigned int start_index );
-	void	destroy_slots( void );
+	void set_size( unsigned int size );
+	bool create_slots( unsigned int start_index );
+	void destroy_slots( void );
 
 private:
 
-	Slot**			slots_;
+	JUTIL::Vector<Slot*> slots_;
 	unsigned int	size_;
+    unsigned int    start_index_;
 
 };
 

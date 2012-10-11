@@ -21,9 +21,6 @@ AttributeInformation::AttributeInformation( JUTIL::String* name,
 	effect_type_ = effect_type;
 	hidden_ = hidden;
 	is_integer_ = is_integer;
-
-	// No description yet.
-	has_description_ = false;
 }
 
 /*

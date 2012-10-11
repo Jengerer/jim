@@ -19,21 +19,38 @@ SlotBook::~SlotBook( void )
 
 /*
  * Add a page to the book.
+ * Returns pointer to slot array on success, nullptr otherwise.
  */
 const SlotArray* SlotBook::add_page( void )
 {
-	SlotArray* page = new SlotArray( get_page_size(), get_slot_count() );
-	pages_.push_back( page );
+    // Create page.
+    SlotArray* page;
+    if (!JUTIL::BaseAllocator::allocate( &page )) {
+        return nullptr;
+    }
+    unsigned int page_size = get_page_size();
+    unsigned int slot_count = get_slot_count();
+    page = new (page) SlotArray( page_size, slot_count );
+
+    // Add to pages.
+	if (pages_.push( page )) {
+        JUTIL::BaseAllocator::destroy( &page );
+        return nullptr;
+    }
 	return page;
 }
 
 /*
  * Add pages to the book.
+ * If this function fails mid-way through creation,
+ * the pages that were successfully added remain.
  */
-void SlotBook::add_pages( unsigned int pages )
+bool SlotBook::add_pages( unsigned int pages )
 {
 	for (unsigned int i = 0; i < pages; ++i) {
-		add_page();
+        if (!add_page()) {
+            return false;
+        }
 	}
 }
 
@@ -44,9 +61,9 @@ void SlotBook::remove_page( void )
 {
 	if (get_page_count() != 0) {
 		unsigned int end_index = get_page_count() - 1;
-		SlotArray* target = pages_[ end_index ];
-		pages_.erase( pages_.begin() + end_index );
-		delete target;
+		SlotArray* target = pages_.get( end_index );
+        JUTIL::BaseAllocator::destroy( target );
+		pages_.erase( end_index );
 	}
 }
 
@@ -55,7 +72,7 @@ void SlotBook::remove_page( void )
  */
 const SlotArray* SlotBook::get_page( unsigned int page ) const
 {
-	return pages_[page];
+	return pages_.get( page );
 }
 
 /*
@@ -63,7 +80,7 @@ const SlotArray* SlotBook::get_page( unsigned int page ) const
  */
 unsigned int SlotBook::get_page_count( void ) const
 {
-	return pages_.size();
+	return pages_.get_length();
 }
 
 /*
@@ -130,8 +147,11 @@ void SlotBook::set_page_height( unsigned int height )
  */
 void SlotBook::destroy_pages( void )
 {
-	std::vector<SlotArray*>::iterator i;
-	for (i = pages_.begin(); i != pages_.end(); i = pages_.erase( i )) {
-		delete *i;
-	}
+    size_t i;
+    size_t length = pages_.get_length();
+    for (i = 0; i < length; ++i) {
+        SlotArray* page = pages_.get( i );
+        JUTIL::BaseAllocator::destroy( page );
+    }
+    pages_.clear();
 }

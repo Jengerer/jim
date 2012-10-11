@@ -1,6 +1,8 @@
 #include "rounded_rectangle.hpp"
+#include <string/string.hpp>
 
 // Static texture.
+const JUTIL::ConstantString ROUNDED_CORNER_TEXTURE = "img/manager/rounded_corner.png";
 JUI::FileTexture* RoundedRectangle::rounded_corner_ = nullptr;
 
 /*
@@ -30,7 +32,7 @@ bool RoundedRectangle::precache( JUI::Graphics2D* graphics )
 {
     // Load rounded corner texture.
     // TODO: Replace with rounded rectangle pixel-render.
-	if (!graphics->get_texture( "img/manager/rounded_corner.png", &rounded_corner_ ))
+	if (!graphics->get_texture( &ROUNDED_CORNER_TEXTURE, &rounded_corner_ ))
     {
         return false;
     }

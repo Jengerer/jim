@@ -18,7 +18,7 @@ public:
 	Button( float x = 0.0f, float y = 0.0f );
 
 	// Layout handling.
-    bool create_layout( void );
+    bool initialize( void );
 	JUI::Layout* get_content_layout( void ) const;
 
 	// Updating colour based on state.
@@ -41,8 +41,8 @@ public:
 
     // Button creation.
 	static Button* create_icon_button( JUI::Texture *texture );
-	static Button* create_label_button( const JUTIL::ConstantString& label, JUI::FontInterface* font = default_font_ );
-	static Button* create_icon_label_button( JUI::Texture *texture, const JUTIL::ConstantString& label, JUI::FontInterface* font = default_font_ );
+	static Button* create_label_button( const JUTIL::String* label, JUI::FontInterface* font = default_font_ );
+	static Button* create_icon_label_button( JUI::Texture *texture, const JUTIL::String* label, JUI::FontInterface* font = default_font_ );
 
 private:
 
