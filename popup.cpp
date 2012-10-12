@@ -34,29 +34,46 @@ bool Popup::is_killed( void ) const
 	return state_ == POPUP_STATE_KILLED;
 }
 
-bool Popup::on_mouse_clicked( JUI::Mouse* mouse )
+JUI::IOResult Popup::on_mouse_clicked( JUI::Mouse* mouse )
 {
-	return mouse->is_touching( this );
+    // Return handled if mouse is touching.
+    if (mouse->is_touching( this )) {
+        return JUI::IO_RESULT_HANDLED;
+    }
+
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool Popup::on_mouse_released( JUI::Mouse* mouse )
+JUI::IOResult Popup::on_mouse_released( JUI::Mouse* mouse )
 {
-	return mouse->is_touching( this );
+	// Return handled if mouse is touching.
+    if (mouse->is_touching( this )) {
+        return JUI::IO_RESULT_HANDLED;
+    }
+
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool Popup::on_mouse_moved( JUI::Mouse* mouse )
+JUI::IOResult Popup::on_mouse_moved( JUI::Mouse* mouse )
 {
-	return mouse->is_touching( this );
+	// Return handled if mouse is touching.
+    if (mouse->is_touching( this )) {
+        return JUI::IO_RESULT_HANDLED;
+    }
+
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool Popup::on_key_pressed( int key )
+JUI::IOResult Popup::on_key_pressed( int key )
 {
-	return false;
+    // Generic popup doesn't handle keys.
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool Popup::on_key_released( int key )
+JUI::IOResult Popup::on_key_released( int key )
 {
-	return false;
+	// Generic popup doesn't handle keys.
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
 void Popup::center_to( const Container* parent )

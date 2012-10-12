@@ -18,25 +18,33 @@ DraggedSlotView::~DraggedSlotView()
 }
 
 /*
- * Return if mouse touching.
+ * Return handled if mouse touching.
  */
-bool DraggedSlotView::on_mouse_clicked( JUI::Mouse* mouse )
+JUI::IOResult DraggedSlotView::on_mouse_clicked( JUI::Mouse* mouse )
 {
-	return mouse->is_touching( this );
+    if (mouse->is_touching( this )) {
+        return JUI::IO_RESULT_HANDLED;
+    }
+
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
 /*
  * Return if mouse touching.
  */
-bool DraggedSlotView::on_mouse_released( JUI::Mouse* mouse )
+JUI::IOResult DraggedSlotView::on_mouse_released( JUI::Mouse* mouse )
 {
-	return mouse->is_touching( this );
+	if (mouse->is_touching( this )) {
+        return JUI::IO_RESULT_HANDLED;
+    }
+
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
 /*
  * Update position offset to mouse.
  */
-bool DraggedSlotView::on_mouse_moved( JUI::Mouse* mouse )
+JUI::IOResult DraggedSlotView::on_mouse_moved( JUI::Mouse* mouse )
 {
 	set_position( mouse->get_x() + offset_x_, mouse->get_y() + offset_y_ );
 	return true;

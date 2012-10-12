@@ -42,37 +42,49 @@ void NotificationQueue::update_notifications( void )
 	}
 }
 
-bool NotificationQueue::on_mouse_moved( JUI::Mouse* mouse )
+JUI::IOResult NotificationQueue::on_mouse_moved( JUI::Mouse* mouse )
 {
-	// JUI::Mouse* moved.
-	return false;
+	// No mouse movement for notifications yet.
+    // TODO: If mouse hovering over notification, extend.
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool NotificationQueue::on_mouse_clicked( JUI::Mouse* mouse )
+JUI::IOResult NotificationQueue::on_mouse_clicked( JUI::Mouse* mouse )
 {
-	// Left clicked.
+	// Handle touching notifications; skip to next.
 	if (has_notification()) {
 		Notification *current = get_current_notification();
 		if (mouse->is_touching( current )) {
 			set_next_notification();
-			return true;
+            return JUI::IO_RESULT_HANDLED;
 		}
 	}
 	
-	return false;
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool NotificationQueue::on_mouse_released( JUI::Mouse* mouse )
+JUI::IOResult NotificationQueue::on_mouse_released( JUI::Mouse* mouse )
 {
-	// Left released.
-	return false;
+	// No release handling.
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-void NotificationQueue::add_notification( const JUTIL::String* message, const JUI::Texture *texture )
+bool NotificationQueue::add_notification( const JUTIL::String* message, const JUI::Texture *texture )
 {
-	Notification *notification = new Notification( message, texture );
+    Notification* notification;
+    if (!JUTIL::BaseAllocator::allocate( &notification )) {
+        return false;
+    }
+	notification = new (notification) Notification( message, texture );
+    if (!notification->initialize()) {
+        JUTIL::BaseAllocator::destroy( notification );
+        return false;
+    }
 	notification->set_alpha( 0 );
-	add( notification );
+	if (!add( notification )) {
+        JUTIL::BaseAllocator::destroy( notification );
+        return false;
+    }
 
 	// Add and set to next, if empty.
 	notifications_.push( notification );

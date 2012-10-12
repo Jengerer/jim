@@ -52,7 +52,7 @@ const Button* Alert::get_button( void ) const
 /*
  * Check whether popup was closed by key.
  */
-bool Alert::on_key_released( int key )
+JUI::IOResult Alert::on_key_released( int key )
 {
 	if (key == VK_RETURN) {
 		set_state( POPUP_STATE_KILLED );
@@ -64,7 +64,7 @@ bool Alert::on_key_released( int key )
 /*
  * Hover over button.
  */
-bool Alert::on_mouse_moved( JUI::Mouse* mouse )
+JUI::IOResult Alert::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Parent behaviour.
 	ok_->on_mouse_moved( mouse );
@@ -74,7 +74,7 @@ bool Alert::on_mouse_moved( JUI::Mouse* mouse )
 /*
  * Click on button.
  */
-bool Alert::on_mouse_clicked( JUI::Mouse* mouse )
+JUI::IOResult Alert::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	return Notice::on_mouse_clicked( mouse );
 }
@@ -82,7 +82,7 @@ bool Alert::on_mouse_clicked( JUI::Mouse* mouse )
 /*
  * Release on button.
  */
-bool Alert::on_mouse_released( JUI::Mouse* mouse )
+JUI::IOResult Alert::on_mouse_released( JUI::Mouse* mouse )
 {
     // Set to killed if okay pressed.
 	if (mouse->is_touching( this )) {

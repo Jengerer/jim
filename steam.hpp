@@ -27,11 +27,11 @@ public:
 	virtual void close_interfaces( void );
 
 	// Callback and message handling.
-	bool		get_callback( CallbackMsg_t* callback ) const;
-	void		release_callback( void ) const;
-	bool		has_message( uint32* size ) const;
-	void		get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const;
-	bool		send_message( unsigned int id, void* buffer, uint32 size ) const;
+	bool get_callback( CallbackMsg_t* callback ) const;
+	void release_callback( void ) const;
+	bool has_message( uint32* size ) const;
+	bool get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* real_size ) const;
+	bool send_message( unsigned int id, void* buffer, uint32 size ) const;
 
 	// SO version handling.
 	void		set_version( uint64 version );

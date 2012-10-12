@@ -36,6 +36,9 @@ Item::Item(
 	set_flags( flags );
 	set_index( get_position() );
 	set_origin( origin );
+
+    // Default has no name.
+    item_name_ = nullptr;
 }
 
 /*
@@ -59,7 +62,7 @@ Item::~Item( void )
  * Parameters:
  * - custom_name : A pointer to a custom name string if one exists, or nullptr if none.
  */
-bool Item::update_item_information( JUTIL::String* custom_name )
+bool Item::update_item_information( const JUTIL::String* custom_name )
 {
 	// Attempt to find item information.
     ItemInformation* information;
@@ -71,20 +74,34 @@ bool Item::update_item_information( JUTIL::String* custom_name )
     }
 
     // Generate full item name.
-    if (custom_name != nullptr) {
-        item_name_ = custom_name;
+    JUTIL::DynamicString* name;
+    if (!JUTIL::BaseAllocator::allocate( &name )) {
+        return false;
     }
-    else {
-        // Put quality and item name together.
-        JUTIL::DynamicString* name;
-        if (!JUTIL::BaseAllocator::allocate( &name )) {
+    name = new (name) JUTIL::DynamicString();
+
+    // Copy custom name if one is set.
+    if (custom_name != nullptr) 
+    {
+        // Copy custom name with quotes.
+        if (!name->write( "\"%s\"", custom_name->get_string() )) {
+            JUTIL::BaseAllocator::destroy( name );
             return false;
         }
-        name = new (name) JUTIL::DynamicString();
-
+    }
+    else {
         // Write string.
         const JUTIL::String* quality_name = get_quality_name();
-        if (!name->write( "%s %s", quality_name, information_->get_name() )) {
+        if (quality_name != nullptr) {
+            if (!name->write( "%s ", quality_name->get_string() )) {
+                JUTIL::BaseAllocator::destroy( name );
+                return false;
+            }
+        }
+
+        // Get item type name.
+        const JUTIL::String* type_name = information_->get_name();
+        if (!name->write( "%s", type_name->get_string() )) {
             JUTIL::BaseAllocator::destroy( name );
             return false;
         }
@@ -92,6 +109,7 @@ bool Item::update_item_information( JUTIL::String* custom_name )
 
     // TODO: Should change attribute iteration so we don't have to make copies.
     // Just iterate through both local and item attributes, and get from appropriate group.
+    item_name_ = name;
     return true;
 }
 
@@ -248,11 +266,10 @@ const JUTIL::String* Item::get_quality_name( void ) const
 		break;
 
 	case k_EItemQuality_Haunted:
-		return &VALVE_QUALITY_NAME;
+		return &HAUNTED_QUALITY_NAME;
 		break;
 
 	default:
-        JUTIL::JUTILBase::debug_assert( false );
 		return nullptr;
 		break;
 	}

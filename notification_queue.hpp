@@ -24,13 +24,13 @@ public:
 	void			update_notifications( void );
 
 	// Input handling.
-	virtual bool	on_mouse_moved( JUI::Mouse* mouse );
-	virtual bool	on_mouse_clicked( JUI::Mouse* mouse );
-	virtual bool	on_mouse_released( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
 
 	// Notification handling.
-	void			add_notification( const JUTIL::String* message, const JUI::Texture *texture );
-	void			set_next_notification( void );
+	bool add_notification( const JUTIL::String* message, const JUI::Texture *texture );
+	void set_next_notification( void );
 
 private:
 

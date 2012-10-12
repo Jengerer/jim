@@ -90,7 +90,7 @@ ConfirmationResponse Confirmation::get_response( void ) const
 /*
  * Trigger response based on which button pressed.
  */
-bool Confirmation::on_mouse_released( JUI::Mouse* mouse )
+JUI::IOResult Confirmation::on_mouse_released( JUI::Mouse* mouse )
 {
 	// Set response based on button clicked.
 	if (yes_->on_mouse_released( mouse )) {
@@ -111,7 +111,7 @@ bool Confirmation::on_mouse_released( JUI::Mouse* mouse )
 /*
  * Hover over response buttons.
  */
-bool Confirmation::on_mouse_moved( JUI::Mouse* mouse )
+JUI::IOResult Confirmation::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Notify buttons.
 	yes_->on_mouse_moved( mouse );

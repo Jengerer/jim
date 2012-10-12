@@ -18,9 +18,9 @@ public:
 	virtual ~DraggedSlotView( void );
 
 	// JUI::Mouse* handling.
-	bool	on_mouse_clicked( JUI::Mouse* mouse );
-	bool	on_mouse_released( JUI::Mouse* mouse );
-	bool	on_mouse_moved( JUI::Mouse* mouse );
+	JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
+	JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
+	JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
 
 	// Offset functions.
 	void	set_offset( float x, float y );

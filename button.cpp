@@ -9,7 +9,7 @@
 JUI::FontInterface* Button::default_font_ = nullptr;
 
 // Button icon size.
-const unsigned int BUTTON_ICON_SIZE			= 20;
+const unsigned int BUTTON_ICON_SIZE = 20;
 
 // Button default font size.
 const JUTIL::ConstantString BUTTON_DEFAULT_FONT_FACE = "fonts/tf2build.ttf";
@@ -120,7 +120,7 @@ bool Button::is_enabled( void ) const
 /*
  * Update hover state from mouse position.
  */
-bool Button::on_mouse_moved( JUI::Mouse* mouse )
+JUI::IOResult Button::on_mouse_moved( JUI::Mouse* mouse )
 {
     bool colliding = mouse->is_touching( this );
     set_hovering( colliding );
@@ -132,7 +132,7 @@ bool Button::on_mouse_moved( JUI::Mouse* mouse )
  * If button is disabled, returns false; otherwise
  * returns true if mouse colliding.
  */
-bool Button::on_mouse_clicked( JUI::Mouse* mouse )
+JUI::IOResult Button::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	return is_enabled() && mouse->is_touching( this );
 }
@@ -140,7 +140,7 @@ bool Button::on_mouse_clicked( JUI::Mouse* mouse )
 /*
  * Same behaviour as clicked.
  */
-bool Button::on_mouse_released( JUI::Mouse* mouse )
+JUI::IOResult Button::on_mouse_released( JUI::Mouse* mouse )
 {
 	return is_enabled() && mouse->is_touching( this );
 }

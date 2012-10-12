@@ -19,7 +19,7 @@ void Draggable::draw( JUI::Graphics2D* graphics )
 	Container::draw( graphics );
 }
 
-bool Draggable::on_mouse_moved( JUI::Mouse* mouse )
+JUI::IOResult Draggable::on_mouse_moved( JUI::Mouse* mouse )
 {
 	if (is_dragging_) {
 		set_position( mouse->get_x() + offset_x_, mouse->get_y() + offset_y_ );
@@ -32,7 +32,7 @@ bool Draggable::on_mouse_moved( JUI::Mouse* mouse )
 	return false;
 }
 
-bool Draggable::on_mouse_clicked( JUI::Mouse* mouse )
+JUI::IOResult Draggable::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	if (mouse->is_touching( this )) {
 		begin_dragging( mouse );
@@ -42,7 +42,7 @@ bool Draggable::on_mouse_clicked( JUI::Mouse* mouse )
 	return false;
 }
 
-bool Draggable::on_mouse_released( JUI::Mouse* mouse )
+JUI::IOResult Draggable::on_mouse_released( JUI::Mouse* mouse )
 {
 	if (mouse->is_touching( this )) {
 		end_dragging();

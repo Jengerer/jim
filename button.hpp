@@ -31,9 +31,9 @@ public:
 	bool is_hovering( void ) const;
 
 	// Mouse handling functions.
-	virtual bool	on_mouse_moved( JUI::Mouse* mouse );
-	virtual bool	on_mouse_clicked( JUI::Mouse* mouse );
-	virtual bool	on_mouse_released( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
 
     // Resource loading.
 	static bool precache( JUI::Graphics2D* graphics );

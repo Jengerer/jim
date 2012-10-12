@@ -14,7 +14,7 @@ DynamicSlotBook::DynamicSlotBook( unsigned int width,
 /*
  * Add an item to the book.
  */
-void DynamicSlotBook::insert_item( Item* item )
+bool DynamicSlotBook::insert_item( Item* item )
 {
 	// Find empty slot.
 	unsigned int end = get_slot_count();
@@ -27,7 +27,11 @@ void DynamicSlotBook::insert_item( Item* item )
 
 	// Add to new page if couldn't fit.
 	const SlotArray* new_page = add_page();
+    if (new_page == nullptr) {
+        return false;
+    }
 	new_page->insert_item( item, 0 );
+    return true;
 }
 
 /*
