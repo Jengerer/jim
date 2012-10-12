@@ -29,10 +29,13 @@
 #define SORT_NOT_IMPLEMENTED
 
 // Application attributes.
-const char*	APPLICATION_TITLE	= "Jengerer's Item Manager Lite";
-const int	APPLICATION_WIDTH	= 795;
-const int	APPLICATION_HEIGHT	= 540;
-const char*	APPLICATION_VERSION	= "0.9.9.9.7.9";
+const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager Lite";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.7.9";
+const int APPLICATION_WIDTH	= 795;
+const int APPLICATION_HEIGHT = 540;
+
+// Updater resources.
+const JUTIL::ConstantString UPDATER_PATH = "auto_updater.exe";
 
 // UI attributes.
 const unsigned int EXIT_BUTTON_PADDING	= 10;
@@ -811,103 +814,33 @@ bool ItemManager::start_definition_load( void )
     return true;
 }
 
-void ItemManager::load_items_from_web( void )
-{
-	load_progress_->append_message("\n\nLoading items...");
-	draw_frame();
-
-	uint64 userId = steam_items_.get_steam_id();
-	stringstream urlStream;
-	urlStream << "http://api.steampowered.com/ITFItems_440/GetPlayerItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&SteamID=" << userId << "&format=json";
-	string apiUrl = urlStream.str();
-
-	// Attempt to read the file.
-	string jsonInventory;
-	try {
-		FileDownloader* downloader = FileDownloader::get_instance();
-		jsonInventory = downloader->read( apiUrl );
-	}
-	catch (std::runtime_error curl_ex) {
-		throw std::runtime_error( "Failed to read inventory from profile." );
-	}
-
-	// Parse file.
-	Json::Value root;
-	Json::Reader reader;
-	if (!reader.parse( jsonInventory, root, false )) {
-		throw new std::runtime_error( "Failed to parse inventory JSON file." );
-	}
-
-	// Get result.
-	const Json::Value& result = root["result"];
-	
-	// Check status.
-	int status = result["status"].asInt();
-	if (status != 1) {
-		throw new std::runtime_error( "Failed to get player inventory." );
-	}
-
-	// Add more slots.
-	int slots = result["num_backpack_slots"].asInt();
-	unsigned int current_slots = inventory_book_->get_slot_count();
-	if (current_slots > slots) {
-		throw std::runtime_error( "Web API reports fewer slots than in current backpack." );
-	}
-	
-	unsigned int added_slots = slots - current_slots;
-	unsigned int added_pages = added_slots / inventory_book_->get_page_size();
-	inventory_book_->add_pages( added_pages );
-	inventory_view_->update_pages();
-	update_page_display();
-
-	// Get items.
-	Json::Value items = result["item"];
-	for (Json::ValueIterator i = items.begin(); i != items.end(); ++i) {
-		const Json::Value& item = *i;
-		
-		Item* new_item = new Item(
-			item["id"].asUInt64(),
-			item["defindex"].asUInt(),
-			item["level"].asUInt(),
-			(EItemQuality)item["quality"].asUInt(),
-			item["quantity"].asUInt(),
-			item["inventory"].asUInt(),
-			0 );
-		backpack_->insert_item( new_item );
-	}
-
-	// Show success.
-	load_progress_->set_message("Items successfully loaded!");
-	draw_frame();
-
-	backpack_->set_loaded( true );
-}
-
-bool ItemManager::is_latest_version() const
+bool ItemManager::is_latest_version( void ) const
 {
 	// Check for program updates.
-	try {
-		FileDownloader* downloader = FileDownloader::get_instance();
-		string version = downloader->read( "http://www.jengerer.com/item_manager/item_manager.txt" );
-		return version == APPLICATION_VERSION;
-	}
-	catch (const std::runtime_error&) {
-		// Failed to get version, it's our fault!
+	const JUTIL::ConstantString VERSION_URL = "http://www.jengerer.com/item_manager/item_manager.txt";
+	JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
+	if (downloader != nullptr) {
+		JUTIL::DynamicString version;
+		if (downloader->read( &VERSION_URL, &version )) {
+			if (!version.is_equal( &APPLICATION_VERSION )) {
+				return false;
+			}
+		}
 	}
 
+	// If failed to get version, assume latest.
 	return true;
 }
 
-void ItemManager::launch_updater() const
+void ItemManager::launch_updater( void ) const
 {
 	// Get updater if not exists.
-	site_loader_->get_resource( "auto_updater.exe", "auto_updater.exe" );
+	site_loader_->get_resource( &UPDATER_PATH, &UPDATER_PATH );
 
 	// TODO: Make an error type enum and launch this on update error.
 	int result = (int)ShellExecute( 0, 0, "auto_updater.exe", 0, 0, SW_SHOWDEFAULT );
 	if (result <= 32) {
-		// No exception, just warn to manually update.
-		MessageBox( nullptr, "Failed to run updater, try re-downloading the application if this persists.", "Automatic Update Failed", MB_ICONEXCLAMATION | MB_OK );
+		MessageBox( nullptr, "Failed to run updater, try re-downloading the application manually.", "Automatic update error!", MB_ICONEXCLAMATION | MB_OK );
 	}
 }
 
@@ -936,12 +869,6 @@ void ItemManager::handle_callback( void ) {
 							SerializedBuffer headerBuffer(buffer);
 							GCProtobufHeader_t *headerStruct = headerBuffer.get<GCProtobufHeader_t>();
 							uint32 headerSize = headerStruct->m_cubProtobufHeader;
-
-	#ifdef _DEBUG
-							stringstream protoMsg;
-							protoMsg << "Protobuf message of type " << realId << " received.";
-							notifications_->add_notification( protoMsg.str(), nullptr );
-	#endif
 
 							// Now get the real protobuf header.
 							CMsgProtoBufHeader headerMsg;
@@ -986,7 +913,8 @@ void ItemManager::handle_message( uint32 id, void* message, size_t size )
 		{
 			GCCraftResponse_t *craftMsg = static_cast<GCCraftResponse_t*>(message);
 			if (craftMsg->blueprint == 0xffff) {
-				notifications_->add_notification( "Crafting failed. No such blueprint!", nullptr );
+				const JUTIL::ConstantString CRAFT_FAIL_MESSAGE = "Crafting failed; no such blueprint!";
+				notifications_->add_notification( &CRAFT_FAIL_MESSAGE, nullptr );
 			}
 
 			break;
