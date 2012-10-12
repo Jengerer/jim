@@ -35,13 +35,13 @@ public:
 	void	remove_popup( Popup* popup );
 	
 	// JUI::Mouse* handling for popups.
-	virtual bool	on_mouse_clicked( JUI::Mouse* mouse );
-	virtual bool	on_mouse_released( JUI::Mouse* mouse );
-	virtual bool	on_mouse_moved( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
 
 	// Keyboard handling for popups.
-	virtual bool	on_key_pressed( int key );
-	virtual bool	on_key_released( int key );
+	virtual JUI::IOResult on_key_pressed( int key );
+	virtual JUI::IOResult on_key_released( int key );
 
 private:
 

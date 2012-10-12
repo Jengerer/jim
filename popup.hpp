@@ -19,29 +19,31 @@ class Popup: public JUI::ConstrainedContainer, public JUI::MouseHandlerInterface
 public:
 
 	Popup( float x = 0.0f, float y = 0.0f );
-	virtual ~Popup();
+	virtual ~Popup( void );
 
 	// Get activity state.
-	void			set_state( EPopupState state );
-	EPopupState		get_state( void ) const;
-	bool			is_active( void ) const;
-	bool			is_hidden( void ) const;
-	bool			is_killed( void ) const;
+	void set_state( EPopupState state );
+	EPopupState get_state( void ) const;
+	bool is_active( void ) const;
+	bool is_hidden( void ) const;
+	bool is_killed( void ) const;
 
 	// JUI::Mouse* handling.
-	virtual bool	on_mouse_clicked( JUI::Mouse* mouse );
-	virtual bool	on_mouse_released( JUI::Mouse* mouse );
-	virtual bool	on_mouse_moved( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
 
 	// Keyboard handling.
-	virtual bool	on_key_pressed( int key_code );
-	virtual bool	on_key_released( int key_code );
+	virtual JUI::IOResult on_key_pressed( int key_code );
+	virtual JUI::IOResult on_key_released( int key_code );
 
 	// Position alignment.
-	void			center_to( const Container* parent );
+	void center_to( const Container* parent );
 
 private:
-	EPopupState		state_;
+
+	EPopupState state_;
+
 };
 
 #endif // POPUP_H

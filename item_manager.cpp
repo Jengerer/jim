@@ -359,24 +359,24 @@ void ItemManager::close_interfaces( void )
 	JUI::FileDownloader::shut_down();
 }
 
-void ItemManager::run( void )
+JUI::Application::ReturnStatus ItemManager::run( void )
 {
-    Application::run();
+    // Base application running and IO handling.
+    JUI::Application::ReturnStatus result = Application::run();
+    if (result != Success) {
+        return result;
+    }
 	
     // Attempt to think; print error if failed.
-    const JUTIL::ConstantString DEFAULT_ERROR = "An unknown error has occurred!";
     if (!think()) {
         // Create error message.
         JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
         const JUTIL::String* error = stack->get_top_error();
-        if (error == nullptr) {
-            error = &DEFAULT_ERROR;
-        }
         error_ = popups_->create_alert( error );
-        
-        // Fallback if couldn't display error.
+
+        // Check if failed to display error.
         if (error_ == nullptr) {
-            MessageBox( nullptr, "An error has occurred!", error->get_string(), MB_ICONERROR | MB_OK );
+            return NoMemoryFailure;
         }
         set_think( &ItemManager::exiting );
     }
@@ -460,92 +460,98 @@ bool ItemManager::exiting( void )
     return true;
 }
 
-bool ItemManager::on_mouse_clicked( JUI::Mouse* mouse )
+JUI::IOResult ItemManager::on_mouse_clicked( JUI::Mouse* mouse )
 {
-	// JUI::Mouse* clicked.
-	if (popups_->on_mouse_clicked( mouse )) {
-		return true;
-	}
-	else {
-		if (dragged_view_ != nullptr) {
-			return true;
-		}
+	// Popups take priority.
+	JUI::IOResult result = popups_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
 
-		// Find slot view if touched.
-		SlotView* slot_view = nullptr;
-		if (mouse->is_touching( inventory_view_ )) {
-			slot_view = inventory_view_->get_touching_slot( mouse );
-		}
-		else if (mouse->is_touching( excluded_view_ )) {
-			slot_view = excluded_view_->get_touching_slot( mouse );
-		}
-
-		if (slot_view != nullptr) {
-			on_slot_clicked( slot_view, mouse );
-			return true;
-		}
-		else {
-			// TODO: Set a 'clicked target' pointer so we can't just release on button and trigger.
-			if (mouse->is_touching( craft_button_ ) ||
-				mouse->is_touching( equip_button_ ) ||
-				mouse->is_touching( sort_button_ ) ||
-				mouse->is_touching( next_button_ ) ||
-				mouse->is_touching( prev_button_ )) {
-					return true;
-			}
-			else if (notifications_->on_mouse_clicked( mouse )) {
-				return true;
-			}
-		}
-
-		// Deselect all, nothing clicked.
-		if (steam_items_.get_select_mode() != SELECT_MODE_MULTIPLE) {
-			steam_items_.deselect_all();
-			update_buttons();
-		}
+    // No clicking allowed when dragging.
+	if (dragged_view_ != nullptr) {
+		return JUI::IO_RESULT_HANDLED;
 	}
 
-	return false;
+	// Find slot view if touched.
+	SlotView* slot_view = nullptr;
+	if (mouse->is_touching( inventory_view_ )) {
+		slot_view = inventory_view_->get_touching_slot( mouse );
+	}
+	else if (mouse->is_touching( excluded_view_ )) {
+		slot_view = excluded_view_->get_touching_slot( mouse );
+	}
+	if (slot_view != nullptr) {
+        // Handle slot clicking if slot found.
+		if (!on_slot_clicked( slot_view, mouse )) {
+            return JUI::IO_RESULT_ERROR;
+        }
+		return JUI::IO_RESULT_HANDLED;
+	}
+
+    // Touch buttons.
+    // TODO: Make a vector of these buttons; this shit is unwieldy.
+	// TODO: Set a 'clicked target' pointer so we can't just release on button and trigger.
+    result = craft_button_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+    result = equip_button_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+    result = sort_button_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+    result = next_button_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+    result = prev_button_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+    result = craft_button_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+
+    // Handle notification killing.
+	result = notifications_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+		return result;
+	}
+
+	// Nothing clicked; deselect items if not multi-selecting.
+	if (steam_items_.get_select_mode() != SELECT_MODE_MULTIPLE) {
+		steam_items_.deselect_all();
+		update_buttons();
+	}
+	return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool ItemManager::on_mouse_released( JUI::Mouse* mouse )
+JUI::IOResult ItemManager::on_mouse_released( JUI::Mouse* mouse )
 {
 	// Check top popup.
-	if (popups_->on_mouse_released( mouse )) {
-		return true;
-	}
-	else {
-		// Release slot if dragging.
-		if (dragged_view_ != nullptr) {
-			SlotView* slot_view = inventory_view_->get_touching_slot( mouse );
-			on_slot_released( slot_view );
-		}
-		else {
-			// Handle buttons.
-			if (craft_button_->on_mouse_released( mouse )) {
-				if (steam_items_.is_selected_tradable()) {
-					steam_items_.craft_selected();
-				}
-				else {
-                    const JUTIL::ConstantString TRADABLE_WARNING = "One or more of the items you've selected are not tradable. The result will not be tradable. Continue?";
-					craft_check_ = popups_->create_confirmation( &TRADABLE_WARNING );
-				}
-			}
-			else if (next_button_->on_mouse_released( mouse )) {
-				inventory_view_->next_page();
-				update_page_display();
-			}
-			else if (prev_button_->on_mouse_released( mouse )) {
-				inventory_view_->previous_page();
-				update_page_display();
-			}
-		}
+    JUI::IOResult result = popups_->on_mouse_released( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+
+	// Release slot if dragging.
+	if (dragged_view_ != nullptr) {
+		SlotView* slot_view = inventory_view_->get_touching_slot( mouse );
+		if (!on_slot_released( slot_view )) {
+            return JUI::IO_RESULT_ERROR;
+        }
+        return JUI::IO_RESULT_HANDLED;
 	}
 
-	return false;
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool ItemManager::on_mouse_moved( JUI::Mouse* mouse )
+JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Update buttons.
 	// TODO: Have a button frame mouse hover state.
@@ -554,107 +560,122 @@ bool ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 	}
 
 	// Pass to highest popup.
-	if (popups_->on_mouse_moved( mouse )) {
-		return true;
+	JUI::IOResult result = popups_->on_mouse_moved( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
 	}
-	else {
-		// Check if dragging.
-		if (dragged_view_ != nullptr) {
-			dragged_view_->on_mouse_moved( mouse );
-			clamp_child( dragged_view_ );
+	
+	// Check if dragging.
+	if (dragged_view_ != nullptr) {
+		result = dragged_view_->on_mouse_moved( mouse );
+        if (result == JUI::IO_RESULT_ERROR) {
+            return result;
+        }
+		clamp_child( dragged_view_ );
 
-			// Check if we're switching page.
-			DWORD currentTick = GetTickCount();
-			if (currentTick > page_delay_) {
-				if (dragged_view_->get_x() <= 0.0f) {
-					if (inventory_view_->previous_page()) {
-						page_delay_ = currentTick + PAGE_DELAY_INTERVAL;
-					}
-
-					update_page_display();
-				}
-				else if (dragged_view_->get_x() + dragged_view_->get_width() >= get_width()) {
-					if (inventory_view_->next_page()) {
-						page_delay_ = currentTick + PAGE_DELAY_INTERVAL;
-					}
-
-					update_page_display();
-				}
-			}	
-		}
-		else {
-			// Check if we've hovering over an slot view.
-			SlotView* slotView = nullptr;
-			if (mouse->is_touching( inventory_view_ )) {
-				slotView = inventory_view_->get_touching_slot( mouse );
-			}
-			else if (mouse->is_touching( excluded_view_ )) {
-				slotView = excluded_view_->get_touching_slot( mouse );
-			}
-			else {
-				return false;
-			}
-			
-			// Did we get one?
-			if (slotView != nullptr) {
-				Slot* slot = slotView->get_slot();
-				// Only display for full slots.
-				if (slot->has_item()) {
-					item_display_->set_item( slot->get_item() );
-					float displayX = slotView->get_x() + (slotView->get_width() - item_display_->get_width()) / 2.0f;
-					float displayY = slotView->get_y() + slotView->get_height() + ITEM_DISPLAY_SPACING;
-					if (displayY + item_display_->get_height() > get_height()) {
-						displayY = slotView->get_y() - item_display_->get_height() - ITEM_DISPLAY_SPACING;
-					}
-
-					item_display_->set_position(
-						static_cast<float>(displayX),
-						static_cast<float>(displayY) );
-					clamp_child( item_display_, static_cast<float>(PADDING) );
+		// Check if we're switching page.
+		DWORD current_tick = GetTickCount();
+		if (current_tick > page_delay_) {
+            // Check left page.
+			if (dragged_view_->get_x() <= 0.0f) {
+                // Update delay if we moved.
+				if (inventory_view_->previous_page()) {
+					page_delay_ = current_tick + PAGE_DELAY_INTERVAL;
+                    update_page_display();
 				}
 			}
-		}
+			else if (dragged_view_->get_x() + dragged_view_->get_width() >= get_width()) {
+                // Update delay if we moved.
+				if (inventory_view_->next_page()) {
+					page_delay_ = current_tick + PAGE_DELAY_INTERVAL;
+                    update_page_display();
+				}
+			}
+		}	
 
-		return true;
+        // Can't handle anything else while dragging.
+        return JUI::IO_RESULT_HANDLED;
 	}
 
-	return false;
+	// Check if we've hovering over an slot view.
+    SlotView* slot_view = nullptr;
+	if (mouse->is_touching( inventory_view_ )) {
+		slot_view = inventory_view_->get_touching_slot( mouse );
+	}
+	else if (mouse->is_touching( excluded_view_ )) {
+		slot_view = excluded_view_->get_touching_slot( mouse );
+	}
+	if (slot_view != nullptr) {
+		Slot* slot = slot_view->get_slot();
+
+		// Only display for full slots.
+		if (slot->has_item()) {
+			if (!item_display_->set_item( slot->get_item() )) {
+                return JUI::IO_RESULT_ERROR;
+            }
+
+			float display_x = slot_view->get_x() + (slot_view->get_width() - item_display_->get_width()) / 2.0f;
+			float display_y = slot_view->get_y() + slot_view->get_height() + ITEM_DISPLAY_SPACING;
+
+            // Move above slot if intruding below.
+			if (display_y + item_display_->get_height() > get_height()) {
+				display_y = slot_view->get_y() - item_display_->get_height() - ITEM_DISPLAY_SPACING;
+			}
+
+            // Position and clamp.
+			item_display_->set_position(
+				static_cast<float>(display_x),
+				static_cast<float>(display_x) );
+			clamp_child( item_display_, static_cast<float>(PADDING) );
+		}
+
+        return JUI::IO_RESULT_HANDLED;
+	}
+
+	// Nothing left.
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-void ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
+bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 {
 	Slot* slot = slot_view->get_slot();
 	if (slot->has_item()) {
 		switch (steam_items_.get_select_mode()) {
 		case SELECT_MODE_SINGLE:
-			{
-				// Don't allow movement into full slots if excluded.
-				Item* item = slot->get_item();
-				if (backpack_->is_excluded( item )) {
-					inventory_view_->disable_full();
-				}
-				else {
-					// Just disable self.
-					slot_view->set_enabled( false );
-				}
-
-				// Excluded are never allowed as targets.
-				excluded_view_->set_enabled( false );
-				
-				assert( dragged_view_ == nullptr );
-				steam_items_.deselect_all();
-
-				// Start dragging.
-				float view_x = slot_view->get_x();
-				float view_y = slot_view->get_y();
-				dragged_view_ = new DraggedSlotView( slot );
-				dragged_view_->set_position( view_x, view_y );
-				dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
-				dragged_view_->set_alpha( 200 );
-				steam_items_.select( dragged_view_ );
-				add( dragged_view_ );
-				break;
+		{
+			// Don't allow movement into full slots if excluded.
+			Item* item = slot->get_item();
+			if (backpack_->is_excluded( item )) {
+				inventory_view_->disable_full();
 			}
+			else {
+				// Just disable self.
+				slot_view->set_enabled( false );
+			}
+
+			// Excluded are never allowed as targets.
+			excluded_view_->set_enabled( false );
+				
+			assert( dragged_view_ == nullptr );
+			steam_items_.deselect_all();
+
+			// Start dragging.
+			float view_x = slot_view->get_x();
+			float view_y = slot_view->get_y();
+            if (!JUTIL::BaseAllocator::allocate( &dragged_view_ )) {
+                return false;
+            }
+			dragged_view_ = new (dragged_view_) DraggedSlotView( slot );
+			dragged_view_->set_position( view_x, view_y );
+			dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
+			dragged_view_->set_alpha( 200 );
+			steam_items_.select( dragged_view_ );
+			if (!add( dragged_view_ )) {
+                JUTIL::BaseAllocator::destroy( &dragged_view_ );
+                return false;
+            }
+			break;
+		}
 
 		case SELECT_MODE_MULTIPLE:
 			steam_items_.toggle_select( slot_view );
@@ -666,9 +687,10 @@ void ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 	}
 
 	update_buttons();
+    return true;
 }
 
-void ItemManager::on_slot_released( SlotView* slot_view )
+bool ItemManager::on_slot_released( SlotView* slot_view )
 {
 	// Remove item from backpack temporarily.
 	Slot* dragged_slot = dragged_view_->get_slot();
@@ -724,51 +746,134 @@ void ItemManager::update_buttons()
 /*
  * Handle keyboard pressed input.
  */
-bool ItemManager::on_key_pressed( int key )
+JUI::IOResult ItemManager::on_key_pressed( int key )
 {
 	// Now handle ourselves.
+    JUI::IOResult result = JUI::IO_RESULT_HANDLED;
 	switch (key) {
+    // Quit application on escape.
 	case VK_ESCAPE:
 		exit_application();
-		break;
+        break;
 
+    // Pass enter to popups.
 	case VK_RETURN:
-		popups_->on_key_pressed( key );
+		result = popups_->on_key_pressed( key );
 		break;
 
+    // Toggle select mode with control.
 	case VK_CONTROL:
 		steam_items_.set_select_mode( SELECT_MODE_MULTIPLE );
 		break;
 
+    // Switch to left page.
 	case VK_LEFT:
-		inventory_view_->previous_page();
-		update_page_display();
+		if (inventory_view_->previous_page()) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
 		break;
 
+    // Switch to right page.
 	case VK_RIGHT:
-		inventory_view_->next_page();
-		update_page_display();
+		if (inventory_view_->next_page()) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
 		break;
+
+    // Key event not handled.
+    default:
+        result = JUI::IO_RESULT_UNHANDLED;
+        break;
 	}
 
-	return true;
+	return result;
 }
 
 /*
  * Handle keyboard release input.
  */
-bool ItemManager::on_key_released( int key )
+JUI::IOResult ItemManager::on_key_released( int key )
 {
-	// Now handle ourselves.
+    JUI::IOResult result = JUI::IO_RESULT_HANDLED;
 	switch (key) {
+    // Toggle select mode with control release.
 	case VK_CONTROL:
 		steam_items_.set_select_mode( SELECT_MODE_SINGLE );
 		break;
+
+    // Key event not handled.
+    default:
+        result = JUI::IO_RESULT_UNHANDLED;
+        break;
 	}
 
-	return true;
+	return result;
 }
 
+/*
+ * Handle mouse buttons.
+ */
+JUI::IOResult ItemManager::handle_button_released( JUI::Mouse* mouse )
+{
+    // Handle craft button.
+    JUI::IOResult result = craft_button_->on_mouse_released( mouse );
+    if (result == JUI::IO_RESULT_HANDLED) {
+        // Craft if tradable.
+		if (steam_items_.is_selected_tradable()) {
+			steam_items_.craft_selected();
+		}
+		else {
+            // Show warning if not tradable.
+            const JUTIL::ConstantString TRADABLE_WARNING = "One or more of the items you've selected are not tradable. The result will not be tradable. Continue?";
+			craft_check_ = popups_->create_confirmation( &TRADABLE_WARNING );
+            if (craft_check_ != nullptr) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+		}
+	}
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+
+    // Handle next button.
+	result = next_button_->on_mouse_released( mouse );
+    if (result == JUI::IO_RESULT_HANDLED) {
+		if (inventory_view_->next_page()) {
+            // Try update page display.
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
+	}
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+
+    // Handle previous button.
+	result = prev_button_->on_mouse_released( mouse );
+    if (result == JUI::IO_RESULT_HANDLED) {
+	    if (inventory_view_->previous_page()) {
+            // Try update page display.
+            if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+			}
+		}
+	}
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+
+    // Nothing handled yet.
+    return JUI::IO_RESULT_UNHANDLED;
+}
+
+/*
+ * Update item display frame state.
+ */
 void ItemManager::update_item_display( void )
 {
 	item_display_->update_alpha();
@@ -844,108 +949,122 @@ void ItemManager::launch_updater( void ) const
 	}
 }
 
-void ItemManager::handle_callback( void ) {
+/*
+ * Handle a Steam callback waiting.
+ * Returns true on successful handle, false otherwise.
+ */
+bool ItemManager::handle_callback( void )
+{
 	CallbackMsg_t callback;
-	if ( steam_items_.get_callback( &callback ) ) {
+	if (steam_items_.get_callback( &callback )) {
+        // Check callback type.
 		switch (callback.m_iCallback) {
-		case GCMessageAvailable_t::k_iCallback:
-			{
-				GCMessageAvailable_t *message = (GCMessageAvailable_t *)callback.m_pubParam;
-				
-				uint32 size;
-				if ( steam_items_.has_message( &size ) )
-				{
-					uint32 id, realSize = 0;
-					BYTE* buffer = new BYTE[size];
+		    case GCMessageAvailable_t::k_iCallback:
+		    {
+		        GCMessageAvailable_t *message = reinterpret_cast<GCMessageAvailable_t*>(callback.m_pubParam);
 
-					try {
-						steam_items_.get_message( &id, buffer, size, &realSize );
+                // Get size of message waiting.
+		        uint32 size;
+		        if (steam_items_.has_message( &size )) {
+			        uint32 id;
+                    uint32 real_size;
+                    JUTIL::ArrayBuilder<BYTE> buffer;
+                    if (!buffer.set_size( size )) {
+                        return false;
+                    }
 
-						// Filter protobuf messages.
-						if ((id & 0x80000000) != 0) {
-							uint32 realId = id & 0x0FFFFFFF;
+                    if (!steam_items_.get_message( &id, buffer.get_array(), size, &real_size )) {
+				        // Filter protobuf messages.
+				        if ((id & 0x80000000) != 0) {
+					        uint32 real_id = id & 0x0FFFFFFF;
 
-							// First get the protobuf struct header.
-							SerializedBuffer headerBuffer(buffer);
-							GCProtobufHeader_t *headerStruct = headerBuffer.get<GCProtobufHeader_t>();
-							uint32 headerSize = headerStruct->m_cubProtobufHeader;
+					        // First get the protobuf struct header.
+					        SerializedBuffer header_buffer( buffer.get_array() );
+					        GCProtobufHeader_t* header_struct = header_buffer.get<GCProtobufHeader_t>();
+					        uint32 header_size = header_struct->m_cubProtobufHeader;
 
-							// Now get the real protobuf header.
-							CMsgProtoBufHeader headerMsg;
-							void *headerBytes = headerBuffer.here();
-							headerMsg.ParseFromArray( headerBytes, headerSize );
-							headerBuffer.push( headerSize );
+					        // Now get the real protobuf header.
+					        CMsgProtoBufHeader header_msg;
+					        void* header_bytes = header_buffer.here();
+					        if (!header_msg.ParseFromArray( header_bytes, header_size )) {
+                                return false;
+                            }
+					        header_buffer.push( header_size );
 
-							// Check if we can set target ID.
-							// TODO: Maybe move all this horseshit into Steam.
-							if ( headerMsg.has_job_id_source() ) {
-								steam_items_.set_target_id( headerMsg.job_id_source() );
-							}
+					        // Check if we can set target ID.
+					        // TODO: Maybe move all this horseshit into Steam.
+					        if (header_msg.has_job_id_source()) {
+						        steam_items_.set_target_id( header_msg.job_id_source() );
+					        }
 
-							uint32 bodySize = size - sizeof( GCProtobufHeader_t ) - headerSize;
-							handle_protobuf( realId, headerBuffer.here(), bodySize );
-						}
-						else {
-							handle_message( id, buffer, size );
-						}
-					}
-					catch (const std::bad_alloc& alloc_ex) {
-						throw alloc_ex;
-					}
-					catch (const std::runtime_error& ex) {
-						delete buffer;
-						throw ex;
-					}
+                            // Pass message to protobuf handler.
+					        uint32 body_size = size - sizeof(GCProtobufHeader_t) - header_size;
+					        if (!handle_protobuf( real_id, header_buffer.here(), body_size )) {
+                                return false;
+                            }
+				        }
+				        else {
+					        if (!handle_message( id, buffer.get_array(), size )) {
+                                return false;
+                            }
+				        }
+			        }
+		        }
+	        }
+	    }
+    }
 
-					delete buffer;
-				}
-			}
-		}
-
-		steam_items_.release_callback();
-	} 
+	steam_items_.release_callback();
+    return true;
 }
 
-void ItemManager::handle_message( uint32 id, void* message, size_t size )
+/*
+ * Handle non-protobuf game coordinator message.
+ */
+bool ItemManager::handle_message( uint32 id, void* message, size_t size )
 {
+    // Get stack for reporting.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+    // Handle by message ID.
 	switch (id) {
 		case GCCraftResponse_t::k_iMessage:
 		{
-			GCCraftResponse_t *craftMsg = static_cast<GCCraftResponse_t*>(message);
-			if (craftMsg->blueprint == 0xffff) {
-				const JUTIL::ConstantString CRAFT_FAIL_MESSAGE = "Crafting failed; no such blueprint!";
-				notifications_->add_notification( &CRAFT_FAIL_MESSAGE, nullptr );
+            // Get response and display to user.
+			GCCraftResponse_t* response = reinterpret_cast<GCCraftResponse_t*>(message);
+			if (response->blueprint == 0xffff) {
+				const JUTIL::ConstantString CRAFT_FAIL_MESSAGE = "Crafting failed: no such blueprint!";
+				if (!notifications_->add_notification( &CRAFT_FAIL_MESSAGE, nullptr )) {
+                    stack->log( "Failed to allocate craft response notification." );
+                    return false;
+                }
 			}
 
 			break;
 		}
 	}
+
+    // No issues.
+    return true;
 }
 
-void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
+/*
+ * Handle protobuf message.
+ */
+bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 {
+    // Get error stack for logging.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
-#ifdef _DEBUG
-	ofstream log;
-	log.open( "message_log.txt", ios::app );
-	log << "Got message of type " << id << ".\n";
-	log.close();
-#endif
-
+    // Handle message from ID.
 	switch (id) {
 	case k_ESOMsg_CacheSubscribed:
 		{
 			// Get message.
 			CMsgSOCacheSubscribed cache_msg;
-			cache_msg.ParseFromArray( message, size );
-
-#ifdef _DEBUG
-			ofstream buf;
-			buf.open( "buf.txt", ios::binary );
-			buf.write( (const char*)message, size );
-			buf.close();
-#endif
-
+			if (!cache_msg.ParseFromArray( message, size )) {
+                return false;
+            }
 			steam_items_.set_version( cache_msg.version() );
 
 			// Check that this is our backpack.
@@ -964,51 +1083,28 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 					{
 						// Ensure we own this item.
 						for (int i = 0; i < subscribed_type.object_data_size(); i++) {
-							CSOEconItem econ_item;
-							econ_item.ParseFromArray( subscribed_type.object_data( i ).data(), 
-								subscribed_type.object_data( i ).size() );
-							Item *item = new Item(
-								econ_item.id(),
-								econ_item.def_index(),
-								econ_item.level(),
-								(EItemQuality)econ_item.quality(),
-								econ_item.quantity(),
-								econ_item.inventory(),
-								econ_item.origin() );
+                            // Get data.
+                            const char* data = subscribed_type.object_data( i ).data();
+                            size_t size = subscribed_type.object_data( i ).size();
+                            CSOEconItem econ_item;
+							if (!econ_item.ParseFromArray( data, size )) {
+                                stack->log( "Failed to parse item object from Steam message." );
+                                return false;
+                            }
 
-							// Add the item's attributes.
-							for (int j = 0; j < econ_item.attribute_size(); ++j) {
-								const CSOEconItemAttribute& attribute = econ_item.attribute( j );
-								uint32 attrib_index = attribute.def_index();
-									
-								// Get attribute information.
-								auto k = Item::attributes.find( attrib_index );
-								if (k != Item::attributes.end()) {
-									const AttributeInformation* info = k->second;
-										
-									// Set value based on type.
-									uint32 int_value = attribute.value();
-									void* value = (void*)&int_value;
-									Attribute* new_attribute;
-									if (info->is_integer()) {
-										new_attribute = new Attribute( info, *(uint32*)value );
-									}
-									else {
-										new_attribute = new Attribute( info, *(float*)value );
-									}
+                            // Get item from protobuf.
+                            Item* item = create_item_from_message( &econ_item );
+                            if (item == nullptr) {
+                                stack->log( "Failed to create item from Steam object." );
+                                return false;
+                            }
 
-									item->add_attribute( new_attribute );
-								}
-							}
-
-							// Set custom name.
-							if (econ_item.has_custom_name()) {
-								item->set_custom_name( econ_item.custom_name() );
-							}
-
-							// Finalize state.
-							item->update_attributes();
-							backpack_->insert_item( item );
+                            // Add to backpack.
+							if (!backpack_->insert_item( item )) {
+                                JUTIL::BaseAllocator::destroy( item );
+                                stack->log( "Failed to add item to inventory." );
+                                return false;
+                            }
 						}
 
 						break;
@@ -1018,8 +1114,12 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 						if (steam_items_.get_steam_id() == cache_msg.owner()) {
 							for (int i = 0; i < subscribed_type.object_data_size(); i++) {
 								CSOEconGameAccountClient client;
-								client.ParseFromArray( subscribed_type.object_data( i ).data(), 
-									subscribed_type.object_data( i ).size() );
+                                const char* data = subscribed_type.object_data( i ).data();
+                                size_t size = subscribed_type.object_data( i ).size();
+								if (!client.ParseFromArray( data, size )) {
+                                    stack->log( "Failed to parse account client object from Steam message." );
+                                    return false;
+                                }
 
 								// Check how many slots this backpack is supposed to have.
 								unsigned int slots = client.additional_backpack_slots();
@@ -1032,7 +1132,8 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 
 								// Check that we don't reduce slot count.
 								if (slots < inventory_book_->get_slot_count()) {
-									throw std::runtime_error( "New backpack size smaller than old." );
+                                    stack->log( "New backpack size smaller than old." );
+                                    return false;
 								}
 
 								// Add the newer slots.
@@ -1053,7 +1154,11 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 			backpack_->set_loaded( true );
 
 			// Create layout if this is the first cache.
-			notifications_->add_notification( "Backpack successfully loaded from Steam.", nullptr );
+            const JUTIL::ConstantString LOAD_MESSAGE = "Backpack successfully loaded from Steam.";
+			if (!notifications_->add_notification( &LOAD_MESSAGE, nullptr )) {
+                stack->log( "Failed to add backpack load notification." );
+                return false;
+            }
 
 			break;
 		}
@@ -1061,7 +1166,10 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 	case 27:
 		{
 			CMsgSOCacheSubscriptionCheck check;
-			check.ParseFromArray( message, size );
+			if (!check.ParseFromArray( message, size )) {
+                stack->log( "Failed to parse inventory subscription check." );
+                return false;
+            }
 
 			// Compare version.
 			uint64 version = check.version();
@@ -1071,8 +1179,13 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 				// Send refresh.
 				CMsgSOCacheSubscriptionRefresh refresh;
 				refresh.set_owner( steam_items_.get_steam_id() );
-				string refreshString = refresh.SerializeAsString();
-				steam_items_.send_message( 28 | 0x80000000, (void*)refreshString.c_str(), refreshString.size() );
+
+                // TODO: How do we serialize without string?
+				std::string refreshString = refresh.SerializeAsString();
+				if (!steam_items_.send_message( 28 | 0x80000000, (void*)refreshString.c_str(), refreshString.size() )) {
+                    stack->log( "Failed to send inventory subscription refresh to Steam." );
+                    return false;
+                }
 			}
 			break;
 		}
@@ -1080,12 +1193,18 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 	case k_ESOMsg_Update:
 		{
 			CMsgSOSingleObject update_msg;
-			update_msg.ParseFromArray( message, size );
+			if (!update_msg.ParseFromArray( message, size )) {
+                stack->log( "Failed to parse item update message from Steam." );
+                return false;
+            }
 			steam_items_.set_version( update_msg.version() );
 
 			if (update_msg.type_id() == 1) {
 				CSOEconItem updated_item;
-				updated_item.ParseFromArray( update_msg.object_data().data(), update_msg.object_data().size() );
+				if (!updated_item.ParseFromArray( update_msg.object_data().data(), update_msg.object_data().size() )) {
+                    stack->log( "Failed to parse item update message from Steam." );
+                    return false;
+                }
 
 				// Find updated item.
 				Item* target = backpack_->find_item( updated_item.id() );
@@ -1096,7 +1215,10 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 				// Place item into excluded, to be resolved later.
 				backpack_->remove_item( target );
 				target->set_flags( updated_item.inventory() );
-				backpack_->insert_item( target );
+				if (!backpack_->insert_item( target )) {
+                    stack->log( "Failed to update item position in backpack." );
+                    return false;
+                }
 			}
 
 			break;
@@ -1105,14 +1227,20 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 	case k_ESOMsg_UpdateMultiple:
 		{
 			CMsgSOMultipleObjects update_msg;
-			update_msg.ParseFromArray( message, size );
+			if (!update_msg.ParseFromArray( message, size )) {
+                stack->log( "Failed to parse multiple item update message from Steam." );
+                return false;
+            }
 			steam_items_.set_version( update_msg.version() );
 
 			for (int i = 0; i < update_msg.objects_size(); i++) {
 				CMsgSOMultipleObjects::SingleObject current_object = update_msg.objects( i );
 				if (current_object.type_id() == 1) {
 					CSOEconItem updated_item;
-					updated_item.ParseFromArray( current_object.object_data().data(), current_object.object_data().size() );
+					if (!updated_item.ParseFromArray( current_object.object_data().data(), current_object.object_data().size() )) {
+                        stack->log( "Failed to parse multiple item message from Steam." );
+                        return false;
+                    }
 
 					// Attempt to find the item.
 					Item* target = backpack_->find_item( updated_item.id() );
@@ -1120,7 +1248,10 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 						// TODO: bump old into excluded.
 						backpack_->remove_item( target );
 						target->set_flags( updated_item.inventory() );
-						backpack_->insert_item( target );
+						if (!backpack_->insert_item( target )) {
+                            stack->log( "Failed to update multiple items from Steam message." );
+                            return false;
+                        }
 					}
 				}
 			}
@@ -1138,37 +1269,54 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 		{
 			// Get object created.
 			CMsgSOSingleObject create_msg;
-			create_msg.ParseFromArray( message, size );
+			if (!create_msg.ParseFromArray( message, size )) {
+                stack->log( "Failed to parse item creation message from Steam." );
+                return false;
+            }
 			steam_items_.set_version( create_msg.version() );
 
 			// Get item from object.
 			CSOEconItem created_item;
-			created_item.ParseFromArray( create_msg.object_data().data(), create_msg.object_data().size() );
+			if (!created_item.ParseFromArray( create_msg.object_data().data(), create_msg.object_data().size() )) {
+                stack->log( "Failed to parse created item from Steam message." );
+                return false;
+            }
 
 			// Now add item.
-			Item* new_item = new Item(
-				created_item.id(),
-				created_item.def_index(),
-				created_item.level(),
-				(EItemQuality)created_item.quality(),
-				created_item.quantity(),
-				created_item.inventory(),
-				created_item.origin() );
+            Item* item = create_item_from_message( &created_item );
+            if (item == nullptr) {
+                stack->log( "Failed to create new item from Steam message." );
+                return false;
+            }
 
 			// Add this item to excluded.
-			backpack_->insert_item( new_item );
+			if (!backpack_->insert_item( item )) {
+                JUTIL::BaseAllocator::destroy( item );
+                stack->log( "Failed to insert new item into backpack." );
+                return false;
+            }
 			
 			// Get the source.
-			string source;
+            const JUTIL::ConstantString CRAFTED_SOURCE = "crafted";
+            const JUTIL::ConstantString FOUND_SOURCE = "found";
+			const JUTIL::String* source;
 			if (created_item.origin() == 4) {
-				source = "crafted";
+				source = &CRAFTED_SOURCE;
 			}
 			else {
-				source = "found";
+				source = &FOUND_SOURCE;
 			}
 
 			// Display message.
-			notifications_->add_notification( "You have " + source + " a " + new_item->get_name() + ".", new_item->get_texture() );
+            JUTIL::DynamicString message;
+            if (!message.write( "You have %s a %s.", source->get_string(), item->get_name()->get_string() )) {
+                stack->log( "Failed to create new item message." );
+                return false;
+            }
+			if (!notifications_->add_notification( &message, item->get_texture() )) {
+                stack->log( "Failed to add new item message to notifications." );
+                return false;
+            }
 
 			break;
 		}
@@ -1177,12 +1325,18 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 		{
 			// Get deleted message.
 			CMsgSOSingleObject delete_msg;
-			delete_msg.ParseFromArray( message, size );
+			if (!delete_msg.ParseFromArray( message, size )) {
+                stack->log( "Failed to parse item deletion message from Steam." );
+                return false;
+            }
 			steam_items_.set_version( delete_msg.version() );
 
 			// Get ID of deleted item.
 			CSOEconItem deleted_item;
-			deleted_item.ParseFromArray( delete_msg.object_data().data(), delete_msg.object_data().size() );
+			if (!deleted_item.ParseFromArray( delete_msg.object_data().data(), delete_msg.object_data().size() )) {
+                stack->log( "Failed to parse deleted item object from Steam." );
+                return false;
+            }
 
 			// Now remove from inventory.
 			Item* target = backpack_->find_item( deleted_item.id() );
@@ -1194,13 +1348,13 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 					Slot* dragged_slot = dragged_view_->get_slot();
 					if (dragged_slot->get_item() == target) {
 						// TODO: Dragged dies many ways; make a function?
+                        steam_items_.deselect_all();
 						remove( dragged_view_ );
-						delete dragged_view_;
+                        JUTIL::BaseAllocator::destroy( dragged_view_ );
 						dragged_view_ = nullptr;
 					}
 				}
-
-				delete target;
+                JUTIL::BaseAllocator::destroy( target );
 			}
 
 			break;
@@ -1209,40 +1363,62 @@ void ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 	default:
 		break;
 	}
+
+    return true;
 }
 
-void ItemManager::on_popup_clicked( Popup* popup )
+/*
+ * Handle popup mouse press event.
+ * Return true on successful handle, false otherwise.
+ */
+bool ItemManager::on_popup_clicked( Popup* popup )
 {
-	// Nothing.
+	return true;
 }
 
-void ItemManager::on_popup_released( Popup* popup )
+/*
+ * Handle popup mouse release event.
+ * Return true on successful handle, false otherwise.
+ */
+bool ItemManager::on_popup_released( Popup* popup )
 {
 	// Exited popup handling.
 	if (popup->is_killed()) {
-		if (popup == error_) {
+        if (popup == error_) {
 			// Update if that's the reason we're exiting.
 			if (update_error_) {
 				launch_updater();
 			}
 
 			exit_application();
-		}
-		else if (popup == craft_check_) {
+        }
+        // Craft confirmation dialog handling.
+        else if (popup == craft_check_) {
 			if (craft_check_->get_response() == RESPONSE_YES) {
-				steam_items_.craft_selected();
+				if (!steam_items_.craft_selected()) {
+                    return false;
+                }
+
 				update_buttons();
 			}
 		}
 	}		
 }
 
-void ItemManager::on_popup_key_pressed( Popup* popup )
+/*
+ * Handle popup keyboard press event.
+ * Return true on successful handle, false otherwise.
+ */
+bool ItemManager::on_popup_key_pressed( Popup* popup )
 {
-	// Nothing.
+	return true;
 }
 
-void ItemManager::on_popup_key_released( Popup* popup )
+/*
+ * Handle popup keyboard release event.
+ * Return true on successful handle, false otherwise.
+ */
+bool ItemManager::on_popup_key_released( Popup* popup )
 {
 	// Exit application if error is killed.
 	if (popup == error_) {
@@ -1257,6 +1433,9 @@ void ItemManager::on_popup_key_released( Popup* popup )
 	}
 }
 
+/*
+ * Create layout for item manager.
+ */
 bool ItemManager::create_layout( void )
 {
 	// Create the user layer.
@@ -1297,15 +1476,39 @@ bool ItemManager::create_layout( void )
 		SLOT_SPACING );
 
 	// Create button layout.
-	JUI::Texture *craft_texture = graphics_->get_texture( "img/manager/gear.png" );
-	JUI::Texture *equip_texture = graphics_->get_texture( "img/manager/equip.png" );
-	JUI::Texture *sort_texture = graphics_->get_texture( "img/manager/sort.png" );
-	//Texture *delete_texture = graphics_->get_texture( "manager/delete" );
+	JUI::FileTexture* craft_texture;
+    JUI::FileTexture* equip_texture;
+    JUI::FileTexture* sort_texture;
+    // JUI::FileTexture* delete_texture;
+    bool success = graphics_.get_texture( &CRAFT_ICON_TEXTURE, &craft_texture ) &&
+        graphics_.get_texture( &EQUIP_ICON_TEXTURE, &equip_texture ) &&
+        graphics_.get_texture( &SORT_ICON_TEXTURE, &sort_texture );
+    if (success) {
+        return false;
+    }
+
+    // Create inventory button layout.
+	JUI::HorizontalLayout* inventory_buttons;
+    if (!JUTIL::BaseAllocator::allocate( &inventory_buttons )) {
+        return false;
+    }
+    inventory_buttons = new (inventory_buttons) JUI::HorizontalLayout( BUTTON_SPACING );
 
 	// Create inventory buttons.
-	craft_button_ = Button::create_icon_label_button( craft_texture, "craft" );
-	equip_button_ = Button::create_icon_label_button( equip_texture, "equip" );
-	sort_button_ = Button::create_icon_label_button( sort_texture, "sort" );
+    const JUTIL::ConstantString CRAFT_BUTTON_LABEL = "craft";
+	craft_button_ = Button::create_icon_label_button( craft_texture, &CRAFT_BUTTON_LABEL );
+    if (craft_button_ == nullptr) {
+        return false;
+    }
+    if (
+	equip_button_ = Button::create_icon_label_button( equip_texture, &EQUIP_BUTTON_LABEL );
+    if (equip_button_ == nullptr) {
+        return false;
+    }
+	sort_button_ = Button::create_icon_label_button( sort_texture, &SORT_BUTTON_LABEL );
+    if (sort_button_ == nullptr) {
+        return false;
+    }
 	//delete_button_ = Button::create_icon_label_button( delete_texture, "delete" );
 
 	craft_button_->set_enabled( false );
@@ -1313,9 +1516,8 @@ bool ItemManager::create_layout( void )
 	sort_button_->set_enabled( false );
 	//delete_button_->set_enabled( false );
 	
-	// Create inventory button layout.
-	JUI::HorizontalLayout* inventory_buttons = new JUI::HorizontalLayout( BUTTON_SPACING );
-	inventory_buttons->add( craft_button_ );
+
+	if (success = inventory_buttons->add( craft_button_ );
 	inventory_buttons->add( equip_button_ );
 	inventory_buttons->add( sort_button_ );
 	//inventoryButtons->add( delete_button_ );
@@ -1337,7 +1539,7 @@ bool ItemManager::create_layout( void )
 	pageButtons->pack();
 
 	HorizontalSplitLayout* button_layout = new HorizontalSplitLayout( inventory_view_->get_width() );
-	button_layout->add_left( inventory_buttons);
+	button_layout->add_left( inventory_buttons );
 	button_layout->add_right( pageButtons );
 	button_layout->pack();
 		

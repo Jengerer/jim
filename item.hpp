@@ -37,7 +37,7 @@ public:
     void clean( void );
 
 	// Finish creating item.
-	bool update_item_information( JUTIL::String* custom_name );
+	bool update_item_information( const JUTIL::String* custom_name );
 	void update_attributes( void );
 
 	// Item attribute getters.

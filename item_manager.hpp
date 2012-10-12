@@ -49,7 +49,7 @@ public:
 	void launch_updater() const;
 
 	// Application running functions.
-	void run( void );
+    JUI::Application::ReturnStatus run( void );
 	void set_think( bool (ItemManager::*thinkFunction)( void ) );
 	bool think( void );
 	bool loading( void );
@@ -57,32 +57,35 @@ public:
 	bool exiting( void );
 
 	// Steam handling.
-	void handle_callback( void );
-	void handle_message( uint32 id, void* message, size_t size );
-	void handle_protobuf( uint32 id, void* message, size_t size );
+	bool handle_callback( void );
+	bool handle_message( uint32 id, void* message, size_t size );
+	bool handle_protobuf( uint32 id, void* message, size_t size );
 
 	// Input handling.
-	void handle_keyboard( void );
+	bool handle_keyboard( void );
 
-	// JUI::Mouse* input handling.
-	virtual bool on_mouse_clicked( JUI::Mouse* mouse );
-	virtual bool on_mouse_released( JUI::Mouse* mouse );
-	virtual bool on_mouse_moved( JUI::Mouse* mouse );
+	// Mouse input handling.
+	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
+	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
 
 	// Keyboard input handling.
-	virtual bool on_key_pressed( int key );
-	virtual bool on_key_released( int key );
+	virtual JUI::IOResult on_key_pressed( int key );
+	virtual JUI::IOResult on_key_released( int key );
+
+    // Generic UI handling.
+    JUI::IOResult handle_button_released( JUI::Mouse* mouse );
 
 	// Slot selection handling.
-	void on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse );
-	void on_slot_released( SlotView* slot_view );
+	bool on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse );
+	bool on_slot_released( SlotView* slot_view );
 	void update_buttons();
 
 	// Popup handling.
-	void on_popup_clicked( Popup* popup );
-	void on_popup_released( Popup* popup );
-	void on_popup_key_pressed( Popup* popup );
-	void on_popup_key_released( Popup* popup );
+	bool on_popup_clicked( Popup* popup );
+	bool on_popup_released( Popup* popup );
+	bool on_popup_key_pressed( Popup* popup );
+	bool on_popup_key_released( Popup* popup );
 
 	// Updating displays.
 	void update_item_display( void );
@@ -92,6 +95,9 @@ private:
 
 	// Layout handling.
 	bool create_layout( void );
+
+    // Item management.
+    Item* create_item_from_message( CSOEconItem* item );
 
 private:
 

@@ -52,7 +52,7 @@ Item* Inventory::find_item( uint64 unique_id ) const
 /*
  * Insert an item into the inventory.
  */
-void Inventory::insert_item( Item* item )
+bool Inventory::insert_item( Item* item )
 {
 	// Check if item has spot in inventory.
 	items_.insert( item );
@@ -60,8 +60,13 @@ void Inventory::insert_item( Item* item )
 		book_->insert_item( item, item->get_position() );
 	}
 	else {
-		excluded_book_->insert_item( item );
+        // Add to excluded, and expand if necessary.
+		if (!excluded_book_->insert_item( item )) {
+            return false;
+        }
 	}
+
+    return true;
 }
 
 /*

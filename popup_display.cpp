@@ -115,7 +115,7 @@ void PopupDisplay::remove_popup( Popup* popup )
 	delete popup;
 };
 
-bool PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )
+JUI::IOResult PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {
@@ -132,13 +132,13 @@ bool PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )
 			handle_popup_state( top );
 		}
 
-		return true;
+        return JUI::IO_RESULT_HANDLED;
 	}
 
-	return false;
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool PopupDisplay::on_mouse_released( JUI::Mouse* mouse )
+JUI::IOResult PopupDisplay::on_mouse_released( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {
@@ -155,13 +155,13 @@ bool PopupDisplay::on_mouse_released( JUI::Mouse* mouse )
 			handle_popup_state( top );
 		}
 
-		return true;
+		return JUI::IO_RESULT_HANDLED;
 	}
 
-	return false;
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool PopupDisplay::on_mouse_moved( JUI::Mouse* mouse )
+JUI::IOResult PopupDisplay::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {
@@ -170,10 +170,10 @@ bool PopupDisplay::on_mouse_moved( JUI::Mouse* mouse )
 	}
 
 	// Always let other components get movement.
-	return false;
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool PopupDisplay::on_key_pressed( int key )
+JUI::IOResult PopupDisplay::on_key_pressed( int key )
 {
 	// Check list front.
 	if (has_popup()) {
@@ -190,13 +190,13 @@ bool PopupDisplay::on_key_pressed( int key )
 			handle_popup_state( top );
 		}
 
-		return true;
+		return JUI::IO_RESULT_HANDLED;
 	}
 
-	return false;
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool PopupDisplay::on_key_released( int key )
+JUI::IOResult PopupDisplay::on_key_released( int key )
 {
 	// Check list front.
 	if (has_popup()) {
@@ -212,10 +212,11 @@ bool PopupDisplay::on_key_released( int key )
 			// Check if we should remove popup.
 			handle_popup_state( top );
 		}
-		return true;
+
+		return JUI::IO_RESULT_HANDLED;
 	}
 
-	return false;
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
 Popup* PopupDisplay::get_top_popup( void ) const

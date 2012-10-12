@@ -23,8 +23,14 @@ Steam::~Steam( void )
 	close_interfaces();
 }
 
+/*
+ * Load Steam interfaces.
+ */
 bool Steam::load_interfaces( void )
 {
+    // Get error stack for reporting.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	// Set Team Fortress 2 application ID.
 	SetEnvironmentVariable( "SteamAppId", "440" );
     JUTIL::ArrayBuilder<char> builder;
@@ -39,7 +45,10 @@ bool Steam::load_interfaces( void )
 		// First make proper buffer size.
 		LSTATUS status;
 		if ((status = RegQueryValueEx( key, "InstallPath", nullptr, &regType, (LPBYTE)nullptr, &reg_size )) == ERROR_MORE_DATA) {
-            builder.set_size( reg_size );
+            if (!builder.set_size( reg_size )) {
+                stack->log( "Failed to allocate buffer for Steam install path." );
+                return false;
+            }
 		}
 
         // Now read into buffer.
@@ -53,7 +62,6 @@ bool Steam::load_interfaces( void )
 	// Free buffer.
 	builder.clear();
 	RegCloseKey( key );
-    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 	if (!reg_success) {
         stack->log( "Failed to get Steam install path from registry." );
         return false;
@@ -181,9 +189,15 @@ bool Steam::has_message( uint32* size ) const
 /*
  * Get message from coordinator.
  */
-void Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* realSize ) const
+bool Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* real_size ) const
 {
-	game_coordinator_->RetrieveMessage( id, buffer, size, realSize );
+    // Get error stack for reporting.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+	EGCResults result = game_coordinator_->RetrieveMessage( id, buffer, size, real_size );
+    if (result != k_EGCResultOK) {
+        stack->log( "Failed to retrieve message from game coordinator." );
+        return false;
+    }
 }
 
 /*
@@ -192,6 +206,7 @@ void Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned i
 bool Steam::send_message( uint32 id, void* buffer, uint32 size ) const
 {
 	// Check if we need a protobuf header sent.
+    EGCResults result;
 	if ((id & 0x80000000) != 0) {
 		// Create header for response.
 		CMsgProtoBufHeader responseHeader;
@@ -214,44 +229,66 @@ bool Steam::send_message( uint32 id, void* buffer, uint32 size ) const
 		response_buffer.write( &structHeader, sizeof( GCProtobufHeader_t ) );
 		response_buffer.write( (void*)headerData.c_str(), headerData.length() );
 		response_buffer.write( buffer, size );
-		game_coordinator_->SendMessage( id, response_buffer.start(), response_size );
+		result = game_coordinator_->SendMessage( id, response_buffer.start(), response_size );
 	}
 	else {
 		// Just send it.
-		game_coordinator_->SendMessage( id, buffer, size );
+		result = game_coordinator_->SendMessage( id, buffer, size );
 	}
 
+    // Check if sent successfully.
+    if (result != k_EGCResultOK) {
+        return false;
+    }
     return true;
 }
 
+/*
+ * Set Steam inventory/schema version.
+ */
 void Steam::set_version( uint64 version )
 {
 	version_ = version;
 }
 
-uint64 Steam::get_version() const
+/*
+ * Get Steam inventory/schema version.
+ */
+uint64 Steam::get_version( void ) const
 {
 	return version_;
 }
 
+/*
+ * Get user Steam ID as 64-bit integer.
+ */
 uint64 Steam::get_steam_id( void ) const
 {
 	CSteamID steamId = steam_user_->GetSteamID();
 	return steamId.ConvertToUint64();
 }
 
+/*
+ * Set target of protobuf messages.
+ */
 void Steam::set_target_id( uint64 targetId )
 {
 	target_id_ = targetId;
 }
 
+/*
+ * Get target of protobuf messages.
+ */
 uint64 Steam::get_target_id( void ) const
 {
 	return target_id_;
 }
 
-void Steam::generate_protobuf_header( CMsgProtoBufHeader *headerMsg ) const
+/*
+ * Fill out protobuf header message.
+ */
+void Steam::generate_protobuf_header( CMsgProtoBufHeader *header ) const
 {
-	headerMsg->set_client_steam_id( get_steam_id() );
-	headerMsg->set_job_id_target( get_target_id() );
+	header->set_client_steam_id( get_steam_id() );
+	header->set_job_id_target( get_target_id() );
 }

@@ -6,13 +6,13 @@ class IPopupHandler
 
 public:
 
-	// JUI::Mouse* input handling.
-	virtual void on_popup_clicked( Popup* popup ) = 0;
-	virtual void on_popup_released( Popup* popup ) = 0;
+	// Mouse input handling.
+	virtual bool on_popup_clicked( Popup* popup ) = 0;
+	virtual bool on_popup_released( Popup* popup ) = 0;
 
 	// Key input handling.
-	virtual void on_popup_key_pressed( Popup* popup ) = 0;
-	virtual void on_popup_key_released( Popup* popup ) = 0;
+	virtual bool on_popup_key_pressed( Popup* popup ) = 0;
+	virtual bool on_popup_key_released( Popup* popup ) = 0;
 
 };
 

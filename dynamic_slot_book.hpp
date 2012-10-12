@@ -14,7 +14,7 @@ public:
 
 	// Item management.
     bool initialize( void );
-	void insert_item( Item* item );
+	bool insert_item( Item* item );
 	void remove_item( Item* item );
 
 private:

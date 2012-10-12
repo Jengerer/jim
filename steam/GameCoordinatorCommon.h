@@ -409,7 +409,7 @@ struct SOMsgDeleted_t
 0100 ffffffffffffffffffffffffffffffff cff9ea0200000000 42000080 00000000
 0100 ffffffffffffffffffffffffffffffff d069ea0200000000 20000080 00000000
 */
-struct GCset_itemPosition_t
+struct GCSetItemPosition_t
 {
 	enum { k_iMessage = k_EMsgGCset_itemPosition };
 	GCMsgHeader_t header;
