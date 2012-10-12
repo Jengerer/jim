@@ -43,7 +43,6 @@ public:
 
 	// Inventory and definition loading.
 	bool start_definition_load();
-	bool load_items_from_web();
 
 	// Startup testing.
 	bool is_latest_version() const;
@@ -86,7 +85,7 @@ public:
 	void on_popup_key_released( Popup* popup );
 
 	// Updating displays.
-	bool update_item_display( void );
+	void update_item_display( void );
 	bool update_page_display( void );
 
 private:
