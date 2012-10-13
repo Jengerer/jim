@@ -14,9 +14,10 @@ public:
 	AnimatedBookView( const SlotBook* slot_book,
 		unsigned int page_spacing,
 		unsigned int slot_spacing );
+	virtual ~AnimatedBookView( void );
 
 	// Over-ride the view update.
-	void update_view();
+	virtual void update_view( void );
 
 private:
 

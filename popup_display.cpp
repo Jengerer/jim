@@ -145,10 +145,13 @@ JUI::IOResult PopupDisplay::on_mouse_released( JUI::Mouse* mouse )
 		Popup* top = get_top_popup();
 
 		// Send the popup the message.
-		if (top->on_mouse_released( mouse )) {
+		JUI::IOResult result = top->on_mouse_released( mouse );
+		if (result == JUI::IO_RESULT_HANDLED) {
 			// Pass to handler.
 			if (handler_ != nullptr) {
-				handler_->on_popup_released( top );
+				if (!handler_->on_popup_released( top )) {
+					return JUI::IO_RESULT_ERROR;
+				}
 			}
 
 			// Check if we should remove popup.
@@ -166,7 +169,7 @@ JUI::IOResult PopupDisplay::on_mouse_moved( JUI::Mouse* mouse )
 	// Check list front.
 	if (has_popup()) {
 		Popup* top = get_top_popup();
-		top->on_mouse_moved( mouse );
+		return top->on_mouse_moved( mouse );
 	}
 
 	// Always let other components get movement.

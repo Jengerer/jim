@@ -24,6 +24,13 @@ SlotBookView::SlotBookView( const SlotBook* slot_book,
 }
 
 /*
+ * Slot book view constructor.
+ */
+SlotBookView::~SlotBookView( void )
+{
+}
+
+/*
  * Pack layout.
  */
 void SlotBookView::pack( void )
@@ -76,13 +83,20 @@ bool SlotBookView::update_pages( void )
         if (!JUTIL::BaseAllocator::allocate( &grid_view )) {
             return false;
         }
-		grid_view = new (grid_view) SlotGridView( page, slot_book->get_page_width(), slot_spacing_ );
+		grid_view = new (grid_view) SlotGridView( slot_book->get_page_width(), slot_spacing_ );
 
-        // Add to layout.
+		// Add to layout.
 		if (!pages_layout_->add( grid_view )) {
             JUTIL::BaseAllocator::destroy( grid_view );
             return false;
         }
+
+		// Add page to grid.
+		if (!grid_view->add_slots( page )) {
+			return false;
+		}
+
+		// Add to vector.
 		if (!slot_grid_views_.push( grid_view )) {
             return false;
         }

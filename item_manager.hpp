@@ -95,6 +95,7 @@ private:
 
 	// Layout handling.
 	bool create_layout( void );
+	bool create_layers( void );
 
     // Item management.
     Item* create_item_from_message( CSOEconItem* item );

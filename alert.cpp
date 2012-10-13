@@ -91,13 +91,10 @@ JUI::IOResult Alert::on_mouse_clicked( JUI::Mouse* mouse )
 JUI::IOResult Alert::on_mouse_released( JUI::Mouse* mouse )
 {
     // Set to killed if okay pressed.
-	if (mouse->is_touching( this )) {
-		if (ok_->on_mouse_released( mouse )) {
-			set_state( POPUP_STATE_KILLED );
-		}
-
-		return JUI::IO_RESULT_HANDLED;
+	JUI::IOResult result = ok_->on_mouse_released( mouse );
+	if (result == JUI::IO_RESULT_HANDLED) {
+		set_state( POPUP_STATE_KILLED );
 	}
 
-	return JUI::IO_RESULT_UNHANDLED;
+	return JUI::IO_RESULT_HANDLED;
 }

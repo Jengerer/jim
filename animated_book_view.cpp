@@ -18,6 +18,13 @@ AnimatedBookView::AnimatedBookView( const SlotBook* slot_book,
 }
 
 /*
+ * Animated book view destructor.
+ */
+AnimatedBookView::~AnimatedBookView( void )
+{
+}
+
+/*
  * Update animated book view.
  */
 void AnimatedBookView::update_view()

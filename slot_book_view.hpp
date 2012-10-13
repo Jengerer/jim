@@ -17,6 +17,7 @@ public:
 	SlotBookView( const SlotBook* slot_book,
 		unsigned int page_spacing,
 		unsigned int slot_spacing );
+	virtual ~SlotBookView( void );
 
 	// Layout functions.
 	void pack( void );

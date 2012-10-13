@@ -97,5 +97,5 @@ unsigned int DynamicSlotBook::get_min_pages( void ) const
  */
 void DynamicSlotBook::set_min_pages( unsigned int min_pages )
 {
-	min_pages = min_pages;
+	min_pages_ = min_pages;
 }

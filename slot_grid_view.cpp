@@ -3,20 +3,21 @@
 /*
  * Slot grid view constructor.
  */
-SlotGridView::SlotGridView( const SlotArray* slots, unsigned int grid_width, unsigned int spacing ) : GridLayout( grid_width, spacing )
+SlotGridView::SlotGridView( unsigned int grid_width, unsigned int spacing ) : GridLayout( grid_width, spacing )
 {
-	add_slots( slots );
 }
 
 /*
  * Add slots from an array to the grid.
  */
-void SlotGridView::add_slots( const SlotArray* slots )
+bool SlotGridView::add_slots( const SlotArray* slots )
 {
 	unsigned int end = slots->get_slot_count();
 	for (unsigned int i = 0; i < end; ++i) {
 		Slot* slot = slots->get_slot( i );
-		add_slot( slot );
+		if (!add_slot( slot )) {
+			return false;
+		}
 	}
 
 	// Pack grid.
@@ -70,9 +71,22 @@ void SlotGridView::disable_full( void ) const
 /*
  * Add a slot to the grid.
  */
-void SlotGridView::add_slot( Slot* slot )
+bool SlotGridView::add_slot( Slot* slot )
 {
-	SlotView* view = new SlotView( slot );
-	slot_views_.push( view );
-	add( view );
+	SlotView* view;
+	if (!JUTIL::BaseAllocator::allocate( &view )) {
+		return false;
+	}
+	view = new (view) SlotView( slot );
+
+	// Add to container.
+	if (!add( view )) {
+		JUTIL::BaseAllocator::destroy( view );
+		return false;
+	}
+
+	// Add to array.
+	if (!slot_views_.push( view )) {
+		return false;
+	}
 }
