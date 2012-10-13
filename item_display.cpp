@@ -3,17 +3,22 @@
 
 #include "item_display.hpp"
 
-const char* ITEM_DISPLAY_TITLE_FONT_FACE = "fonts/tf2build.ttf";
+// Title style attributes.
+const JUTIL::ConstantString ITEM_DISPLAY_TITLE_FONT_FACE = "fonts/tf2build.ttf";
 const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 13;
 
-const JUI::Colour& ITEM_DISPLAY_COLOUR = JUI::COLOUR_BLACK;
-
-const char* ITEM_DISPLAY_INFO_FONT_FACE = "fonts/tf2secondary.ttf";
+// Information style attributes.
+const JUTIL::ConstantString ITEM_DISPLAY_INFO_FONT_FACE = "fonts/tf2secondary.ttf";
 const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE = 11;
 
+// Display colour.
+const JUI::Colour& ITEM_DISPLAY_COLOUR = JUI::COLOUR_BLACK;
+
+// Name fonts.
 JUI::FontInterface *ItemDisplay::name_font_ = nullptr;
 JUI::FontInterface *ItemDisplay::info_font_ = nullptr;
 
+// Item dipslay layout attributes.
 const unsigned int ITEM_DISPLAY_PADDING = 20;
 const unsigned int ITEM_DISPLAY_SPACING = 5;
 const unsigned int ITEM_DISPLAY_RADIUS = 5;
@@ -257,13 +262,13 @@ void ItemDisplay::set_active( bool is_active )
 bool ItemDisplay::precache( void )
 {
 	// Font for item names.
-	name_font_ = JUI::FontFactory::create_font( ITEM_DISPLAY_TITLE_FONT_FACE, ITEM_DISPLAY_TITLE_FONT_SIZE );
+	name_font_ = JUI::FontFactory::create_font( &ITEM_DISPLAY_TITLE_FONT_FACE, ITEM_DISPLAY_TITLE_FONT_SIZE );
 	if (name_font_ == nullptr) {
 		return false;
 	}
 
 	// Font for item description and miscellaneous information.
-	info_font_ = JUI::FontFactory::create_font( ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
+	info_font_ = JUI::FontFactory::create_font( &ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
 	if (info_font_ == nullptr) {
 		JUI::FontFactory::destroy_font( name_font_ );
 		return false;

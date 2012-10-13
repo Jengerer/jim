@@ -13,7 +13,7 @@
 #include "item_information.hpp"
 #include "string_hasher.hpp"
 
-enum ELoadingState
+enum DefinitionLoaderState
 {
 	LOADING_STATE_NONE,
 	LOADING_STATE_START,
@@ -43,10 +43,9 @@ public:
 	void end( void );
 
 	// Getting definition loader states.
-	ELoadingState get_state( void ) const;
+	DefinitionLoaderState get_state( void ) const;
 	float get_progress( void ) const;
-	void update_progress_msg( void );
-	const JUTIL::ConstantString* get_progress_msg( void ) const;
+	const JUTIL::String* get_progress_message( void );
 
 private:
 
@@ -60,13 +59,13 @@ private:
 
 	// Loading state functions.
 	bool is_state_changed( void ) const;
-	void set_state( ELoadingState state );
-	void set_error( const JUTIL::String* error_msg );
+	void set_state( DefinitionLoaderState state );
 
 	// Progress counters.
+	bool update_progress_message( void );
 	void set_progress( size_t loaded, size_t total );
 	void set_progress( float percentage );
-	bool set_progress_msg( const JUTIL::String* progress_msg );
+	bool set_progress_message( const JUTIL::String* progress_msg );
 
 private:
 
@@ -86,9 +85,8 @@ private:
 
 	// State members.
 	float progress_;
-	JUTIL::DynamicString progress_msg_;
-	JUTIL::DynamicString error_msg_;
-	ELoadingState state_;
+	DefinitionLoaderState state_;
+	JUTIL::DynamicString progress_message_;
 	bool has_state_changed_;
 	
 };

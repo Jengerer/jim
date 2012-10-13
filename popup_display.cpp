@@ -112,7 +112,7 @@ void PopupDisplay::remove_popup( Popup* popup )
 {
 	// Full removal.
 	hide_popup( popup );
-	delete popup;
+	JUTIL::BaseAllocator::destroy( popup );
 };
 
 JUI::IOResult PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )

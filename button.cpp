@@ -122,19 +122,29 @@ bool Button::is_enabled( void ) const
  */
 JUI::IOResult Button::on_mouse_moved( JUI::Mouse* mouse )
 {
+	// Return handled if hovering.
     bool colliding = mouse->is_touching( this );
     set_hovering( colliding );
-    return colliding;
+    if (colliding) {
+		return JUI::IO_RESULT_HANDLED;
+	}
+
+	return JUI::IO_RESULT_UNHANDLED;
 }
 
 /*
- * Return true if button is successfully clicked.
- * If button is disabled, returns false; otherwise
- * returns true if mouse colliding.
+ * Handle mouse click event.
+ * Returns handled if enabled and mouse collides.
  */
 JUI::IOResult Button::on_mouse_clicked( JUI::Mouse* mouse )
 {
-	return is_enabled() && mouse->is_touching( this );
+	// Handle if enabled and clicked.
+	bool click_successful = is_enabled() && mouse->is_touching( this );
+	if (click_successful) {
+		return JUI::IO_RESULT_HANDLED;
+	}
+	
+	return JUI::IO_RESULT_UNHANDLED;
 }
 
 /*
@@ -142,7 +152,7 @@ JUI::IOResult Button::on_mouse_clicked( JUI::Mouse* mouse )
  */
 JUI::IOResult Button::on_mouse_released( JUI::Mouse* mouse )
 {
-	return is_enabled() && mouse->is_touching( this );
+	return on_mouse_clicked( mouse );
 }
 
 /*
@@ -178,6 +188,25 @@ bool Button::precache( JUI::Graphics2D* graphics )
 void Button::release( void )
 {
     JUI::FontFactory::destroy_font( default_font_ );
+}
+
+/*
+ * Create generic button.
+ */
+Button* Button::create_generic_button( void )
+{
+	// Create and initialize button.
+	Button* button;
+	if (!JUTIL::BaseAllocator::allocate( &button )) {
+		return nullptr;
+	}
+	button = new (button) Button( 0.0f, 0.0f );
+	if (!button->initialize()) {
+		JUTIL::BaseAllocator::destroy( button );
+		return nullptr;
+	}
+
+	return button;
 }
 
 /*

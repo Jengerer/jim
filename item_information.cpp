@@ -5,7 +5,7 @@
  */
 ItemInformation::ItemInformation(
 	JUTIL::String* name,
-	JUI::Texture* texture,
+	const JUI::Texture* texture,
 	uint32 class_flags,
 	EItemSlot slot )
 {
