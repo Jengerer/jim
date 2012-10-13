@@ -16,7 +16,7 @@ bool HttpResourceLoader::get_resource( const JUTIL::String* file, const JUTIL::S
 {
     // Generate full URL.
     JUTIL::DynamicString full_url;
-    if (!full_url.write( "%s%s", url_->get_string(), target->get_string() )) {
+    if (!full_url.write( "%s/%s", url_->get_string(), target->get_string() )) {
         return false;
     }
 

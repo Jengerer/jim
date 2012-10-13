@@ -161,22 +161,32 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 
 	// Get downloader.
 	JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
-	site_loader_ = new HttpResourceLoader( &MANAGER_ROOT_URL, downloader );
+	if (downloader == nullptr) {
+		stack->log( "Failed to create downloader object." );
+		return PrecacheResourcesFailure;
+	}
+	if (!JUTIL::BaseAllocator::allocate( &site_loader_ )) {
+		stack->log( "Failed to allocate site loader object." );
+		return PrecacheResourcesFailure;
+	}
+	site_loader_ = new (site_loader_) HttpResourceLoader( &MANAGER_ROOT_URL, downloader );
 
-	// Download rounded corner.
-	site_loader_->get_resource( &ROUNDED_CORNER_TEXTURE, &ROUNDED_CORNER_TEXTURE );
+	// Test downloader.
+	const JUTIL::ConstantString home = "http://www.jengerer.com/item_manager/index.html";
+	const JUTIL::ConstantString home_out = "index.html";
+	downloader->get( &home_out, &home );
 
-	// Download button icons.
-	site_loader_->get_resource( &EQUIP_ICON_TEXTURE, &EQUIP_ICON_TEXTURE );
-	site_loader_->get_resource( &CRAFT_ICON_TEXTURE, &CRAFT_ICON_TEXTURE );
-	site_loader_->get_resource( &SORT_ICON_TEXTURE, &SORT_ICON_TEXTURE );
-
-	// Get placeholder item icon.
-	site_loader_->get_resource( &UNKNOWN_ITEM_ICON_TEXTURE, &UNKNOWN_ITEM_ICON_TEXTURE );
-
-	// Download fonts.
-	site_loader_->get_resource( &TF2_BUILD_FONT, &TF2_BUILD_FONT );
-	site_loader_->get_resource( &TF2_SECONDARY_FONT, &TF2_SECONDARY_FONT );
+	// Get texture and font resources.
+	bool success = site_loader_->get_resource( &ROUNDED_CORNER_TEXTURE, &ROUNDED_CORNER_TEXTURE ) &&
+		site_loader_->get_resource( &EQUIP_ICON_TEXTURE, &EQUIP_ICON_TEXTURE ) &&
+		site_loader_->get_resource( &CRAFT_ICON_TEXTURE, &CRAFT_ICON_TEXTURE ) &&
+		site_loader_->get_resource( &SORT_ICON_TEXTURE, &SORT_ICON_TEXTURE ) &&
+		site_loader_->get_resource( &UNKNOWN_ITEM_ICON_TEXTURE, &UNKNOWN_ITEM_ICON_TEXTURE ) &&
+		site_loader_->get_resource( &TF2_BUILD_FONT, &TF2_BUILD_FONT ) &&
+		site_loader_->get_resource( &TF2_SECONDARY_FONT, &TF2_SECONDARY_FONT );
+	if (!success) {
+		return PrecacheResourcesFailure;
+	}
 
 	// Necessary to display progress/status.
 	if (!Notice::precache( &graphics_ )) {
@@ -189,6 +199,12 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
         return PrecacheResourcesFailure;
     }
 
+	// Create layers.
+	if (!create_layers()) {
+		stack->log( "Failed to create UI layers." );
+		return PrecacheResourcesFailure;
+	}
+
     // Base resources successful; load extra resources.
     if (!create_resources()) {
         // Check for error to display.
@@ -197,6 +213,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
         if (error_ == nullptr) {
             return PrecacheResourcesFailure;
         }
+		set_think( &ItemManager::exiting );
     }
 
     // All base resources loaded successfully.
@@ -617,10 +634,10 @@ JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 
 	// Check if we've hovering over an slot view.
     SlotView* slot_view = nullptr;
-	if (mouse->is_touching( inventory_view_ )) {
+	if ((inventory_view_ != nullptr) && mouse->is_touching( inventory_view_ )) {
 		slot_view = inventory_view_->get_touching_slot( mouse );
 	}
-	else if (mouse->is_touching( excluded_view_ )) {
+	else if ((excluded_view_ != nullptr) && mouse->is_touching( excluded_view_ )) {
 		slot_view = excluded_view_->get_touching_slot( mouse );
 	}
 	if (slot_view != nullptr) {
@@ -1459,19 +1476,6 @@ bool ItemManager::on_popup_key_released( Popup* popup )
  */
 bool ItemManager::create_layout( void )
 {
-	// Create the user layer.
-	if (!JUTIL::BaseAllocator::allocate( &user_layer_ ))
-	{
-		return false;
-	}
-	user_layer_ = new (user_layer_) Container();
-	user_layer_->set_size( get_width(), get_height() );
-	if (!add( user_layer_ ))
-	{
-		JUTIL::BaseAllocator::destroy( user_layer_ );
-		return false;
-	}
-
 	// Create layout.
 	JUI::VerticalLayout* layout;
 	if (!JUTIL::BaseAllocator::allocate( &layout )) {
@@ -1501,6 +1505,7 @@ bool ItemManager::create_layout( void )
 		return false;
 	}
 	inventory_view_ = new (inventory_view_) AnimatedBookView( inventory_book_, PAGE_SPACING, SLOT_SPACING );
+	free(inventory_view_);
 	if (!inventory_view_->initialize() || !layout->add( inventory_view_ )) {
 		JUTIL::BaseAllocator::destroy( inventory_view_ );
 		return false;
@@ -1547,7 +1552,7 @@ bool ItemManager::create_layout( void )
     bool success = graphics_.get_texture( &CRAFT_ICON_TEXTURE, &craft_texture ) &&
         graphics_.get_texture( &EQUIP_ICON_TEXTURE, &equip_texture ) &&
         graphics_.get_texture( &SORT_ICON_TEXTURE, &sort_texture );
-    if (success) {
+    if (!success) {
         return false;
     }
 
@@ -1654,7 +1659,29 @@ bool ItemManager::create_layout( void )
 		return false;
 	}
 
-	// Create popup view on top.
+	// All created successfully.
+	return true;
+}
+
+/*
+ * Create layers for the item manager.
+ */
+bool ItemManager::create_layers( void )
+{
+	// Create the user layer.
+	if (!JUTIL::BaseAllocator::allocate( &user_layer_ ))
+	{
+		return false;
+	}
+	user_layer_ = new (user_layer_) Container();
+	user_layer_->set_size( get_width(), get_height() );
+	if (!add( user_layer_ ))
+	{
+		JUTIL::BaseAllocator::destroy( user_layer_ );
+		return false;
+	}
+
+	// Create popup layer on top.
 	if (!JUTIL::BaseAllocator::allocate( &popups_ )) {
 		return false;
 	}
@@ -1665,8 +1692,6 @@ bool ItemManager::create_layout( void )
 	}
 	popups_->set_size( get_width(), get_height() );
 	popups_->set_popup_handler( this );
-
-	// All created successfully.
 	return true;
 }
 

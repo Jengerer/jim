@@ -32,8 +32,8 @@ bool RoundedRectangle::precache( JUI::Graphics2D* graphics )
 {
     // Load rounded corner texture.
     // TODO: Replace with rounded rectangle pixel-render.
-	if (!graphics->get_texture( &ROUNDED_CORNER_TEXTURE, &rounded_corner_ ))
-    {
+	JUI::Graphics2D::ReturnStatus status = graphics->get_texture( &ROUNDED_CORNER_TEXTURE, &rounded_corner_ );
+	if (status != JUI::Graphics2D::Success) {
         return false;
     }
 

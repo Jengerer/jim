@@ -31,10 +31,14 @@ const SlotArray* SlotBook::add_page( void )
     unsigned int page_size = get_page_size();
     unsigned int slot_count = get_slot_count();
     page = new (page) SlotArray( page_size, slot_count );
+	if (!page->initialize()) {
+		JUTIL::BaseAllocator::destroy( page );
+		return false;
+	}
 
     // Add to pages.
-	if (pages_.push( page )) {
-        JUTIL::BaseAllocator::destroy( &page );
+	if (!pages_.push( page )) {
+        JUTIL::BaseAllocator::destroy( page );
         return nullptr;
     }
 	return page;
