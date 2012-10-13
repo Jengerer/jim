@@ -100,12 +100,13 @@ JUI::IOResult Confirmation::on_mouse_released( JUI::Mouse* mouse )
 		response_ = RESPONSE_NO;
 	}
 	else {
-		return false;
+		// No button pressed, but still handled.
+		return Notice::on_mouse_released( mouse );
 	}
 
 	// Responded.
 	set_state( POPUP_STATE_KILLED );
-	return true;
+	return JUI::IO_RESULT_HANDLED;
 }
 
 /*

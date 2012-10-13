@@ -395,52 +395,70 @@ bool ItemManager::think( void )
 
 bool ItemManager::loading( void )
 {
+	// Stack for reporting and getting.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Handle loading if loader still available.
 	if (definition_loader_ != nullptr) {
 		switch (definition_loader_->get_state()) {
-		case LOADING_STATE_ERROR:
-        {
-			// Put error on stack.
-            JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-            stack->log( "%s", definition_loader_->get_progress_msg()->get_string() );
+			case LOADING_STATE_ERROR:
+			{
+				// Remove threaded loader.
+				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
 
-			// Remove threaded loader.
-            JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
-            return false;
-        }
+				// Show error.
+				const JUTIL::String* top = stack->get_top_error();
+				popups_->remove_popup( load_progress_ );
+				error_ = popups_->create_alert( top );
 
-		case LOADING_STATE_FINISHED:
-        {
-			// Remove threaded loader.
-            JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
-			
-			// Initialize steam.
-            if (!steam_items_.load_interfaces()) {
-                JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-                stack->log( "Failed to initialize Steam." );
-                return false;
+				// If can't show error nicely, return as failure.
+				if (error_ == nullptr) {
+					return false;
+				}
+				return false;
 			}
 
-            const JUTIL::ConstantString WAITING_MESSAGE = "Waiting for Steam message...";
-			load_progress_->set_message( &WAITING_MESSAGE );
-			load_progress_->center_to( this );
-			break;
-        }
+			case LOADING_STATE_FINISHED:
+			{
+				// Remove threaded loader.
+				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
+			
+				// Initialize steam.
+				if (!steam_items_.load_interfaces()) {
+					JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+					stack->log( "Failed to initialize Steam." );
+					return false;
+				}
 
-		default:
-			definition_loader_->update_progress_msg();
-			load_progress_->set_message( definition_loader_->get_progress_msg() );
-			load_progress_->center_to( this );
-			break;
+				// Wait for Steam.
+				const JUTIL::ConstantString WAITING_MESSAGE = "Waiting for Steam message...";
+				load_progress_->set_message( &WAITING_MESSAGE );
+				load_progress_->center_to( this );
+				break;
+			}
+
+			default:
+			{
+				const JUTIL::String* progress_message = definition_loader_->get_progress_message();
+				if (progress_message == nullptr) {
+					stack->log( "Failed to get progress message from loader." );
+					return false;
+				}
+				if (!load_progress_->set_message( progress_message )) {
+					stack->log( "Failed to set progress message for loader." );
+					return false;
+				}
+				load_progress_->center_to( this );
+				break;
+			}
 		}
 	}
 	else {
+		// Loading is done, wait for steam message.
 		handle_callback();
 		if (backpack_ != nullptr && backpack_->is_loaded()) {
 			set_think( &ItemManager::running );
 			popups_->remove_popup( load_progress_ );
-#ifndef SORT_NOT_IMPLEMENTED
-			sort_button_->set_enabled( true );
-#endif
 		}
 	}
 }
@@ -731,6 +749,7 @@ bool ItemManager::on_slot_released( SlotView* slot_view )
 	}
 
 	update_buttons();
+	return true;
 }
 
 void ItemManager::update_buttons()
@@ -1431,6 +1450,8 @@ bool ItemManager::on_popup_key_released( Popup* popup )
 			exit_application();
 		}
 	}
+
+	return true;
 }
 
 /*
@@ -1462,24 +1483,67 @@ bool ItemManager::create_layout( void )
 		return false;
 	}
 
+	// Create title.
+	JUTIL::DynamicString title;
+	if (!title.write( "%s %s", APPLICATION_TITLE.get_string(), APPLICATION_VERSION.get_string() )) {
+		return false;
+	}
+	JUI::Text* title_text = new JUI::Text( title_font_ );
+	title_text->set_text( &title );
+	title_text->set_colour( &TITLE_COLOUR );
+	if (!layout->add( title_text )) {
+		JUTIL::BaseAllocator::destroy( title_text );
+		return false;
+	}
+
 	// Create inventory view.
 	if (!JUTIL::BaseAllocator::allocate( &inventory_view_ )) {
 		return false;
 	}
-	inventory_view_ = new (inventory_view_) AnimatedBookView( inventory_book_,
-		PAGE_SPACING,
-		SLOT_SPACING );
-
-	// Create excluded view.
-	excluded_view_ = new SlotBookView( excluded_book_,
-		PAGE_SPACING,
-		SLOT_SPACING );
+	inventory_view_ = new (inventory_view_) AnimatedBookView( inventory_book_, PAGE_SPACING, SLOT_SPACING );
+	if (!inventory_view_->initialize() || !layout->add( inventory_view_ )) {
+		JUTIL::BaseAllocator::destroy( inventory_view_ );
+		return false;
+	}
 
 	// Create button layout.
+	JUI::HorizontalSplitLayout* button_layout;
+	if (!JUTIL::BaseAllocator::allocate( &button_layout )) {
+		return false;
+	}
+	int inventory_width = inventory_view_->get_width();
+	button_layout = new (button_layout) JUI::HorizontalSplitLayout( inventory_width );
+	if (!layout->add( button_layout )) {
+		JUTIL::BaseAllocator::destroy( button_layout );
+		return false;
+	}
+
+	// Create inventory button layout.
+	JUI::HorizontalLayout* inventory_buttons;
+	if (!JUTIL::BaseAllocator::allocate( &inventory_buttons )) {
+		return false;
+	}
+	inventory_buttons = new (inventory_buttons) JUI::HorizontalLayout( BUTTON_SPACING, JUI::ALIGN_TOP );
+	if (!button_layout->set_left( inventory_buttons )) {
+		JUTIL::BaseAllocator::destroy( inventory_buttons );
+		return false;
+	}
+
+	// Create page button layout.
+	JUI::HorizontalLayout* page_display_layout;
+	if (!JUTIL::BaseAllocator::allocate( &page_display_layout )) {
+		return false;
+	}
+	page_display_layout = new (page_display_layout) JUI::HorizontalLayout( BUTTON_SPACING, JUI::ALIGN_TOP );
+	if (!button_layout->set_right( page_display_layout )) {
+		JUTIL::BaseAllocator::destroy( page_display_layout );
+		return false;
+	}
+
+	// Create inventory buttons.
 	JUI::FileTexture* craft_texture;
     JUI::FileTexture* equip_texture;
     JUI::FileTexture* sort_texture;
-    // JUI::FileTexture* delete_texture;
     bool success = graphics_.get_texture( &CRAFT_ICON_TEXTURE, &craft_texture ) &&
         graphics_.get_texture( &EQUIP_ICON_TEXTURE, &equip_texture ) &&
         graphics_.get_texture( &SORT_ICON_TEXTURE, &sort_texture );
@@ -1487,88 +1551,205 @@ bool ItemManager::create_layout( void )
         return false;
     }
 
-    // Create inventory button layout.
-	JUI::HorizontalLayout* inventory_buttons;
-    if (!JUTIL::BaseAllocator::allocate( &inventory_buttons )) {
-        return false;
-    }
-    inventory_buttons = new (inventory_buttons) JUI::HorizontalLayout( BUTTON_SPACING );
-
-	// Create inventory buttons.
+	// Create craft button.
     const JUTIL::ConstantString CRAFT_BUTTON_LABEL = "craft";
 	craft_button_ = Button::create_icon_label_button( craft_texture, &CRAFT_BUTTON_LABEL );
     if (craft_button_ == nullptr) {
         return false;
     }
-    if (
+    if (!inventory_buttons->add( craft_button_ )) {
+		JUTIL::BaseAllocator::destroy( craft_button_ );
+		return false;
+	}
+
+	// Create equip button.
+	const JUTIL::ConstantString EQUIP_BUTTON_LABEL = "equip";
 	equip_button_ = Button::create_icon_label_button( equip_texture, &EQUIP_BUTTON_LABEL );
     if (equip_button_ == nullptr) {
         return false;
     }
+	if (!inventory_buttons->add( equip_button_ )) {
+		JUTIL::BaseAllocator::destroy( equip_button_ );
+		return false;
+	}
+
+	// Create sort button.
+	const JUTIL::ConstantString SORT_BUTTON_LABEL = "sort";
 	sort_button_ = Button::create_icon_label_button( sort_texture, &SORT_BUTTON_LABEL );
     if (sort_button_ == nullptr) {
         return false;
     }
-	//delete_button_ = Button::create_icon_label_button( delete_texture, "delete" );
+	if (!inventory_buttons->add( sort_button_ )) {
+		JUTIL::BaseAllocator::destroy( inventory_buttons );
+		return false;
+	}
 
+	// Set button states.
 	craft_button_->set_enabled( false );
 	equip_button_->set_enabled( false );
 	sort_button_->set_enabled( false );
-	//delete_button_->set_enabled( false );
-	
 
-	if (success = inventory_buttons->add( craft_button_ );
-	inventory_buttons->add( equip_button_ );
-	inventory_buttons->add( sort_button_ );
-	//inventoryButtons->add( delete_button_ );
-	inventory_buttons->pack();
+	// Create previous page button.
+	const JUTIL::ConstantString PREV_PAGE_LABEL = "<";
+	prev_button_ = Button::create_label_button( &PREV_PAGE_LABEL );
+	if (prev_button_ == nullptr) {
+		return false;
+	}
+	if (!page_display_layout->add( prev_button_ )) {
+		JUTIL::BaseAllocator::destroy( prev_button_ );
+		return false;
+	}
 
-	// Create pages buttons/text.
-	prev_button_ = Button::create_label_button( "<" );
-	next_button_ = Button::create_label_button( ">" );
-	page_display_ = new JUI::WrappedText( page_font_, PAGE_LABEL_WIDTH );
-	page_display_->set_colour( PAGE_LABEL_COLOUR );
+	// Create page display text.
+	if (!JUTIL::BaseAllocator::allocate( &page_display_ )) {
+		return false;
+	}
+	page_display_ = new (page_display_) JUI::WrappedText( page_font_, PAGE_LABEL_WIDTH );
+	page_display_->set_colour( &PAGE_LABEL_COLOUR );
 	page_display_->set_text_formatting( DT_CENTER );
-	update_page_display();
+	if (!update_page_display() || !page_display_layout->add( page_display_ )) {
+		JUTIL::BaseAllocator::destroy( page_display_ );
+		return false;
+	}
 
-	// Create pages buttons layout.
-	JUI::HorizontalLayout* pageButtons = new JUI::HorizontalLayout( BUTTON_SPACING );
-	pageButtons->add( prev_button_ );
-	pageButtons->add( page_display_ ); // PAGE LABEL, RATHER
-	pageButtons->add( next_button_ );
-	pageButtons->pack();
+	// Create next page button.
+	const JUTIL::ConstantString NEXT_PAGE_LABEL = ">";
+	next_button_ = Button::create_label_button( &NEXT_PAGE_LABEL );
+	if (next_button_ == nullptr) {
+		return false;
+	}
+	if (!page_display_layout->add( next_button_ )) {
+		JUTIL::BaseAllocator::destroy( next_button_ );
+		return false;
+	}
 
-	HorizontalSplitLayout* button_layout = new HorizontalSplitLayout( inventory_view_->get_width() );
-	button_layout->add_left( inventory_buttons );
-	button_layout->add_right( pageButtons );
+	// Pack buttons.
+	inventory_buttons->pack();
+	page_display_layout->pack();
 	button_layout->pack();
-		
-	// Create title.
-	stringstream titleStream;
-	titleStream << APPLICATION_TITLE << " " << APPLICATION_VERSION;
 
-	// Add version number.
-	JUI::Text* titleText = new JUI::Text( title_font_ );
-	titleText->set_text( titleStream.str() );
-	titleText->set_colour( TITLE_COLOUR );
+	// Create excluded view.
+	if (!JUTIL::BaseAllocator::allocate( &excluded_view_ )) {
+		return false;
+	}
+	excluded_view_ = new (excluded_view_) SlotBookView( excluded_book_, PAGE_SPACING, SLOT_SPACING );
+	if (!excluded_view_->initialize() || !layout->add( excluded_view_ )) {
+		JUTIL::BaseAllocator::destroy( excluded_view_ );
+		return false;
+	}
 
-	// Organize layout.
-	layout->add( titleText );
-	layout->add( inventory_view_ );
-	layout->add( button_layout );
-	layout->add( excluded_view_ );
+	// Pack top-most layout.
 	layout->pack();
-	layout->set_position( (get_width() - layout->get_width()) / 2.0f, 
-		(get_height() - layout->get_height()) / 2.0f );
-	user_layer_->add( layout );
+	int center_x = (get_width() - layout->get_width()) / 2;
+	int center_y = (get_height() - layout->get_height()) / 2;
+	layout->set_position( static_cast<float>(center_x), static_cast<float>(center_y) );
 
 	// Create item display.
-	item_display_ = new ItemDisplay();
-	user_layer_->add( item_display_ );
+	if (!JUTIL::BaseAllocator::allocate( &item_display_ )) {
+		return false;
+	}
+	item_display_ = new (item_display_) ItemDisplay();
+	if (!user_layer_->add( item_display_ )) {
+		JUTIL::BaseAllocator::destroy( item_display_ );
+		return false;
+	}
 
 	// Create popup view on top.
-	popups_ = new PopupDisplay();
+	if (!JUTIL::BaseAllocator::allocate( &popups_ )) {
+		return false;
+	}
+	popups_ = new (popups_) PopupDisplay();
+	if (!add( popups_ )) {
+		JUTIL::BaseAllocator::destroy( popups_ );
+		return false;
+	}
 	popups_->set_size( get_width(), get_height() );
 	popups_->set_popup_handler( this );
-	add( popups_ );
+
+	// All created successfully.
+	return true;
+}
+
+/*
+ * Generate an item from a JSON object.
+ */
+Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
+{
+	// Error stack for reporting.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Create item.
+	Item* item;
+	if (!JUTIL::BaseAllocator::allocate( &item )) {
+		return nullptr;
+	}
+	item = new (item) Item(
+		econ_item->id(),
+		econ_item->def_index(),
+		econ_item->level(),
+		static_cast<EItemQuality>(econ_item->quality()),
+		econ_item->quantity(),
+		econ_item->inventory(),
+		econ_item->origin() );
+
+	// Add the item's attributes.
+	for (int j = 0; j < econ_item->attribute_size(); ++j) {
+		const CSOEconItemAttribute& attribute = econ_item->attribute( j );
+		uint32 attrib_index = attribute.def_index();
+
+		// Get attribute information.
+		AttributeInformation* info;
+		if (!Item::attributes.get( attrib_index, &info )) {
+			JUTIL::BaseAllocator::destroy( item );
+			stack->log( "Failed to find attribute of index %u for item.", attrib_index );
+			return false;
+		}
+
+		// Set value based on type.
+		uint32 int_value = attribute.value();
+
+		// Create attribute.
+		Attribute* new_attribute;
+		if (!JUTIL::BaseAllocator::allocate( &new_attribute )) {
+			JUTIL::BaseAllocator::destroy( item );
+			stack->log( "Failed to allocate attribute for item." );
+			break;
+		}
+		if (info->is_integer()) {
+			new_attribute = new (new_attribute) Attribute( info, int_value );
+		}
+		else {
+			float* float_value = reinterpret_cast<float*>(&int_value);
+			new_attribute = new (new_attribute) Attribute( info, *float_value );
+		}
+
+		// Add to item.
+		if (!item->add_attribute( new_attribute )) {
+			JUTIL::BaseAllocator::destroy( new_attribute );
+			JUTIL::BaseAllocator::destroy( item );
+			stack->log( "Failed to add attribute to item." );
+			return false;
+		}
+	}
+
+	// Set custom name.
+	if (econ_item->has_custom_name()) {
+		const JUTIL::ConstantString name = econ_item->custom_name().c_str();
+		if (!item->update_item_information( &name )) {
+			JUTIL::BaseAllocator::destroy( item );
+			stack->log( "Failed to set custom name for item." );
+			return false;
+		}
+	}
+	else {
+		if (!item->update_item_information( nullptr )) {
+			JUTIL::BaseAllocator::destroy( item );
+			stack->log( "Failed to generate item name." );
+			return false;
+		}
+	}
+
+	// Finalize state.
+	item->update_attributes();
+	return item;
 }

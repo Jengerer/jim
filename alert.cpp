@@ -54,11 +54,13 @@ const Button* Alert::get_button( void ) const
  */
 JUI::IOResult Alert::on_key_released( int key )
 {
+	// Handled if enter pressed.
 	if (key == VK_RETURN) {
 		set_state( POPUP_STATE_KILLED );
+		return JUI::IO_RESULT_HANDLED;
 	}
 
-	return true;
+	return JUI::IO_RESULT_UNHANDLED;
 }
 
 /*
@@ -67,7 +69,11 @@ JUI::IOResult Alert::on_key_released( int key )
 JUI::IOResult Alert::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Parent behaviour.
-	ok_->on_mouse_moved( mouse );
+	JUI::IOResult result = ok_->on_mouse_moved( mouse );
+	if (result != JUI::IO_RESULT_UNHANDLED) {
+		return result;
+	}
+
 	return Notice::on_mouse_moved( mouse );
 }
 
@@ -90,8 +96,8 @@ JUI::IOResult Alert::on_mouse_released( JUI::Mouse* mouse )
 			set_state( POPUP_STATE_KILLED );
 		}
 
-		return true;
+		return JUI::IO_RESULT_HANDLED;
 	}
 
-	return false;
+	return JUI::IO_RESULT_UNHANDLED;
 }

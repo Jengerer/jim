@@ -1,8 +1,12 @@
 #include "definition_loader.hpp"
+#include <jui/application/error_stack.hpp>
 #include <jui/net/file_downloader.hpp>
 
 // Schema URL.
 const JUTIL::ConstantString SCHEMA_URL = "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en";
+
+// Status strings.
+const JUTIL::ConstantString DEFAULT_STATUS_MESSAGE = "Loading...\nCouldn't generate progress string...\nJengerer's prescription: proceed as normal...";
 
 // Slot name strings.
 const JUTIL::ConstantString SLOT_NONE_NAME = "";
@@ -140,6 +144,9 @@ void DefinitionLoader::end( void )
  */
 bool DefinitionLoader::load()
 {
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	// Set this thread's render context.
 	graphics_->set_render_context( graphics_->get_loading_context() );
 
@@ -157,8 +164,7 @@ bool DefinitionLoader::load()
         slots_.insert( &SLOT_ACTION_NAME, SLOT_ACTION ) &&
         slots_.insert( &SLOT_GRENADE_NAME, SLOT_GRENADE );
     if (!success) {
-        const JUTIL::ConstantString SLOTS_MAP_ERROR = "Failed to create slot map.";
-        set_error( &SLOTS_MAP_ERROR );
+        stack->log( "Failed to create slot map." );
         return false;
     }
 
@@ -174,8 +180,7 @@ bool DefinitionLoader::load()
         classes_.insert( &CLASS_SNIPER_NAME, CLASS_SNIPER ) &&
         classes_.insert( &CLASS_SPY_NAME, CLASS_SPY );
     if (!success) {
-        const JUTIL::ConstantString CLASSES_MAP_ERROR = "Failed to create class map.";
-        set_error( &CLASSES_MAP_ERROR );
+        stack->log( "Failed to create class map.");
         return false;
     }
 
@@ -184,24 +189,21 @@ bool DefinitionLoader::load()
 	// Get downloader instance.
     JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
     if (downloader == nullptr) {
-        const JUTIL::ConstantString DOWNLOADER_ERROR = "Failed to create downloader.";
-        set_error( &DOWNLOADER_ERROR );
+        stack->log( "Failed to create downloader.");
         return false;
     }
 
 	// Get definition file.
     JUTIL::DynamicString definition;
     if (!downloader->read( &SCHEMA_URL, &definition )) {
-        const JUTIL::ConstantString READ_SCHEMA_ERROR = "Failed to read schema from Steam web API.";
-        set_error( &READ_SCHEMA_ERROR );
+        stack->log( "Failed to read schema from Steam web API.");
         return false;
     }
 
 	// Parse definition file.
 	Json::Reader reader;
 	if (!reader.parse( definition.get_string(), root_, false )) {
-        const JUTIL::ConstantString PARSE_JSON_ERROR = "Failed to parse item definition JSON.";
-        set_error( &PARSE_JSON_ERROR );
+        stack->log( "Failed to parse item definition JSON.");
         return false;
 	}
 
@@ -242,8 +244,7 @@ bool DefinitionLoader::load()
             get_member( &attribute, &ATTRIBUTE_IS_HIDDEN, &attribute_is_hidden ) &&
             get_member( &attribute, &ATTRIBUTE_IS_INTEGER, &attribute_is_integer );
         if (!success) {
-            const JUTIL::ConstantString ATTRIBUTE_READ_ERROR = "Unexpected attribute format found.";
-            set_error( &ATTRIBUTE_READ_ERROR );
+            stack->log( "Unexpected attribute format found." );
             return false;
         }
 
@@ -260,8 +261,7 @@ bool DefinitionLoader::load()
 			effect_type = EFFECT_NEUTRAL;
 		}
 		else {
-            const JUTIL::ConstantString UNEXPECTED_EFFECT_ERROR = "Unexpected attribute effect type received.";
-            set_error( &UNEXPECTED_EFFECT_ERROR );
+            stack->log( "Unexpected attribute effect type received.");
             return false;
 		}
 
@@ -347,14 +347,12 @@ bool DefinitionLoader::load()
         // Add to maps.
         if (!Item::attributes.insert( index, attrib_info )) {
             JUTIL::BaseAllocator::destroy( attrib_info );
-            const JUTIL::ConstantString ADD_ATTRIBUTE_ERROR = "Failed to add attribute to attribute map.";
-            set_error( &ADD_ATTRIBUTE_ERROR );
+            stack->log( "Failed to add attribute to attribute map.");
             return false;
         }
         else if (!name_map_.insert( name_string, attrib_info )) {
             // Will be destroyed by item attributes, no need to delete.
-            const JUTIL::ConstantString ADD_ATTRIBUTE_ERROR = "Failed to add attribute to attribute map.";
-            set_error( &ADD_ATTRIBUTE_ERROR );
+            stack->log( "Failed to add attribute to attribute map.");
             return false;
         }
 
@@ -365,31 +363,27 @@ bool DefinitionLoader::load()
 	// Get item member.
     Json::Value* items;
     if (!get_member( result, &ITEMS_NAME, &items )) {
-        const JUTIL::ConstantString ITEMS_NOT_FOUND_ERROR = "Failed to find item object in definitions.";
-        set_error( &ITEMS_NOT_FOUND_ERROR );
+        stack->log( "Failed to find item object in definitions.");
         return false;
     }
 
 	// Create fallback definition.
     JUI::FileTexture* unknown_item;
     if (!graphics_->get_texture( &FALLBACK_ITEM_TEXTURE, &unknown_item )) {
-        const JUTIL::ConstantString FALLBACK_TEXTURE_LOAD_ERROR = "Failed to load texture for fallback/unknown item.";
-        set_error( &FALLBACK_TEXTURE_LOAD_ERROR );
+        stack->log( "Failed to load texture for fallback/unknown item.");
 	    return false;
     }
 
     // Create definition.
     JUTIL::ConstantString* unknown_name;
     if (!JUTIL::BaseAllocator::allocate( &unknown_name )) {
-        const JUTIL::ConstantString FALLBACK_DEFINITION_CREATE_ERROR = "Failed to create fallback item definition.";
-        set_error( &FALLBACK_DEFINITION_CREATE_ERROR );
+        stack->log( "Failed to create fallback item definition.");
         return false;
     }
     unknown_name = new (unknown_name) JUTIL::ConstantString( &FALLBACK_ITEM_NAME );
     if (!JUTIL::BaseAllocator::allocate( &Item::fallback )) {
         JUTIL::BaseAllocator::destroy( unknown_name );
-        const JUTIL::ConstantString FALLBACK_DEFINITION_CREATE_ERROR = "Failed to create fallback item definition.";
-        set_error( &FALLBACK_DEFINITION_CREATE_ERROR );
+        stack->log( "Failed to create fallback item definition.");
         return false;
     }
 	Item::fallback = new (Item::fallback) ItemInformation(
@@ -404,7 +398,7 @@ bool DefinitionLoader::load()
     JUTIL::DynamicString* image_url = nullptr;
 
 	// Start loading items.
-    bool success = true;
+	success = true;
 	size_t loaded_items = 0;
 	size_t num_items = items->size();
 	set_state( LOADING_STATE_LOADING_ITEMS );
@@ -451,47 +445,64 @@ bool DefinitionLoader::load()
 	set_state( LOADING_STATE_FINISHED );
 }
 
+/*
+ * Load an item from a JSON object.
+ * Returns true if item loaded successfully, false otherwise.
+ *
+ * Parameters:
+ * name - Dynamic string to fill out with item's name.
+ * image - Dynamic string to fill with item's image file name.
+ * image_url - Dynamic string to fill with item's image download URL.
+ */
 bool DefinitionLoader::load_item( Json::Value* item,
     JUTIL::DynamicString* name,
     JUTIL::DynamicString* image,
     JUTIL::DynamicString* image_url )
 {
+	// Stack for error reporting.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
     // Get all necessary attributes.
     Json::Value* item_index;
     Json::Value* item_name;
     if (!get_member( item, &ITEM_INDEX, &item_index ) || !get_member( item, &ITEM_NAME, &item_name )) {
-        const JUTIL::ConstantString ITEM_FORMAT_ERROR = "Improper format for item in definitions.";
-        set_error( &ITEM_FORMAT_ERROR );
+        stack->log( "Improper format for item in definitions.");
         return false;
     }
 
     // Write name to string.
     if (!name->write( "%s", item_name->asCString() )) {
         JUTIL::BaseAllocator::destroy( name );
-        const JUTIL::ConstantString ITEM_NAME_ERROR = "Failed to write item name string.";
-        set_error( &ITEM_NAME_ERROR );
+        stack->log( "Failed to write item name string.");
         return false;
     }
 
     // Write image and URL if reported by JSON; fallback if none.
     Json::Value* item_image;
     Json::Value* item_image_url;
-    const JUTIL::ConstantString IMAGE_STRING_ERROR = "Failed to create image/URL string.";
     if (get_member( item, &ITEM_IMAGE, &item_image ) && get_member( item, &ITEM_IMAGE_URL, &item_image_url)) {
         // Write image file.
         const char* image_cstring = item_image->asCString();
         const char* image_url_cstring = item_image_url->asCString();
-        if (!image->write( "img/%s.png", image_cstring ) || !image_url->write( image_url_cstring )) {
-            set_error( &IMAGE_STRING_ERROR );
+        if (!image->write( "img/%s.png", image_cstring )) {
+			stack->log( "Failed to write image path for item definition." );
+			return false;
+		}
+		else if (!image_url->write( image_url_cstring )) {
+            stack->log( "Failed to create image or URL string for item definition." );
             return false;
         }
     }
     else {
         // Copy fallback.
-        if (!image->copy( &FALLBACK_ITEM_TEXTURE ) || !image_url->copy( &FALLBACK_ITEM_TEXTURE_URL )) {
-            set_error( &IMAGE_STRING_ERROR );
+        if (!image->copy( &FALLBACK_ITEM_TEXTURE )) {
+			stack->log( "Failed to copy fallback item texture name." );
             return false;
         }
+		else if ( !image_url->copy( &FALLBACK_ITEM_TEXTURE_URL )) {
+			stack->log( "Failed to copy fallback item texture URL." );
+			return false;
+		}
     }
 
     // Load item slots.
@@ -500,8 +511,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
     if (get_member( item, &ITEM_SLOT, &item_slot )) {
         const JUTIL::ConstantString slot_name = item_slot->asCString();
         if (!slots_.get( &slot_name, &slot )) {
-            const JUTIL::ConstantString UNKNOWN_SLOT_ERROR = "Unknown slot type found in definitions.";
-            set_error( &UNKNOWN_SLOT_ERROR );
+            stack->log( "Unknown slot type found in definitions.");
             return false;
         }
     }
@@ -518,8 +528,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
             // Find enum for name.
             EClassEquip class_equip;
             if (!classes_.get( &class_name, &class_equip )) {
-                const JUTIL::ConstantString UNKNOWN_CLASS_ERROR = "Unknown class type found in definitions.";
-                set_error( &UNKNOWN_CLASS_ERROR );
+                stack->log( "Unknown class type found in definitions.");
                 return false;
             }
 
@@ -543,8 +552,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
 	// Generate information object.
     ItemInformation* information;
     if (!JUTIL::BaseAllocator::allocate( &information )) {
-        const JUTIL::ConstantString INFORMATION_ALLOCATE_ERROR = "Failed to create item information object.";
-        set_error( &INFORMATION_ALLOCATE_ERROR );
+        stack->log( "Failed to create item information object.");
         return false;
     }
     information = new (information) ItemInformation(
@@ -562,8 +570,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
 
 			// Get class and value.
             if (!load_item_attribute( attribute, information )) {
-                const JUTIL::ConstantString ATTRIBUTE_LOAD_ERROR = "Failed to load attribute for item.";
-                set_error( &ATTRIBUTE_LOAD_ERROR );
+                stack->log( "Failed to load attribute for item.");
                 return false;
             }
 		}
@@ -573,8 +580,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
     uint16 index = static_cast<uint16>(item_index->asUInt());
     if (!Item::definitions.insert( index, information )) {
         JUTIL::BaseAllocator::destroy( information );
-        const JUTIL::ConstantString ITEM_INFORMATION_ERROR = "Failed to add item information to map.";
-        set_error( &ITEM_INFORMATION_ERROR );
+        stack->log( "Failed to add item information to map.");
         return false;
     }
 
@@ -582,19 +588,27 @@ bool DefinitionLoader::load_item( Json::Value* item,
     return true;
 }
 
+/*
+ * Load an item attribute from JSON object.
+ * Returns true on success, false otherwise.
+ *
+ * Parameters:
+ * information - Item information to add attribute to on success.
+ */
 bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemInformation* information )
 {
+	// Get error stack for reporting failure.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
     // Get attribute name.
     Json::Value* attribute_name;
     Json::Value* attribute_value;
     if (!get_member( attribute, &ATTRIBUTE_NAME, &attribute_name )) {
-        const JUTIL::ConstantString ATTRIBUTE_NAME_ERROR = "Failed to get name from attribute definition.";
-        set_error( &ATTRIBUTE_NAME_ERROR );
+        stack->log( "Failed to get name from attribute definition.");
         return false;
     }
     else if (!get_member( attribute, &ATTRIBUTE_VALUE, &attribute_value )) {
-        const JUTIL::ConstantString ATTRIBUTE_VALUE_ERROR = "Failed to get value from attribute definition.";
-        set_error( &ATTRIBUTE_VALUE_ERROR );
+        stack->log( "Failed to get value from attribute definition.");
         return false;
     }
     const JUTIL::ConstantString name = attribute_name->asCString();
@@ -603,22 +617,19 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemInformat
 	// Get information.
     AttributeInformation* attribute_information;
     if (!name_map_.get( &name, &attribute_information )) {
-        const JUTIL::ConstantString ATTRIBUTE_NOT_FOUND_ERROR = "Failed to find attribute by name.";
-        set_error( &ATTRIBUTE_NOT_FOUND_ERROR );
+        stack->log( "Failed to find attribute by name.");
         return false;
 	}
 
 	// Create new attribute.
     Attribute* new_attribute;
     if (!JUTIL::BaseAllocator::allocate( &new_attribute )) {
-        const JUTIL::ConstantString ATTRIBUTE_ALLOCATE_ERROR = "Failed to create attribute.";
-        set_error( &ATTRIBUTE_ALLOCATE_ERROR );
+        stack->log( "Failed to create attribute.");
         return false;
     }
     new_attribute = new (new_attribute) Attribute( attribute_information, value );
     if (information->add_attribute( new_attribute )) {
-        const JUTIL::ConstantString ATTRIBUTE_ADD_ERROR = "Failed to add attribute to item definition.";
-        set_error( &ATTRIBUTE_ADD_ERROR );
+        stack->log( "Failed to add attribute to item definition.");
         return false;
     }
 
@@ -626,7 +637,10 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemInformat
     return true;
 }
 
-void DefinitionLoader::clean_up()
+/*
+ * Clean up definition loader.
+ */
+void DefinitionLoader::clean_up( void )
 {
 	set_state( LOADING_STATE_CLEANUP );
 	root_.clear();
@@ -635,88 +649,128 @@ void DefinitionLoader::clean_up()
 	graphics_->set_render_context( graphics_->get_loading_context() );
 }
 
-void DefinitionLoader::set_state( ELoadingState state )
+/*
+ * Set definition loader state.
+ */
+void DefinitionLoader::set_state( DefinitionLoaderState state )
 {
 	state_ = state;
 	set_progress( 0.0f );
-	state_changed_ = true;
-	update_progress_msg();
+	has_state_changed_ = true;
 }
 
-ELoadingState DefinitionLoader::get_state() const
+/*
+ * Get definition loading state.
+ */
+DefinitionLoaderState DefinitionLoader::get_state( void ) const
 {
 	return state_;
 }
 
-float DefinitionLoader::get_progress() const
+/*
+ * Get progress as floating point percentage.
+ */
+float DefinitionLoader::get_progress( void ) const
 {
 	return progress_ * 100.0f;
 }
 
-void DefinitionLoader::set_error( const std::string& error_msg )
-{
-	error_msg_ = error_msg;
-	set_state( LOADING_STATE_ERROR );
-}
-
+/*
+ * Set progress as floating point percentage.
+ */
 void DefinitionLoader::set_progress( float percentage )
 {
-	progress_ = percentage;
+	if (progress_ != percentage) {
+		progress_ = percentage;
+		has_state_changed_ = true;
+	}
 }
 
+/*
+ * Set progress by current and total.
+ */
 void DefinitionLoader::set_progress( size_t loaded, size_t total )
 {
-	set_progress( static_cast<float>(loaded) / static_cast<float>(total) );
+	float percent = static_cast<float>(loaded) / static_cast<float>(total);
+	set_progress( percent );
 }
 
-void DefinitionLoader::set_progress_msg( const std::string& progress_msg )
+/*
+ * Get progress message if any.
+ */
+const JUTIL::String* DefinitionLoader::get_progress_message( void )
 {
-	progress_msg_ = progress_msg;
+	// Update progress message if state changed.
+	if (has_state_changed_) {
+		has_state_changed_ = false;
+		if (!update_progress_message()) {
+			return &DEFAULT_STATUS_MESSAGE;
+		}
+	}
+
+	return &progress_message_;
 }
 
-const std::string& DefinitionLoader::get_progress_msg() const
+/*
+ * Update progress message with new information.
+ */
+bool DefinitionLoader::update_progress_message( void )
 {
-	return progress_msg_;
-}
+	// Erase old message.
+	progress_message_.clear();
 
-void DefinitionLoader::update_progress_msg()
-{
-	std::stringstream message;
-	message.precision( 3 );
-
+	// Write new state.
+	float progress = get_progress();
 	switch (get_state()) {
 	case LOADING_STATE_NONE:
-		message << "Definition loader not started.";
+		if (!progress_message_.write( "Definition loader not started." )) {
+			return false;
+		}
 		break;
 
 	case LOADING_STATE_START:
-		message << "Starting definition loader...";
+		if (!progress_message_.write( "Starting definition loader..." )) {
+			return false;
+		}
 		break;
 
 	case LOADING_STATE_DOWNLOAD_DEFINITIONS:
-		message << "Downloading item schema from Steam Web API...";
+		if (!progress_message_.write( "Downloading item schema from Steam Web API..." )) {
+			return false;
+		}
 		break;
 
 	case LOADING_STATE_LOADING_ATTRIBUTES:
-		message << "Loading attributes from schema...\n(" << get_progress() << "%)";
+		if (!progress_message_.write( "Loading attributes from schema...\n%.2f\%", progress )) {
+			return false;
+		}
 		break;
 
 	case LOADING_STATE_LOADING_ITEMS:
-		message << "Loading items from schema...\n(" << get_progress() << "%)";
+		if (!progress_message_.write( "Loading items from schema...\n%.2f\%", progress )) {
+			return false;
+		}
 		break;
 
 	case LOADING_STATE_ERROR:
-		message << error_msg_;
+		if (!progress_message_.write( "Error occurred, exiting definition loader..." )) {
+			return false;
+		}
 		break;
 
 	case LOADING_STATE_CLEANUP:
-		message << "Cleaning up...";
+		if (!progress_message_.write( "Cleaning up..." )) {
+			return false;
+		}
 		break;
 
 	case LOADING_STATE_FINISHED:
-		message << "Loading item definitions completed successfully.";
+		if (!progress_message_.write( "Loading item definitions completed successfully." )) {
+			return false;
+		}
 		break;
 	}
 
-	set_progress_msg( message.str() );
+	// Successfully set.
+	return true;
 }

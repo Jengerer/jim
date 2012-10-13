@@ -8,7 +8,18 @@ DynamicSlotBook::DynamicSlotBook( unsigned int width,
 	unsigned int min_pages ) : SlotBook( width, height )
 {
 	set_min_pages( min_pages );
-	add_pages( min_pages );
+}
+
+/*
+ * Initialize dynamic slot book for default page count.
+ */
+bool DynamicSlotBook::initialize( void )
+{
+	if (!add_pages( min_pages_ )) {
+		return false;
+	}
+
+	return true;
 }
 
 /*
@@ -21,7 +32,7 @@ bool DynamicSlotBook::insert_item( Item* item )
 	for (unsigned int i = 0; i < end; i++) {
 		if (is_slot_empty( i )) {
 			SlotBook::insert_item( item, i );
-			return;
+			return true;
 		}
 	}
 

@@ -12,9 +12,6 @@ public:
 	Draggable( float x = 0.0f, float y = 0.0f );
 	virtual ~Draggable( void );
 
-	// Drawable function.
-	virtual void draw( JUI::Graphics2D* graphics );
-
 	// Mouse handling.
 	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
 	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
@@ -29,10 +26,6 @@ public:
 	bool is_dragging( void ) const;
 	virtual void begin_dragging( const JUI::Mouse* mouse );
 	virtual void end_dragging( void );
-
-	// Over-written position getters for dragging case.
-	virtual float get_x( void ) const;
-	virtual float get_y( void ) const;
 
 private:
 
