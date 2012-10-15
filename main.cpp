@@ -5,6 +5,9 @@
 int WINAPI WinMain( HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int show_cmd )
 {
 	ItemManager item_manager( instance );
+#ifdef _DEBUG
+    _crtBreakAlloc = 770;
+#endif
 
 	// Create instance of application.
 	bool success = JUI::ApplicationController::initialize( &item_manager );

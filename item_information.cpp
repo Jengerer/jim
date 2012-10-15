@@ -28,6 +28,9 @@ ItemInformation::~ItemInformation( void )
         JUTIL::BaseAllocator::destroy( attribute );
     }
     attributes_.clear();
+
+    // Destroy name.
+    JUTIL::BaseAllocator::destroy( name_ );
 }
 
 /*

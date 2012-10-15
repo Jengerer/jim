@@ -83,7 +83,13 @@ bool get_member( Json::Value* root, const JUTIL::String* member, Json::Value** o
         return false;
     }
 
-    *output = &(*root)[ member->get_string() ];
+    // Check that member is not null.
+    Json::Value* element = &(*root)[ member->get_string() ];
+    if (element->isNull()) {
+        return false;
+    }
+
+    *output = element;
     return true;
 }
 
@@ -93,6 +99,7 @@ bool get_member( Json::Value* root, const JUTIL::String* member, Json::Value** o
 DefinitionLoader::DefinitionLoader( JUI::Graphics2D* graphics )
 {
 	graphics_ = graphics;
+    thread_ = nullptr;
 
     // Initialize progress/state.
 	set_progress( 0.0f );
@@ -190,6 +197,7 @@ bool DefinitionLoader::load()
     JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
     if (downloader == nullptr) {
         stack->log( "Failed to create downloader.");
+        set_state( LOADING_STATE_ERROR );
         return false;
     }
 
@@ -197,6 +205,7 @@ bool DefinitionLoader::load()
     JUTIL::DynamicString definition;
     if (!downloader->read( &SCHEMA_URL, &definition )) {
         stack->log( "Failed to read schema from Steam web API.");
+        set_state( LOADING_STATE_ERROR );
         return false;
     }
 
@@ -204,13 +213,33 @@ bool DefinitionLoader::load()
 	Json::Reader reader;
 	if (!reader.parse( definition.get_string(), root_, false )) {
         stack->log( "Failed to parse item definition JSON.");
+        set_state( LOADING_STATE_ERROR );
         return false;
 	}
+
+    // Try load definitions.
+    if (!load_definitions( &root_ )) {
+        set_state( LOADING_STATE_ERROR );
+        return false;
+    }
+
+	clean_up();
+	set_state( LOADING_STATE_FINISHED );
+}
+
+/*
+ * Load definitions from JSON root object.
+ */
+bool DefinitionLoader::load_definitions( Json::Value* root )
+{
+    // Stack for reporting.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
     // Get result.
     Json::Value* result;
     Json::Value* attributes;
-    if (!get_member( &root_, &RESULT_NAME, &result ) || !get_member( &root_, &ATTRIBUTES_NAME, &attributes )) {
+    if (!get_member( &root_, &RESULT_NAME, &result ) || !get_member( result, &ATTRIBUTES_NAME, &attributes )) {
+        stack->log( "Failed to get result/attributes from definitions." );
         return false;
     }
 		
@@ -367,9 +396,18 @@ bool DefinitionLoader::load()
         return false;
     }
 
+    // Get fallback texture.
+    JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
+    if (!downloader->check_and_get( &FALLBACK_ITEM_TEXTURE, &FALLBACK_ITEM_TEXTURE_URL )) {
+        stack->log( "Failed to download fallback item texture!" );
+        return false;
+    }
+
 	// Create fallback definition.
     JUI::FileTexture* unknown_item;
-    if (!graphics_->get_texture( &FALLBACK_ITEM_TEXTURE, &unknown_item )) {
+    JUI::Graphics2D::ReturnStatus status;
+    status = graphics_->get_texture( &FALLBACK_ITEM_TEXTURE, &unknown_item );
+    if (status != JUI::Graphics2D::Success) {
         stack->log( "Failed to load texture for fallback/unknown item.");
 	    return false;
     }
@@ -398,7 +436,7 @@ bool DefinitionLoader::load()
     JUTIL::DynamicString* image_url = nullptr;
 
 	// Start loading items.
-	success = true;
+	bool success = true;
 	size_t loaded_items = 0;
 	size_t num_items = items->size();
 	set_state( LOADING_STATE_LOADING_ITEMS );
@@ -411,16 +449,19 @@ bool DefinitionLoader::load()
 
         // Allocate strings for parsing.
         if (!JUTIL::BaseAllocator::allocate( &name )) {
+            stack->log( "Failed to allocate string for item name." );
             success = false;
             break;
         }
         name = new (name) JUTIL::DynamicString();
         if (!JUTIL::BaseAllocator::allocate( &image )) {
+            stack->log( "Failed to allocate string for item image file." );
             success = false;
             break;
         }
         image = new (image) JUTIL::DynamicString();
         if (!JUTIL::BaseAllocator::allocate( &image_url )) {
+            stack->log( "Failed to allocate string for item image URL." );
             success = false;
             break;
         }
@@ -441,8 +482,11 @@ bool DefinitionLoader::load()
 		set_progress( loaded_items, num_items );
 	}
 
-	clean_up();
-	set_state( LOADING_STATE_FINISHED );
+    // Make sure item loading succeeded.
+    if (!success) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -478,22 +522,28 @@ bool DefinitionLoader::load_item( Json::Value* item,
     }
 
     // Write image and URL if reported by JSON; fallback if none.
+    bool use_fallback = true;
     Json::Value* item_image;
     Json::Value* item_image_url;
     if (get_member( item, &ITEM_IMAGE, &item_image ) && get_member( item, &ITEM_IMAGE_URL, &item_image_url)) {
         // Write image file.
-        const char* image_cstring = item_image->asCString();
-        const char* image_url_cstring = item_image_url->asCString();
-        if (!image->write( "img/%s.png", image_cstring )) {
-			stack->log( "Failed to write image path for item definition." );
-			return false;
-		}
-		else if (!image_url->write( image_url_cstring )) {
-            stack->log( "Failed to create image or URL string for item definition." );
-            return false;
+        const JUTIL::ConstantString IMAGE = item_image->asCString();
+        const JUTIL::ConstantString IMAGE_URL = item_image_url->asCString();
+        if ((IMAGE.get_length() != 0) && (IMAGE_URL.get_length() != 0)) {
+            if (!image->write( "img/%s.png", IMAGE.get_string() )) {
+		        stack->log( "Failed to write image path for item definition." );
+		        return false;
+	        }
+	        else if (!image_url->write( IMAGE_URL.get_string() )) {
+                stack->log( "Failed to create image or URL string for item definition." );
+                return false;
+            }
+
+            // Successfully wrote.
+            use_fallback = false;
         }
     }
-    else {
+    if (use_fallback) {
         // Copy fallback.
         if (!image->copy( &FALLBACK_ITEM_TEXTURE )) {
 			stack->log( "Failed to copy fallback item texture name." );
@@ -538,14 +588,19 @@ bool DefinitionLoader::load_item( Json::Value* item,
 
 	// Check that texture exists.
 	const JUI::Texture* texture = nullptr;
-	JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
 
     // Load texture; fall back to default if failed.
-    JUI::FileTexture* item_texture;
-    if (downloader->check_and_get( image, image_url ) && graphics_->get_texture( image, &item_texture )) {
-        texture = static_cast<JUI::Texture*>(item_texture);
+    JUI::FileTexture* item_texture = nullptr;;
+    JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
+    if (downloader->check_and_get( image, image_url )) {
+        JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( image, &item_texture );
+        if (status == JUI::Graphics2D::Success) {
+            texture = static_cast<JUI::Texture*>(item_texture);
+        }
     }
-    else {
+    
+    // Fallback if failed.
+    if (item_texture == nullptr) {
         texture = Item::fallback->get_texture();
     }
 
@@ -570,7 +625,6 @@ bool DefinitionLoader::load_item( Json::Value* item,
 
 			// Get class and value.
             if (!load_item_attribute( attribute, information )) {
-                stack->log( "Failed to load attribute for item.");
                 return false;
             }
 		}
@@ -628,7 +682,7 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemInformat
         return false;
     }
     new_attribute = new (new_attribute) Attribute( attribute_information, value );
-    if (information->add_attribute( new_attribute )) {
+    if (!information->add_attribute( new_attribute )) {
         stack->log( "Failed to add attribute to item definition.");
         return false;
     }

@@ -34,36 +34,36 @@ public:
 	bool send_message( unsigned int id, void* buffer, uint32 size ) const;
 
 	// SO version handling.
-	void		set_version( uint64 version );
-	uint64		get_version() const;
+	void set_version( uint64 version );
+	uint64 get_version() const;
 
 	// Steam getters.
-	uint64		get_steam_id( void ) const;
+	uint64 get_steam_id( void ) const;
 
 	// For sending protobuf headers.
-	void		set_target_id( uint64 target_id );
-	void		generate_protobuf_header( CMsgProtoBufHeader *header_msg ) const;
+	void set_target_id( uint64 target_id );
+	void generate_protobuf_header( CMsgProtoBufHeader *header_msg ) const;
 
 private:
 
-	uint64		get_target_id( void ) const;
+	uint64 get_target_id( void ) const;
 
 private:
 
 	// Steam handles.
-	HSteamUser					user_;
-	HSteamPipe					pipe_;
+	HSteamUser user_;
+	HSteamPipe pipe_;
 
 	// Steam interfaces.
-	ISteamClient008*			steam_client_;
-	ISteamUser012*				steam_user_;
-	ISteamGameCoordinator001*	game_coordinator_;
+	ISteamClient008* steam_client_;
+	ISteamUser012* steam_user_;
+	ISteamGameCoordinator001* game_coordinator_;
 
 	// Steam interface target.
-	uint64						target_id_;
-	uint64						version_;
+	uint64 target_id_;
+	uint64 version_;
 
 	// For function loading.
-	HMODULE						client_dll_;
+	HMODULE client_dll_;
 
 };

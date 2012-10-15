@@ -21,6 +21,20 @@ AttributeInformation::AttributeInformation( JUTIL::String* name,
 	effect_type_ = effect_type;
 	hidden_ = hidden;
 	is_integer_ = is_integer;
+
+    // No description by default.
+    set_description( nullptr, nullptr );
+}
+
+/*
+ * Attribute information destructor.
+ */
+AttributeInformation::~AttributeInformation( void )
+{
+    JUTIL::BaseAllocator::destroy( name_ );
+    JUTIL::BaseAllocator::destroy( attribute_class_ );
+    JUTIL::BaseAllocator::safe_destroy( &description_ );
+    JUTIL::BaseAllocator::safe_destroy( &format_ );
 }
 
 /*

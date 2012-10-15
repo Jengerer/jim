@@ -442,8 +442,6 @@ bool ItemManager::loading( void )
 			
 				// Initialize steam.
 				if (!steam_items_.load_interfaces()) {
-					JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-					stack->log( "Failed to initialize Steam." );
 					return false;
 				}
 
@@ -478,6 +476,9 @@ bool ItemManager::loading( void )
 			popups_->remove_popup( load_progress_ );
 		}
 	}
+
+    // No problems.
+    return true;
 }
 
 bool ItemManager::running( void )
@@ -1476,20 +1477,26 @@ bool ItemManager::on_popup_key_released( Popup* popup )
  */
 bool ItemManager::create_layout( void )
 {
+    // Stack for logging.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	// Create layout.
 	JUI::VerticalLayout* layout;
 	if (!JUTIL::BaseAllocator::allocate( &layout )) {
+        stack->log( "Failed to allocate vertical layout." );
 		return false;
 	}
 	layout = new (layout) JUI::VerticalLayout( SPACING, JUI::ALIGN_LEFT );
 	if (!user_layer_->add( layout )) {
 		JUTIL::BaseAllocator::destroy( layout );
+        stack->log( "Failed to add layout to user layer." );
 		return false;
 	}
 
 	// Create title.
 	JUTIL::DynamicString title;
 	if (!title.write( "%s %s", APPLICATION_TITLE.get_string(), APPLICATION_VERSION.get_string() )) {
+        stack->log( "Failed to write title string." );
 		return false;
 	}
 	JUI::Text* title_text = new JUI::Text( title_font_ );
@@ -1497,51 +1504,59 @@ bool ItemManager::create_layout( void )
 	title_text->set_colour( &TITLE_COLOUR );
 	if (!layout->add( title_text )) {
 		JUTIL::BaseAllocator::destroy( title_text );
+        stack->log( "Failed to add title to layout." );
 		return false;
 	}
 
 	// Create inventory view.
 	if (!JUTIL::BaseAllocator::allocate( &inventory_view_ )) {
+        stack->log( "Failed to allocate inventory view." );
 		return false;
 	}
-	inventory_view_ = new (inventory_view_) AnimatedBookView( inventory_book_, PAGE_SPACING, SLOT_SPACING );
-	free(inventory_view_);
+    inventory_view_ = new (inventory_view_) AnimatedBookView( inventory_book_, PAGE_SPACING, SLOT_SPACING );
 	if (!inventory_view_->initialize() || !layout->add( inventory_view_ )) {
 		JUTIL::BaseAllocator::destroy( inventory_view_ );
+        stack->log( "Failed to add initialized inventory view to layout." );
 		return false;
 	}
 
 	// Create button layout.
 	JUI::HorizontalSplitLayout* button_layout;
 	if (!JUTIL::BaseAllocator::allocate( &button_layout )) {
+        stack->log( "Failed to allocate button layout." );
 		return false;
 	}
 	int inventory_width = inventory_view_->get_width();
 	button_layout = new (button_layout) JUI::HorizontalSplitLayout( inventory_width );
 	if (!layout->add( button_layout )) {
 		JUTIL::BaseAllocator::destroy( button_layout );
+        stack->log( "Failed to add button layout to layout." );
 		return false;
 	}
 
 	// Create inventory button layout.
 	JUI::HorizontalLayout* inventory_buttons;
 	if (!JUTIL::BaseAllocator::allocate( &inventory_buttons )) {
+        stack->log( "Failed to allocate inventory button layout." );
 		return false;
 	}
 	inventory_buttons = new (inventory_buttons) JUI::HorizontalLayout( BUTTON_SPACING, JUI::ALIGN_TOP );
 	if (!button_layout->set_left( inventory_buttons )) {
 		JUTIL::BaseAllocator::destroy( inventory_buttons );
+        stack->log( "Failed to add inventory buttons to button layout." );
 		return false;
 	}
 
 	// Create page button layout.
 	JUI::HorizontalLayout* page_display_layout;
 	if (!JUTIL::BaseAllocator::allocate( &page_display_layout )) {
+        stack->log( "Failed to create page display layout." );
 		return false;
 	}
 	page_display_layout = new (page_display_layout) JUI::HorizontalLayout( BUTTON_SPACING, JUI::ALIGN_TOP );
 	if (!button_layout->set_right( page_display_layout )) {
 		JUTIL::BaseAllocator::destroy( page_display_layout );
+        stack->log( "Failed to add page display to button layout." );
 		return false;
 	}
 
@@ -1549,10 +1564,23 @@ bool ItemManager::create_layout( void )
 	JUI::FileTexture* craft_texture;
     JUI::FileTexture* equip_texture;
     JUI::FileTexture* sort_texture;
-    bool success = graphics_.get_texture( &CRAFT_ICON_TEXTURE, &craft_texture ) &&
-        graphics_.get_texture( &EQUIP_ICON_TEXTURE, &equip_texture ) &&
-        graphics_.get_texture( &SORT_ICON_TEXTURE, &sort_texture );
-    if (!success) {
+    JUI::Graphics2D::ReturnStatus status;
+
+    // Load craft texture.
+    status = graphics_.get_texture( &CRAFT_ICON_TEXTURE, &craft_texture );
+    if (status != JUI::Graphics2D::Success) {
+        return false;
+    }
+
+    // Load equip texture.
+    status = graphics_.get_texture( &EQUIP_ICON_TEXTURE, &equip_texture );
+    if (status != JUI::Graphics2D::Success) {
+        return false;
+    }
+
+    // Load sort texture.
+    status = graphics_.get_texture( &SORT_ICON_TEXTURE, &sort_texture );
+    if (status != JUI::Graphics2D::Success) {
         return false;
     }
 
@@ -1560,10 +1588,12 @@ bool ItemManager::create_layout( void )
     const JUTIL::ConstantString CRAFT_BUTTON_LABEL = "craft";
 	craft_button_ = Button::create_icon_label_button( craft_texture, &CRAFT_BUTTON_LABEL );
     if (craft_button_ == nullptr) {
+        stack->log( "Failed to create craft button." );
         return false;
     }
     if (!inventory_buttons->add( craft_button_ )) {
 		JUTIL::BaseAllocator::destroy( craft_button_ );
+        stack->log( "Failed to add craft button to inventory button layout." );
 		return false;
 	}
 
@@ -1571,10 +1601,12 @@ bool ItemManager::create_layout( void )
 	const JUTIL::ConstantString EQUIP_BUTTON_LABEL = "equip";
 	equip_button_ = Button::create_icon_label_button( equip_texture, &EQUIP_BUTTON_LABEL );
     if (equip_button_ == nullptr) {
+        stack->log( "Failed to create equip button." );
         return false;
     }
 	if (!inventory_buttons->add( equip_button_ )) {
 		JUTIL::BaseAllocator::destroy( equip_button_ );
+        stack->log( "Failed to add equip button to inventory button layout." );
 		return false;
 	}
 
@@ -1582,10 +1614,12 @@ bool ItemManager::create_layout( void )
 	const JUTIL::ConstantString SORT_BUTTON_LABEL = "sort";
 	sort_button_ = Button::create_icon_label_button( sort_texture, &SORT_BUTTON_LABEL );
     if (sort_button_ == nullptr) {
+        stack->log( "Failed to create sort button." );
         return false;
     }
 	if (!inventory_buttons->add( sort_button_ )) {
 		JUTIL::BaseAllocator::destroy( inventory_buttons );
+        stack->log( "Failed to add sort button to inventory button layout." );
 		return false;
 	}
 
@@ -1598,22 +1632,26 @@ bool ItemManager::create_layout( void )
 	const JUTIL::ConstantString PREV_PAGE_LABEL = "<";
 	prev_button_ = Button::create_label_button( &PREV_PAGE_LABEL );
 	if (prev_button_ == nullptr) {
+        stack->log( "Failed to create previous page button." );
 		return false;
 	}
 	if (!page_display_layout->add( prev_button_ )) {
 		JUTIL::BaseAllocator::destroy( prev_button_ );
+        stack->log( "Failed to add previous button to page display layout." );
 		return false;
 	}
 
 	// Create page display text.
 	if (!JUTIL::BaseAllocator::allocate( &page_display_ )) {
+        stack->log( "Failed to allocate page display text." );
 		return false;
 	}
 	page_display_ = new (page_display_) JUI::WrappedText( page_font_, PAGE_LABEL_WIDTH );
 	page_display_->set_colour( &PAGE_LABEL_COLOUR );
 	page_display_->set_text_formatting( DT_CENTER );
-	if (!update_page_display() || !page_display_layout->add( page_display_ )) {
+	if (!page_display_layout->add( page_display_ )) {
 		JUTIL::BaseAllocator::destroy( page_display_ );
+        stack->log( "Failed to add page display text to page display layout." );
 		return false;
 	}
 
@@ -1621,12 +1659,20 @@ bool ItemManager::create_layout( void )
 	const JUTIL::ConstantString NEXT_PAGE_LABEL = ">";
 	next_button_ = Button::create_label_button( &NEXT_PAGE_LABEL );
 	if (next_button_ == nullptr) {
+        stack->log( "Failed to create next page button." );
 		return false;
 	}
 	if (!page_display_layout->add( next_button_ )) {
 		JUTIL::BaseAllocator::destroy( next_button_ );
+        stack->log( "Failed to add next page button to page display layout." );
 		return false;
 	}
+
+    // Page display created, initialize.
+    if (!update_page_display()) {
+        stack->log( "Failed to update page display to default." );
+        return false;
+    }
 
 	// Pack buttons.
 	inventory_buttons->pack();
@@ -1635,11 +1681,13 @@ bool ItemManager::create_layout( void )
 
 	// Create excluded view.
 	if (!JUTIL::BaseAllocator::allocate( &excluded_view_ )) {
+        stack->log( "Failed to allocate excluded slot view." );
 		return false;
 	}
 	excluded_view_ = new (excluded_view_) SlotBookView( excluded_book_, PAGE_SPACING, SLOT_SPACING );
 	if (!excluded_view_->initialize() || !layout->add( excluded_view_ )) {
 		JUTIL::BaseAllocator::destroy( excluded_view_ );
+        stack->log( "Failed to add initialized excluded view to layout." );
 		return false;
 	}
 
@@ -1651,11 +1699,13 @@ bool ItemManager::create_layout( void )
 
 	// Create item display.
 	if (!JUTIL::BaseAllocator::allocate( &item_display_ )) {
+        stack->log( "Failed to allocate item display." );
 		return false;
 	}
 	item_display_ = new (item_display_) ItemDisplay();
 	if (!user_layer_->add( item_display_ )) {
 		JUTIL::BaseAllocator::destroy( item_display_ );
+        stack->log( "Failed to add item display to user layer." );
 		return false;
 	}
 
@@ -1668,9 +1718,13 @@ bool ItemManager::create_layout( void )
  */
 bool ItemManager::create_layers( void )
 {
+    // Error stack for logging.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	// Create the user layer.
 	if (!JUTIL::BaseAllocator::allocate( &user_layer_ ))
 	{
+        stack->log( "Failed to allocate user layer." );
 		return false;
 	}
 	user_layer_ = new (user_layer_) Container();
@@ -1678,16 +1732,19 @@ bool ItemManager::create_layers( void )
 	if (!add( user_layer_ ))
 	{
 		JUTIL::BaseAllocator::destroy( user_layer_ );
+        stack->log( "Failed to add user layer to application." );
 		return false;
 	}
 
 	// Create popup layer on top.
 	if (!JUTIL::BaseAllocator::allocate( &popups_ )) {
+        stack->log( "Failed to allocate popup layer." );
 		return false;
 	}
 	popups_ = new (popups_) PopupDisplay();
 	if (!add( popups_ )) {
 		JUTIL::BaseAllocator::destroy( popups_ );
+        stack->log( "Failed to add popup layer to application." );
 		return false;
 	}
 	popups_->set_size( get_width(), get_height() );

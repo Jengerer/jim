@@ -55,12 +55,18 @@ bool SlotBookView::initialize( void )
 	}
 	pages_layout_ = new (pages_layout_) JUI::HorizontalLayout( page_spacing_, JUI::ALIGN_TOP );
 	pages_layout_->set_parent( this );
-	add( pages_layout_ );
+	if (!add( pages_layout_ )) {
+        JUTIL::BaseAllocator::destroy( pages_layout_ );
+        return false;
+    }
 
 	// Constrain and pack.
-	update_pages();
+	if (!update_pages()) {
+        return false;
+    }
 	pages_constraint_ = set_constraint( pages_layout_, get_view_offset(), 0.0f );
 	pack();
+    return true;
 }
 
 /*
@@ -104,6 +110,7 @@ bool SlotBookView::update_pages( void )
 
     // Organize in layout.
 	pack();
+    return true;
 }
 
 /*

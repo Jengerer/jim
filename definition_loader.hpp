@@ -50,6 +50,7 @@ public:
 private:
 
 	bool load( void );
+    bool load_definitions( Json::Value* root );
     bool load_item( Json::Value* item,
         JUTIL::DynamicString* name,
         JUTIL::DynamicString* image,
