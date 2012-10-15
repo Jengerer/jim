@@ -30,6 +30,7 @@ bool RoundedRectangleContainer::initialize( void )
 		return false;
 	}
 	set_constraint( rounded_rect_, 0.0f, 0.0f );
+    return true;
 }
 
 /*

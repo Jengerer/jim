@@ -113,7 +113,7 @@ private:
 	Container* user_layer_;
 
 	// User interface members.
-	SlotBookView* inventory_view_;
+	AnimatedBookView* inventory_view_;
 	SlotBookView* excluded_view_;
 	Button* craft_button_;
 	Button* equip_button_;

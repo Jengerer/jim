@@ -24,6 +24,7 @@ public:
 		EffectType effect_type,
 		bool hidden,
 		bool is_integer );
+    virtual ~AttributeInformation();
 
 	// Accessing main attributes.
 	const JUTIL::String* get_name( void ) const;

@@ -48,6 +48,7 @@ bool Notice::initialize( const JUTIL::String* message )
     rounded_container_ = new (rounded_container_) RoundedRectangleContainer( NOTICE_RADIUS, NOTICE_PADDING );
 	if (!rounded_container_->initialize()) {
 		JUTIL::BaseAllocator::destroy( rounded_container_ );
+        return false;
 	}
         
     // Style rounded rectangle.
