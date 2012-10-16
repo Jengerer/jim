@@ -93,6 +93,9 @@ const unsigned int SPACING	= 10;
  */
 ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 {
+    JUTIL::AllocationManager* manager =JUTIL::AllocationManager::get_instance();
+    //manager->set_debug_break( 713 );
+
 	// Set application size.
 	set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
 
@@ -132,6 +135,9 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 
 	// Create Steam interface.
 	page_delay_ = 0;
+
+    // Web interface.
+    site_loader_ = nullptr;
 
 	// Set default running function.
 	set_think( &ItemManager::loading );
@@ -345,7 +351,7 @@ void ItemManager::close_interfaces( void )
 	// Erase item definitions.
     InformationMap::Iterator i;
 	for (i = Item::definitions.begin(); i.has_next(); i.next()) {
-		delete i.get_value();
+        JUTIL::BaseAllocator::destroy( i.get_value() );
 	}
     Item::definitions.clear();
 
