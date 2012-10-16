@@ -35,7 +35,7 @@ public:
 
 	// SO version handling.
 	void set_version( uint64 version );
-	uint64 get_version() const;
+	uint64 get_version( void ) const;
 
 	// Steam getters.
 	uint64 get_steam_id( void ) const;

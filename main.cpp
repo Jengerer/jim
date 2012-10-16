@@ -4,21 +4,23 @@
 // Global application handle.
 int WINAPI WinMain( HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int show_cmd )
 {
-	ItemManager item_manager( instance );
 #ifdef _DEBUG
-    _crtBreakAlloc = 770;
+    OutputDebugString( "== BEFORE INITIALIZE ==\n" );
+    _CrtDumpMemoryLeaks();
 #endif
+    // Start in scope so manager is destroyed.
+    {
+	    bool success = JUI::ApplicationController::initialize<ItemManager>( instance );
+	    if (success) {
+		    JUI::ApplicationController::main_loop();
+	    }
 
-	// Create instance of application.
-	bool success = JUI::ApplicationController::initialize( &item_manager );
-	if (success) {
-		JUI::ApplicationController::main_loop();
-	}
-
-	// Exit application after main loop.
-	JUI::ApplicationController::exit();
+	    // Exit application after main loop.
+	    JUI::ApplicationController::exit();
+    }
 
 #ifdef _DEBUG
+    OutputDebugString( "== AFTER INITIALIZE ==\n" );
 	_CrtDumpMemoryLeaks();
 #endif
 

@@ -113,6 +113,7 @@ DefinitionLoader::~DefinitionLoader( void )
 {
 	if (thread_ != nullptr) {
 		end();
+        JUTIL::BaseAllocator::destroy( thread_ );
 	}
 }
 
@@ -432,8 +433,6 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 
     // Strings for parsing.
     JUTIL::DynamicString* name = nullptr;
-    JUTIL::DynamicString* image = nullptr;
-    JUTIL::DynamicString* image_url = nullptr;
 
 	// Start loading items.
 	bool success = true;
@@ -454,26 +453,16 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
             break;
         }
         name = new (name) JUTIL::DynamicString();
-        if (!JUTIL::BaseAllocator::allocate( &image )) {
-            stack->log( "Failed to allocate string for item image file." );
-            success = false;
-            break;
-        }
-        image = new (image) JUTIL::DynamicString();
-        if (!JUTIL::BaseAllocator::allocate( &image_url )) {
-            stack->log( "Failed to allocate string for item image URL." );
-            success = false;
-            break;
-        }
-        image_url = new (image_url) JUTIL::DynamicString();
+
+        // Image and URL strings.
+        JUTIL::DynamicString image;
+        JUTIL::DynamicString image_url;
 
         // Load item.
 		Json::Value* item = &(*i);
-        if (!load_item( item, name, image, image_url )) {
+        if (!load_item( item, name, &image, &image_url )) {
             success = false;
             JUTIL::BaseAllocator::destroy( name );
-            JUTIL::BaseAllocator::destroy( image );
-            JUTIL::BaseAllocator::destroy( image_url );
             break;
         }
 
