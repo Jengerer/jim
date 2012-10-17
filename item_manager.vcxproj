@@ -53,13 +53,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
@@ -135,7 +135,7 @@
     <ClCompile Include="protobuf\base_gcmessages.pb.cc" />
     <ClCompile Include="protobuf\gcsdk_gcmessages.pb.cc" />
     <ClCompile Include="protobuf\steammessages.pb.cc" />
-    <ClCompile Include="rounded_container.cpp" />
+    <ClCompile Include="rounded_rectangle_container.cpp" />
     <ClCompile Include="rounded_rectangle.cpp" />
     <ClCompile Include="serialized_buffer.cpp" />
     <ClCompile Include="slot.cpp" />

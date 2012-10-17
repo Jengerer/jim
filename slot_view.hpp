@@ -16,8 +16,9 @@ class SlotView: public JUI::ConstrainedContainer
 
 public:
 
-	// Constructor.
+	// Initialization and construction.
 	SlotView( Slot* slot );
+    bool initialize( void );
 
 	// Over-ridden drawing function.
 	void update();

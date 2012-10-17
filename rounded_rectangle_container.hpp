@@ -14,7 +14,9 @@ class RoundedRectangleContainer : public JUI::ConstrainedContainer
 
 public:
 
-	RoundedRectangleContainer( unsigned int padding, float localX = 0.0f, float localY = 0.0f );
+    RoundedRectangleContainer( unsigned int padding );
+	RoundedRectangleContainer( unsigned int padding, int x, int y );
+    virtual ~RoundedRectangleContainer( void );
 
 	// Element creation.
 	bool initialize( void );

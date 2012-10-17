@@ -75,9 +75,6 @@
     <ClCompile Include="popup.cpp">
       <Filter>resources\source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="rounded_container.cpp">
-      <Filter>resources\source\ui</Filter>
-    </ClCompile>
     <ClCompile Include="rounded_rectangle.cpp">
       <Filter>resources\source\ui</Filter>
     </ClCompile>
@@ -149,6 +146,9 @@
     </ClCompile>
     <ClCompile Include="slot_container.cpp">
       <Filter>resources\source</Filter>
+    </ClCompile>
+    <ClCompile Include="rounded_rectangle_container.cpp">
+      <Filter>resources\source\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

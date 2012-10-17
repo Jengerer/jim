@@ -23,12 +23,12 @@ public:
 	JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
 
 	// Offset functions.
-	void	set_offset( float x, float y );
+	void set_offset( int x, int y );
 
 private:
 
-	float offset_x_;
-	float offset_y_;
+	int offset_x_;
+	int offset_y_;
 
 };
 

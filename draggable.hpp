@@ -9,7 +9,8 @@ class Draggable: public JUI::ConstrainedContainer, public JUI::MouseHandlerInter
 
 public:
 
-	Draggable( float x = 0.0f, float y = 0.0f );
+    Draggable( void );
+	Draggable( int x, int y );
 	virtual ~Draggable( void );
 
 	// Mouse handling.
@@ -30,16 +31,19 @@ public:
 private:
 
 	// Dragging offset functions.
-	void set_offset( float x, float y );
+	void set_offset( int x, int y );
 	void set_dragging( bool is_dragging );
 
 private:
 
+    // Dragging dependent objects.
 	const JUI::Mouse* mouse_;
 	const Container* parent_;
 
+    // Dragging state variables.
 	bool is_dragging_;
-	float offset_x_, offset_y_;
+	int offset_x_;
+    int offset_y_;
 
 };
 

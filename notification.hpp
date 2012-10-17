@@ -16,8 +16,10 @@ class Notification : public RoundedRectangleContainer
 	
 public:
 
-	Notification( const JUTIL::String* message, const JUI::Texture *texture = nullptr );
+    // Initialization and creation.
+	Notification( void );
 	virtual ~Notification( void );
+    bool initialize( const JUI::Texture *texture );
 
     // Notification layout.
 	virtual void pack( void );
@@ -34,9 +36,7 @@ protected:
 private:
 
 	JUI::WrappedText		*text_;
-	JUI::Image				*image_;
 	JUI::HorizontalLayout	*layout_;
-	RoundedRectangle        *rounded_rect_;
 
 };
 

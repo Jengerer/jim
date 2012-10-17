@@ -29,7 +29,7 @@ JUI::Text* SlotView::equipped_text_					= nullptr;
 const JUTIL::ConstantString EQUIPPED_FONT_FACE	= "fonts/tf2build.ttf";
 const unsigned int EQUIPPED_FONT_SIZE			= 6;
 const bool EQUIPPED_FONT_BOLDED					= false;
-const float EQUIPPED_PADDING					= 5;
+const int EQUIPPED_PADDING					= 5;
 const JUTIL::ConstantString EQUIPPED_TEXT       = "EQUIPPED";
 
 /*
@@ -42,23 +42,44 @@ SlotView::SlotView( Slot* slot )
 	set_enabled( true );
 
 	// Set default rectangle.
-	slot_rectangle_ = new RoundedRectangle( SLOT_WIDTH, 
-		SLOT_HEIGHT,
-		SLOT_RADIUS,
-		&SLOT_NORMAL_COLOUR );
-	add( slot_rectangle_ );
-	set_constraint( slot_rectangle_, 0.0f, 0.0f );
-
-	// JUI::Image of item.
-	item_image_ = new JUI::Image( nullptr );
-	item_image_->set_size( ITEM_SIZE, ITEM_SIZE );
-	add( item_image_ );
-	set_constraint( item_image_,
-		(SLOT_WIDTH - ITEM_SIZE) / 2.0f,
-		(SLOT_HEIGHT - ITEM_SIZE) / 2.0f );
+    slot_rectangle_ = nullptr;
+    item_image_ = nullptr;
 
 	// Set slot size.
 	set_size( SLOT_WIDTH, SLOT_HEIGHT );
+}
+
+/*
+ * Slot view initialization.
+ */
+bool SlotView::initialize( void )
+{
+    // Create slot rectangle.
+    if (!JUTIL::BaseAllocator::allocate( &slot_rectangle_ )) {
+        return false;
+    }
+	slot_rectangle_ = new (slot_rectangle_) RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, &SLOT_NORMAL_COLOUR );
+	if (!add( slot_rectangle_ )) {
+        JUTIL::BaseAllocator::destroy( slot_rectangle_ );
+        return false;
+    }
+
+	// Create item image.
+    if (!JUTIL::BaseAllocator::allocate( &item_image_ )) {
+        return false;
+    }
+	item_image_ = new (item_image_) JUI::Image( nullptr );
+    if (!add( item_image_ )) {
+        JUTIL::BaseAllocator::destroy( item_image_ );
+        return false;
+    }
+	item_image_->set_size( ITEM_SIZE, ITEM_SIZE );
+
+    // Align in center.
+    int center_x = (SLOT_WIDTH - ITEM_SIZE) / 2;
+    int center_y = (SLOT_HEIGHT - ITEM_SIZE) / 2;
+	set_constraint( item_image_, center_x, center_y );
+    return true;
 }
 
 /*
@@ -103,9 +124,9 @@ void SlotView::draw( JUI::Graphics2D* graphics )
 	if (slot_->has_item()) {
 		Item* item = slot_->get_item();
 		if (item->is_equipped()) {
-			equipped_text_->set_position( 
-				get_x() + get_width() - equipped_text_->get_width() - EQUIPPED_PADDING, 
-				get_y() + get_height() - equipped_text_->get_height() - EQUIPPED_PADDING );
+            int equipped_text_x = get_x() + get_width() - equipped_text_->get_width() - EQUIPPED_PADDING;
+            int equipped_text_y = get_y() + get_height() - equipped_text_->get_height() - EQUIPPED_PADDING;
+			equipped_text_->set_position( equipped_text_x, equipped_text_y );
 			equipped_text_->draw( graphics );
 		}
 	}

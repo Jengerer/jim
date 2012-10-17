@@ -17,14 +17,8 @@ public:
 	RoundedRectangle( int width, int height, int radius, const JUI::Colour* colour );
 	virtual ~RoundedRectangle( void );
 
-	// Static texture loader.
-	static bool precache( JUI::Graphics2D* graphics );
-
 	// IDrawable over-ride.
 	virtual void draw( JUI::Graphics2D* graphics );
-
-	// Drawing helper function.
-	static void draw_rounded_rectangle( JUI::Graphics2D* graphics, float x, float y, float width, float height, float radius );
 
 	// Rounded rectangle property setters.
 	void set_radius( int radius );
@@ -47,11 +41,6 @@ private:
 	const JUI::Colour* get_stroke_colour( void ) const;
 	int get_stroke_size( void ) const;
 	EStrokeType get_stroke_type( void ) const;
-
-private:
-
-	// Rounded corner image.
-	static JUI::FileTexture* rounded_corner_;
 
 private:
 

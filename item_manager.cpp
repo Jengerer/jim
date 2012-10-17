@@ -47,7 +47,6 @@ const JUTIL::ConstantString MANAGER_ROOT_URL = "http://www.jengerer.com/item_man
 // Resources for item manager.
 const JUTIL::ConstantString TF2_BUILD_FONT = "fonts/tf2build.ttf";
 const JUTIL::ConstantString TF2_SECONDARY_FONT = "fonts/tf2secondary.ttf";
-const JUTIL::ConstantString ROUNDED_CORNER_TEXTURE = "img/manager/rounded_corner.png";
 const JUTIL::ConstantString CRAFT_ICON_TEXTURE = "img/manager/gear.png";
 const JUTIL::ConstantString EQUIP_ICON_TEXTURE = "img/manager/equip.png";
 const JUTIL::ConstantString SORT_ICON_TEXTURE = "img/manager/sort.png";
@@ -61,10 +60,10 @@ const JUI::Colour TITLE_COLOUR( 241, 239, 237 );
 
 // Page display.
 const JUTIL::String* PAGE_FONT_FACE = &TF2_SECONDARY_FONT;
-const unsigned int PAGE_FONT_SIZE = 14;
-const bool PAGE_FONT_BOLDED				= false;
+const unsigned int PAGE_FONT_SIZE = 16;
+const bool PAGE_FONT_BOLDED = false;
 const JUI::Colour PAGE_LABEL_COLOUR( 201, 79, 57 );
-const unsigned int PAGE_LABEL_WIDTH		= 50;
+const unsigned int PAGE_LABEL_WIDTH = 50;
 
 // Item display attributes.
 const unsigned int ITEM_DISPLAY_SPACING	= 10;
@@ -183,8 +182,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 	downloader->get( &home_out, &home );
 
 	// Get texture and font resources.
-	bool success = site_loader_->get_resource( &ROUNDED_CORNER_TEXTURE, &ROUNDED_CORNER_TEXTURE ) &&
-		site_loader_->get_resource( &EQUIP_ICON_TEXTURE, &EQUIP_ICON_TEXTURE ) &&
+	bool success = site_loader_->get_resource( &EQUIP_ICON_TEXTURE, &EQUIP_ICON_TEXTURE ) &&
 		site_loader_->get_resource( &CRAFT_ICON_TEXTURE, &CRAFT_ICON_TEXTURE ) &&
 		site_loader_->get_resource( &SORT_ICON_TEXTURE, &SORT_ICON_TEXTURE ) &&
 		site_loader_->get_resource( &UNKNOWN_ITEM_ICON_TEXTURE, &UNKNOWN_ITEM_ICON_TEXTURE ) &&
@@ -199,9 +197,6 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
         return PrecacheResourcesFailure;
     }
 	else if (!Button::precache( &graphics_ )) {
-        return PrecacheResourcesFailure;
-    }
-	else if (!RoundedRectangle::precache( &graphics_ )) {
         return PrecacheResourcesFailure;
     }
 
@@ -258,10 +253,9 @@ bool ItemManager::create_resources( void )
         return false;
     }
 	notifications_ = new (notifications_) NotificationQueue();
-	notifications_->set_position(
-		static_cast<float>(get_width() - PADDING), 
-		static_cast<float>(get_height() - PADDING) );
+	notifications_->set_position( get_width() - PADDING, get_height() - PADDING );
 	if (!add( notifications_ )) {
+        JUTIL::BaseAllocator::destroy( notifications_ );
         stack->log( "Failed to add notification queue!" );
         return false;
     }
@@ -404,6 +398,7 @@ JUI::Application::ReturnStatus ItemManager::run( void )
         set_think( &ItemManager::exiting );
     }
 	draw_frame();
+    return Success;
 }
 
 void ItemManager::set_think( bool (ItemManager::*think_function)( void ) )
@@ -656,19 +651,16 @@ JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
                 return JUI::IO_RESULT_ERROR;
             }
 
-			float display_x = slot_view->get_x() + (slot_view->get_width() - item_display_->get_width()) / 2.0f;
-			float display_y = slot_view->get_y() + slot_view->get_height() + ITEM_DISPLAY_SPACING;
-
-            // Move above slot if intruding below.
+            // Position display; move above mouse if hitting bottom.
+			int display_x = slot_view->get_x() + (slot_view->get_width() - item_display_->get_width()) / 2;
+			int display_y = slot_view->get_y() + slot_view->get_height() + ITEM_DISPLAY_SPACING;
 			if (display_y + item_display_->get_height() > get_height()) {
 				display_y = slot_view->get_y() - item_display_->get_height() - ITEM_DISPLAY_SPACING;
 			}
 
             // Position and clamp.
-			item_display_->set_position(
-				static_cast<float>(display_x),
-				static_cast<float>(display_x) );
-			clamp_child( item_display_, static_cast<float>(PADDING) );
+			item_display_->set_position( display_x, display_y );
+			clamp_child( item_display_, PADDING );
 		}
 
         return JUI::IO_RESULT_HANDLED;
@@ -702,8 +694,8 @@ bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 			steam_items_.deselect_all();
 
 			// Start dragging.
-			float view_x = slot_view->get_x();
-			float view_y = slot_view->get_y();
+			int view_x = slot_view->get_x();
+			int view_y = slot_view->get_y();
             if (!JUTIL::BaseAllocator::allocate( &dragged_view_ )) {
                 return false;
             }
@@ -1426,7 +1418,7 @@ bool ItemManager::on_popup_clicked( Popup* popup )
 bool ItemManager::on_popup_released( Popup* popup )
 {
 	// Exited popup handling.
-	if (popup->is_killed()) {
+	if (popup->get_state() == POPUP_STATE_KILLED) {
         if (popup == error_) {
 			// Update if that's the reason we're exiting.
 			if (update_error_) {
@@ -1445,7 +1437,8 @@ bool ItemManager::on_popup_released( Popup* popup )
 				update_buttons();
 			}
 		}
-	}		
+	}
+    return true;
 }
 
 /*
@@ -1559,7 +1552,7 @@ bool ItemManager::create_layout( void )
         stack->log( "Failed to create page display layout." );
 		return false;
 	}
-	page_display_layout = new (page_display_layout) JUI::HorizontalLayout( BUTTON_SPACING, JUI::ALIGN_TOP );
+	page_display_layout = new (page_display_layout) JUI::HorizontalLayout( BUTTON_SPACING, JUI::ALIGN_MIDDLE );
 	if (!button_layout->set_right( page_display_layout )) {
 		JUTIL::BaseAllocator::destroy( page_display_layout );
         stack->log( "Failed to add page display to button layout." );
@@ -1701,7 +1694,7 @@ bool ItemManager::create_layout( void )
 	layout->pack();
 	int center_x = (get_width() - layout->get_width()) / 2;
 	int center_y = (get_height() - layout->get_height()) / 2;
-	layout->set_position( static_cast<float>(center_x), static_cast<float>(center_y) );
+	layout->set_position( center_x, center_y );
 
 	// Create item display.
 	if (!JUTIL::BaseAllocator::allocate( &item_display_ )) {
