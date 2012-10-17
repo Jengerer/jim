@@ -125,6 +125,7 @@ bool Steam::load_interfaces( void )
         return false;
 	}
 
+    // Create game coordinator interface.
 	game_coordinator_ = (ISteamGameCoordinator001*)steam_client_->GetISteamGenericInterface(
 		user_, pipe_,
 		STEAMGAMECOORDINATOR_INTERFACE_VERSION_001 );
@@ -132,8 +133,12 @@ bool Steam::load_interfaces( void )
 		stack->log( "Failed to get ISteamGameCoordinator interface." );
         return false;
 	}
+    return true;
 }
 
+/*
+ * Clean up Steam interfaces.
+ */
 void Steam::close_interfaces( void )
 {
     // Release user and pipe.
@@ -198,6 +203,7 @@ bool Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned i
         stack->log( "Failed to retrieve message from game coordinator." );
         return false;
     }
+    return true;
 }
 
 /*

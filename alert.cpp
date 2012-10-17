@@ -39,6 +39,7 @@ bool Alert::initialize( const JUTIL::String* message )
         return false;
     }
     pack();
+    return true;
 }
 
 /*

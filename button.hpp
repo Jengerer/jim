@@ -15,7 +15,8 @@ class Button: public RoundedRectangleContainer, public JUI::MouseHandlerInterfac
 
 public:
 
-	Button( float x = 0.0f, float y = 0.0f );
+    Button( void );
+	Button( int x, int y );
 
 	// Layout handling.
     bool initialize( void );

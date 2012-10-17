@@ -1,9 +1,18 @@
 #include "draggable.hpp"
 
 /*
- * Generic draggable object constructor.
+ * Default draggable object constructor.
  */
-Draggable::Draggable( float x, float y ) : JUI::ConstrainedContainer( x, y )
+Draggable::Draggable( void )
+{
+    set_parent( nullptr );
+    set_dragging( false );
+}
+
+/*
+ * Default draggable object constructor by position.
+ */
+Draggable::Draggable( int x, int y ) : JUI::ConstrainedContainer( x, y )
 {
 	set_parent( nullptr );
 	set_dragging( false );
@@ -69,7 +78,9 @@ JUI::IOResult Draggable::on_mouse_released( JUI::Mouse* mouse )
 void Draggable::begin_dragging( const JUI::Mouse* mouse )
 {
 	// Set offset to mouse.
-	set_offset( get_x() - mouse->get_x(), get_y() - mouse->get_y() );
+    int x_offset = get_x() - mouse->get_x();
+    int y_offset = get_y() - mouse->get_y();
+	set_offset( x_offset, y_offset );
 	set_dragging( true );
 	mouse_ = mouse;
 }
@@ -117,7 +128,7 @@ bool Draggable::is_dragging( void ) const
 /*
  * Set offset from mouse at the point of dragging.
  */
-void Draggable::set_offset( float x, float y )
+void Draggable::set_offset( int x, int y )
 {
 	offset_x_ = x;
 	offset_y_ = y;

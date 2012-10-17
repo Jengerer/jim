@@ -1,84 +1,98 @@
 #include "popup.hpp"
 
-Popup::Popup( float x, float y ) : JUI::ConstrainedContainer( x, y )
+/*
+ * Default popup constructor.
+ */
+Popup::Popup( void )
 {
 }
 
+/*
+ * Popup constructor with default position.
+ */
+Popup::Popup( int x, int y )
+    : JUI::ConstrainedContainer( x, y )
+{
+}
+
+/*
+ * Popup destructor.
+ */
 Popup::~Popup( void )
 {
 	// Popup is removed.
 }
 
+/*
+ * Set popup state.
+ */
 void Popup::set_state( EPopupState state )
 {
 	state_ = state;
 }
 
+/*
+ * Get popup state.
+ */
 EPopupState Popup::get_state( void ) const
 {
 	return state_;
 }
 
-bool Popup::is_active( void ) const
-{
-	return state_ == POPUP_STATE_ACTIVE;
-}
-
-bool Popup::is_hidden( void ) const
-{
-	return state_ == POPUP_STATE_HIDDEN;
-}
-
-bool Popup::is_killed( void ) const
-{
-	return state_ == POPUP_STATE_KILLED;
-}
-
+/*
+ * Handle mouse clicks on popup.
+ * Popups always take precedence, so if we get event, return handled.
+ */
 JUI::IOResult Popup::on_mouse_clicked( JUI::Mouse* mouse )
 {
     // Return handled if mouse is touching.
-    if (mouse->is_touching( this )) {
-        return JUI::IO_RESULT_HANDLED;
-    }
-
-    return JUI::IO_RESULT_UNHANDLED;
+    return JUI::IO_RESULT_HANDLED;
 }
 
+/*
+ * Handle mouse releases on popup.
+ * Popups always take precedence, so if we get event, return handled.
+ */
 JUI::IOResult Popup::on_mouse_released( JUI::Mouse* mouse )
 {
-	// Return handled if mouse is touching.
-    if (mouse->is_touching( this )) {
-        return JUI::IO_RESULT_HANDLED;
-    }
-
-    return JUI::IO_RESULT_UNHANDLED;
+    return JUI::IO_RESULT_HANDLED;
 }
 
+/*
+ * Handle mouse movement.
+ * Popups always take precedence, so if we get event, return handled.
+ */
 JUI::IOResult Popup::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Return handled if mouse is touching.
-    if (mouse->is_touching( this )) {
-        return JUI::IO_RESULT_HANDLED;
-    }
-
-    return JUI::IO_RESULT_UNHANDLED;
+    return JUI::IO_RESULT_HANDLED;
 }
 
+/*
+ * Handle key press events.
+ * Popups always take precedence, so if we get event, return handled.
+ */
 JUI::IOResult Popup::on_key_pressed( int key )
 {
-    // Generic popup doesn't handle keys.
-    return JUI::IO_RESULT_UNHANDLED;
+    return JUI::IO_RESULT_HANDLED;
 }
 
+/*
+ * Handle key release events.
+ * Popups always take precedence, so if we get event, return handled.
+ */
 JUI::IOResult Popup::on_key_released( int key )
 {
 	// Generic popup doesn't handle keys.
     return JUI::IO_RESULT_UNHANDLED;
 }
 
+/*
+ * Position popup to center of container.
+ */
 void Popup::center_to( const Container* parent )
 {
-	set_position( 
-		parent->get_x() + floor((parent->get_width() - get_width()) / 2.0f),
-		parent->get_y() + floor((parent->get_height() - get_height()) / 2.0f) );
+    int mid_x = parent->get_x() + (parent->get_width() - get_width()) / 2;
+    int mid_y = parent->get_y() + (parent->get_height() - get_height()) / 2;
+    set_position( mid_x, mid_y );
 }

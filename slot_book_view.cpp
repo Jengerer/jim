@@ -64,7 +64,8 @@ bool SlotBookView::initialize( void )
 	if (!update_pages()) {
         return false;
     }
-	pages_constraint_ = set_constraint( pages_layout_, get_view_offset(), 0.0f );
+    int view_offset = static_cast<int>(get_view_offset());
+	pages_constraint_ = set_constraint( pages_layout_, view_offset, 0 );
 	pack();
     return true;
 }
@@ -195,8 +196,8 @@ void SlotBookView::update_offset( void )
 {
 	// Move offset to acitve page.
 	if (get_page_count() != 0) {
-		float new_offset = pages_layout_->get_x() - get_active_view()->get_x();
-		set_view_offset( new_offset );
+		int new_offset = pages_layout_->get_x() - get_active_view()->get_x();
+		set_view_offset( static_cast<float>(new_offset) );
 	}
 }
 
@@ -206,7 +207,8 @@ void SlotBookView::update_offset( void )
 void SlotBookView::update_view( void )
 {
 	// Set constraint.
-	pages_constraint_->set_constraint( get_view_offset(), 0.0f );
+    int view_offset = static_cast<int>(get_view_offset());
+	pages_constraint_->set_constraint( view_offset, 0 );
 	apply_constraint( pages_constraint_ );
 }
 

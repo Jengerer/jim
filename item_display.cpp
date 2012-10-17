@@ -55,13 +55,11 @@ ItemDisplay::~ItemDisplay( void )
  */
 bool ItemDisplay::initialize( void )
 {
-	// Set up rectangle.
+	// Set up rectangle container.
 	if (!RoundedRectangleContainer::initialize())
 	{
 		return false;
 	}
-
-	// Set up rounded rectangle.
 	RoundedRectangle* rectangle = get_rounded_rectangle();
 	rectangle->set_radius( ITEM_DISPLAY_RADIUS );
 	rectangle->set_colour( &ITEM_DISPLAY_COLOUR );
@@ -83,24 +81,25 @@ bool ItemDisplay::initialize( void )
 		return false;
 	}
 	name_text_ = new (name_text_) JUI::WrappedText( name_font_, ITEM_DISPLAY_TEXT_WIDTH );
-	if (!add( name_text_ )) {
+	if (!text_layout_->add( name_text_ )) {
 		JUTIL::BaseAllocator::destroy( name_text_ );
+        return false;
 	}
+    name_text_->set_text_formatting( DT_CENTER );
 
-	name_text_->set_text_formatting( DT_CENTER );
-	info_text_ = new JUI::WrappedText( info_font_, ITEM_DISPLAY_TEXT_WIDTH );
-	info_text_->set_text_formatting( DT_CENTER );
-
-	// Add to layout.
-	text_layout_ = new JUI::VerticalLayout();
-	text_layout_->set_spacing( ITEM_DISPLAY_SPACING );
-	text_layout_->add( name_text_ );
-	text_layout_->add( info_text_ );
+    // Create info text element.
+    if (!JUTIL::BaseAllocator::allocate( &info_text_ )) {
+        return false;
+    }
+	info_text_ = new (info_text_) JUI::WrappedText( info_font_, ITEM_DISPLAY_TEXT_WIDTH );
+    if (!text_layout_->add( info_text_ )) {
+        JUTIL::BaseAllocator::destroy( info_text_ );
+        return false;
+    }
 
 	// Pack so we can create a temporary rectangle.
-	add( text_layout_ );
-	set_content( text_layout_ );
 	pack();
+    return true;
 }
 
 /*
@@ -147,23 +146,17 @@ bool ItemDisplay::update_display( void )
 	}
 
 	// Get buffer of correct size.
+    JUTIL::DynamicWideString wide_string;
 	int wide_size = MultiByteToWideChar( CP_UTF8, 0, information.get_string(), information.get_length(), nullptr, 0 );
-	wchar_t* wide_buffer;
-    if (!JUTIL::BaseAllocator::allocate_array( &wide_buffer, wide_size )) {
+    if (!wide_string.set_length( wide_size )) {
         return false;
     }
 
 	// Convert to wide string.
-	if (wide_buffer != nullptr) {
-		MultiByteToWideChar( CP_UTF8, 0, information.get_string(), information.get_length(), wide_buffer, wide_size );
-        JUTIL::ConstantWideString wide_information( wide_buffer, wide_size );
-		info_text_->set_text( &wide_information );
-
-		// Delete wide string.
-        JUTIL::BaseAllocator::release( wide_buffer );
-	}
-
+	MultiByteToWideChar( CP_UTF8, 0, information.get_string(), information.get_length(), wide_string.get_string(), wide_size );
+    info_text_->set_text( &wide_string );
 	pack();
+    return true;
 }
 
 /*

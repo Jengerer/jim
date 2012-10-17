@@ -1,10 +1,6 @@
 #include "rounded_rectangle.hpp"
 #include <string/string.hpp>
 
-// Static texture.
-const JUTIL::ConstantString ROUNDED_CORNER_TEXTURE = "img/manager/rounded_corner.png";
-JUI::FileTexture* RoundedRectangle::rounded_corner_ = nullptr;
-
 /*
  * Rounded rectangle constructor.
  */
@@ -23,21 +19,6 @@ RoundedRectangle::RoundedRectangle( int width, int height, int radius, const JUI
 RoundedRectangle::~RoundedRectangle( void )
 {
 	// Nothing.
-}
-
-/*
- * Precaching texture.
- */
-bool RoundedRectangle::precache( JUI::Graphics2D* graphics )
-{
-    // Load rounded corner texture.
-    // TODO: Replace with rounded rectangle pixel-render.
-	JUI::Graphics2D::ReturnStatus status = graphics->get_texture( &ROUNDED_CORNER_TEXTURE, &rounded_corner_ );
-	if (status != JUI::Graphics2D::Success) {
-        return false;
-    }
-
-    return true;
 }
 
 /*
@@ -103,28 +84,6 @@ void RoundedRectangle::draw( JUI::Graphics2D* graphics )
 
 	// Pop translation.
 	graphics->pop_matrix();
-}
-
-/*
- * Draw rounded rectangle from corners and filling.
- */
-void RoundedRectangle::draw_rounded_rectangle( JUI::Graphics2D* graphics, float x, float y, float width, float height, float radius )
-{
-	GLsizei size_radius = static_cast<GLsizei>(radius);
-
-	// Corners.
-	graphics->draw_texture( rounded_corner_, x, y, size_radius, size_radius ); // Top-left.
-	graphics->draw_texture( rounded_corner_, x + width, y, -size_radius, size_radius ); // Top-right.
-	graphics->draw_texture( rounded_corner_, x + width, y + height, -size_radius, -size_radius ); // Bottom-right.
-	graphics->draw_texture( rounded_corner_, x, y + height, size_radius, -size_radius ); // Bottom-left.
-
-	// Double radius.
-	GLfloat double_radius = radius * 2.0f;
-
-	// Fill in center and tops.
-	graphics->draw_rectangle( x, y + radius, width, height - double_radius ); // Middle.
-	graphics->draw_rectangle( x + radius, y, width - double_radius, radius ); // Top.
-	graphics->draw_rectangle( x + radius, y + height - radius, width - double_radius, radius ); // Bottom.
 }
 
 /*

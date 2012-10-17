@@ -48,7 +48,8 @@ void AnimatedBookView::update_view()
 	}
 
 	// Update constraint.
-	pages_constraint_->set_constraint( get_view_position(), 0.0f );
+    int view_position = static_cast<int>(get_view_position());
+	pages_constraint_->set_constraint( view_position, 0 );
 	apply_constraint( pages_constraint_ );
 }
 

@@ -18,15 +18,13 @@ class Popup: public JUI::ConstrainedContainer, public JUI::MouseHandlerInterface
 {
 public:
 
-	Popup( float x = 0.0f, float y = 0.0f );
+    Popup( void );
+	Popup( int x, int y );
 	virtual ~Popup( void );
 
 	// Get activity state.
 	void set_state( EPopupState state );
 	EPopupState get_state( void ) const;
-	bool is_active( void ) const;
-	bool is_hidden( void ) const;
-	bool is_killed( void ) const;
 
 	// JUI::Mouse* handling.
 	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );

@@ -1,9 +1,10 @@
+#include "notification.hpp"
+
+#include <jui/application/error_stack.hpp>
 #include <jui/gfx/font_interface.hpp>
 #include <jui/gfx/font_factory.hpp>
 #include <jui/gfx/wrapped_text.hpp>
 #include <jui/layout/horizontal_layout.hpp>
-
-#include "notification.hpp"
 
 const unsigned int NOTIFICATION_ICON_SIZE	= 48;
 const unsigned int NOTIFICATION_TEXT_WIDTH	= 160;
@@ -18,45 +19,81 @@ const JUI::Colour NOTIFICATION_STROKE_COLOUR( 255, 255, 255, 100 );
 const JUTIL::ConstantString NOTIFICATION_FONT_FACE = "fonts/tf2build.ttf";
 const unsigned int NOTIFICATION_FONT_SIZE	= 10;
 const JUI::Colour& NOTIFICATION_FONT_COLOUR = JUI::COLOUR_WHITE;
-
 JUI::FontInterface *Notification::font_ = nullptr;
 
-Notification::Notification( const JUTIL::String* message, const JUI::Texture *texture ) : RoundedRectangleContainer( NOTIFICATION_RADIUS, NOTIFICATION_PADDING )
+/*
+ * Notification constructor from message and texture.
+ */
+Notification::Notification( void ) : RoundedRectangleContainer( NOTIFICATION_PADDING )
 {
-	text_ = new JUI::WrappedText( font_, NOTIFICATION_TEXT_WIDTH );
-	text_->set_colour( &NOTIFICATION_FONT_COLOUR );
-
-	layout_ = new JUI::HorizontalLayout();
-	layout_->set_spacing( NOTIFICATION_SPACING );
-	layout_->set_align_type( JUI::ALIGN_MIDDLE );
-	add( layout_ );
-	set_content( layout_ );
-
-	// Only add image if there is one.
-	image_ = nullptr;
-	if (texture != nullptr) {
-		image_ = new JUI::Image( texture );
-		image_->set_size( NOTIFICATION_ICON_SIZE, NOTIFICATION_ICON_SIZE );
-		layout_->add( image_ );
-	}
-
-	layout_->add( text_ );
-
-	// Set rectangle attributes.
-	RoundedRectangle* rounded_rect = get_rounded_rectangle();
-	rounded_rect->set_colour( &NOTIFICATION_COLOUR );
-	rounded_rect->set_stroke( NOTIFICATION_STROKE_SIZE, &NOTIFICATION_STROKE_COLOUR );
-
-	// Now set message, texture, and pack.
-	set_message( message );
-	pack();
+    layout_ = nullptr;
+	text_ = nullptr;
 }
 
+/*
+ * Notification destructor.
+ */
 Notification::~Notification( void )
 {
 	// Notification destroyed.
 }
 
+/*
+ * Initialize notification.
+ */
+bool Notification::initialize( const JUI::Texture *texture )
+{
+    // Stack for reporting.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+    // Initialize container.
+    if (!RoundedRectangleContainer::initialize()) {
+        return false;
+    }
+	RoundedRectangle* rounded_rect = get_rounded_rectangle();
+	rounded_rect->set_colour( &NOTIFICATION_COLOUR );
+	rounded_rect->set_stroke( NOTIFICATION_STROKE_SIZE, &NOTIFICATION_STROKE_COLOUR );
+
+    // Create layout.
+    if (!JUTIL::BaseAllocator::allocate( &layout_ )) {
+        return false;
+    }
+    layout_ = new (layout_) JUI::HorizontalLayout( NOTIFICATION_SPACING, JUI::ALIGN_MIDDLE );
+    if (!add( layout_ )) {
+        JUTIL::BaseAllocator::destroy( layout_ );
+        return false;
+    }
+    set_content( layout_ );
+
+    // Create and add image if necessary.
+    if (texture != nullptr) {
+        JUI::Image* image;
+        if (!JUTIL::BaseAllocator::allocate( &image )) {
+            return false;
+        }
+        image = new (image) JUI::Image( texture );
+
+        // Add to layout.
+        if (!layout_->add( image )) {
+            JUTIL::BaseAllocator::destroy( image );
+            return false;
+        }
+        image->set_size( NOTIFICATION_ICON_SIZE, NOTIFICATION_ICON_SIZE );
+    }
+
+    // Add text.
+    if (!JUTIL::BaseAllocator::allocate( &text_ )) {
+        return false;
+    }
+    text_ = new (text_) JUI::WrappedText( font_, NOTIFICATION_TEXT_WIDTH );
+    text_->set_colour( &NOTIFICATION_FONT_COLOUR );
+    pack();
+    return true;
+}
+
+/*
+ * Pack notification layout and parent class.
+ */
 void Notification::pack( void )
 {
 	// Pack layout, add padding.
@@ -64,11 +101,18 @@ void Notification::pack( void )
 	RoundedRectangleContainer::pack();
 }
 
+/*
+ * Set text message.
+ */
 void Notification::set_message( const JUTIL::String* message )
 {
 	text_->set_text( message );
+    pack();
 }
 
+/*
+ * Precache notification-generic resources.
+ */
 bool Notification::precache( void )
 {
 	font_ = JUI::FontFactory::create_font( &NOTIFICATION_FONT_FACE, NOTIFICATION_FONT_SIZE );
@@ -79,6 +123,9 @@ bool Notification::precache( void )
     return true;
 }
 
+/*
+ * Release notification resources.
+ */
 void Notification::release( void )
 {
     JUI::FontFactory::destroy_font( font_ );

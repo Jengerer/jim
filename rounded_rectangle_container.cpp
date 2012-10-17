@@ -6,10 +6,27 @@ const int DEFAULT_CORNER_RADIUS = 5;
 /*
  * Rounded rectangle container constructor.
  */
-RoundedRectangleContainer::RoundedRectangleContainer( unsigned int padding, float x, float y ) : JUI::ConstrainedContainer( x, y )
+RoundedRectangleContainer::RoundedRectangleContainer( unsigned int padding )
 {
 	set_padding( padding );
 	rounded_rect_ = nullptr;
+}
+
+/*
+ * Rounded rectangle container constructor with default position.
+ */
+RoundedRectangleContainer::RoundedRectangleContainer( unsigned int padding, int x, int y ) 
+    : JUI::ConstrainedContainer( x, y )
+{
+	set_padding( padding );
+	rounded_rect_ = nullptr;
+}
+
+/*
+ * Rounded rectangle container destructor.
+ */
+RoundedRectangleContainer::~RoundedRectangleContainer( void )
+{
 }
 
 /*
@@ -29,7 +46,7 @@ bool RoundedRectangleContainer::initialize( void )
 		JUTIL::BaseAllocator::destroy( rounded_rect_ );
 		return false;
 	}
-	set_constraint( rounded_rect_, 0.0f, 0.0f );
+	set_constraint( rounded_rect_, 0, 0 );
     return true;
 }
 
@@ -38,8 +55,7 @@ bool RoundedRectangleContainer::initialize( void )
  */
 void RoundedRectangleContainer::pack( void )
 {
-	float padding_value = static_cast<float>(padding_);
-	set_constraint( content_, padding_value, padding_value );
+	set_constraint( content_, padding_, padding_ );
 
 	// Set rectangle size.
 	int rect_width = content_->get_width() + (padding_ * 2);
@@ -48,16 +64,25 @@ void RoundedRectangleContainer::pack( void )
 	set_size( rect_width, rect_height );
 }
 
+/*
+ * Set content shown in the rounded container.
+ */
 void RoundedRectangleContainer::set_content( Component* content )
 {
 	content_ = content;
 }
 
+/*
+ * Get the rounded rectangle object used by the container.
+ */
 RoundedRectangle* RoundedRectangleContainer::get_rounded_rectangle() const
 {
 	return rounded_rect_;
 }
 
+/*
+ * Set rounded rectangle container padding.
+ */
 void RoundedRectangleContainer::set_padding( unsigned int padding )
 {
 	padding_ = padding;

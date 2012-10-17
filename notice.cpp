@@ -45,7 +45,7 @@ bool Notice::initialize( const JUTIL::String* message )
     if (!JUTIL::BaseAllocator::allocate( &rounded_container_ )) {
         return false;
     }
-    rounded_container_ = new (rounded_container_) RoundedRectangleContainer( NOTICE_RADIUS, NOTICE_PADDING );
+    rounded_container_ = new (rounded_container_) RoundedRectangleContainer( NOTICE_PADDING );
 	if (!rounded_container_->initialize()) {
 		JUTIL::BaseAllocator::destroy( rounded_container_ );
         return false;
@@ -53,6 +53,7 @@ bool Notice::initialize( const JUTIL::String* message )
         
     // Style rounded rectangle.
     RoundedRectangle* rounded_rect = rounded_container_->get_rounded_rectangle();
+    rounded_rect->set_radius( NOTICE_RADIUS );
 	rounded_rect->set_stroke( NOTICE_STROKE_WIDTH, &NOTICE_STROKE_COLOUR );
 	rounded_rect->set_stroke_type( STROKE_TYPE_OUTER );
 	rounded_rect->set_colour( &NOTICE_COLOUR );
@@ -60,7 +61,7 @@ bool Notice::initialize( const JUTIL::String* message )
         JUTIL::BaseAllocator::destroy( rounded_container_ );
         return false;
     }
-	set_constraint( rounded_container_, 0.0f, 0.0f );
+	set_constraint( rounded_container_, 0, 0 );
 
 	// Create layout for container.
     if (!JUTIL::BaseAllocator::allocate( &content_ )) {
@@ -81,15 +82,13 @@ bool Notice::initialize( const JUTIL::String* message )
     }
 	text_ = new (text_) JUI::WrappedText( font_, NOTICE_TEXT_WIDTH );
 	text_->set_text_formatting( DT_CENTER );
-	if (!content_->add( text_ ))
-    {
+	if (!content_->add( text_ )) {
         JUTIL::BaseAllocator::destroy( text_ );
         return false;
     }
 
     // Set text message displayed by notice.
-    if (!set_message( message ))
-    {
+    if (!set_message( message )) {
         return false;
     }
 
@@ -122,6 +121,7 @@ bool Notice::set_message( const JUTIL::String* message )
     // Update text object to show message.
 	text_->set_text( message );
 	pack();
+    return true;
 }
 
 /*

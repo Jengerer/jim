@@ -53,7 +53,7 @@ JUI::IOResult DraggedSlotView::on_mouse_moved( JUI::Mouse* mouse )
 /*
  * Set offset to mouse.
  */
-void DraggedSlotView::set_offset( float x, float y )
+void DraggedSlotView::set_offset( int x, int y )
 {
 	offset_x_ = x;
 	offset_y_ = y;

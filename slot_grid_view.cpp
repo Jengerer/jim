@@ -22,6 +22,7 @@ bool SlotGridView::add_slots( const SlotArray* slots )
 
 	// Pack grid.
 	pack();
+    return true;
 }
 
 SlotView* SlotGridView::get_touching_slot( JUI::Mouse* mouse ) const
@@ -73,11 +74,16 @@ void SlotGridView::disable_full( void ) const
  */
 bool SlotGridView::add_slot( Slot* slot )
 {
+    // Create view.
 	SlotView* view;
 	if (!JUTIL::BaseAllocator::allocate( &view )) {
 		return false;
 	}
 	view = new (view) SlotView( slot );
+    if (!view->initialize()) {
+        JUTIL::BaseAllocator::destroy( view );
+        return false;
+    }
 
 	// Add to container.
 	if (!add( view )) {
@@ -89,4 +95,5 @@ bool SlotGridView::add_slot( Slot* slot )
 	if (!slot_views_.push( view )) {
 		return false;
 	}
+    return true;
 }

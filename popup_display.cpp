@@ -4,7 +4,16 @@
 /*
  * Popup layer constructor.
  */
-PopupDisplay::PopupDisplay( float x, float y ) : Container( x, y )
+PopupDisplay::PopupDisplay( void )
+{
+	// No default handler.
+	set_popup_handler( nullptr );
+}
+
+/*
+ * Popup layer constructor by position.
+ */
+PopupDisplay::PopupDisplay( int x, int y ) : Container( x, y )
 {
 	// No default handler.
 	set_popup_handler( nullptr );

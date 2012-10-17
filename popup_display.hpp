@@ -18,7 +18,8 @@ class PopupDisplay: public JUI::Container, public JUI::MouseHandlerInterface, pu
 	
 public:
 
-	PopupDisplay( float x = 0.0f, float y = 0.0f );
+    PopupDisplay( void );
+	PopupDisplay( int x, int y );
 
 	// Set-up.
 	void			set_popup_handler( IPopupHandler* handler );

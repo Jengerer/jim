@@ -27,9 +27,16 @@ const JUI::Colour BUTTON_COLOUR_HOVER( 180, 81, 14 );
 const JUI::Colour BUTTON_COLOUR_DISABLED( 247, 231, 198, 150 );
 
 /*
- * Button constructor.
+ * Button default constructor.
  */
-Button::Button( float x, float y ) : RoundedRectangleContainer( BUTTON_PADDING, x, y )
+Button::Button( void ) : RoundedRectangleContainer( BUTTON_PADDING )
+{
+}
+
+/*
+ * Button constructor by position.
+ */
+Button::Button( int x, int y ) : RoundedRectangleContainer( BUTTON_PADDING, x, y )
 {
 }
 
@@ -52,6 +59,7 @@ bool Button::initialize( void )
 	layout_ = new (layout_) JUI::HorizontalLayout( BUTTON_SPACING, JUI::ALIGN_MIDDLE );
 	if (!add( layout_ )) {
         JUTIL::BaseAllocator::destroy( layout_ );
+        return false;
     }
 
 	// Set rounded container attributes.
@@ -61,6 +69,7 @@ bool Button::initialize( void )
     set_enabled( true );
     set_hovering( false );
     update_button();
+    return true;
 }
 
 /*
@@ -161,6 +170,7 @@ JUI::IOResult Button::on_mouse_released( JUI::Mouse* mouse )
 void Button::set_hovering( bool is_hovering )
 {
 	is_hovering_ = is_hovering;
+    update_button();
 }
 
 /*
@@ -180,6 +190,7 @@ bool Button::precache( JUI::Graphics2D* graphics )
     if (default_font_ == nullptr) {
         return false;
     }
+    return true;
 }
 
 /*
@@ -200,7 +211,7 @@ Button* Button::create_generic_button( void )
 	if (!JUTIL::BaseAllocator::allocate( &button )) {
 		return nullptr;
 	}
-	button = new (button) Button( 0.0f, 0.0f );
+	button = new (button) Button();
 	if (!button->initialize()) {
 		JUTIL::BaseAllocator::destroy( button );
 		return nullptr;
@@ -298,6 +309,7 @@ Button* Button::create_icon_label_button( JUI::Texture* texture, const JUTIL::St
         JUTIL::BaseAllocator::destroy( button );
         return nullptr;
     }
+    icon->set_size( BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
 
     // Create label.
     JUI::Text *text;

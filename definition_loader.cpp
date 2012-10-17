@@ -226,6 +226,7 @@ bool DefinitionLoader::load()
 
 	clean_up();
 	set_state( LOADING_STATE_FINISHED );
+    return true;
 }
 
 /*
@@ -784,13 +785,13 @@ bool DefinitionLoader::update_progress_message( void )
 		break;
 
 	case LOADING_STATE_LOADING_ATTRIBUTES:
-		if (!progress_message_.write( "Loading attributes from schema...\n%.2f\%", progress )) {
+		if (!progress_message_.write( "Loading attributes from schema...\n%.2f%%", progress )) {
 			return false;
 		}
 		break;
 
 	case LOADING_STATE_LOADING_ITEMS:
-		if (!progress_message_.write( "Loading items from schema...\n%.2f\%", progress )) {
+		if (!progress_message_.write( "Loading items from schema...\n%.2f%%", progress )) {
 			return false;
 		}
 		break;

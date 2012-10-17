@@ -56,6 +56,7 @@ bool SlotBook::add_pages( unsigned int pages )
             return false;
         }
 	}
+    return true;
 }
 
 /*
