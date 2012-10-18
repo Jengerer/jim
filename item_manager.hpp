@@ -42,11 +42,11 @@ public:
     bool create_resources( void );
 
 	// Inventory and definition loading.
-	bool start_definition_load();
+	bool start_definition_load( void );
 
 	// Startup testing.
-	bool is_latest_version() const;
-	void launch_updater() const;
+	bool is_latest_version( void ) const;
+	void launch_updater( void ) const;
 
 	// Application running functions.
     JUI::Application::ReturnStatus run( void );

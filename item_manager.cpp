@@ -176,11 +176,6 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 	}
 	site_loader_ = new (site_loader_) HttpResourceLoader( &MANAGER_ROOT_URL, downloader );
 
-	// Test downloader.
-	const JUTIL::ConstantString home = "http://www.jengerer.com/item_manager/index.html";
-	const JUTIL::ConstantString home_out = "index.html";
-	downloader->get( &home_out, &home );
-
 	// Get texture and font resources.
 	bool success = site_loader_->get_resource( &EQUIP_ICON_TEXTURE, &EQUIP_ICON_TEXTURE ) &&
 		site_loader_->get_resource( &CRAFT_ICON_TEXTURE, &CRAFT_ICON_TEXTURE ) &&
@@ -223,8 +218,27 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 
 bool ItemManager::create_resources( void )
 {
-    // Enough resources loaded to show styled messages.
+    // Stack for logging.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+    // Check for latest version.
+	if (!is_latest_version()) {
+        stack->log( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
+		update_error_ = true;
+        return false;
+	}
+
+	// Ensure TF2's not running.
+	if (get_process_count( "tf2.exe" ) > 0) {
+		stack->log( "Please close Team Fortress 2 before running the item manager." );
+        return false;
+	}
+	else if (get_process_count( "item_manager.exe" ) > 1) {
+        stack->log( "Another instance of the item manager is already running!" );
+        return false;
+	}
+
+    // Enough resources loaded to show styled messages.
     if (!ItemDisplay::precache()) {
         return false;
     }
@@ -266,10 +280,6 @@ bool ItemManager::create_resources( void )
         return false;
     }
     inventory_book_ = new (inventory_book_) SlotBook( PAGE_WIDTH, PAGE_HEIGHT );
-    if (!inventory_book_->add_pages( DEFAULT_PAGE_COUNT )) {
-        stack->log( "Failed to populate inventory book!" );
-        return false;
-    }
 
     // Create excluded slots.
     if (!JUTIL::BaseAllocator::allocate( &excluded_book_ )) {
@@ -289,38 +299,16 @@ bool ItemManager::create_resources( void )
     }
 	backpack_ = new (backpack_) Backpack( inventory_book_, excluded_book_ );
 
-	// Generate UI.
-	if (!create_layout()) {
-        return false;
-    }
-
-	// Check for latest version.
-	if (!is_latest_version()) {
-        stack->log( "A new version of the item manager is out and needs to be downloaded against your will. Press okay to continue." );
-		update_error_ = true;
-        return false;
-	}
-
-	// Ensure TF2's not running.
-	if (get_process_count( "tf2.exe" ) > 0) {
-		stack->log( "Please close Team Fortress 2 before running the item manager." );
-        return false;
-	}
-	else if (get_process_count( "item_manager.exe" ) > 1) {
-        stack->log( "Another instance of the item manager is already running!" );
-        return false;
+    // Initialize steam.
+	if (!steam_items_.load_interfaces()) {
+		return false;
 	}
 
 	// Show progress notice.
-    const JUTIL::ConstantString PREPARING_MESSAGE = "Preparing to load item definitions...";
+    const JUTIL::ConstantString PREPARING_MESSAGE = "Waiting for inventory message from Steam...";
 	load_progress_ = popups_->create_notice( &PREPARING_MESSAGE );
     if (load_progress_ == nullptr) {
         stack->log( "Failed to create loading notice." );
-        return false;
-    }
-
-    // Start loading item definitions.
-	if (!start_definition_load()) {
         return false;
     }
 
@@ -416,23 +404,31 @@ bool ItemManager::loading( void )
 	// Stack for reporting and getting.
 	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
-	// Handle loading if loader still available.
-	if (definition_loader_ != nullptr) {
+	// Wait for item loading if definition loading hasn't started.
+    if (definition_loader_ == nullptr) {
+		handle_callback();
+
+        // Have items been loaded?
+		if (backpack_ != nullptr && backpack_->is_loaded()) {
+        	// Generate UI.
+	        if (!create_layout()) {
+                return false;
+            }
+
+            // Start loading item definitions.
+	        if (!start_definition_load()) {
+                stack->log( "Failed to start loading item definitions." );
+                return false;
+            }
+        }
+    }
+    else {
+        // Parse definition loading state.
 		switch (definition_loader_->get_state()) {
 			case LOADING_STATE_ERROR:
 			{
 				// Remove threaded loader.
 				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
-
-				// Show error.
-				const JUTIL::String* top = stack->get_top_error();
-				popups_->remove_popup( load_progress_ );
-				error_ = popups_->create_alert( top );
-
-				// If can't show error nicely, return as failure.
-				if (error_ == nullptr) {
-					return false;
-				}
 				return false;
 			}
 
@@ -440,21 +436,16 @@ bool ItemManager::loading( void )
 			{
 				// Remove threaded loader.
 				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
-			
-				// Initialize steam.
-				if (!steam_items_.load_interfaces()) {
-					return false;
-				}
 
-				// Wait for Steam.
-				const JUTIL::ConstantString WAITING_MESSAGE = "Waiting for Steam message...";
-				load_progress_->set_message( &WAITING_MESSAGE );
-				load_progress_->center_to( this );
+                // Finished loading!
+                popups_->remove_popup( load_progress_ );
+                set_think( &ItemManager::running );
 				break;
 			}
 
 			default:
 			{
+                // Print message.
 				const JUTIL::String* progress_message = definition_loader_->get_progress_message();
 				if (progress_message == nullptr) {
 					stack->log( "Failed to get progress message from loader." );
@@ -467,14 +458,6 @@ bool ItemManager::loading( void )
 				load_progress_->center_to( this );
 				break;
 			}
-		}
-	}
-	else {
-		// Loading is done, wait for steam message.
-		handle_callback();
-		if (backpack_ != nullptr && backpack_->is_loaded()) {
-			set_think( &ItemManager::running );
-			popups_->remove_popup( load_progress_ );
 		}
 	}
 
