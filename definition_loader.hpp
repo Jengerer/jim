@@ -25,6 +25,7 @@ enum DefinitionLoaderState
 	LOADING_STATE_FINISHED
 };
 
+// JSON parsing helper function.
 bool get_member( Json::Value* root, const JUTIL::String* member );
 
 /*

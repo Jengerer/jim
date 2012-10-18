@@ -303,8 +303,7 @@ Button* Button::create_icon_label_button( JUI::Texture* texture, const JUTIL::St
         return nullptr;
     }
     icon = new (icon) JUI::Image( texture );
-	if (!layout->add( icon ))
-    {
+	if (!layout->add( icon )) {
         JUTIL::BaseAllocator::destroy( icon );
         JUTIL::BaseAllocator::destroy( button );
         return nullptr;
@@ -320,8 +319,7 @@ Button* Button::create_icon_label_button( JUI::Texture* texture, const JUTIL::St
     text = new (text) JUI::Text( font );
 	text->set_colour( &BUTTON_FONT_COLOUR );
 	text->set_text( label );
-	if (!layout->add( text ))
-    {
+	if (!layout->add( text )) {
         JUTIL::BaseAllocator::destroy( text );
         JUTIL::BaseAllocator::destroy( button );
         return nullptr;

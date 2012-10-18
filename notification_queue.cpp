@@ -63,8 +63,13 @@ void NotificationQueue::update_notifications( void )
  */
 JUI::IOResult NotificationQueue::on_mouse_moved( JUI::Mouse* mouse )
 {
-	// No mouse movement for notifications yet.
-    // TODO: If mouse hovering over notification, extend.
+	// Extend notification time if mouse hovers over.
+    if (has_notification()) {
+        Notification* current = get_current_notification();
+        if (mouse->is_touching( current )) {
+            next_time_ = GetTickCount() + NOTIFICATION_QUEUE_DELAY;
+        }
+    }
     return JUI::IO_RESULT_UNHANDLED;
 }
 
