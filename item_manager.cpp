@@ -410,11 +410,6 @@ bool ItemManager::loading( void )
 
         // Have items been loaded?
 		if (backpack_ != nullptr && backpack_->is_loaded()) {
-        	// Generate UI.
-	        if (!create_layout()) {
-                return false;
-            }
-
             // Start loading item definitions.
 	        if (!start_definition_load()) {
                 stack->log( "Failed to start loading item definitions." );
@@ -436,6 +431,16 @@ bool ItemManager::loading( void )
 			{
 				// Remove threaded loader.
 				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
+
+				// Resolve all item definitions.
+				if (!backpack_->resolve_definitions()) {
+					return false;
+				}
+
+				// Generate UI.
+				if (!create_layout()) {
+					return false;
+				}
 
                 // Finished loading!
                 popups_->remove_popup( load_progress_ );
@@ -991,7 +996,7 @@ bool ItemManager::handle_callback( void )
                         return false;
                     }
 
-                    if (!steam_items_.get_message( &id, buffer.get_array(), size, &real_size )) {
+                    if (steam_items_.get_message( &id, buffer.get_array(), size, &real_size )) {
 				        // Filter protobuf messages.
 				        if ((id & 0x80000000) != 0) {
 					        uint32 real_id = id & 0x0FFFFFFF;
@@ -1158,13 +1163,24 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 								unsigned int added_slots = slots - inventory_book_->get_slot_count();
 								unsigned int added_pages = added_slots / inventory_book_->get_page_size();
 								inventory_book_->add_pages( added_pages );
-								inventory_view_->update_pages();
-								update_page_display();
 							}
 						}
 
 						break;
 					}
+				}
+			}
+
+			// Update view if available.
+			if (inventory_view_ != nullptr) {
+				if (!inventory_view_->update_pages()) {
+					stack->log( "Failed to update UI for added pages." );
+					return false;
+				}
+
+				if (!update_page_display()) {
+					stack->log( "Failed to update page display." );
+					return false;
 				}
 			}
 
@@ -1685,7 +1701,12 @@ bool ItemManager::create_layout( void )
 		return false;
 	}
 	item_display_ = new (item_display_) ItemDisplay();
-	if (!user_layer_->add( item_display_ )) {
+	if (!item_display_->initialize()) {
+		JUTIL::BaseAllocator::destroy( item_display_ );
+		stack->log( "Failed to initialize item display." );
+		return false;
+	}
+	else if (!user_layer_->add( item_display_ )) {
 		JUTIL::BaseAllocator::destroy( item_display_ );
         stack->log( "Failed to add item display to user layer." );
 		return false;
@@ -1756,36 +1777,31 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 		econ_item->inventory(),
 		econ_item->origin() );
 
+	// Set custom name.
+	if (econ_item->has_custom_name()) {
+		const JUTIL::ConstantString name = econ_item->custom_name().c_str();
+		if (!item->set_custom_name( &name )) {
+			JUTIL::BaseAllocator::destroy( item );
+			stack->log( "Failed to set custom name for item." );
+			return false;
+		}
+	}
+
 	// Add the item's attributes.
 	for (int j = 0; j < econ_item->attribute_size(); ++j) {
 		const CSOEconItemAttribute& attribute = econ_item->attribute( j );
 		uint32 attrib_index = attribute.def_index();
 
-		// Get attribute information.
-		AttributeInformation* info;
-		if (!Item::attributes.get( attrib_index, &info )) {
-			JUTIL::BaseAllocator::destroy( item );
-			stack->log( "Failed to find attribute of index %u for item.", attrib_index );
-			return false;
-		}
-
-		// Set value based on type.
-		uint32 int_value = attribute.value();
-
 		// Create attribute.
+		AttributeValue value;
+		value.as_uint32 = attribute.value();
 		Attribute* new_attribute;
 		if (!JUTIL::BaseAllocator::allocate( &new_attribute )) {
 			JUTIL::BaseAllocator::destroy( item );
 			stack->log( "Failed to allocate attribute for item." );
-			break;
+			return false;
 		}
-		if (info->is_integer()) {
-			new_attribute = new (new_attribute) Attribute( info, int_value );
-		}
-		else {
-			float* float_value = reinterpret_cast<float*>(&int_value);
-			new_attribute = new (new_attribute) Attribute( info, *float_value );
-		}
+		new_attribute = new (new_attribute) Attribute( attrib_index, value );
 
 		// Add to item.
 		if (!item->add_attribute( new_attribute )) {
@@ -1795,25 +1811,17 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 			return false;
 		}
 	}
-
-	// Set custom name.
-	if (econ_item->has_custom_name()) {
-		const JUTIL::ConstantString name = econ_item->custom_name().c_str();
-		if (!item->update_item_information( &name )) {
+	
+	// Load item and attribute definitions.
+	if (!Item::definitions.is_empty()) {
+		if (!item->resolve_definitions()) {
 			JUTIL::BaseAllocator::destroy( item );
-			stack->log( "Failed to set custom name for item." );
 			return false;
 		}
-	}
-	else {
-		if (!item->update_item_information( nullptr )) {
-			JUTIL::BaseAllocator::destroy( item );
-			stack->log( "Failed to generate item name." );
-			return false;
-		}
+
+		// Finalize state.
+		item->update_attributes();
 	}
 
-	// Finalize state.
-	item->update_attributes();
 	return item;
 }

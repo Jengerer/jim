@@ -33,48 +33,57 @@ bool Steam::load_interfaces( void )
 
 	// Set Team Fortress 2 application ID.
 	SetEnvironmentVariable( "SteamAppId", "440" );
-    JUTIL::ArrayBuilder<char> builder;
+    JUTIL::ArrayBuilder<char> install_path;
+	
+	// Initial allocation.
+	const size_t DEFAULT_PATH_SIZE = 32;
+	if (!install_path.set_size( DEFAULT_PATH_SIZE )) {
+		stack->log( "Failed to allocate initial string for Steam install path registry value." );
+		return false;
+	}
 
 	// Get steam path.
 	HKEY key;
 	bool reg_success = false;
 	if (RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Valve\\Steam\\", 0, KEY_QUERY_VALUE, &key ) == ERROR_SUCCESS) {
-		DWORD regType;
-		DWORD reg_size = 0;
+		DWORD reg_type;
+		DWORD reg_size = DEFAULT_PATH_SIZE;
 
-		// First make proper buffer size.
-		LSTATUS status;
-		if ((status = RegQueryValueEx( key, "InstallPath", nullptr, &regType, (LPBYTE)nullptr, &reg_size )) == ERROR_MORE_DATA) {
-            if (!builder.set_size( reg_size )) {
+		// Resize if necessary.
+		LSTATUS status = RegQueryValueEx( key, "InstallPath", nullptr, &reg_type, (LPBYTE)install_path.get_array(), &reg_size );
+		if (status == ERROR_MORE_DATA) {
+            if (!install_path.set_size( reg_size )) {
                 stack->log( "Failed to allocate buffer for Steam install path." );
                 return false;
             }
+
+			// Now read into buffer.
+			status = RegQueryValueEx( key, "InstallPath", nullptr, &reg_type, (LPBYTE)install_path.get_array(), &reg_size );
 		}
 
-        // Now read into buffer.
-		status = RegQueryValueEx( key, "InstallPath", nullptr, &regType, (LPBYTE)builder.get_array(), &reg_size );
+		// Set directory to load Steam client DLL from.
 		if (status == ERROR_SUCCESS) {
-			SetDllDirectory( builder.get_array() );
+			SetDllDirectory( install_path.get_array() );
 			reg_success = true;
 		}
 	}
 
 	// Free buffer.
-	builder.clear();
+	install_path.clear();
 	RegCloseKey( key );
 	if (!reg_success) {
         stack->log( "Failed to get Steam install path from registry." );
         return false;
 	}
 
-	//Load the library.
+	// Load the library.
 	client_dll_ = LoadLibrary( "steamclient.dll" );
 	if (client_dll_ == nullptr) {
         stack->log( "Failed to load steamclient.dll from Steam install path." );
         return false;
 	}
 
-	//Now define the functions.
+	// Now define the functions.
 	Steam_BGetCallback = (bool (*)(HSteamPipe, CallbackMsg_t *, HSteamCall *))GetProcAddress( client_dll_, "Steam_BGetCallback" );
 	if (Steam_BGetCallback == nullptr) {
         stack->log( "Failed to get Steam_BGetCallback from Steam library." );

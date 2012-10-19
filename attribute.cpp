@@ -1,18 +1,37 @@
 #include "attribute.hpp"
 #include <sstream>
 
-Attribute::Attribute( const AttributeInformation* attribute_info, float value )
+/*
+ * Constructor by index and value.
+ */
+Attribute::Attribute( uint32 index, AttributeValue value )
 {
-	attribute_info_ = attribute_info;
-	set_value( value );
+	index_ = index;
+	attribute_info_ = nullptr;
+	value_ = value;
 }
 
-Attribute::Attribute( const AttributeInformation* attribute_info, uint32 value )
+/*
+ * Constructor by information structure and value.
+ */
+Attribute::Attribute( const AttributeInformation* attribute_info, AttributeValue value )
 {
+	index_ = attribute_info->get_index();
 	attribute_info_ = attribute_info;
-	set_value( value );
+	value_ = value;
 }
 
+/*
+ * Set attribute information structure.
+ */
+void Attribute::set_attribute_info( const AttributeInformation* info )
+{
+	attribute_info_ = info;
+}
+
+/*
+ * Get attribute information structure.
+ */
 const AttributeInformation* Attribute::get_attribute_info( void ) const
 {
 	return attribute_info_;
@@ -24,7 +43,12 @@ const AttributeInformation* Attribute::get_attribute_info( void ) const
  */
 bool Attribute::generate_description( void )
 {
-    // std::string to replace.
+	// Check if anything to generate.
+	if (!attribute_info_->has_description()) {
+		return true;
+	}
+
+    // String to replace.
 	const JUTIL::ConstantString STRING_TOKEN = "%s1";
 
 	// Get the description string.
@@ -38,12 +62,12 @@ bool Attribute::generate_description( void )
 
         // Write value instead of token.
 		if (attribute_info_->is_integer()) {
-            if (!description_.write( "%u", get_uint32_value() )) {
+			if (!description_.write( "%u", value_.as_uint32 )) {
                 return false;
             }
 		}
 		else {
-            if (!description_.write( "%f", get_float_value() )) {
+			if (!description_.write( "%f", value_.as_float )) {
                 return false;
             }
 		}
@@ -71,7 +95,7 @@ const JUTIL::String* Attribute::get_description( void ) const
  */
 unsigned int Attribute::get_index( void ) const
 {
-	return get_attribute_info()->get_index();
+	return index_;
 }
 
 /*
@@ -83,19 +107,19 @@ const JUTIL::String* Attribute::get_name( void ) const
 }
 
 /*
- * Get value of attribute as a floating point.
+ * Set new value for attribute.
  */
-float Attribute::get_float_value( void ) const
+void Attribute::set_value( AttributeValue value )
 {
-    return value_.as_float_;
+	value_ = value;
 }
 
 /*
  * Get value of attribute as an unsigned integer.
  */
-uint32 Attribute::get_uint32_value( void ) const
+AttributeValue Attribute::get_value( void ) const
 {
-    return value_.as_uint32_;
+    return value_;
 }
 
 /*
@@ -112,20 +136,4 @@ bool Attribute::has_description( void ) const
 bool Attribute::is_hidden( void ) const
 {
 	return attribute_info_->is_hidden();
-}
-
-/*
- * Set the floating point value of this attribute.
- */
-void Attribute::set_value( float value )
-{
-    value_.as_float_ = value;
-}
-
-/*
- * Set the unsigned integer value of this attribute.
- */
-void Attribute::set_value( uint32 value )
-{
-    value_.as_uint32_ = value;
 }

@@ -656,7 +656,8 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemInformat
         return false;
     }
     const JUTIL::ConstantString name = attribute_name->asCString();
-	float value = attribute_value->asFloat();
+	AttributeValue value;
+	value.as_float = attribute_value->asFloat();
 
 	// Get information.
     AttributeInformation* attribute_information;
@@ -673,6 +674,7 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemInformat
     }
     new_attribute = new (new_attribute) Attribute( attribute_information, value );
     if (!information->add_attribute( new_attribute )) {
+		JUTIL::BaseAllocator::destroy( &new_attribute );
         stack->log( "Failed to add attribute to item definition.");
         return false;
     }

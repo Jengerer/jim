@@ -17,6 +17,9 @@ public:
 	Inventory( SlotBook* book, DynamicSlotBook* excluded );
 	virtual ~Inventory( void );
 
+	// Resolving definitions.
+	bool resolve_definitions( void );
+
 	// Slot vector getters.
 	const SlotBook* get_book( void ) const;
 	const DynamicSlotBook* get_excluded_book( void ) const;
@@ -48,8 +51,8 @@ protected:
 private:
 
 	// Item vectors.
-	std::set<Item*> items_;
-	std::set<Item*> selected_;
+	JUTIL::Set<Item*> items_;
+	JUTIL::Set<Item*> selected_;
 
 };
 

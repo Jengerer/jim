@@ -1,8 +1,12 @@
 #include "item.hpp"
+#include <jui/application/error_stack.hpp>
 
 InformationMap Item::definitions;
 AttributeMap Item::attributes;
 ItemInformation* Item::fallback = nullptr;
+
+// TODO: Should change attribute iteration so we don't have to make copies.
+// Just iterate through both local and item attributes, and get from appropriate group.
 
 // Item quality names.
 // TODO: I think somebody mentioned these quality names are available elsewhere.
@@ -36,9 +40,6 @@ Item::Item(
 	set_flags( flags );
 	set_index( get_position() );
 	set_origin( origin );
-
-    // Default has no name.
-    item_name_ = nullptr;
 }
 
 /*
@@ -57,59 +58,115 @@ Item::~Item( void )
 }
 
 /*
- * Find the item information given the type.
- *
- * Parameters:
- * - custom_name : A pointer to a custom name string if one exists, or nullptr if none.
+ * Resolve item index to item definition.
  */
-bool Item::update_item_information( const JUTIL::String* custom_name )
+bool Item::resolve_definitions( void )
 {
-	// Attempt to find item information.
-    ItemInformation* information;
-    if (definitions.get( get_type_index(), &information )) {
-        information_ = information;
-    }
-    else {
-        information_ = fallback;
-    }
+	// Error stack for logging.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
-    // Generate full item name.
-    JUTIL::DynamicString* name;
-    if (!JUTIL::BaseAllocator::allocate( &name )) {
+	// Find definition for item index.
+	ItemInformation* information;
+	if (!Item::definitions.get( type_index_, &information )) {
+		information = fallback;
+	}
+	information_ = information;
+
+	// Load attributes.
+	if (!resolve_attributes()) {
+		return false;
+	}
+
+	// Resolve name if custom not set.
+	if (item_name_.get_length() == 0) {
+		if (!resolve_name()) {
+			stack->log( "Failed to resolve name for item type %u from definitions.", type_index_ );
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/*
+ * Resolve attributes from definitions.
+ */
+bool Item::resolve_attributes( void )
+{
+	// Loop through attributes.
+	size_t i;
+	size_t length = attributes_.get_length();
+	for (i = 0; i < length; ++i) {
+		Attribute* attribute = attributes_.get( i );
+		if (!resolve_attribute( attribute )) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/*
+ * Resolve single attribute from definition.
+ */
+bool Item::resolve_attribute( Attribute* attribute )
+{
+	// Stack for logging.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Find definition for index.
+	uint32 index = attribute->get_index();
+	AttributeInformation* information;
+	if (!attributes.get( index, &information )) {
+		stack->log( "Failed to find attribute index %u in map.", index );
+		return false;
+	}
+	attribute->set_attribute_info( information );
+
+	// Reload value if floating point.
+	if (!information->is_integer()) {
+		AttributeValue value = attribute->get_value();
+		float* float_value = reinterpret_cast<float*>(&value.as_uint32);
+		value.as_float = *float_value;
+		attribute->set_value( value );
+	}
+
+	// Generate description.
+	if (!attribute->generate_description()) {
+		stack->log( "Failed to generate description for attribute." );
+		return false;
+	}
+	return true;
+}
+
+// Set item custom name.
+bool Item::set_custom_name( const JUTIL::String* custom_name )
+{
+	// Copy custom name with quotes.
+    if (!item_name_.write( "\"%s\"", custom_name->get_string() )) {
         return false;
     }
-    name = new (name) JUTIL::DynamicString();
+	return true;
+}
 
-    // Copy custom name if one is set.
-    if (custom_name != nullptr) 
-    {
-        // Copy custom name with quotes.
-        if (!name->write( "\"%s\"", custom_name->get_string() )) {
-            JUTIL::BaseAllocator::destroy( name );
-            return false;
-        }
-    }
-    else {
-        // Write string.
-        const JUTIL::String* quality_name = get_quality_name();
-        if (quality_name != nullptr) {
-            if (!name->write( "%s ", quality_name->get_string() )) {
-                JUTIL::BaseAllocator::destroy( name );
-                return false;
-            }
-        }
-
-        // Get item type name.
-        const JUTIL::String* type_name = information_->get_name();
-        if (!name->write( "%s", type_name->get_string() )) {
-            JUTIL::BaseAllocator::destroy( name );
+/*
+ * Resolve item name from definitions.
+ */
+bool Item::resolve_name( void )
+{
+    // Write string.
+    const JUTIL::String* quality_name = get_quality_name();
+    if (quality_name != nullptr) {
+        if (!item_name_.write( "%s ", quality_name->get_string() )) {
             return false;
         }
     }
 
-    // TODO: Should change attribute iteration so we don't have to make copies.
-    // Just iterate through both local and item attributes, and get from appropriate group.
-    item_name_ = name;
+    // Get item type name.
+    const JUTIL::String* type_name = information_->get_name();
+    if (!item_name_.write( "%s", type_name->get_string() )) {
+        return false;
+    }
+
     return true;
 }
 
@@ -123,7 +180,7 @@ void Item::update_attributes( void )
 	const Attribute* quality_attrib = get_attribute_by_name( &ELEVATED_QUALITY_NAME );
 	if (quality_attrib != nullptr) {
 		// First get quality number.
-		uint32 quality_num = static_cast<uint32>(quality_attrib->get_float_value());
+		uint32 quality_num = static_cast<uint32>(quality_attrib->get_value().as_float);
 		set_quality( static_cast<EItemQuality>(quality_num) );
 	}
 }
@@ -189,8 +246,7 @@ uint32 Item::get_origin( void ) const
  */
 const JUTIL::String* Item::get_name( void ) const
 {
-	// Name should be generated in item.
-    return nullptr;
+    return &item_name_;
 }
 
 /*

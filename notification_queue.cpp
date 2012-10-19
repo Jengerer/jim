@@ -118,6 +118,9 @@ bool NotificationQueue::add_notification( const JUTIL::String* message, const JU
         JUTIL::BaseAllocator::destroy( notification );
         return false;
     }
+	
+	// Set message.
+	notification->set_message( message );
 
 	// Add and set to next, if empty.
 	notifications_.push( notification );
@@ -148,6 +151,9 @@ void NotificationQueue::set_next_notification( void )
 		set_constraint( current_, current_x, current_y );
 		notifications_.pop();
 		next_time_ = GetTickCount() + NOTIFICATION_QUEUE_DELAY;
+	}
+	else {
+		current_ = nullptr;
 	}
 }
 

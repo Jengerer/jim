@@ -37,7 +37,11 @@ public:
     void clean( void );
 
 	// Finish creating item.
-	bool update_item_information( const JUTIL::String* custom_name );
+	bool resolve_definitions( void );
+	bool resolve_attributes( void );
+	bool resolve_attribute( Attribute* attribute );
+	bool set_custom_name( const JUTIL::String* custom_name );
+	bool resolve_name( void );
 	void update_attributes( void );
 
 	// Item attribute getters.
@@ -56,12 +60,12 @@ public:
 	const JUTIL::String* get_quality_name( void ) const;
 
 	// Position stored in Steam.
-	void			set_position( uint16 position );
-	uint16			get_position( void ) const;
+	void set_position( uint16 position );
+	uint16 get_position( void ) const;
 
 	// Index in slot array.
-	uint32			get_index( void ) const;
-	void			set_index( uint32 position );
+	uint32 get_index( void ) const;
+	void set_index( uint32 position );
 
     // Item flag management.
 	bool has_valid_flags( void ) const;
@@ -112,10 +116,10 @@ private:
 	uint32			origin_;
 
 	// Secondary information.
-	JUTIL::String* item_name_;
-	uint32 index_;
+	JUTIL::DynamicString item_name_;
 
 	// Item definition information.
+	uint32 index_;
 	const ItemInformation* information_;
 	JUTIL::Vector<Attribute*> attributes_;
 

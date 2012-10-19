@@ -3,14 +3,23 @@
 
 #include "attribute_information.hpp"
 
+union AttributeValue
+{
+	uint32 as_uint32;
+	float as_float;
+};
+
 class Attribute
 {
 
 public:
 
-	Attribute( const AttributeInformation* attribute_info, float value );
-	Attribute( const AttributeInformation* attribute_info, uint32 value );
+	// Constructors by index or information.
+	Attribute( uint32 index, AttributeValue value );
+	Attribute( const AttributeInformation* attribute_info, AttributeValue value );
 
+	// Attribute information management.
+	void set_attribute_info( const AttributeInformation* info );
 	const AttributeInformation* get_attribute_info( void ) const;
 
     // Description handling.
@@ -22,27 +31,23 @@ public:
 	unsigned int get_index( void ) const;
 	const JUTIL::String* get_name( void ) const;
 
-	// Value getters.
-	float	get_float_value( void ) const;
-	uint32	get_uint32_value( void ) const;
+	// Value function.
+	void set_value( AttributeValue value );
+	AttributeValue get_value( void ) const;
 	
 	// Information related functions.
 	bool is_hidden( void ) const;
 
 private:
 
-	void set_value( float value );
-	void set_value( uint32 value );
-
-private:
-
     // Type can be either float or uint32.
-    union {
-	    float as_float_;
-	    uint32 as_uint32_;
-    } value_;
+    AttributeValue value_;
 
+	// Attribute index and information structure.
+	uint32 index_;
 	const AttributeInformation* attribute_info_;
+
+	// String description for attribute.
     JUTIL::DynamicString description_;
 
 };
