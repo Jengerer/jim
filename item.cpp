@@ -1,10 +1,6 @@
 #include "item.hpp"
 #include <jui/application/error_stack.hpp>
 
-InformationMap Item::definitions;
-AttributeMap Item::attributes;
-ItemInformation* Item::fallback = nullptr;
-
 // TODO: Should change attribute iteration so we don't have to make copies.
 // Just iterate through both local and item attributes, and get from appropriate group.
 
@@ -57,87 +53,6 @@ Item::~Item( void )
     attributes_.clear();
 }
 
-/*
- * Resolve item index to item definition.
- */
-bool Item::resolve_definitions( void )
-{
-	// Error stack for logging.
-	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-
-	// Find definition for item index.
-	ItemInformation* information;
-	if (!Item::definitions.get( type_index_, &information )) {
-		information = fallback;
-	}
-	information_ = information;
-
-	// Load attributes.
-	if (!resolve_attributes()) {
-		return false;
-	}
-
-	// Resolve name if custom not set.
-	if (item_name_.get_length() == 0) {
-		if (!resolve_name()) {
-			stack->log( "Failed to resolve name for item type %u from definitions.", type_index_ );
-			return false;
-		}
-	}
-
-	return true;
-}
-
-/*
- * Resolve attributes from definitions.
- */
-bool Item::resolve_attributes( void )
-{
-	// Loop through attributes.
-	size_t i;
-	size_t length = attributes_.get_length();
-	for (i = 0; i < length; ++i) {
-		Attribute* attribute = attributes_.get( i );
-		if (!resolve_attribute( attribute )) {
-			return false;
-		}
-	}
-	return true;
-}
-
-/*
- * Resolve single attribute from definition.
- */
-bool Item::resolve_attribute( Attribute* attribute )
-{
-	// Stack for logging.
-	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-
-	// Find definition for index.
-	uint32 index = attribute->get_index();
-	AttributeInformation* information;
-	if (!attributes.get( index, &information )) {
-		stack->log( "Failed to find attribute index %u in map.", index );
-		return false;
-	}
-	attribute->set_attribute_info( information );
-
-	// Reload value if floating point.
-	if (!information->is_integer()) {
-		AttributeValue value = attribute->get_value();
-		float* float_value = reinterpret_cast<float*>(&value.as_uint32);
-		value.as_float = *float_value;
-		attribute->set_value( value );
-	}
-
-	// Generate description.
-	if (!attribute->generate_description()) {
-		stack->log( "Failed to generate description for attribute." );
-		return false;
-	}
-	return true;
-}
-
 // Set item custom name.
 bool Item::set_custom_name( const JUTIL::String* custom_name )
 {
@@ -151,7 +66,7 @@ bool Item::set_custom_name( const JUTIL::String* custom_name )
 /*
  * Resolve item name from definitions.
  */
-bool Item::resolve_name( void )
+bool Item::generate_name( void )
 {
     // Write string.
     const JUTIL::String* quality_name = get_quality_name();
@@ -162,7 +77,7 @@ bool Item::resolve_name( void )
     }
 
     // Get item type name.
-    const JUTIL::String* type_name = information_->get_name();
+    const JUTIL::String* type_name = definition_->get_name();
     if (!item_name_.write( "%s", type_name->get_string() )) {
         return false;
     }
@@ -177,7 +92,7 @@ void Item::update_attributes( void )
 {
 	// Check if quality is elevated.
     const JUTIL::ConstantString ELEVATED_QUALITY_NAME = "elevated quality";
-	const Attribute* quality_attrib = get_attribute_by_name( &ELEVATED_QUALITY_NAME );
+	const Attribute* quality_attrib = find_attribute( &ELEVATED_QUALITY_NAME );
 	if (quality_attrib != nullptr) {
 		// First get quality number.
 		uint32 quality_num = static_cast<uint32>(quality_attrib->get_value().as_float);
@@ -382,21 +297,21 @@ bool Item::is_tradable( void ) const
     const JUTIL::ConstantString CANNOT_TRADE_NAME = "cannot trade";
     const JUTIL::ConstantString ALWAYS_TRADE_NAME = "always tradable";
 	return ((get_origin() != ORIGIN_ACHIEVEMENT) &&
-		(get_attribute_by_name( &CANNOT_TRADE_NAME ) == nullptr)) ||
-		(get_attribute_by_name( &ALWAYS_TRADE_NAME ) != nullptr);
+		(find_attribute( &CANNOT_TRADE_NAME ) == nullptr)) ||
+		(find_attribute( &ALWAYS_TRADE_NAME ) != nullptr);
 }
 
 /* Checks whether this item is equipped. */
-bool Item::is_equipped( uint32 equipClass ) const
+bool Item::is_equipped( uint32 equip_class ) const
 {
-	int equipFlags = flags_ & equipClass;
+	int equipFlags = flags_ & equip_class;
 	return has_valid_flags() && (equipFlags != 0);
 }
 
 /* Checks if the equip flags match this item. */
-bool Item::class_uses( uint32 classFlags ) const
+bool Item::class_uses( uint32 class_flags ) const
 {
-	return (get_equip_classes() & classFlags) != 0;
+	return (get_equip_classes() & class_flags) != 0;
 }
 
 /* Gets the slot this item equips to. */
@@ -422,18 +337,18 @@ uint8 Item::get_equip_class_count( void ) const
 /*
  * Set the class bit-vector that this item is equipped on.
  */
-void Item::set_equip( uint32 equipClass, bool equip )
+void Item::set_equip( uint32 equip_class, bool equip )
 {
-	if ((get_flags() & equipClass) != 0) {
+	if ((get_flags() & equip_class) != 0) {
 		if (!equip) {
 			// Item is equipped to this class; remove flag.
-			flags_ &= (FL_ITEM_ALL ^ equipClass);
+			flags_ &= (FL_ITEM_ALL ^ equip_class);
 		}
 	}
 	else {
 		if (equip) {
 			// This item is not equipped to the class; add flag.
-			flags_ |= equipClass;
+			flags_ |= equip_class;
 		}
 	}
 }
@@ -474,28 +389,103 @@ bool Item::add_attribute( Attribute* attribute )
  */
 size_t Item::get_attribute_count( void ) const
 {
-    // TODO: Return this number plus the item class attributes.
-	return attributes_.get_length();
+    size_t item_attributes = get_local_attribute_count();
+    size_t generic_attributes = get_generic_attribute_count();
+    size_t total_attributes = item_attributes + generic_attributes;
+    return total_attributes;
 }
 
 /*
- * Get attribute by index.
+ * Get number of local attributes.
  */
-const Attribute* Item::get_attribute_at( size_t index ) const
+size_t Item::get_local_attribute_count( void ) const
 {
-	return attributes_.get( index );
+    return attributes_.get_length();
 }
 
 /*
- * Get attribute by attribute index, if any. Returns nullptr if not found.
+ * Get number of item-generic attributes.
  */
-const Attribute* Item::get_attribute_by_index( size_t index ) const
+size_t Item::get_generic_attribute_count( void ) const
+{
+    return information_->get_attribute_count();
+}
+
+/*
+ * Get enumerated attribute.
+ */
+Attribute* Item::get_attribute( size_t index )
+{
+    // Iterate through generic attributes first.
+    size_t generic_attributes = get_generic_attribute_count();
+    if (index < generic_attributes) {
+        return get_generic_attribute( index );
+    }
+
+    // Get from item local attributes next.
+    index -= generic_attributes;
+    return get_local_attribute( index );
+}
+
+/*
+ * Return a local attribute.
+ */
+Attribute* Item::get_local_attribute( size_t index )
+{
+    return attributes_.get( index );
+}
+
+/*
+ * Return a generic attribute.
+ */
+Attribute* Item::get_generic_attribute( size_t index ) 
+{
+    return definition_->get_attribute( index );
+}
+
+/*
+ * Get enumerated attribute.
+ */
+const Attribute* Item::get_attribute( size_t index ) const
+{
+    // Iterate through generic attributes first.
+    size_t generic_attributes = get_generic_attribute_count();
+    if (index < generic_attributes) {
+        return get_generic_attribute( index );
+    }
+
+    // Get from item local attributes next.
+    index -= generic_attributes;
+    return get_local_attribute( index );
+}
+
+/*
+ * Return a local attribute.
+ */
+const Attribute* Item::get_local_attribute( size_t index ) const
+{
+    return attributes_.get( index );
+}
+
+/*
+ * Return a generic attribute.
+ */
+const Attribute* Item::get_generic_attribute( size_t index ) const
+{
+    return information_->get_attribute( index );
+}
+
+/*
+ * Get attribute by attribute index, if any.
+ * Returns nullptr if not found.
+ */
+const Attribute* Item::find_attribute( size_t index ) const
 {
     // Find attribute with matching index.
     size_t i;
-    size_t length = attributes_.get_length();
+    size_t length = get_attribute_count();
     for (i = 0; i < length; ++i) {
-        Attribute* attribute = attributes_.get( i );
+        const Attribute* attribute = get_attribute( i );
         if (attribute->get_index() == index) {
 			return attribute;
 		}
@@ -507,26 +497,27 @@ const Attribute* Item::get_attribute_by_index( size_t index ) const
 
 /*
  * Find attribute by name.
+ * Returns nullptr if not found.
  */
-const Attribute* Item::get_attribute_by_name( const JUTIL::String* name ) const
+const Attribute* Item::find_attribute( const JUTIL::String* name ) const
 {
-    // Find attribute with equal name.
+    // Find attribute with matching index.
     size_t i;
-    size_t length = attributes_.get_length();
+    size_t length = get_attribute_count();
     for (i = 0; i < length; ++i) {
-        Attribute* attribute = attributes_.get( i );
+        const Attribute* attribute = get_attribute( i );
         const JUTIL::String* attribute_name = attribute->get_name();
-        if (attribute_name->is_equal( name )) {
-            return attribute;
-        }
-    }
+        if (name->is_equal( attribute_name )) {
+			return attribute;
+		}
+	}
 
 	return nullptr;
 }
 
-void Item::set_unique_id( uint64 uniqueId )
+void Item::set_unique_id( uint64 unique_id )
 {
-	unique_id_ = uniqueId;
+	unique_id_ = unique_id;
 }
 
 void Item::set_type_index( uint16 typeIndex )

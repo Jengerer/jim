@@ -125,8 +125,12 @@ bool ItemDisplay::update_display( void )
 	if (!information.write( "\nORIGIN: %u", item_->get_origin() )) {
         return false;
     }
-	for (size_t i = 0; i < item_->get_attribute_count(); i++) {
-		const Attribute* attribute = item_->get_attribute_at( i );
+
+    // Write attributes.
+    size_t i;
+    size_t length = item_->get_attribute_count();
+	for (i = 0; i < length; ++i) {
+		const Attribute* attribute = item_->get_attribute( i );
 
         // Write string if attribute has description.
 		if (attribute->has_description()) {

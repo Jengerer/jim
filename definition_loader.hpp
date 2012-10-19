@@ -10,7 +10,7 @@
 
 #include "resource_loader_interface.hpp"
 #include "item.hpp"
-#include "item_information.hpp"
+#include "item_schema.hpp"
 #include "string_hasher.hpp"
 
 enum DefinitionLoaderState
@@ -36,7 +36,7 @@ class DefinitionLoader
 
 public:
 
-	DefinitionLoader( JUI::Graphics2D* graphics );
+	DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schema );
 	~DefinitionLoader( void );
 
 	// Starting and ending the worker threads.
@@ -56,7 +56,7 @@ private:
         JUTIL::DynamicString* name,
         JUTIL::DynamicString* image,
         JUTIL::DynamicString* image_url );
-    bool load_item_attribute( Json::Value* attribute, ItemInformation* information );
+    bool load_item_attribute( Json::Value* attribute, ItemDefinition* information );
 	void clean_up( void );
 
 	// Loading state functions.
@@ -73,6 +73,7 @@ private:
 
 	// Resource parameters.
 	JUI::Graphics2D* graphics_;
+    ItemSchema* schema_;
 
 	// Threading parameters.
 	volatile bool should_stop_;
@@ -83,7 +84,7 @@ private:
 	Json::Value root_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EItemSlot, JUTIL::StringHasher> slots_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EClassEquip, JUTIL::StringHasher> classes_;
-    JUTIL::HashMap<unsigned int, const JUTIL::String*, AttributeInformation*, JUTIL::StringHasher> name_map_;
+    JUTIL::HashMap<unsigned int, const JUTIL::String*, AttributeDefinition*, JUTIL::StringHasher> name_map_;
 
 	// State members.
 	float progress_;

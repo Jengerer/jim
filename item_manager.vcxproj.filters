@@ -96,13 +96,7 @@
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc">
       <Filter>resources\source\items\protobufs</Filter>
     </ClCompile>
-    <ClCompile Include="attribute_information.cpp">
-      <Filter>resources\source\items</Filter>
-    </ClCompile>
     <ClCompile Include="item.cpp">
-      <Filter>resources\source\items</Filter>
-    </ClCompile>
-    <ClCompile Include="item_information.cpp">
       <Filter>resources\source\items</Filter>
     </ClCompile>
     <ClCompile Include="inventory.cpp">
@@ -149,6 +143,15 @@
     </ClCompile>
     <ClCompile Include="rounded_rectangle_container.cpp">
       <Filter>resources\source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="item_definition.cpp">
+      <Filter>resources\source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="attribute_definition.cpp">
+      <Filter>resources\source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="item_schema.cpp">
+      <Filter>resources\source\items</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -277,6 +280,9 @@
     </ClInclude>
     <ClInclude Include="resource_loader_interface.hpp">
       <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="item_schema.hpp">
+      <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

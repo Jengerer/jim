@@ -1,8 +1,9 @@
 #ifndef ATTRIBUTE_H
 #define ATTRIBUTE_H
 
-#include "attribute_information.hpp"
+#include "attribute_definition.hpp"
 
+// Union for attribute values, which can be either float or int.
 union AttributeValue
 {
 	uint32 as_uint32;
@@ -16,11 +17,11 @@ public:
 
 	// Constructors by index or information.
 	Attribute( uint32 index, AttributeValue value );
-	Attribute( const AttributeInformation* attribute_info, AttributeValue value );
+	Attribute( const AttributeDefinition* attribute_info, AttributeValue value );
 
 	// Attribute information management.
-	void set_attribute_info( const AttributeInformation* info );
-	const AttributeInformation* get_attribute_info( void ) const;
+	void set_definition( const AttributeDefinition* definition );
+	const AttributeDefinition* get_definition( void ) const;
 
     // Description handling.
     bool generate_description( void );
@@ -45,7 +46,7 @@ private:
 
 	// Attribute index and information structure.
 	uint32 index_;
-	const AttributeInformation* attribute_info_;
+	const AttributeDefinition* attribute_info_;
 
 	// String description for attribute.
     JUTIL::DynamicString description_;

@@ -14,7 +14,7 @@ Inventory::Inventory( SlotBook* book, DynamicSlotBook* excluded )
 /*
  * Inventory destructor.
  */
-Inventory::~Inventory()
+Inventory::~Inventory( void )
 {
 	remove_items();
 }
@@ -22,19 +22,17 @@ Inventory::~Inventory()
 /*
  * Resolve item definitions after they've been loaded.
  */
-bool Inventory::resolve_definitions( void )
+bool Inventory::resolve_definitions( const ItemSchema* schema )
 {
 	// Resolve all items.
 	JUTIL::Set<Item*>::Iterator i;
 	for (i = items_.begin(); i.has_next(); i.next()) {
 		Item* item = i.get_value();
-		if (!item->resolve_definitions()) {
-			return false;
-		}
+		if (!schema->resolve_item( item )) {
+            return false;
+        }
 	}
-
-	// Resolve item generic attributes.
-	return true;
+    return true;
 }
 
 /*

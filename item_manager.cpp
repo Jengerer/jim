@@ -328,21 +328,6 @@ void ItemManager::close_interfaces( void )
 
     // Delete definition resources.
     JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
-    JUTIL::BaseAllocator::safe_destroy( &Item::fallback );
-
-	// Erase item definitions.
-    InformationMap::Iterator i;
-	for (i = Item::definitions.begin(); i.has_next(); i.next()) {
-        JUTIL::BaseAllocator::destroy( i.get_value() );
-	}
-    Item::definitions.clear();
-
-	// Erase attribute definitions.
-    AttributeMap::Iterator j;
-    for (j = Item::attributes.begin(); j.has_next(); j.next()) {
-        JUTIL::BaseAllocator::destroy( j.get_value() );
-	}
-    Item::attributes.clear();
 
 	// Delete site loader.
     JUTIL::BaseAllocator::safe_destroy( &site_loader_ );
@@ -433,7 +418,7 @@ bool ItemManager::loading( void )
 				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
 
 				// Resolve all item definitions.
-				if (!backpack_->resolve_definitions()) {
+				if (!backpack_->resolve_definitions( &schema_ )) {
 					return false;
 				}
 
@@ -935,7 +920,7 @@ bool ItemManager::start_definition_load( void )
     if (!JUTIL::BaseAllocator::allocate( &definition_loader_ )) {
         return false;
     }
-    definition_loader_ = new (definition_loader_) DefinitionLoader( &graphics_ );
+    definition_loader_ = new (definition_loader_) DefinitionLoader( &graphics_, &schema_ );
 	if (!definition_loader_->begin()) {
         return false;
     }
@@ -1813,8 +1798,8 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 	}
 	
 	// Load item and attribute definitions.
-	if (!Item::definitions.is_empty()) {
-		if (!item->resolve_definitions()) {
+    if (schema_.is_loaded()) {
+        if (!schema_.resolve_item( item )) {
 			JUTIL::BaseAllocator::destroy( item );
 			return false;
 		}

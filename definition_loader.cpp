@@ -96,9 +96,10 @@ bool get_member( Json::Value* root, const JUTIL::String* member, Json::Value** o
 /*
  * Definition loader constructor by graphics object.
  */
-DefinitionLoader::DefinitionLoader( JUI::Graphics2D* graphics )
+DefinitionLoader::DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schema )
 {
 	graphics_ = graphics;
+    schema_ = schema;
     thread_ = nullptr;
 
     // Initialize progress/state.
@@ -328,13 +329,13 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         bool is_integer = attribute_is_integer->asBool();
 
         // Allocate information object.
-        AttributeInformation* attrib_info;
+        AttributeDefinition* attrib_info;
         if (!JUTIL::BaseAllocator::allocate( &attrib_info )) {
             JUTIL::BaseAllocator::destroy( name_string );
             JUTIL::BaseAllocator::destroy( class_string );
             return false;
         }
-		attrib_info = new (attrib_info) AttributeInformation(
+		attrib_info = new (attrib_info) AttributeDefinition(
 			name_string,
 			class_string,
             index,
@@ -376,9 +377,9 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         }
         
         // Add to maps.
-        if (!Item::attributes.insert( index, attrib_info )) {
+        if (!schema_->add_attribute_definition( index, attrib_info )) {
             JUTIL::BaseAllocator::destroy( attrib_info );
-            stack->log( "Failed to add attribute to attribute map.");
+            stack->log( "Failed to add attribute to schema.");
             return false;
         }
         else if (!name_map_.insert( name_string, attrib_info )) {
@@ -421,16 +422,18 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         return false;
     }
     unknown_name = new (unknown_name) JUTIL::ConstantString( &FALLBACK_ITEM_NAME );
-    if (!JUTIL::BaseAllocator::allocate( &Item::fallback )) {
+    ItemDefinition* fallback;
+    if (!JUTIL::BaseAllocator::allocate( &fallback )) {
         JUTIL::BaseAllocator::destroy( unknown_name );
         stack->log( "Failed to create fallback item definition.");
         return false;
     }
-	Item::fallback = new (Item::fallback) ItemInformation(
+	fallback = new (fallback) ItemDefinition(
 		unknown_name,
 		unknown_item,
 		FALLBACK_ITEM_CLASS_FLAGS,
 		FALLBACK_ITEM_SLOT );
+    schema_->set_fallback_definition( fallback );
 
     // Strings for parsing.
     JUTIL::DynamicString* name = nullptr;
@@ -589,22 +592,13 @@ bool DefinitionLoader::load_item( Json::Value* item,
         }
     }
     
-    // Fallback if failed.
-    if (item_texture == nullptr) {
-        texture = Item::fallback->get_texture();
-    }
-
 	// Generate information object.
-    ItemInformation* information;
+    ItemDefinition* information;
     if (!JUTIL::BaseAllocator::allocate( &information )) {
         stack->log( "Failed to create item information object.");
         return false;
     }
-    information = new (information) ItemInformation(
-        name,
-        texture,
-        classes,
-        slot );
+    information = new (information) ItemDefinition( name, texture, classes, slot );
 
 	// Now add attributes, if they exist.
     Json::Value* item_attributes;
@@ -622,9 +616,9 @@ bool DefinitionLoader::load_item( Json::Value* item,
 
 	// Parse item type and insert.
     uint16 index = static_cast<uint16>(item_index->asUInt());
-    if (!Item::definitions.insert( index, information )) {
+    if (!schema_->add_item_definition( index, information )) {
         JUTIL::BaseAllocator::destroy( information );
-        stack->log( "Failed to add item information to map.");
+        stack->log( "Failed to add item information to schema.");
         return false;
     }
 
@@ -639,7 +633,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
  * Parameters:
  * information - Item information to add attribute to on success.
  */
-bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemInformation* information )
+bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemDefinition* information )
 {
 	// Get error stack for reporting failure.
 	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
@@ -660,7 +654,7 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemInformat
 	value.as_float = attribute_value->asFloat();
 
 	// Get information.
-    AttributeInformation* attribute_information;
+    AttributeDefinition* attribute_information;
     if (!name_map_.get( &name, &attribute_information )) {
         stack->log( "Failed to find attribute by name.");
         return false;

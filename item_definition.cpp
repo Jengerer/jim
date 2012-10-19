@@ -1,9 +1,9 @@
-#include "item_information.hpp"
+#include "item_definition.hpp"
 
 /*
  * Constructor for storing item information by item parameters.
  */
-ItemInformation::ItemInformation(
+ItemDefinition::ItemDefinition(
 	JUTIL::String* name,
 	const JUI::Texture* texture,
 	uint32 class_flags,
@@ -18,7 +18,7 @@ ItemInformation::ItemInformation(
 /*
  * Item information destructor.
  */
-ItemInformation::~ItemInformation( void )
+ItemDefinition::~ItemDefinition( void )
 {
 	// Item information destroyed.
     size_t i;
@@ -36,7 +36,7 @@ ItemInformation::~ItemInformation( void )
 /*
  * Get handle to item name string.
  */
-const JUTIL::String* ItemInformation::get_name( void ) const
+const JUTIL::String* ItemDefinition::get_name( void ) const
 {
 	return name_;
 }
@@ -44,7 +44,7 @@ const JUTIL::String* ItemInformation::get_name( void ) const
 /*
  * Get texture for item icon.
  */
-const JUI::Texture* ItemInformation::get_texture( void ) const
+const JUI::Texture* ItemDefinition::get_texture( void ) const
 {
 	return texture_;
 }
@@ -52,7 +52,7 @@ const JUI::Texture* ItemInformation::get_texture( void ) const
 /*
  * Get class flags for item type.
  */
-uint32 ItemInformation::get_class_flags( void ) const
+uint32 ItemDefinition::get_class_flags( void ) const
 {
 	return class_flags_;
 }
@@ -60,7 +60,7 @@ uint32 ItemInformation::get_class_flags( void ) const
 /*
  * Get class count for item type.
  */
-uint8 ItemInformation::get_class_count( void ) const
+uint8 ItemDefinition::get_class_count( void ) const
 {
 	return class_count_;
 }
@@ -68,7 +68,7 @@ uint8 ItemInformation::get_class_count( void ) const
 /*
  * Get equipment slot for item.
  */
-EItemSlot ItemInformation::get_slot( void ) const
+EItemSlot ItemDefinition::get_slot( void ) const
 {
 	return slot_;
 }
@@ -76,7 +76,7 @@ EItemSlot ItemInformation::get_slot( void ) const
 /*
  * Add an attribute generic to this item type.
  */
-bool ItemInformation::add_attribute( Attribute* attribute )
+bool ItemDefinition::add_attribute( Attribute* attribute )
 {
 	return attributes_.push( attribute );
 }
@@ -84,7 +84,7 @@ bool ItemInformation::add_attribute( Attribute* attribute )
 /*
  * Get the number of attributes generic to this item type.
  */
-size_t ItemInformation::get_attribute_count( void ) const
+size_t ItemDefinition::get_attribute_count( void ) const
 {
 	return attributes_.get_length();
 }
@@ -92,37 +92,45 @@ size_t ItemInformation::get_attribute_count( void ) const
 /*
  * Get an attribute by index.
  */
-const Attribute* ItemInformation::get_attribute( size_t index ) const
+Attribute* ItemDefinition::get_attribute( size_t index )
 {
 	return attributes_.get( index );
 }
 
-void ItemInformation::set_name( JUTIL::String* name )
+/*
+ * Get an attribute by index.
+ */
+const Attribute* ItemDefinition::get_attribute( size_t index ) const
+{
+	return attributes_.get( index );
+}
+
+void ItemDefinition::set_name( JUTIL::String* name )
 {
 	name_ = name;
 }
 
-void ItemInformation::set_texture( const JUI::Texture *texture )
+void ItemDefinition::set_texture( const JUI::Texture *texture )
 {
 	texture_ = texture;
 }
 
-void ItemInformation::set_class_flags( uint32 classFlags )
+void ItemDefinition::set_class_flags( uint32 class_flags )
 {
-	class_flags_ = classFlags;
+	class_flags_ = class_flags;
 
 	// Now count the number of classes.
 	class_count_ = 0;
-	while (classFlags != 0) {
-		if ((classFlags & 0x1) != 0) {
+	while (class_flags != 0) {
+		if ((class_flags & 0x1) != 0) {
 			class_count_++;
 		}
 
-		classFlags = classFlags >> 1;
+		class_flags = class_flags >> 1;
 	}
 }
 
-void ItemInformation::set_slot( EItemSlot slot )
+void ItemDefinition::set_slot( EItemSlot slot )
 {
 	slot_ = slot;
 }

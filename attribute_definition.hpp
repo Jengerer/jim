@@ -1,5 +1,5 @@
-#ifndef ITEM_ATTRIBUTE_HPP
-#define ITEM_ATTRIBUTE_HPP
+#ifndef ATTRIBUTE_DEFINITION
+#define ATTRIBUTE_DEFINITION
 
 #include "item_shared.hpp"
 #include <string/string.hpp>
@@ -11,12 +11,12 @@ enum EffectType
 	EFFECT_NEUTRAL
 };
 
-class AttributeInformation
+class AttributeDefinition
 {
 
 public:
 
-	AttributeInformation( JUTIL::String* name,
+	AttributeDefinition( JUTIL::String* name,
 		JUTIL::String* attribute_class,
         unsigned int index,
 		float min_value,
@@ -24,7 +24,7 @@ public:
 		EffectType effect_type,
 		bool hidden,
 		bool is_integer );
-    virtual ~AttributeInformation();
+    virtual ~AttributeDefinition();
 
 	// Accessing main attributes.
 	const JUTIL::String* get_name( void ) const;
@@ -59,4 +59,4 @@ private:
 
 };
 
-#endif // ITEM_ATTRIBUTE_HPP
+#endif // ATTRIBUTE_DEFINITION
