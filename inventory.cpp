@@ -20,6 +20,24 @@ Inventory::~Inventory()
 }
 
 /*
+ * Resolve item definitions after they've been loaded.
+ */
+bool Inventory::resolve_definitions( void )
+{
+	// Resolve all items.
+	JUTIL::Set<Item*>::Iterator i;
+	for (i = items_.begin(); i.has_next(); i.next()) {
+		Item* item = i.get_value();
+		if (!item->resolve_definitions()) {
+			return false;
+		}
+	}
+
+	// Resolve item generic attributes.
+	return true;
+}
+
+/*
  * Get inventory slot book.
  */
 const SlotBook* Inventory::get_book( void ) const
@@ -40,7 +58,9 @@ const DynamicSlotBook* Inventory::get_excluded_book( void ) const
  */
 Item* Inventory::find_item( uint64 unique_id ) const
 {
-	for each (Item* item in items_) {
+	JUTIL::Set<Item*>::Iterator i;
+	for (i = items_.begin(); i.has_next(); i.next()) {
+		Item* item = i.get_value();
 		if (item->get_unique_id() == unique_id) {
 			return item;
 		}
@@ -101,7 +121,7 @@ void Inventory::remove_item( Item* item )
 		excluded_book_->remove_item( item );
 	}
 
-	items_.erase( item );
+	items_.remove( item );
 }
 
 /*
@@ -113,10 +133,12 @@ void Inventory::remove_items( void )
 	excluded_book_->empty_slots();
 
 	// Delete all items.
-	std::set<Item*>::iterator i;
-	for (i = items_.begin(); i != items_.end(); i = items_.erase( i )) {
-		delete *i;
+	JUTIL::Set<Item*>::Iterator i;
+	for (i = items_.begin(); i.has_next(); i.next()) {
+		Item* item = i.get_value();
+		JUTIL::BaseAllocator::destroy( item );
 	}
+	items_.clear();
 }
 
 /*
