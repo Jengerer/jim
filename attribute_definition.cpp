@@ -1,9 +1,9 @@
-#include "attribute_information.hpp"
+#include "attribute_definition.hpp"
 
 /*
  * Attribute information constructor by attribute parameters.
  */
-AttributeInformation::AttributeInformation( JUTIL::String* name,
+AttributeDefinition::AttributeDefinition( JUTIL::String* name,
     JUTIL::String* attribute_class,
 	unsigned int index,
 	float min_value,
@@ -29,7 +29,7 @@ AttributeInformation::AttributeInformation( JUTIL::String* name,
 /*
  * Attribute information destructor.
  */
-AttributeInformation::~AttributeInformation( void )
+AttributeDefinition::~AttributeDefinition( void )
 {
     JUTIL::BaseAllocator::destroy( name_ );
     JUTIL::BaseAllocator::destroy( attribute_class_ );
@@ -40,7 +40,7 @@ AttributeInformation::~AttributeInformation( void )
 /*
  * Get attribute name.
  */
-const JUTIL::String* AttributeInformation::get_name( void ) const
+const JUTIL::String* AttributeDefinition::get_name( void ) const
 {
 	return name_;
 }
@@ -48,7 +48,7 @@ const JUTIL::String* AttributeInformation::get_name( void ) const
 /*
  * Get attribute index.
  */
-unsigned int AttributeInformation::get_index( void ) const
+unsigned int AttributeDefinition::get_index( void ) const
 {
 	return index_;
 }
@@ -56,7 +56,7 @@ unsigned int AttributeInformation::get_index( void ) const
 /*
  * Get name of class for this attribute.
  */
-const JUTIL::String* AttributeInformation::get_attribute_class( void ) const
+const JUTIL::String* AttributeDefinition::get_attribute_class( void ) const
 {
 	return attribute_class_;
 }
@@ -64,7 +64,7 @@ const JUTIL::String* AttributeInformation::get_attribute_class( void ) const
 /*
  * Get minimum value for this attribute.
  */
-float AttributeInformation::get_min_value( void ) const
+float AttributeDefinition::get_min_value( void ) const
 {
 	return min_value_;
 }
@@ -72,7 +72,7 @@ float AttributeInformation::get_min_value( void ) const
 /*
  * Get maximum value for this attribute.
  */
-float AttributeInformation::get_max_value( void ) const
+float AttributeDefinition::get_max_value( void ) const
 {
 	return max_value_;
 }
@@ -80,7 +80,7 @@ float AttributeInformation::get_max_value( void ) const
 /*
  * Get effect type for this attribute.
  */
-EffectType AttributeInformation::get_effect_type( void ) const
+EffectType AttributeDefinition::get_effect_type( void ) const
 {
 	return effect_type_;
 }
@@ -88,7 +88,7 @@ EffectType AttributeInformation::get_effect_type( void ) const
 /*
  * Return whether this attribute should be hidden from the user.
  */
-bool AttributeInformation::is_hidden( void ) const
+bool AttributeDefinition::is_hidden( void ) const
 {
 	return hidden_;
 }
@@ -96,7 +96,7 @@ bool AttributeInformation::is_hidden( void ) const
 /*
  * Return whether this attribute value is an integer.
  */
-bool AttributeInformation::is_integer( void ) const
+bool AttributeDefinition::is_integer( void ) const
 {
 	return is_integer_;
 }
@@ -104,7 +104,7 @@ bool AttributeInformation::is_integer( void ) const
 /*
  * Return whether this attribute has a description string.
  */
-bool AttributeInformation::has_description( void ) const
+bool AttributeDefinition::has_description( void ) const
 {
 	return description_ != nullptr;
 }
@@ -112,18 +112,18 @@ bool AttributeInformation::has_description( void ) const
 /*
  * Set description string for this attribute.
  */
-void AttributeInformation::set_description( JUTIL::String* description, JUTIL::String* format )
+void AttributeDefinition::set_description( JUTIL::String* description, JUTIL::String* format )
 {
     description_ = description;
     format_ = format;
 }
 
-const JUTIL::String* AttributeInformation::get_description( void ) const
+const JUTIL::String* AttributeDefinition::get_description( void ) const
 {
 	return description_;
 }
 
-const JUTIL::String* AttributeInformation::get_format( void ) const
+const JUTIL::String* AttributeDefinition::get_format( void ) const
 {
 	return format_;
 }

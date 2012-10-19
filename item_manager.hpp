@@ -14,6 +14,7 @@
 #include "http_resource_loader.hpp"
 #include "ipopup_handler.hpp"
 #include "item_display.hpp"
+#include "item_schema.hpp"
 #include "notice.hpp"
 #include "notification_queue.hpp"
 #include "notification.hpp"
@@ -108,6 +109,9 @@ private:
 	DynamicSlotBook* excluded_book_;
 	Backpack* backpack_;
 	HttpResourceLoader* site_loader_;
+
+    // Item definitions.
+    ItemSchema schema_;
 
 	// Display layers.
 	Container* user_layer_;

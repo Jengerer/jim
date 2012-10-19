@@ -1,30 +1,23 @@
 #ifndef ITEM_H
 #define ITEM_H
 
+#include "steam/SteamAPI.h"
+#include "steam/SteamTypes.h"
+#include "steam/UserItemsCommon.h"
+#include "item_shared.hpp"
+#include "item_definition.hpp"
+
 #include <containers/vector.hpp>
 #include <containers/map.hpp>
 #include <string/string.hpp>
 #include <string/constant_string.hpp>
-
-#include "steam/SteamAPI.h"
-#include "steam/SteamTypes.h"
-#include "steam/UserItemsCommon.h"
-
-#include "attribute_information.hpp"
-#include "item_information.hpp"
-#include "item_shared.hpp"
-#include "string_hasher.hpp"
-
 #include <jui/gfx/texture.hpp>
-
-typedef JUTIL::Map<int, ItemInformation*> InformationMap;
-typedef JUTIL::Map<uint16, AttributeInformation*> AttributeMap;
 
 class Item
 {
 public:
 	// Constructor.
-	Item( uint64 uniqueId,
+	Item( uint64 unique_id,
 		uint16 typeIndex,
 		uint8 level,
 		EItemQuality quality,
@@ -36,12 +29,11 @@ public:
     // Initializing item name/attributes.
     void clean( void );
 
-	// Finish creating item.
-	bool resolve_definitions( void );
-	bool resolve_attributes( void );
-	bool resolve_attribute( Attribute* attribute );
+	// Item definition resolving.
+    void set_definition( const ItemDefinition* definition );
+    const ItemDefinition* get_definition( void ) const;
 	bool set_custom_name( const JUTIL::String* custom_name );
-	bool resolve_name( void );
+	bool generate_name( void );
 	void update_attributes( void );
 
 	// Item attribute getters.
@@ -71,38 +63,43 @@ public:
 	bool has_valid_flags( void ) const;
 
 	// Equipment handling.
-	bool			is_tradable( void ) const;
-	bool			is_equipped( uint32 equipClass = CLASS_ALL ) const;
-	EItemSlot		get_equip_slot( void ) const;
-	uint32			get_equip_classes( void ) const;
-	bool			class_uses( uint32 classFlags ) const;
-	uint8			get_equip_class_count( void ) const;
-	void			set_equip( uint32 equipClass, bool equip );
+	bool is_tradable( void ) const;
+	bool is_equipped( uint32 equip_class = CLASS_ALL ) const;
+	EItemSlot get_equip_slot( void ) const;
+	uint32 get_equip_classes( void ) const;
+	bool class_uses( uint32 class_flags ) const;
+	uint8 get_equip_class_count( void ) const;
+	void set_equip( uint32 equip_class, bool equip );
 
 	// Drawing and interaction.
 	const JUI::Texture* get_texture( void );
 
-	// Attribute handling.
+	// Attribute management.
 	bool add_attribute( Attribute* attribute );
-	size_t get_attribute_count( void ) const;
-	const Attribute* get_attribute_at( size_t index ) const;
-	const Attribute* get_attribute_by_index( size_t index ) const;
-	const Attribute* get_attribute_by_name( const JUTIL::String* name ) const;
+
+    // Attribute iteration.
+    size_t get_attribute_count( void ) const;
+    size_t get_local_attribute_count( void ) const;
+    size_t get_generic_attribute_count( void ) const;
+	Attribute* get_attribute( size_t index );
+    Attribute* get_local_attribute( size_t index );
+    Attribute* get_generic_attribute( size_t index );
+    Attribute* find_attribute( size_t index );
+	Attribute* find_attribute( const JUTIL::String* name );
+    const Attribute* get_attribute( size_t index ) const;
+    const Attribute* get_local_attribute( size_t index ) const;
+    const Attribute* get_generic_attribute( size_t index ) const;
+    const Attribute* find_attribute( size_t index ) const;
+	const Attribute* find_attribute( const JUTIL::String* name ) const;
 
 private:
 
-	void set_unique_id( uint64 uniqueId );
+	void set_unique_id( uint64 unique_id );
 	void set_type_index( uint16 typeIndex );
 	void set_level( uint8 level );
 	void set_quality( EItemQuality quality );
 	void set_count( uint32 count );
 	void set_origin( uint32 origin );
-
-public:
-
-	static ItemInformation* fallback;
-	static InformationMap definitions;
-	static AttributeMap attributes;
 
 private:
 
@@ -120,7 +117,7 @@ private:
 
 	// Item definition information.
 	uint32 index_;
-	const ItemInformation* information_;
+	const ItemDefinition* definition_;
 	JUTIL::Vector<Attribute*> attributes_;
 
 };

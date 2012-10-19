@@ -1,5 +1,5 @@
-#ifndef ITEM_INFORMATION_HPP
-#define ITEM_INFORMATION_HPP
+#ifndef ITEM_DEFINITION_HPP
+#define ITEM_DEFINITION_HPP
 
 #include "item_shared.hpp"
 #include "attribute.hpp"
@@ -12,17 +12,17 @@
 /*
  * Item definition storage class.
  */
-class ItemInformation
+class ItemDefinition
 {
 
 public:
 
-	ItemInformation(
+	ItemDefinition(
 		JUTIL::String* name,
 		const JUI::Texture *texture,
-		uint32 classFlags,
+		uint32 class_flags,
 		EItemSlot slot );
-	~ItemInformation( void );
+	~ItemDefinition( void );
 
 	// Item information attributes.
 	const JUTIL::String* get_name( void ) const;
@@ -34,6 +34,7 @@ public:
 	// Attribute functions.
 	bool add_attribute( Attribute* attribute );
 	size_t get_attribute_count( void ) const;
+    Attribute* get_attribute( size_t index );
 	const Attribute* get_attribute( size_t index ) const;
 
 private:
@@ -41,7 +42,7 @@ private:
 	// Private attribute setters.
 	void set_name( JUTIL::String* name );
 	void set_texture( const JUI::Texture* texture );
-	void set_class_flags( uint32 classFlags );
+	void set_class_flags( uint32 class_flags );
 	void set_slot( EItemSlot slot );
 
 private:
@@ -56,4 +57,4 @@ private:
 
 };
 
-#endif // ITEM_INFORMATION_HPP
+#endif // ITEM_DEFINITION_HPP

@@ -103,12 +103,13 @@
   <ItemGroup>
     <ClCompile Include="dynamic_slot_book.cpp" />
     <ClCompile Include="http_resource_loader.cpp" />
+    <ClCompile Include="item_schema.cpp" />
     <ClCompile Include="slot_array.cpp" />
     <ClCompile Include="slot_book.cpp" />
     <ClCompile Include="slot_container.cpp" />
     <ClCompile Include="animated_book_view.cpp" />
     <ClCompile Include="attribute.cpp" />
-    <ClCompile Include="attribute_information.cpp" />
+    <ClCompile Include="attribute_definition.cpp" />
     <ClCompile Include="confirmation.cpp" />
     <ClCompile Include="dragged_slot_view.cpp" />
     <ClCompile Include="main.cpp" />
@@ -126,7 +127,7 @@
     <ClCompile Include="inventory.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="item_display.cpp" />
-    <ClCompile Include="item_information.cpp" />
+    <ClCompile Include="item_definition.cpp" />
     <ClCompile Include="item_manager.cpp" />
     <ClCompile Include="notice.cpp" />
     <ClCompile Include="notification.cpp" />
@@ -144,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="animated_book_view.hpp" />
     <ClInclude Include="dynamic_slot_book.hpp" />
+    <ClInclude Include="item_schema.hpp" />
     <ClInclude Include="resource_loader_interface.hpp" />
     <ClInclude Include="slot_container.hpp" />
     <ClInclude Include="slot_array.hpp" />

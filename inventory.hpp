@@ -1,9 +1,9 @@
 #ifndef INVENTORY_H
 #define INVENTORY_H
 
-#include <set>
 #include "dynamic_slot_book.hpp"
 #include "item.hpp"
+#include "item_schema.hpp"
 #include "slot.hpp"
 #include "slot_book.hpp"
 
@@ -18,7 +18,7 @@ public:
 	virtual ~Inventory( void );
 
 	// Resolving definitions.
-	bool resolve_definitions( void );
+	bool resolve_definitions( const ItemSchema* schema );
 
 	// Slot vector getters.
 	const SlotBook* get_book( void ) const;

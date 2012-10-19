@@ -14,7 +14,7 @@ Attribute::Attribute( uint32 index, AttributeValue value )
 /*
  * Constructor by information structure and value.
  */
-Attribute::Attribute( const AttributeInformation* attribute_info, AttributeValue value )
+Attribute::Attribute( const AttributeDefinition* attribute_info, AttributeValue value )
 {
 	index_ = attribute_info->get_index();
 	attribute_info_ = attribute_info;
@@ -24,7 +24,7 @@ Attribute::Attribute( const AttributeInformation* attribute_info, AttributeValue
 /*
  * Set attribute information structure.
  */
-void Attribute::set_attribute_info( const AttributeInformation* info )
+void Attribute::set_attribute_info( const AttributeDefinition* info )
 {
 	attribute_info_ = info;
 }
@@ -32,7 +32,7 @@ void Attribute::set_attribute_info( const AttributeInformation* info )
 /*
  * Get attribute information structure.
  */
-const AttributeInformation* Attribute::get_attribute_info( void ) const
+const AttributeDefinition* Attribute::get_attribute_info( void ) const
 {
 	return attribute_info_;
 }
