@@ -26,12 +26,8 @@ public:
 		uint32 origin );
 	virtual ~Item( void );
 
-    // Initializing item name/attributes.
-    void clean( void );
-
 	// Item definition resolving.
-    void set_definition( const ItemDefinition* definition );
-    const ItemDefinition* get_definition( void ) const;
+	void set_definition( const ItemDefinition* definition );
 	bool set_custom_name( const JUTIL::String* custom_name );
 	bool generate_name( void );
 	void update_attributes( void );
@@ -79,16 +75,8 @@ public:
 
     // Attribute iteration.
     size_t get_attribute_count( void ) const;
-    size_t get_local_attribute_count( void ) const;
-    size_t get_generic_attribute_count( void ) const;
 	Attribute* get_attribute( size_t index );
-    Attribute* get_local_attribute( size_t index );
-    Attribute* get_generic_attribute( size_t index );
-    Attribute* find_attribute( size_t index );
-	Attribute* find_attribute( const JUTIL::String* name );
     const Attribute* get_attribute( size_t index ) const;
-    const Attribute* get_local_attribute( size_t index ) const;
-    const Attribute* get_generic_attribute( size_t index ) const;
     const Attribute* find_attribute( size_t index ) const;
 	const Attribute* find_attribute( const JUTIL::String* name ) const;
 

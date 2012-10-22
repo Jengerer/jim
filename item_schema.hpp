@@ -37,8 +37,8 @@ public:
     const AttributeDefinition* get_attribute_definition( uint16 attribute_index ) const;
 
     // Definition resolving after resources loaded.
-    bool resolve_item( Item* item ) const;
-    bool resolve_attribute( Attribute* attribute ) const;
+    bool resolve( Item* item ) const;
+    bool resolve( Attribute* attribute ) const;
 
 private:
 

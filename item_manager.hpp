@@ -1,9 +1,5 @@
-#ifndef ITEM_MANAGER_H
-#define ITEM_MANAGER_H
-
-#include <jui/application/application.hpp>
-#include <jui/layout/horizontal_split_layout.hpp>
-#include <jui/layout/vertical_layout.hpp>
+#ifndef ITEM_MANAGER_HPP
+#define ITEM_MANAGER_HPP
 
 #include "alert.hpp"
 #include "backpack.hpp"
@@ -22,16 +18,19 @@
 #include "steam_item_handler.hpp"
 #include "slot_book.hpp"
 
+#include <jui/application/application.hpp>
+#include <jui/layout/horizontal_split_layout.hpp>
+#include <jui/layout/vertical_layout.hpp>
+
+#include <containers/vector.hpp>
+
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include <containers/vector.hpp>
-
-const unsigned int BUTTON_SPACING = 5;
-
 class ItemManager: public JUI::Application, public IPopupHandler
 {
+
 public:
 
 	ItemManager( HINSTANCE instance );
@@ -51,7 +50,7 @@ public:
 
 	// Application running functions.
     JUI::Application::ReturnStatus run( void );
-	void set_think( bool (ItemManager::*thinkFunction)( void ) );
+	void set_think( bool (ItemManager::*think_function)( void ) );
 	bool think( void );
 	bool loading( void );
 	bool running( void );
@@ -80,7 +79,7 @@ public:
 	// Slot selection handling.
 	bool on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse );
 	bool on_slot_released( SlotView* slot_view );
-	void update_buttons();
+	void update_buttons( void );
 
 	// Popup handling.
 	bool on_popup_clicked( Popup* popup );
@@ -162,4 +161,4 @@ private:
 
 };
 
-#endif // ITEM_MANAGER_H
+#endif // ITEM_MANAGER_HPP

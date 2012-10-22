@@ -60,9 +60,9 @@ private:
 protected:
 
 	// Navigation members.
-	JUI::HorizontalLayout*	pages_layout_;
-	JUI::Constraint*		pages_constraint_;
-	float					view_offset_;
+	JUI::HorizontalLayout* pages_layout_;
+	JUI::Constraint* pages_constraint_;
+	float view_offset_;
 
 private:
 
@@ -70,7 +70,6 @@ private:
 	const SlotBook* slot_book_;
 
 	// Layout attributes.
-    unsigned int page_spacing_;
 	unsigned int slot_spacing_;
 
 	// View offset.

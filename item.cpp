@@ -53,6 +53,14 @@ Item::~Item( void )
     attributes_.clear();
 }
 
+/*
+ * Set item definition structure from schema.
+ */
+void Item::set_definition( const ItemDefinition* definition )
+{
+	definition_ = definition;
+}
+
 // Set item custom name.
 bool Item::set_custom_name( const JUTIL::String* custom_name )
 {
@@ -68,10 +76,14 @@ bool Item::set_custom_name( const JUTIL::String* custom_name )
  */
 bool Item::generate_name( void )
 {
+	// Error stack for logging.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
     // Write string.
     const JUTIL::String* quality_name = get_quality_name();
     if (quality_name != nullptr) {
         if (!item_name_.write( "%s ", quality_name->get_string() )) {
+			stack->log( "Failed to write item quality name when generating name string." );
             return false;
         }
     }
@@ -79,6 +91,7 @@ bool Item::generate_name( void )
     // Get item type name.
     const JUTIL::String* type_name = definition_->get_name();
     if (!item_name_.write( "%s", type_name->get_string() )) {
+		stack->log( "Failed to write item type name when generating name string." );
         return false;
     }
 
@@ -317,13 +330,13 @@ bool Item::class_uses( uint32 class_flags ) const
 /* Gets the slot this item equips to. */
 EItemSlot Item::get_equip_slot( void ) const
 {
-	return information_->get_slot();
+	return definition_->get_slot();
 }
 
 /* Gets all item equip flags. */
 uint32 Item::get_equip_classes( void ) const
 {
-	return information_->get_class_flags();
+	return definition_->get_class_flags();
 }
 
 /*
@@ -331,7 +344,7 @@ uint32 Item::get_equip_classes( void ) const
  */
 uint8 Item::get_equip_class_count( void ) const
 {
-	return information_->get_class_count();
+	return definition_->get_class_count();
 }
 
 /*
@@ -358,7 +371,7 @@ void Item::set_equip( uint32 equip_class, bool equip )
  */
 const JUI::Texture* Item::get_texture( void )
 {
-	return information_->get_texture();
+	return definition_->get_texture();
 }
 
 /*
@@ -385,118 +398,31 @@ bool Item::add_attribute( Attribute* attribute )
 }
 
 /*
- * Get number of attributes this item has.
+ * Get number of local attributes this item has.
  */
 size_t Item::get_attribute_count( void ) const
-{
-    size_t item_attributes = get_local_attribute_count();
-    size_t generic_attributes = get_generic_attribute_count();
-    size_t total_attributes = item_attributes + generic_attributes;
-    return total_attributes;
-}
-
-/*
- * Get number of local attributes.
- */
-size_t Item::get_local_attribute_count( void ) const
 {
     return attributes_.get_length();
 }
 
 /*
- * Get number of item-generic attributes.
- */
-size_t Item::get_generic_attribute_count( void ) const
-{
-    return information_->get_attribute_count();
-}
-
-/*
- * Get enumerated attribute.
+ * Get local attribute by index in array.
  */
 Attribute* Item::get_attribute( size_t index )
 {
-    // Iterate through generic attributes first.
-    size_t generic_attributes = get_generic_attribute_count();
-    if (index < generic_attributes) {
-        return get_generic_attribute( index );
-    }
-
-    // Get from item local attributes next.
-    index -= generic_attributes;
-    return get_local_attribute( index );
-}
-
-/*
- * Return a local attribute.
- */
-Attribute* Item::get_local_attribute( size_t index )
-{
     return attributes_.get( index );
 }
 
 /*
- * Return a generic attribute.
- */
-Attribute* Item::get_generic_attribute( size_t index ) 
-{
-    return definition_->get_attribute( index );
-}
-
-/*
- * Get enumerated attribute.
+ * Get constant local attribute by index in array.
  */
 const Attribute* Item::get_attribute( size_t index ) const
 {
-    // Iterate through generic attributes first.
-    size_t generic_attributes = get_generic_attribute_count();
-    if (index < generic_attributes) {
-        return get_generic_attribute( index );
-    }
-
-    // Get from item local attributes next.
-    index -= generic_attributes;
-    return get_local_attribute( index );
-}
-
-/*
- * Return a local attribute.
- */
-const Attribute* Item::get_local_attribute( size_t index ) const
-{
     return attributes_.get( index );
 }
 
 /*
- * Return a generic attribute.
- */
-const Attribute* Item::get_generic_attribute( size_t index ) const
-{
-    return information_->get_attribute( index );
-}
-
-/*
- * Get attribute by attribute index, if any.
- * Returns nullptr if not found.
- */
-const Attribute* Item::find_attribute( size_t index ) const
-{
-    // Find attribute with matching index.
-    size_t i;
-    size_t length = get_attribute_count();
-    for (i = 0; i < length; ++i) {
-        const Attribute* attribute = get_attribute( i );
-        if (attribute->get_index() == index) {
-			return attribute;
-		}
-	}
-
-    // Not found.
-	return nullptr;
-}
-
-/*
- * Find attribute by name.
+ * Checks for attribute by name in local and generic attributes.
  * Returns nullptr if not found.
  */
 const Attribute* Item::find_attribute( const JUTIL::String* name ) const
@@ -512,7 +438,8 @@ const Attribute* Item::find_attribute( const JUTIL::String* name ) const
 		}
 	}
 
-	return nullptr;
+	// Not found in local attributes, check definition.
+	return definition_->find_attribute( name );
 }
 
 void Item::set_unique_id( uint64 unique_id )

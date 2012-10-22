@@ -1,5 +1,6 @@
 #include "steam_item_handler.hpp"
 #include "serialized_buffer.hpp"
+#include "jui/application/error_stack.hpp"
 
 /*
  * Item and selection handler constructor.
@@ -24,6 +25,9 @@ SteamItemHandler::~SteamItemHandler( void )
  */
 bool SteamItemHandler::select( SlotView* slot_view )
 {
+	// Error stack for error reporting.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
     // Deselect all if we're not multi-selecting.
 	if (get_select_mode() == SELECT_MODE_SINGLE) {
 		deselect_all();
@@ -31,6 +35,7 @@ bool SteamItemHandler::select( SlotView* slot_view )
 
     // Insert and toggle selection on slot.
 	if (!selected_.insert( slot_view )) {
+		stack->log( "Failed to add slot to selection." );
         return false;
     }
 	slot_view->set_selected( true );
