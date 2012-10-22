@@ -382,9 +382,9 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
             stack->log( "Failed to add attribute to schema.");
             return false;
         }
-        else if (!name_map_.insert( name_string, attrib_info )) {
+        else if (!name_map_.insert( name_string, static_cast<uint16>(index) )) {
             // Will be destroyed by item attributes, no need to delete.
-            stack->log( "Failed to add attribute to attribute map.");
+            stack->log( "Failed to add attribute index to name map.");
             return false;
         }
 
@@ -654,9 +654,9 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemDefiniti
 	value.as_float = attribute_value->asFloat();
 
 	// Get information.
-    AttributeDefinition* attribute_information;
-    if (!name_map_.get( &name, &attribute_information )) {
-        stack->log( "Failed to find attribute by name.");
+	uint16 attribute_index;
+	if (!name_map_.get( &name, &attribute_index )) {
+        stack->log( "Failed to find attribute index by name.");
         return false;
 	}
 
@@ -666,12 +666,18 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemDefiniti
         stack->log( "Failed to create attribute.");
         return false;
     }
-    new_attribute = new (new_attribute) Attribute( attribute_information, value );
+    new_attribute = new (new_attribute) Attribute( attribute_index, value );
     if (!information->add_attribute( new_attribute )) {
 		JUTIL::BaseAllocator::destroy( &new_attribute );
         stack->log( "Failed to add attribute to item definition.");
         return false;
     }
+
+	// Resolve attribute from schema.
+	if (!schema_->resolve( new_attribute )) {
+		JUTIL::BaseAllocator::destroy( &new_attribute );
+		return false;
+	}
 
     // Finished!
     return true;

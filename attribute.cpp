@@ -1,5 +1,5 @@
 #include "attribute.hpp"
-#include <sstream>
+#include "jui/application/error_stack.hpp"
 
 /*
  * Constructor by index and value.
@@ -7,34 +7,18 @@
 Attribute::Attribute( uint32 index, AttributeValue value )
 {
 	index_ = index;
-	attribute_info_ = nullptr;
 	value_ = value;
+
+	// To be resolved.
+	definition_ = nullptr;
 }
 
 /*
- * Constructor by information structure and value.
+ * Set definition from schema.
  */
-Attribute::Attribute( const AttributeDefinition* attribute_info, AttributeValue value )
+void Attribute::set_definition( const AttributeDefinition* definition )
 {
-	index_ = attribute_info->get_index();
-	attribute_info_ = attribute_info;
-	value_ = value;
-}
-
-/*
- * Set attribute information structure.
- */
-void Attribute::set_attribute_info( const AttributeDefinition* info )
-{
-	attribute_info_ = info;
-}
-
-/*
- * Get attribute information structure.
- */
-const AttributeDefinition* Attribute::get_attribute_info( void ) const
-{
-	return attribute_info_;
+	definition_ = definition;
 }
 
 /*
@@ -44,7 +28,7 @@ const AttributeDefinition* Attribute::get_attribute_info( void ) const
 bool Attribute::generate_description( void )
 {
 	// Check if anything to generate.
-	if (!attribute_info_->has_description()) {
+	if (!definition_->has_description()) {
 		return true;
 	}
 
@@ -52,7 +36,7 @@ bool Attribute::generate_description( void )
 	const JUTIL::ConstantString STRING_TOKEN = "%s1";
 
 	// Get the description string.
-    const JUTIL::String* description = attribute_info_->get_description();
+    const JUTIL::String* description = definition_->get_description();
 	size_t start = description->find( &STRING_TOKEN );
     if (start != JUTIL::String::INVALID_INDEX) {
 		// Write text up to token.
@@ -61,7 +45,7 @@ bool Attribute::generate_description( void )
         }
 
         // Write value instead of token.
-		if (attribute_info_->is_integer()) {
+		if (definition_->is_integer()) {
 			if (!description_.write( "%u", value_.as_uint32 )) {
                 return false;
             }
@@ -77,6 +61,12 @@ bool Attribute::generate_description( void )
         if (!description_.write( "%s", description->get_string() + offset )) {
             return false;
         }
+	}
+	else {
+		// No token, just copy the string.
+		if (!description_.copy( description )) {
+			return false;
+		}
 	}
 
 	return true;
@@ -103,7 +93,7 @@ unsigned int Attribute::get_index( void ) const
  */
 const JUTIL::String* Attribute::get_name( void ) const
 {
-	return get_attribute_info()->get_name();
+	return definition_->get_name();
 }
 
 /*
@@ -127,7 +117,7 @@ AttributeValue Attribute::get_value( void ) const
  */
 bool Attribute::has_description( void ) const
 {
-	return attribute_info_->has_description();
+	return definition_->has_description();
 }
 
 /*
@@ -135,5 +125,5 @@ bool Attribute::has_description( void ) const
  */
 bool Attribute::is_hidden( void ) const
 {
-	return attribute_info_->is_hidden();
+	return definition_->is_hidden();
 }

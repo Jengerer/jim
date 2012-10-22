@@ -84,7 +84,7 @@ private:
 	Json::Value root_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EItemSlot, JUTIL::StringHasher> slots_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EClassEquip, JUTIL::StringHasher> classes_;
-    JUTIL::HashMap<unsigned int, const JUTIL::String*, AttributeDefinition*, JUTIL::StringHasher> name_map_;
+    JUTIL::HashMap<unsigned int, const JUTIL::String*, uint16, JUTIL::StringHasher> name_map_;
 
 	// State members.
 	float progress_;

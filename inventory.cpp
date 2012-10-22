@@ -28,7 +28,7 @@ bool Inventory::resolve_definitions( const ItemSchema* schema )
 	JUTIL::Set<Item*>::Iterator i;
 	for (i = items_.begin(); i.has_next(); i.next()) {
 		Item* item = i.get_value();
-		if (!schema->resolve_item( item )) {
+		if (!schema->resolve( item )) {
             return false;
         }
 	}

@@ -84,8 +84,12 @@ const int EXCLUDED_HEIGHT = 1;
 const int SLOT_SPACING		= 5;
 const int PAGE_SPACING		= 50;
 
+// General application layout.
 const unsigned int PADDING	= 20;
 const unsigned int SPACING	= 10;
+
+// Button layout.
+const unsigned int BUTTON_SPACING = 5;
 
 /*
  * Item manager constructor.
@@ -418,6 +422,7 @@ bool ItemManager::loading( void )
 				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
 
 				// Resolve all item definitions.
+				schema_.set_loaded( true );
 				if (!backpack_->resolve_definitions( &schema_ )) {
 					return false;
 				}
@@ -645,6 +650,9 @@ JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 
 bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 {
+	// Error logging.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	Slot* slot = slot_view->get_slot();
 	if (slot->has_item()) {
 		switch (steam_items_.get_select_mode()) {
@@ -670,22 +678,30 @@ bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 			int view_x = slot_view->get_x();
 			int view_y = slot_view->get_y();
             if (!JUTIL::BaseAllocator::allocate( &dragged_view_ )) {
+				stack->log( "Failed to allocate dragged slot view." );
                 return false;
             }
 			dragged_view_ = new (dragged_view_) DraggedSlotView( slot );
+			if (!dragged_view_->initialize()) {
+				JUTIL::BaseAllocator::destroy( dragged_view_ );
+				stack->log( "Failed to initialize dragged slot view." );
+			}
 			dragged_view_->set_position( view_x, view_y );
 			dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
 			dragged_view_->set_alpha( 200 );
 			steam_items_.select( dragged_view_ );
 			if (!add( dragged_view_ )) {
                 JUTIL::BaseAllocator::destroy( &dragged_view_ );
+				stack->log( "Failed to add dragged slot view to layout." );
                 return false;
             }
 			break;
 		}
 
 		case SELECT_MODE_MULTIPLE:
-			steam_items_.toggle_select( slot_view );
+			if (!steam_items_.toggle_select( slot_view )) {
+				return false;
+			}
 			break;
 		}
 	}
@@ -1315,27 +1331,30 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
                 return false;
             }
 			
-			// Get the source.
-            const JUTIL::ConstantString CRAFTED_SOURCE = "crafted";
-            const JUTIL::ConstantString FOUND_SOURCE = "found";
-			const JUTIL::String* source;
-			if (created_item.origin() == 4) {
-				source = &CRAFTED_SOURCE;
-			}
-			else {
-				source = &FOUND_SOURCE;
-			}
+			// Display message if schema loaded.
+			if (schema_.is_loaded()) {
+				// Get the source.
+				const JUTIL::ConstantString CRAFTED_SOURCE = "crafted";
+				const JUTIL::ConstantString FOUND_SOURCE = "found";
+				const JUTIL::String* source;
+				if (created_item.origin() == 4) {
+					source = &CRAFTED_SOURCE;
+				}
+				else {
+					source = &FOUND_SOURCE;
+				}
 
-			// Display message.
-            JUTIL::DynamicString message;
-            if (!message.write( "You have %s a %s.", source->get_string(), item->get_name()->get_string() )) {
-                stack->log( "Failed to create new item message." );
-                return false;
-            }
-			if (!notifications_->add_notification( &message, item->get_texture() )) {
-                stack->log( "Failed to add new item message to notifications." );
-                return false;
-            }
+
+				JUTIL::DynamicString message;
+				if (!message.write( "You have %s a %s.", source->get_string(), item->get_name()->get_string() )) {
+					stack->log( "Failed to create new item message." );
+					return false;
+				}
+				if (!notifications_->add_notification( &message, item->get_texture() )) {
+					stack->log( "Failed to add new item message to notifications." );
+					return false;
+				}
+			}
 
 			break;
 		}
@@ -1762,16 +1781,6 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 		econ_item->inventory(),
 		econ_item->origin() );
 
-	// Set custom name.
-	if (econ_item->has_custom_name()) {
-		const JUTIL::ConstantString name = econ_item->custom_name().c_str();
-		if (!item->set_custom_name( &name )) {
-			JUTIL::BaseAllocator::destroy( item );
-			stack->log( "Failed to set custom name for item." );
-			return false;
-		}
-	}
-
 	// Add the item's attributes.
 	for (int j = 0; j < econ_item->attribute_size(); ++j) {
 		const CSOEconItemAttribute& attribute = econ_item->attribute( j );
@@ -1799,13 +1808,23 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 	
 	// Load item and attribute definitions.
     if (schema_.is_loaded()) {
-        if (!schema_.resolve_item( item )) {
+        if (!schema_.resolve( item )) {
 			JUTIL::BaseAllocator::destroy( item );
 			return false;
 		}
 
 		// Finalize state.
 		item->update_attributes();
+	}
+
+	// Generate name.
+	if (econ_item->has_custom_name()) {
+		const JUTIL::ConstantString name = econ_item->custom_name().c_str();
+		if (!item->set_custom_name( &name )) {
+			JUTIL::BaseAllocator::destroy( item );
+			stack->log( "Failed to set custom name for item." );
+			return false;
+		}
 	}
 
 	return item;

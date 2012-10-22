@@ -34,8 +34,8 @@ public:
 	// Attribute functions.
 	bool add_attribute( Attribute* attribute );
 	size_t get_attribute_count( void ) const;
-    Attribute* get_attribute( size_t index );
 	const Attribute* get_attribute( size_t index ) const;
+	const Attribute* find_attribute( const JUTIL::String* name ) const;
 
 private:
 

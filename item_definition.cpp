@@ -92,17 +92,30 @@ size_t ItemDefinition::get_attribute_count( void ) const
 /*
  * Get an attribute by index.
  */
-Attribute* ItemDefinition::get_attribute( size_t index )
+const Attribute* ItemDefinition::get_attribute( size_t index ) const
 {
 	return attributes_.get( index );
 }
 
 /*
- * Get an attribute by index.
+ * Checks for attribute by name.
+ * Returns nullptr if not found.
  */
-const Attribute* ItemDefinition::get_attribute( size_t index ) const
+const Attribute* ItemDefinition::find_attribute( const JUTIL::String* name ) const
 {
-	return attributes_.get( index );
+    // Find attribute with matching index.
+    size_t i;
+    size_t length = get_attribute_count();
+    for (i = 0; i < length; ++i) {
+        const Attribute* attribute = get_attribute( i );
+        const JUTIL::String* attribute_name = attribute->get_name();
+        if (name->is_equal( attribute_name )) {
+			return attribute;
+		}
+	}
+
+	// Not found, return nullptr.
+	return nullptr;
 }
 
 void ItemDefinition::set_name( JUTIL::String* name )

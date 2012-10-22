@@ -144,7 +144,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animated_book_view.hpp" />
+    <ClInclude Include="attribute_definition.hpp" />
     <ClInclude Include="dynamic_slot_book.hpp" />
+    <ClInclude Include="item_definition.hpp" />
     <ClInclude Include="item_schema.hpp" />
     <ClInclude Include="resource_loader_interface.hpp" />
     <ClInclude Include="slot_container.hpp" />
@@ -154,7 +156,6 @@
     <ClInclude Include="attribute.hpp" />
     <ClInclude Include="confirmation.hpp" />
     <ClInclude Include="dragged_slot_view.hpp" />
-    <ClInclude Include="attribute_information.hpp" />
     <ClInclude Include="ipopup_handler.hpp" />
     <ClInclude Include="popup_display.hpp" />
     <ClInclude Include="protobuf\tf_gcmessages.pb.h" />
@@ -170,7 +171,6 @@
     <ClInclude Include="inventory.hpp" />
     <ClInclude Include="item.hpp" />
     <ClInclude Include="item_display.hpp" />
-    <ClInclude Include="item_information.hpp" />
     <ClInclude Include="item_manager.hpp" />
     <ClInclude Include="item_shared.hpp" />
     <ClInclude Include="notice.hpp" />

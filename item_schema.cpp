@@ -22,6 +22,22 @@ ItemSchema::~ItemSchema( void )
 }
 
 /*
+ * Set schema load state.
+ */
+void ItemSchema::set_loaded( bool is_loaded )
+{
+	is_loaded_ = is_loaded;
+}
+
+/*
+ * Return whether schema has been fully loaded.
+ */
+bool ItemSchema::is_loaded( void ) const
+{
+	return is_loaded_;
+}
+
+/*
  * Add item definition to schema.
  */
 bool ItemSchema::add_item_definition( uint16 index, ItemDefinition* item_definition )
@@ -104,42 +120,32 @@ const AttributeDefinition* ItemSchema::get_attribute_definition( uint16 attribut
 /*
  * Resolve an item to its definition.
  */
-bool ItemSchema::resolve_item( Item* item ) const
+bool ItemSchema::resolve( Item* item ) const
 {
-    // Check if already loaded.
-    if (item->get_definition() != fallback_) {
-        return true;
-    }
-
     // Get definition for item.
     uint16 index = item->get_type_index();
     const ItemDefinition* definition = get_item_definition( index );
     item->set_definition( definition );
 
-    // Update attributes.
-    size_t i;
-    size_t length = item->get_attribute_count();
-    for (i = 0; i < length; ++i) {
-        Attribute* attribute = item->get_attribute( i );
-        if (!resolve_attribute( attribute )) {
-            return false;
-        }
-    }
+	// Resolve all item attributes.
+	size_t i;
+	size_t length = item->get_attribute_count();
+	for (i = 0; i < length; ++i) {
+		Attribute* attribute = item->get_attribute( i );
+		if (!resolve( attribute )) {
+			return false;
+		}
+	}
     return true;
 }
 
 /*
  * Resolve attribute to definition.
  */
-bool ItemSchema::resolve_attribute( Attribute* attribute ) const
+bool ItemSchema::resolve( Attribute* attribute ) const
 {
     // Error log if not found.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-
-    // Check if already loaded.
-    if (attribute->get_definition() != nullptr) {
-        return true;
-    }
 
     // Find definition.
     uint16 index = attribute->get_index();

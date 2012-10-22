@@ -17,11 +17,9 @@ public:
 
 	// Constructors by index or information.
 	Attribute( uint32 index, AttributeValue value );
-	Attribute( const AttributeDefinition* attribute_info, AttributeValue value );
 
-	// Attribute information management.
+	// Setting resolved attribute definition.
 	void set_definition( const AttributeDefinition* definition );
-	const AttributeDefinition* get_definition( void ) const;
 
     // Description handling.
     bool generate_description( void );
@@ -46,7 +44,7 @@ private:
 
 	// Attribute index and information structure.
 	uint32 index_;
-	const AttributeDefinition* attribute_info_;
+	const AttributeDefinition* definition_;
 
 	// String description for attribute.
     JUTIL::DynamicString description_;
