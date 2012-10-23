@@ -11,10 +11,13 @@ const float STOP_DISTANCE_THRESHOLD	= 1.0f;
  */
 AnimatedBookView::AnimatedBookView( const SlotBook* slot_book,
 	unsigned int page_spacing,
-	unsigned int slot_spacing ) : SlotBookView( slot_book, page_spacing, slot_spacing )
+	unsigned int slot_spacing ) : SlotBookView( slot_book, slot_spacing )
 {
 	set_view_speed( DEFAULT_VIEW_SPEED );
 	set_view_position( get_view_offset() );
+
+	// Set layout variable.
+	page_spacing_ = page_spacing;
 }
 
 /*
@@ -25,9 +28,24 @@ AnimatedBookView::~AnimatedBookView( void )
 }
 
 /*
+ * Animated book view initialization.
+ */
+bool AnimatedBookView::initialize( void )
+{
+	// Initialize base class.
+	if (!SlotBookView::initialize()) {
+		return false;
+	}
+
+	// Set spacing on page layout.
+	pages_layout_->set_spacing( page_spacing_ );
+	return true;
+}
+
+/*
  * Update animated book view.
  */
-void AnimatedBookView::update_view()
+void AnimatedBookView::update_view( void )
 {
 	// Move view to end.
 	float view_distance = get_view_offset() - get_view_position();

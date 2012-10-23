@@ -136,6 +136,17 @@ bool ItemSchema::resolve( Item* item ) const
 			return false;
 		}
 	}
+
+	// Update item attributes.
+	item->update_attributes();
+
+	// Generate name for item if no custom.
+	const JUTIL::String* name = item->get_name();
+	if (name->get_length() == 0) {
+		if (!item->generate_name()) {
+			return false;
+		}
+	}
     return true;
 }
 

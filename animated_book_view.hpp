@@ -16,6 +16,9 @@ public:
 		unsigned int slot_spacing );
 	virtual ~AnimatedBookView( void );
 
+	// Layout management.
+	bool initialize( void );
+
 	// Over-ride the view update.
 	virtual void update_view( void );
 
@@ -32,6 +35,9 @@ private:
 	// View members.
 	float view_speed_;
 	float view_position_;
+
+	// Layout variables.
+	unsigned int page_spacing_;
 
 };
 

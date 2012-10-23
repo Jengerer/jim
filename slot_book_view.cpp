@@ -7,7 +7,6 @@ const float DEFAULT_VIEW_OFFSET = 0.0f;
  * Slot book view constructor.
  */
 SlotBookView::SlotBookView( const SlotBook* slot_book,
-	unsigned int page_spacing,
 	unsigned int slot_spacing )
 {
 	set_slot_book( slot_book );
@@ -15,7 +14,6 @@ SlotBookView::SlotBookView( const SlotBook* slot_book,
 	set_active_page( DEFAULT_PAGE );
 
     // Layout parameters.
-    page_spacing_ = page_spacing;
     slot_spacing_ = slot_spacing;
 
 	// Pages to be created.
@@ -53,7 +51,7 @@ bool SlotBookView::initialize( void )
 	if (!JUTIL::BaseAllocator::allocate( &pages_layout_ )) {
 		return false;
 	}
-	pages_layout_ = new (pages_layout_) JUI::HorizontalLayout( page_spacing_, JUI::ALIGN_TOP );
+	pages_layout_ = new (pages_layout_) JUI::HorizontalLayout( 0, JUI::ALIGN_TOP );
 	pages_layout_->set_parent( this );
 	if (!add( pages_layout_ )) {
         JUTIL::BaseAllocator::destroy( pages_layout_ );
