@@ -134,7 +134,8 @@ bool ItemDisplay::update_display( void )
 
         // Write string if attribute has description.
 		if (attribute->has_description()) {
-            if (!information.write( "\n%s", attribute->get_description() ))
+			const JUTIL::String* description = attribute->get_description();
+            if (!information.write( "\n%s", description->get_string() ))
             {
                 return false;
             }

@@ -1686,7 +1686,7 @@ bool ItemManager::create_layout( void )
         stack->log( "Failed to allocate excluded slot view." );
 		return false;
 	}
-	excluded_view_ = new (excluded_view_) SlotBookView( excluded_book_, PAGE_SPACING, SLOT_SPACING );
+	excluded_view_ = new (excluded_view_) SlotBookView( excluded_book_, SLOT_SPACING );
 	if (!excluded_view_->initialize() || !layout->add( excluded_view_ )) {
 		JUTIL::BaseAllocator::destroy( excluded_view_ );
         stack->log( "Failed to add initialized excluded view to layout." );
