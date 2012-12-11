@@ -117,22 +117,19 @@ bool ItemDisplay::update_display( void )
         return false;
     }
 
-#if defined( _DEBUG )
-	// Add debugging information.
-    if (!information.write( "\nFLAGS: %x", item_->get_flags() )) {
-        return false;
-    }
-	if (!information.write( "\nORIGIN: %u", item_->get_origin() )) {
+	if (!information.write( "\nORIGIN: %s", item_->get_origin_name()->get_string() )) {
         return false;
     }
 
-    // Write attributes.
+#if defined( _DEBUG )
+
+	// Write attributes.
     size_t i;
     size_t length = item_->get_attribute_count();
 	for (i = 0; i < length; ++i) {
 		const Attribute* attribute = item_->get_attribute( i );
-
-        // Write string if attribute has description.
+		
+		// Write string if attribute has description.
 		if (attribute->has_description()) {
 			const JUTIL::String* description = attribute->get_description();
             if (!information.write( "\n%s", description->get_string() ))
@@ -141,6 +138,14 @@ bool ItemDisplay::update_display( void )
             }
 		}
 	}
+
+
+	// Add debugging information.
+    if (!information.write( "\nFLAGS: %x", item_->get_flags() )) {
+        return false;
+    }
+
+
 #endif
 
 	// Output if item is not tradable.

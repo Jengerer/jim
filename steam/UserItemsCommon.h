@@ -68,6 +68,31 @@ typedef enum EItemQuality
 	k_EItemQuality_Max = 0xFF,
 } EItemQuality;
 
+typedef enum EItemOrigin
+{
+	k_EItemOrigin_Dropped, 
+	k_EItemOrigin_Achievement,
+	k_EItemOrigin_Purchased,
+	k_EItemOrigin_Traded,
+	k_EItemOrigin_Crafted,
+	k_EItemOrigin_Store,
+	k_EItemOrigin_Gifted,
+	k_EItemOrigin_Support,
+	k_EItemOrigin_Crate,
+	k_EItemOrigin_Earned,
+	k_EItemOrigin_ThirdParty,
+	k_EItemOrigin_Wrapped,
+	k_EItemOrigin_Halloween,
+	k_EItemOrigin_Steam,
+	k_EItemOrigin_Foreign,
+	k_EItemOrigin_CD,
+	k_EItemOrigin_Reward,
+	k_EItemOrigin_Preview,
+	k_EItemOrigin_Workshop,
+	k_EItemOrigin_Awarded,
+	k_EItemOrigin_Max = 0xFF,
+} EItemOrigin;
+
 typedef enum EItemRequestResult
 {
 	k_EItemRequestResultOK = 0,

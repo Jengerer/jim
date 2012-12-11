@@ -15,6 +15,29 @@ const JUTIL::ConstantString SELF_MADE_QUALITY_NAME = "Self-Made";
 const JUTIL::ConstantString VALVE_QUALITY_NAME = "Valve";
 const JUTIL::ConstantString HAUNTED_QUALITY_NAME = "Haunted";
 
+
+const JUTIL::ConstantString DROPPED_ORIGIN_NAME = "Dropped";					//0
+const JUTIL::ConstantString ACHIEVEMENT_ORIGIN_NAME = "Achievement";			//1
+const JUTIL::ConstantString PURCHASED_ORIGIN_NAME = "Purchased";				//2
+const JUTIL::ConstantString TRADED_ORIGIN_NAME = "Traded";						//3
+const JUTIL::ConstantString CRAFTED_ORIGIN_NAME = "Crafted";					//4
+const JUTIL::ConstantString STORE_ORIGIN_NAME = "Store Promotion";				//5
+const JUTIL::ConstantString GIFTED_ORIGIN_NAME = "Gifted";						//6
+const JUTIL::ConstantString SUPPORT_ORIGIN_NAME = "Support Granted";			//7
+const JUTIL::ConstantString CRATE_ORIGIN_NAME = "Found in a Crate";				//8
+const JUTIL::ConstantString EARNED_ORIGIN_NAME = "Earned";						//9
+const JUTIL::ConstantString THIRDPARTY_ORIGIN_NAME = "Third-Party Promotion";	//10
+const JUTIL::ConstantString WRAPPED_ORIGIN_NAME = "Wrapped Gift";				//11
+const JUTIL::ConstantString HALLOWEEN_ORIGIN_NAME = "Halloween Drop";			//12
+const JUTIL::ConstantString STEAM_ORIGIN_NAME = "Steam Purchase";				//13
+const JUTIL::ConstantString FOREIGN_ORIGIN_NAME = "Foreign Item";				//14
+const JUTIL::ConstantString CD_ORIGIN_NAME = "CD Key";							//15
+const JUTIL::ConstantString REWARD_ORIGIN_NAME = "Collection Reward";			//16
+const JUTIL::ConstantString PREVIEW_ORIGIN_NAME = "Preview";					//17
+const JUTIL::ConstantString WORKSHOP_ORIGIN_NAME = "Workshop Contribution";		//18
+const JUTIL::ConstantString AWARDED_ORIGIN_NAME = "Awarded";					//19
+
+
 /*
  * Item constructor from attributes.
  */
@@ -251,6 +274,98 @@ const JUTIL::String* Item::get_quality_name( void ) const
 
 	case k_EItemQuality_Haunted:
 		return &HAUNTED_QUALITY_NAME;
+		break;
+
+	default:
+		return nullptr;
+		break;
+	}
+}
+
+/*
+ * Get origin name.
+ */
+const JUTIL::String* Item::get_origin_name( void ) const
+{
+	switch (get_origin()) {
+	case k_EItemOrigin_Dropped:
+		return &DROPPED_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Achievement:
+		return &ACHIEVEMENT_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Purchased:
+		return &PURCHASED_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Traded:
+		return &TRADED_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Crafted:
+		return &CRAFTED_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Store:
+		return &STORE_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Gifted:
+		return &GIFTED_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Support:
+		return &SUPPORT_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Crate:
+		return &CRATE_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Earned:
+		return &EARNED_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_ThirdParty:
+		return &THIRDPARTY_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Wrapped:
+		return &WRAPPED_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Halloween:
+		return &HALLOWEEN_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Steam:
+		return &STEAM_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Foreign:
+		return &FOREIGN_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_CD:
+		return &CD_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Reward:
+		return &REWARD_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Preview:
+		return &PREVIEW_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Workshop:
+		return &WORKSHOP_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_Awarded:
+		return &AWARDED_ORIGIN_NAME;
 		break;
 
 	default:
