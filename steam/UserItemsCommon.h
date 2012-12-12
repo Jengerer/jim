@@ -90,6 +90,8 @@ typedef enum EItemOrigin
 	k_EItemOrigin_Preview,
 	k_EItemOrigin_Workshop,
 	k_EItemOrigin_Awarded,
+	k_EItemOrigin_MvMBadge,
+	k_EItemOrigin_MvMSurplus,
 	k_EItemOrigin_Max = 0xFF,
 } EItemOrigin;
 

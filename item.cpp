@@ -16,7 +16,7 @@ const JUTIL::ConstantString VALVE_QUALITY_NAME = "Valve";
 const JUTIL::ConstantString HAUNTED_QUALITY_NAME = "Haunted";
 
 
-const JUTIL::ConstantString DROPPED_ORIGIN_NAME = "Dropped";					//0
+const JUTIL::ConstantString DROPPED_ORIGIN_NAME = "Timed Drop";					//0
 const JUTIL::ConstantString ACHIEVEMENT_ORIGIN_NAME = "Achievement";			//1
 const JUTIL::ConstantString PURCHASED_ORIGIN_NAME = "Purchased";				//2
 const JUTIL::ConstantString TRADED_ORIGIN_NAME = "Traded";						//3
@@ -33,9 +33,11 @@ const JUTIL::ConstantString STEAM_ORIGIN_NAME = "Steam Purchase";				//13
 const JUTIL::ConstantString FOREIGN_ORIGIN_NAME = "Foreign Item";				//14
 const JUTIL::ConstantString CD_ORIGIN_NAME = "CD Key";							//15
 const JUTIL::ConstantString REWARD_ORIGIN_NAME = "Collection Reward";			//16
-const JUTIL::ConstantString PREVIEW_ORIGIN_NAME = "Preview";					//17
+const JUTIL::ConstantString PREVIEW_ORIGIN_NAME = "Preview Item";				//17
 const JUTIL::ConstantString WORKSHOP_ORIGIN_NAME = "Workshop Contribution";		//18
-const JUTIL::ConstantString AWARDED_ORIGIN_NAME = "Awarded";					//19
+const JUTIL::ConstantString AWARDED_ORIGIN_NAME = "Periodic Score Reward";		//19
+const JUTIL::ConstantString MVMBADGE_ORIGIN_NAME = "MvM Badge completion reward";//20
+const JUTIL::ConstantString MVMSURPLUS_ORIGIN_NAME = "MvM Squad surplus reward";//21
 
 
 /*
@@ -368,10 +370,19 @@ const JUTIL::String* Item::get_origin_name( void ) const
 		return &AWARDED_ORIGIN_NAME;
 		break;
 
+	case k_EItemOrigin_MvMBadge:
+		return &MVMBADGE_ORIGIN_NAME;
+		break;
+
+	case k_EItemOrigin_MvMSurplus:
+		return &MVMSURPLUS_ORIGIN_NAME;
+		break;
+
 	default:
 		return nullptr;
 		break;
 	}
+
 }
 
 /*
