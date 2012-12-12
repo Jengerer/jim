@@ -493,6 +493,55 @@ void Item::set_equip( uint32 equip_class, bool equip )
 }
 
 /*
+ * Gets the crate number. Returns FL_ITEM_NOT_CRATE if not a crate
+ */
+uint32 Item::get_crate_number( void ) const
+{
+	const JUTIL::ConstantString CRATE_SERIES_DESCRIPTION = "Crate Series #";
+	size_t i;
+    size_t length = get_attribute_count();
+	for (i = 0; i < length; ++i) {
+		const Attribute* attribute = get_attribute( i );
+		
+		// Write string if attribute has description.
+		if (attribute->has_description()) {
+			const JUTIL::String* description = attribute->get_description();
+			if(description->find(&CRATE_SERIES_DESCRIPTION) != JUTIL::String::INVALID_INDEX) {
+				return (uint32) attribute->get_value().as_float;
+			}
+		}
+	}
+	return FL_ITEM_NOT_CRATE;
+}
+
+/*
+ * Gets the paint value as 0x00RRGGBB. Returns FL_ITEM_NOT_PAINTED if not painted
+ */
+uint32 Item::get_paint_value(  uint32 index ) const
+{
+	const JUTIL::ConstantString CRATE_SERIES_DESCRIPTION = "Item tint color code: ";
+	size_t i;
+    size_t length = get_attribute_count();
+	uint32 current_paint_index = 0, current_paint_color = 0xFFFFFFFF;
+	for (i = 0; i < length; ++i) {
+		const Attribute* attribute = get_attribute( i );
+		
+		// Write string if attribute has description.
+		if (attribute->has_description()) {
+			const JUTIL::String* description = attribute->get_description();
+			if(description->find(&CRATE_SERIES_DESCRIPTION) != JUTIL::String::INVALID_INDEX) {
+				if(current_paint_index == index && current_paint_color != (uint32) attribute->get_value().as_float){
+					return (uint32) attribute->get_value().as_float;
+				}
+				current_paint_index++;
+				current_paint_color = (uint32) attribute->get_value().as_float;
+			}
+		}
+	}
+	return FL_ITEM_NOT_PAINTED;
+}
+
+/*
  * Get a pointer to the texture for this item, if any.
  */
 const JUI::Texture* Item::get_texture( void )
