@@ -45,10 +45,10 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration) Output\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\..\jui\include;$(SolutionDir)\..\jutil\include;$(SolutionDir)\..\protobuf\src;$(SolutionDir)\..\jsoncpp\include;$(SolutionDir)\..\boost\;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(SDK_LIB_DIR)\protobuf\src;$(SDK_LIB_DIR)\jsoncpp\include;$(SDK_LIB_DIR)\boost\;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(SDK_LIB_DIR)\protobuf\src;$(SDK_LIB_DIR)\jsoncpp\include;$(SDK_LIB_DIR)\boost\;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SDK_LIB_DIR)\jui\lib;$(SDK_LIB_DIR)\jutil\lib;$(SDK_LIB_DIR)\protobuf\vsprojects\Release;$(SDK_LIB_DIR)\jsoncpp\libs\Release\;$(SDK_LIB_DIR)\boost\lib;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\..\jui\lib;$(SolutionDir)\..\jutil\lib;$(SolutionDir)\..\protobuf\vsprojects\Debug;$(SolutionDir)\..\jsoncpp\libs\Debug\;$(SolutionDir)\..\boost\stage\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SDK_LIB_DIR)\jui\lib;$(SDK_LIB_DIR)\jutil\lib;$(SDK_LIB_DIR)\protobuf\vsprojects\Debug;$(SDK_LIB_DIR)\jsoncpp\libs\Debug\;$(SDK_LIB_DIR)\boost\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -148,7 +148,6 @@
     <ClInclude Include="dynamic_slot_book.hpp" />
     <ClInclude Include="item_definition.hpp" />
     <ClInclude Include="item_schema.hpp" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="resource_loader_interface.hpp" />
     <ClInclude Include="slot_container.hpp" />
     <ClInclude Include="slot_array.hpp" />
