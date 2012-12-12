@@ -519,7 +519,7 @@ uint32 Item::get_crate_number( void ) const
  */
 uint32 Item::get_paint_value(  uint32 index ) const
 {
-	const JUTIL::ConstantString CRATE_SERIES_DESCRIPTION = "Item tint color code: ";
+	const JUTIL::ConstantString PAINT_DESCRIPTION = "Item tint color code: ";
 	size_t i;
     size_t length = get_attribute_count();
 	uint32 current_paint_index = 0, current_paint_color = 0xFFFFFFFF;
@@ -529,7 +529,7 @@ uint32 Item::get_paint_value(  uint32 index ) const
 		// Write string if attribute has description.
 		if (attribute->has_description()) {
 			const JUTIL::String* description = attribute->get_description();
-			if(description->find(&CRATE_SERIES_DESCRIPTION) != JUTIL::String::INVALID_INDEX) {
+			if(description->find(&PAINT_DESCRIPTION) != JUTIL::String::INVALID_INDEX) {
 				if(current_paint_index == index && current_paint_color != (uint32) attribute->get_value().as_float){
 					return (uint32) attribute->get_value().as_float;
 				}

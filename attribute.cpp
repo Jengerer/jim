@@ -51,7 +51,7 @@ bool Attribute::generate_description( void )
             }
 		}
 		else {
-			if (!description_.write( "%g", value_.as_float )) {
+			if (!description_.write( "%f", value_.as_float) )) {
                 return false;
             }
 		}

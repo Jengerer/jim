@@ -135,7 +135,7 @@ bool ItemDisplay::update_display( void )
 	for(int i = 0; i < 2; ++i){
 		item_value = item_->get_paint_value(i);
 		if (item_value != FL_ITEM_NOT_PAINTED) {
-			if (!information.write( "\nPAINT: 0x%X", i, item_value )) {
+			if (!information.write( "\nPAINT: 0x%X", item_value )) {
 				return false;
 			}
 		}
