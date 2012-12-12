@@ -44,6 +44,9 @@ private:
 	static JUI::FontInterface* equipped_font_;
 	static JUI::Text* equipped_text_;
 
+	static JUI::FontInterface* crate_font_;
+	static JUI::Text* crate_text_;
+
 private:
 
 	// Rounded rectangle pointers.

@@ -68,6 +68,9 @@ public:
 	uint8 get_equip_class_count( void ) const;
 	void set_equip( uint32 equip_class, bool equip );
 
+	uint32 get_crate_number( void ) const;
+	uint32 get_paint_value( uint32 index ) const;
+
 	// Drawing and interaction.
 	const JUI::Texture* get_texture( void );
 

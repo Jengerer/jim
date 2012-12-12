@@ -22,8 +22,11 @@ const unsigned int DRAG_ALPHA					= 185;
 const unsigned int SLOT_RADIUS					= 5;
 
 // Class-wide font/text resources.
-JUI::FontInterface* SlotView::equipped_font_					= nullptr;
+JUI::FontInterface* SlotView::equipped_font_		= nullptr;
 JUI::Text* SlotView::equipped_text_					= nullptr;
+
+JUI::FontInterface* SlotView::crate_font_			= nullptr;
+JUI::Text* SlotView::crate_text_					= nullptr;
 
 // Equipped text attributes.
 const JUTIL::ConstantString EQUIPPED_FONT_FACE	= "fonts/tf2build.ttf";
@@ -31,6 +34,12 @@ const unsigned int EQUIPPED_FONT_SIZE			= 6;
 const bool EQUIPPED_FONT_BOLDED					= false;
 const int EQUIPPED_PADDING					= 5;
 const JUTIL::ConstantString EQUIPPED_TEXT       = "EQUIPPED";
+
+// Crate text attributes.
+const JUTIL::ConstantString CRATE_FONT_FACE	= "fonts/tf2build.ttf";
+const unsigned int CRATE_FONT_SIZE			= 12;
+const bool CRATE_FONT_BOLDED					= false;
+const int CRATE_PADDING					= 5;
 
 /*
  * Slot view constructor.
@@ -127,7 +136,18 @@ void SlotView::draw( JUI::Graphics2D* graphics )
             int equipped_text_x = get_x() + get_width() - equipped_text_->get_width() - EQUIPPED_PADDING;
             int equipped_text_y = get_y() + get_height() - equipped_text_->get_height() - EQUIPPED_PADDING;
 			equipped_text_->set_position( equipped_text_x, equipped_text_y );
+			equipped_text_->set_text( &EQUIPPED_TEXT );
 			equipped_text_->draw( graphics );
+		}
+		uint32 item_value = item->get_crate_number();
+		JUTIL::DynamicString crate_string;
+		if (item_value != FL_ITEM_NOT_CRATE) {
+            int crate_text_x = get_x() + get_width() - crate_text_->get_width() - CRATE_PADDING;
+            int crate_text_y = get_y() + get_height() - crate_text_->get_height() - CRATE_PADDING;
+			crate_text_->set_position( crate_text_x, crate_text_y );
+			crate_string.write("%u", item_value);
+			crate_text_->set_text(&crate_string);
+			crate_text_->draw( graphics );
 		}
 	}
 }
@@ -191,12 +211,22 @@ bool SlotView::precache( JUI::Graphics2D* graphics )
         return false;
     }
 
+	crate_font_ = JUI::FontFactory::create_font( &CRATE_FONT_FACE, CRATE_FONT_SIZE );
+    if (crate_font_ == nullptr) {
+        return false;
+    }
+
     // Create text.
     if (!JUTIL::BaseAllocator::allocate( &equipped_text_ )) {
         return false;
     }
 	equipped_text_ = new (equipped_text_) JUI::Text( equipped_font_ );
 	equipped_text_->set_text( &EQUIPPED_TEXT );
+
+	if (!JUTIL::BaseAllocator::allocate( &crate_text_ )) {
+        return false;
+    }
+	crate_text_ = new (crate_text_) JUI::Text( crate_font_ );
     return true;
 }
 
@@ -207,4 +237,7 @@ void SlotView::release( void )
 {
     JUI::FontFactory::destroy_font( equipped_font_ );
     JUTIL::BaseAllocator::safe_destroy( &equipped_text_ );
+
+	JUI::FontFactory::destroy_font( crate_font_ );
+    JUTIL::BaseAllocator::safe_destroy( &crate_text_ );
 }

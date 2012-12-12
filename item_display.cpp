@@ -121,7 +121,25 @@ bool ItemDisplay::update_display( void )
         return false;
     }
 
+	// Add crate number
+	uint32 item_value = item_->get_crate_number();
+	if (item_value != FL_ITEM_NOT_CRATE) {
+		if (!information.write( "\nCRATE SERIES %u", item_value )) {
+			return false;
+		}
+	}
+
 #if defined( _DEBUG )
+
+	// Add paint number
+	for(int i = 0; i < 2; ++i){
+		item_value = item_->get_paint_value(i);
+		if (item_value != FL_ITEM_NOT_PAINTED) {
+			if (!information.write( "\nPAINT: 0x%X", i, item_value )) {
+				return false;
+			}
+		}
+	}
 
 	// Write attributes.
     size_t i;
@@ -144,7 +162,6 @@ bool ItemDisplay::update_display( void )
     if (!information.write( "\nFLAGS: %x", item_->get_flags() )) {
         return false;
     }
-
 
 #endif
 
