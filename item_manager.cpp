@@ -1124,7 +1124,7 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
                             }
 
                             // Add to backpack.
-							if (!backpack_->insert_item( item )) {
+							if (!backpack_->add_item( item )) {
                                 JUTIL::BaseAllocator::destroy( item );
                                 stack->log( "Failed to add item to inventory." );
                                 return false;
@@ -1250,7 +1250,7 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 				// Place item into excluded, to be resolved later.
 				backpack_->remove_item( target );
 				target->set_flags( updated_item.inventory() );
-				if (!backpack_->insert_item( target )) {
+				if (!backpack_->place_item( target )) {
                     stack->log( "Failed to update item position in backpack." );
                     return false;
                 }
@@ -1283,7 +1283,7 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 						// TODO: bump old into excluded.
 						backpack_->remove_item( target );
 						target->set_flags( updated_item.inventory() );
-						if (!backpack_->insert_item( target )) {
+						if (!backpack_->place_item( target )) {
                             stack->log( "Failed to update multiple items from Steam message." );
                             return false;
                         }
@@ -1325,7 +1325,7 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
             }
 
 			// Add this item to excluded.
-			if (!backpack_->insert_item( item )) {
+			if (!backpack_->add_item( item )) {
                 JUTIL::BaseAllocator::destroy( item );
                 stack->log( "Failed to insert new item into backpack." );
                 return false;
