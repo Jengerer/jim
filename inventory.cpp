@@ -68,13 +68,26 @@ Item* Inventory::find_item( uint64 unique_id ) const
 }
 
 /*
+ * Add an item to be handled by the inventory.
+ */
+bool Inventory::add_item( Item* item )
+{
+	// Add to item set.
+	if (!items_.insert( item )) {
+		return false;
+	}
+
+	// Place item.
+	return place_item( item );
+}
+
+/*
  * Insert an item into the inventory.
  */
-bool Inventory::insert_item( Item* item )
+bool Inventory::place_item( Item* item )
 {
 	// Check if item has spot in inventory.
-	items_.insert( item );
-	if (can_insert( item )) {
+	if (can_place( item )) {
 		book_->insert_item( item, item->get_position() );
 	}
 	else {
@@ -142,7 +155,7 @@ void Inventory::remove_items( void )
 /*
  * Check if an item can be inserted.
  */
-bool Inventory::can_insert( const Item* item ) const
+bool Inventory::can_place( const Item* item ) const
 {
 	if (item->has_valid_flags()) {
 		unsigned int index = item->get_position();
@@ -166,17 +179,19 @@ bool Inventory::is_excluded( const Item* item ) const
 /*
  * Attempt to place excluded items.
  */
-void Inventory::resolve_excluded( void )
+bool Inventory::resolve_excluded( void )
 {
 	unsigned int i = 0;
 	while (i < excluded_book_->get_slot_count()) {
 		Slot* slot = excluded_book_->get_slot( i );
 		if (slot->has_item()) {
 			Item* item = slot->get_item();
-			if (can_insert( item )) {
+			if (can_place( item )) {
 				// Keep index; a new item may have moved here.
 				excluded_book_->remove_item( item );
-				insert_item( item );
+				if (!place_item( item )) {
+					return false;
+				}
 				continue;
 			}
 		}
@@ -184,6 +199,8 @@ void Inventory::resolve_excluded( void )
 		// Move to next slot.
 		i++;
 	}
+
+	return true;
 }
 
 /*

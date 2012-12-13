@@ -26,15 +26,16 @@ public:
 
 	// Item handling.
 	Item* find_item( uint64 unique_id ) const;
-	bool insert_item( Item* item );
+	bool add_item( Item* item );
+	bool place_item( Item* item );
 	void move_item( Item* item, unsigned int index );
 	void remove_item( Item* item );
 	void remove_items( void );
-	bool can_insert( const Item* item ) const;
+	bool can_place( const Item* item ) const;
 	bool is_excluded( const Item* item ) const;
 
 	// Excluded handling.
-	void resolve_excluded( void );
+	bool resolve_excluded( void );
 
 private:
 
