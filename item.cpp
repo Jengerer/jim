@@ -497,21 +497,13 @@ void Item::set_equip( uint32 equip_class, bool equip )
  */
 uint32 Item::get_crate_number( void ) const
 {
-	const JUTIL::ConstantString CRATE_SERIES_DESCRIPTION = "Crate Series #";
-	size_t i;
-    size_t length = get_attribute_count();
-	for (i = 0; i < length; ++i) {
-		const Attribute* attribute = get_attribute( i );
-		
-		// Write string if attribute has description.
-		if (attribute->has_description()) {
-			const JUTIL::String* description = attribute->get_description();
-			if(description->find(&CRATE_SERIES_DESCRIPTION) != JUTIL::String::INVALID_INDEX) {
-				return (uint32) attribute->get_value().as_float;
-			}
-		}
+	//const JUTIL::ConstantString CRATE_SERIES_DESCRIPTION = "Crate Series #";
+	const JUTIL::ConstantString CRATE_ATTRIBUTE_NAME = "set supply crate series";
+	const Attribute* attribute = find_attribute(&CRATE_ATTRIBUTE_NAME);
+	if(attribute == nullptr){
+		return FL_ITEM_NOT_CRATE;
 	}
-	return FL_ITEM_NOT_CRATE;
+	return (uint32) attribute->get_value().as_float;
 }
 
 /*
@@ -519,26 +511,32 @@ uint32 Item::get_crate_number( void ) const
  */
 uint32 Item::get_paint_value(  uint32 index ) const
 {
-	const JUTIL::ConstantString PAINT_DESCRIPTION = "Item tint color code: ";
-	size_t i;
-    size_t length = get_attribute_count();
-	uint32 current_paint_index = 0, current_paint_color = 0xFFFFFFFF;
-	for (i = 0; i < length; ++i) {
-		const Attribute* attribute = get_attribute( i );
-		
-		// Write string if attribute has description.
-		if (attribute->has_description()) {
-			const JUTIL::String* description = attribute->get_description();
-			if(description->find(&PAINT_DESCRIPTION) != JUTIL::String::INVALID_INDEX) {
-				if(current_paint_index == index && current_paint_color != (uint32) attribute->get_value().as_float){
-					return (uint32) attribute->get_value().as_float;
-				}
-				current_paint_index++;
-				current_paint_color = (uint32) attribute->get_value().as_float;
-			}
+	//const JUTIL::ConstantString PAINT_DESCRIPTION = "Item tint color code: ";
+	const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_0 = "set item tint RGB";
+	const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_1 = "set item tint RGB 2";
+	const Attribute* attribute;
+	switch (index) {
+	case 0:
+		attribute = find_attribute(&PAINT_ATTRIBUTE_NAME_0);
+		break;
+
+	case 1:
+		attribute = find_attribute(&PAINT_ATTRIBUTE_NAME_1);
+		break;
+
+	default:
+		//should probably be some sort of INVALID_INDEX flag somewhere
+		return FL_ITEM_NOT_PAINTED;
+	}
+	if(attribute == nullptr){
+		return FL_ITEM_NOT_PAINTED;
+	}
+	if(index == 1){
+		if((uint32) attribute->get_value().as_float == get_paint_value(0)){
+			return FL_ITEM_NOT_PAINTED;
 		}
 	}
-	return FL_ITEM_NOT_PAINTED;
+	return (uint32) attribute->get_value().as_float;
 }
 
 /*
