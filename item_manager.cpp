@@ -685,11 +685,16 @@ bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 			if (!dragged_view_->initialize()) {
 				JUTIL::BaseAllocator::destroy( dragged_view_ );
 				stack->log( "Failed to initialize dragged slot view." );
+				return false;
 			}
 			dragged_view_->set_position( view_x, view_y );
 			dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
 			dragged_view_->set_alpha( 200 );
-			steam_items_.select( dragged_view_ );
+			if (!steam_items_.select( dragged_view_ )) {
+				JUTIL::BaseAllocator::destroy( dragged_view_ );
+				stack->log( "Failed to select dragged slot view." );
+				return false;
+			}
 			if (!add( dragged_view_ )) {
                 JUTIL::BaseAllocator::destroy( &dragged_view_ );
 				stack->log( "Failed to add dragged slot view to layout." );
@@ -722,13 +727,14 @@ bool ItemManager::on_slot_released( SlotView* slot_view )
 	// Reset selections.
 	inventory_view_->set_enabled( true );
 	excluded_view_->set_enabled( true );
+	steam_items_.deselect_all();
 
 	// Check if item came from excluded.
 	bool is_excluded = backpack_->is_excluded( dragged_item );
 
 	// Delete temporary dragged.
 	remove( dragged_view_ );
-	delete dragged_view_;
+	JUTIL::BaseAllocator::destroy( dragged_view_ );
 	dragged_view_ = nullptr;
 
 	// Do we have a slot to place it in?
@@ -1515,7 +1521,7 @@ bool ItemManager::create_layout( void )
         stack->log( "Failed to allocate inventory view." );
 		return false;
 	}
-    inventory_view_ = new (inventory_view_) AnimatedBookView( inventory_book_, PAGE_SPACING, SLOT_SPACING );
+    inventory_view_ = new (inventory_view_) SlotBookView( inventory_book_, SLOT_SPACING );
 	if (!inventory_view_->initialize() || !layout->add( inventory_view_ )) {
 		JUTIL::BaseAllocator::destroy( inventory_view_ );
         stack->log( "Failed to add initialized inventory view to layout." );
