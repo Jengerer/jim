@@ -1,11 +1,11 @@
 #include "slot_view.hpp"
 
 // Slot layout attributes.
-const unsigned int SLOT_PADDING					= 5;
-const unsigned int SLOT_SPACING					= 5;
-const unsigned int SLOT_WIDTH					= 70;
-const unsigned int SLOT_HEIGHT					= 60;
-const unsigned int ITEM_SIZE					= 60;
+const unsigned int SLOT_PADDING	= 5;
+const unsigned int SLOT_SPACING	= 5;
+const unsigned int SLOT_WIDTH	= 70;
+const unsigned int SLOT_HEIGHT	= 60;
+const unsigned int ITEM_SIZE	= 60;
 
 // Slot stroke attributes.
 const unsigned int SLOT_STROKE_WIDTH			= 2;
@@ -22,24 +22,23 @@ const unsigned int DRAG_ALPHA					= 185;
 const unsigned int SLOT_RADIUS					= 5;
 
 // Class-wide font/text resources.
-JUI::FontInterface* SlotView::equipped_font_		= nullptr;
-JUI::Text* SlotView::equipped_text_					= nullptr;
-
-JUI::FontInterface* SlotView::crate_font_			= nullptr;
-JUI::Text* SlotView::crate_text_					= nullptr;
+JUI::FontInterface* SlotView::equipped_font_	= nullptr;
+JUI::FontInterface* SlotView::crate_font_		= nullptr;
+JUI::Text* SlotView::equipped_text_				= nullptr;
+JUI::Text* SlotView::crate_text_				= nullptr;
 
 // Equipped text attributes.
 const JUTIL::ConstantString EQUIPPED_FONT_FACE	= "fonts/tf2build.ttf";
 const unsigned int EQUIPPED_FONT_SIZE			= 6;
 const bool EQUIPPED_FONT_BOLDED					= false;
-const int EQUIPPED_PADDING					= 5;
+const int EQUIPPED_PADDING						= 5;
 const JUTIL::ConstantString EQUIPPED_TEXT       = "EQUIPPED";
 
 // Crate text attributes.
 const JUTIL::ConstantString CRATE_FONT_FACE	= "fonts/tf2build.ttf";
-const unsigned int CRATE_FONT_SIZE			= 12;
-const bool CRATE_FONT_BOLDED					= false;
-const int CRATE_PADDING					= 5;
+const unsigned int CRATE_FONT_SIZE			= 10;
+const bool CRATE_FONT_BOLDED				= false;
+const int CRATE_PADDING						= 5;
 
 /*
  * Slot view constructor.
@@ -128,6 +127,7 @@ void SlotView::draw( JUI::Graphics2D* graphics )
 {
 	update();
 	Container::draw( graphics );
+	graphics->draw_pixel( 0, 0, JUI::COLOUR_WHITE );
 
 	// Draw equipped text.
 	if (slot_->has_item()) {
@@ -142,12 +142,16 @@ void SlotView::draw( JUI::Graphics2D* graphics )
 		uint32 item_value = item->get_crate_number();
 		JUTIL::DynamicString crate_string;
 		if (item_value != FL_ITEM_NOT_CRATE) {
-            int crate_text_x = get_x() + get_width() - crate_text_->get_width() - CRATE_PADDING;
-            int crate_text_y = get_y() + get_height() - crate_text_->get_height() - CRATE_PADDING;
-			crate_text_->set_position( crate_text_x, crate_text_y );
-			crate_string.write("%u", item_value);
-			crate_text_->set_text(&crate_string);
-			crate_text_->draw( graphics );
+			// Write text.
+			if (crate_string.write( "#%u", item_value )) {
+				crate_text_->set_text( &crate_string );
+
+				// Position correctly.
+				int crate_text_x = get_x() + get_width() - crate_text_->get_width() - CRATE_PADDING;
+				int crate_text_y = get_y() + get_height() - crate_text_->get_height() - CRATE_PADDING;
+				crate_text_->set_position( crate_text_x, crate_text_y );
+				crate_text_->draw( graphics );
+			}
 		}
 	}
 }
@@ -211,18 +215,21 @@ bool SlotView::precache( JUI::Graphics2D* graphics )
         return false;
     }
 
+	// Create crate number font.
 	crate_font_ = JUI::FontFactory::create_font( &CRATE_FONT_FACE, CRATE_FONT_SIZE );
     if (crate_font_ == nullptr) {
         return false;
     }
 
-    // Create text.
+    // Create equipped text.
     if (!JUTIL::BaseAllocator::allocate( &equipped_text_ )) {
         return false;
     }
 	equipped_text_ = new (equipped_text_) JUI::Text( equipped_font_ );
 	equipped_text_->set_text( &EQUIPPED_TEXT );
 
+	// Create crate text object.
+	// TODO: Move to crate-specific item view.
 	if (!JUTIL::BaseAllocator::allocate( &crate_text_ )) {
         return false;
     }
@@ -236,8 +243,7 @@ bool SlotView::precache( JUI::Graphics2D* graphics )
 void SlotView::release( void )
 {
     JUI::FontFactory::destroy_font( equipped_font_ );
-    JUTIL::BaseAllocator::safe_destroy( &equipped_text_ );
-
 	JUI::FontFactory::destroy_font( crate_font_ );
+    JUTIL::BaseAllocator::safe_destroy( &equipped_text_ );
     JUTIL::BaseAllocator::safe_destroy( &crate_text_ );
 }
