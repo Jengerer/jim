@@ -86,7 +86,11 @@ bool Notification::initialize( const JUI::Texture *texture )
         return false;
     }
     text_ = new (text_) JUI::WrappedText( font_, NOTIFICATION_TEXT_WIDTH );
-    text_->set_colour( &NOTIFICATION_FONT_COLOUR );
+	if (!layout_->add( text_ )) {
+		JUTIL::BaseAllocator::destroy( text_ );
+		return false;
+	}
+	text_->set_colour( &NOTIFICATION_FONT_COLOUR );
     pack();
     return true;
 }
