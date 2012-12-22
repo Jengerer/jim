@@ -127,7 +127,6 @@ void SlotView::draw( JUI::Graphics2D* graphics )
 {
 	update();
 	Container::draw( graphics );
-	graphics->draw_pixel( 0, 0, JUI::COLOUR_WHITE );
 
 	// Draw equipped text.
 	if (slot_->has_item()) {
