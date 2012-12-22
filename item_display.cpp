@@ -117,12 +117,19 @@ bool ItemDisplay::update_display( void )
         return false;
     }
 
+	uint32 item_value = item_->get_strange_number(0);
+	if (item_value != FL_ITEM_NOT_STRANGE) {
+		if (!information.write( "\nKILLS: %u", item_value )) {
+			return false;
+		}
+	}
+
 	if (!information.write( "\nORIGIN: %s", item_->get_origin_name()->get_string() )) {
         return false;
     }
 
 	// Add crate number
-	uint32 item_value = item_->get_crate_number();
+	item_value = item_->get_crate_number();
 	if (item_value != FL_ITEM_NOT_CRATE) {
 		if (!information.write( "\nCRATE SERIES %u", item_value )) {
 			return false;
@@ -148,13 +155,29 @@ bool ItemDisplay::update_display( void )
 		const Attribute* attribute = item_->get_attribute( i );
 		
 		// Write string if attribute has description.
-		if (attribute->has_description()) {
+		/*if (attribute->has_description()) {
 			const JUTIL::String* description = attribute->get_description();
             if (!information.write( "\n%s", description->get_string() ))
             {
                 return false;
             }
-		}
+		}*/
+		
+		if (!information.write( "\n[%u]", attribute->get_index() ))
+        {
+            return false;
+        }
+		const JUTIL::String* description = attribute->get_name();
+		if (!information.write( " %s", description->get_string() ))
+        {
+            return false;
+        }
+
+		if (!information.write( " U:%u F:%f", attribute->get_value().as_uint32, attribute->get_value().as_float ))
+        {
+            return false;
+        }
+
 	}
 
 

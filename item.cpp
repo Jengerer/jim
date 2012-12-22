@@ -120,6 +120,15 @@ bool Item::generate_name( void )
         return false;
     }
 
+	// Get item craft number
+	const uint32 item_craft_number= get_craft_number();
+	if(item_craft_number != 0){
+		if (!item_name_.write( " #%u", item_craft_number )) {
+			stack->log( "Failed to write craft number name when generating name string." );
+			return false;
+		}
+	}
+
     return true;
 }
 
@@ -259,6 +268,7 @@ const JUTIL::String* Item::get_quality_name( void ) const
 		break;
 
 	case k_EItemQuality_Strange:
+		//todo, return proper name
 		return &STRANGE_QUALITY_NAME;
 		break;
 
@@ -509,7 +519,7 @@ uint32 Item::get_crate_number( void ) const
 /*
  * Gets the paint value as 0x00RRGGBB. Returns FL_ITEM_NOT_PAINTED if not painted
  */
-uint32 Item::get_paint_value(  uint32 index ) const
+uint32 Item::get_paint_value( uint32 index ) const
 {
 	//const JUTIL::ConstantString PAINT_DESCRIPTION = "Item tint color code: ";
 	const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_0 = "set item tint RGB";
@@ -537,6 +547,49 @@ uint32 Item::get_paint_value(  uint32 index ) const
 		}
 	}
 	return (uint32) attribute->get_value().as_float;
+}
+
+/*
+ * Gets the craft number.  Returns 0 if no craft number is avaliable.
+ */
+uint32 Item::get_craft_number( void ) const
+{
+	const JUTIL::ConstantString CRAFT_ATTRIBUTE_NAME = "unique craft index";
+	const Attribute* attribute = find_attribute(&CRAFT_ATTRIBUTE_NAME);
+	if(attribute == nullptr){
+		return 0;
+	}
+	return attribute->get_value().as_uint32;
+}
+
+/*
+ * Gets the strange number.  Returns FL_ITEM_NOT_STRANGE if no strange number is avaliable.
+ * 
+ * Passing in 0 will fetch the first strange kill count and passing in 1 will fetch the alternate
+ * kill number, if it exists
+ */
+uint32 Item::get_strange_number( uint32 index ) const
+{
+	const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_0 = "kill eater";
+	const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_1 = "kill eater 2";
+	const Attribute* attribute;
+	switch (index) {
+	case 0:
+		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_0);
+		break;
+
+	case 1:
+		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_1);
+		break;
+
+	default:
+		//should probably be some sort of INVALID_INDEX flag somewhere
+		return FL_ITEM_NOT_STRANGE;
+	}
+	if(attribute == nullptr){
+		return FL_ITEM_NOT_STRANGE;
+	}
+	return attribute->get_value().as_uint32;
 }
 
 /*

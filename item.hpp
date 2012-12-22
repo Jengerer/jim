@@ -48,6 +48,7 @@ public:
 	const JUTIL::String* get_quality_name( void ) const;
 	const JUTIL::String* get_origin_name( void ) const;
 
+
 	// Position stored in Steam.
 	void set_position( uint16 position );
 	uint16 get_position( void ) const;
@@ -70,6 +71,8 @@ public:
 
 	uint32 get_crate_number( void ) const;
 	uint32 get_paint_value( uint32 index ) const;
+	uint32 get_craft_number( void ) const;
+	uint32 get_strange_number( uint32 index ) const;
 
 	// Drawing and interaction.
 	const JUI::Texture* get_texture( void );
