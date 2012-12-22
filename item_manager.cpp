@@ -97,7 +97,7 @@ const unsigned int BUTTON_SPACING = 5;
 ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 {
     JUTIL::AllocationManager* manager =JUTIL::AllocationManager::get_instance();
-    //manager->set_debug_break( 713 );
+    // manager->set_debug_break( 3733 );
 
 	// Set application size.
 	set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
