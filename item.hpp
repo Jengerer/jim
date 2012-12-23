@@ -27,6 +27,7 @@ public:
 	virtual ~Item( void );
 
 	// Item definition resolving.
+	const ItemDefinition* get_definition( void ) const;
 	void set_definition( const ItemDefinition* definition );
 	bool set_custom_name( const JUTIL::String* custom_name );
 	bool generate_name( void );

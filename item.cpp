@@ -79,6 +79,14 @@ Item::~Item( void )
 }
 
 /*
+ * Get item definition structure from schema.
+ */
+const ItemDefinition* Item::get_definition( void ) const
+{
+	return definition_;
+}
+
+/*
  * Set item definition structure from schema.
  */
 void Item::set_definition( const ItemDefinition* definition )
@@ -93,6 +101,15 @@ bool Item::set_custom_name( const JUTIL::String* custom_name )
     if (!item_name_.write( "\"%s\"", custom_name->get_string() )) {
         return false;
     }
+
+	// Get item craft number
+	/*const uint32 item_craft_number= get_craft_number();
+	if(item_craft_number != 0){
+		if (!item_name_.write( " #%u", item_craft_number )) {
+			return false;
+		}
+	}*/
+
 	return true;
 }
 
@@ -401,7 +418,7 @@ const JUTIL::String* Item::get_origin_name( void ) const
  */
 uint16 Item::get_position( void ) const
 {
-	return (get_flags() & 0xFFFF) - 1;
+	return (get_flags() & FL_ITEM_POSITION) - 1;
 }
 
 /*
