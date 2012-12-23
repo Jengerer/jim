@@ -153,16 +153,6 @@ bool ItemDisplay::update_display( void )
     size_t length = item_->get_attribute_count();
 	for (i = 0; i < length; ++i) {
 		const Attribute* attribute = item_->get_attribute( i );
-		
-		// Write string if attribute has description.
-		/*if (attribute->has_description()) {
-			const JUTIL::String* description = attribute->get_description();
-            if (!information.write( "\n%s", description->get_string() ))
-            {
-                return false;
-            }
-		}*/
-		
 		if (!information.write( "\n[%u]", attribute->get_index() ))
         {
             return false;
@@ -180,6 +170,35 @@ bool ItemDisplay::update_display( void )
 
 	}
 
+#if 0
+	if (!information.write( "\nMOAR!!" ))
+    {
+        return false;
+    }
+
+	const ItemDefinition* definition = item_->get_definition();
+
+	// Write definition attributes.
+    length = definition->get_attribute_count();
+	for (i = 0; i < length; ++i) {
+		const Attribute* attribute = definition->get_attribute( i );
+		if (!information.write( "\n[%u]", attribute->get_index() ))
+        {
+            return false;
+        }
+		const JUTIL::String* description = attribute->get_name();
+		if (!information.write( " %s", description->get_string() ))
+        {
+            return false;
+        }
+
+		if (!information.write( " U:%u F:%f", attribute->get_value().as_uint32, attribute->get_value().as_float ))
+        {
+            return false;
+        }
+
+	}
+#endif
 
 	// Add debugging information.
     if (!information.write( "\nFLAGS: %x", item_->get_flags() )) {
