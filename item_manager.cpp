@@ -1507,7 +1507,12 @@ bool ItemManager::create_layout( void )
         stack->log( "Failed to write title string." );
 		return false;
 	}
-	JUI::Text* title_text = new JUI::Text( title_font_ );
+	JUI::Text* title_text;
+	if (!JUTIL::BaseAllocator::allocate( &title_text )) {
+		stack->log( "Failed to allocate title text element." );
+		return false;
+	}
+	title_text = new (title_text) JUI::Text( title_font_ );
 	title_text->set_text( &title );
 	title_text->set_colour( &TITLE_COLOUR );
 	if (!layout->add( title_text )) {

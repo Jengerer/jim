@@ -152,6 +152,19 @@ SlotView* SlotBookView::get_touching_slot( JUI::Mouse* mouse ) const
 }
 
 /*
+ * Get slot view by index.
+ */
+SlotView* SlotBookView::get_slot_view( unsigned int index ) const
+{
+	// Get page.
+	unsigned int page_size = slot_book_->get_page_size();
+	unsigned int page = index / page_size;
+	unsigned int page_index = index % page_size;
+	SlotGridView* grid_page = slot_grid_views_.get( page );
+	return grid_page->get_slot_view( page_index );
+}
+
+/*
  * Move to next page. Return true if we moved to
  * next page.
  */

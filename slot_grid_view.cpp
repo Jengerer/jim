@@ -42,6 +42,14 @@ SlotView* SlotGridView::get_touching_slot( JUI::Mouse* mouse ) const
 }
 
 /*
+ * Return a slot view by its index.
+ */
+SlotView* SlotGridView::get_slot_view( unsigned int index ) const
+{
+	return slot_views_.get( index );
+}
+
+/*
  * Enable all slot views.
  */
 void SlotGridView::set_enabled( bool is_enabled ) const

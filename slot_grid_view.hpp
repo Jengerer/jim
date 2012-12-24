@@ -25,6 +25,7 @@ public:
 
 	// UI handling.
 	SlotView* get_touching_slot( JUI::Mouse* mouse ) const;
+	SlotView* get_slot_view( unsigned int index ) const;
 
 	// Slot view management.
 	void	set_enabled( bool is_enabled ) const;

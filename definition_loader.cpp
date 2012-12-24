@@ -245,6 +245,15 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         stack->log( "Failed to get result/attributes from definitions." );
         return false;
     }
+
+	Json::Value* qualities;
+	const JUTIL::ConstantString QUALITY_NAMES( "qualityNames" );
+	if (get_member( result, &QUALITY_NAMES, &qualities )) {
+		for (Json::ValueIterator q = qualities->begin(); q != qualities->end(); ++q) {
+			const char* lel = q.memberName();
+			const char* bakerlel = (*q).asCString();
+		}
+	}
 		
 	// Start loading attributes.
 	size_t loaded_attribs = 0;
