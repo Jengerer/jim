@@ -114,7 +114,12 @@ bool ItemDisplay::update_display( void )
 
 	JUTIL::DynamicString item_name;
 	if(item_->get_quality() != k_EItemQuality_Common && !item_->is_renamed()){
-		const JUTIL::DynamicString* quality_name = schema_->get_quality_name( item_->get_quality() );
+		const JUTIL::String* quality_name;
+		if(item_->get_quality() == k_EItemQuality_Strange){
+			quality_name = schema_->get_kill_eater_type( item_->get_strange_type(0) )->get_levels()->find_level( item_->get_strange_number(0) )->get_prefix();
+		}else{
+			quality_name = schema_->get_quality_name( item_->get_quality() );
+		}
 		if (quality_name != nullptr) {
 			if (!item_name.write( "%s ", quality_name->get_string() )) {
 				return false;
@@ -137,28 +142,34 @@ bool ItemDisplay::update_display( void )
 
 	// Build information text.
     JUTIL::DynamicString information;
-    if (!information.write( "LEVEL %u", static_cast<uint16>(item_->get_level()) )) {
+    if (!information.write( "Level %u", static_cast<uint16>(item_->get_level()) )) {
         return false;
     }
 
-	uint32 item_value = item_->get_strange_number(0);
-	if (item_value != FL_ITEM_NOT_STRANGE) {
-		if (!information.write( "\nKILLS: %u", item_value )) {
-			return false;
+	// load strange kills
+	for( uint32 i = 0; i < 5; ++i){
+		uint32 item_strange_kills = item_->get_strange_number(i);
+		if (item_strange_kills != FL_ITEM_NOT_STRANGE) {
+			const KillEaterType* type = schema_->get_kill_eater_type( item_->get_strange_type(i) );
+			if (type != nullptr && type->get_description() != nullptr) {
+				if (!information.write( "\n%s: %u", type->get_description()->get_string(), item_strange_kills )) {
+					return false;
+				}
+			}
 		}
 	}
 
 	const JUTIL::DynamicString* origin_name = schema_->get_origin_name( item_->get_origin() );
 	if (origin_name != nullptr) {
-		if (!information.write( "\nORIGIN: %s", origin_name->get_string() )) {
+		if (!information.write( "\nOrigin: %s", origin_name->get_string() )) {
 		    return false;
 		}
 	}
 
 	// Add crate number
-	item_value = item_->get_crate_number();
+	uint32 item_value = item_->get_crate_number();
 	if (item_value != FL_ITEM_NOT_CRATE) {
-		if (!information.write( "\nCRATE SERIES %u", item_value )) {
+		if (!information.write( "\nCrate Series %u", item_value )) {
 			return false;
 		}
 	}
@@ -197,7 +208,7 @@ bool ItemDisplay::update_display( void )
 
 	}
 
-#if 0
+#if 1
 	if (!information.write( "\nMOAR!!" ))
     {
         return false;

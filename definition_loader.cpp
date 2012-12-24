@@ -67,6 +67,14 @@ const JUTIL::ConstantString QUALITYNAMES_NAME = "qualityNames";
 const JUTIL::ConstantString ORIGINNAMES_NAME = "originNames";
 const JUTIL::ConstantString ORIGIN_NAME = "origin";
 const JUTIL::ConstantString NAME_NAME = "name";
+const JUTIL::ConstantString TYPE_NAME = "type";
+const JUTIL::ConstantString KILL_EATER_TYPE_NAME = "kill_eater_score_types";
+const JUTIL::ConstantString KILL_EATER_TYPE_DESCRIPTION_NAME = "type_name";
+const JUTIL::ConstantString KILL_EATER_TYPE_LEVEL_DATA_NAME = "level_data";
+const JUTIL::ConstantString KILL_EATER_RANKS_NAME = "item_levels";
+const JUTIL::ConstantString KILL_EATER_LEVELS_NAME = "levels";
+const JUTIL::ConstantString KILL_EATER_LEVEL_NAME = "level";
+const JUTIL::ConstantString KILL_EATER_SCORE_NAME = "required_score";
 
 
 // Attribute JSON members.
@@ -483,6 +491,160 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
             stack->log( "Failed to add origin to schema.");
             return false;
         }
+	}
+
+	//load strange text
+	Json::Value* kill_eater_ranks;
+	if(!get_member( result, &KILL_EATER_RANKS_NAME, &kill_eater_ranks )) {
+		stack->log( "Failed to find strange index in definitions." );
+		return false;
+	}
+	for (Json::ValueIterator k = kill_eater_ranks->begin(); k != kill_eater_ranks->end(); ++k) {
+		Json::Value& kill_eater_rank = *k;
+		Json::Value* kill_eater_rank_name;
+		Json::Value* kill_eater_levels;
+
+		if(!get_member( &kill_eater_rank, &NAME_NAME, &kill_eater_rank_name )) {
+			stack->log( "Failed to find strange index in definitions." );
+			return false;
+		}
+		if(!get_member( &kill_eater_rank, &KILL_EATER_LEVELS_NAME, &kill_eater_levels )) {
+			stack->log( "Failed to find strange index in definitions." );
+			return false;
+		}
+
+		JUTIL::DynamicString kill_eater_rank_name_string;
+		if (!kill_eater_rank_name_string.write( "%s", kill_eater_rank_name->asCString() )) {
+			return false;
+		}
+
+		// Allocate information object.
+		KillEaterRank* kill_eater_rank_info;
+        if (!JUTIL::BaseAllocator::allocate( &kill_eater_rank_info )) {
+            return false;
+        }
+		kill_eater_rank_info = new (kill_eater_rank_info) KillEaterRank();
+
+		for (Json::ValueIterator l = kill_eater_levels->begin(); l != kill_eater_levels->end(); ++l) {
+			Json::Value& kill_eater_level = *l;
+			Json::Value* kill_eater_level_level;
+			Json::Value* kill_eater_level_score;
+			Json::Value* kill_eater_level_prefix;
+
+			if(!get_member( &kill_eater_level, &KILL_EATER_LEVEL_NAME, &kill_eater_level_level )) {
+				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+				return false;
+			}
+
+			if(!get_member( &kill_eater_level, &KILL_EATER_SCORE_NAME, &kill_eater_level_score )) {
+				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+				return false;
+			}
+
+			if(!get_member( &kill_eater_level, &NAME_NAME, &kill_eater_level_prefix )) {
+				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+				return false;
+			}
+
+			
+			// Allocate new prefix string.
+			JUTIL::DynamicString* kill_eater_level_prefix_string;
+			if (!JUTIL::BaseAllocator::allocate( &kill_eater_level_prefix_string )) {
+				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+				return false;
+			}
+			kill_eater_level_prefix_string = new (kill_eater_level_prefix_string) JUTIL::DynamicString();
+			if (!kill_eater_level_prefix_string->write( "%s", kill_eater_level_prefix->asCString() )) {
+				JUTIL::BaseAllocator::destroy( kill_eater_level_prefix_string );
+				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+				return false;
+			}
+
+			KillEaterLevel* kill_eater_level_info;
+			if (!JUTIL::BaseAllocator::allocate( &kill_eater_level_info )) {
+				JUTIL::BaseAllocator::destroy( kill_eater_level_prefix_string );
+				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+				return false;
+			}
+			kill_eater_level_info = new (kill_eater_level_info) KillEaterLevel(
+				kill_eater_level_score->asUInt(), kill_eater_level_prefix_string );
+
+			if(!kill_eater_rank_info->add_level( kill_eater_level_info )) {
+				JUTIL::BaseAllocator::destroy( kill_eater_level_info );
+				JUTIL::BaseAllocator::destroy( kill_eater_level_prefix_string );
+				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+			}
+		}
+
+		if (!schema_->add_kill_eater_rank( &kill_eater_rank_name_string, kill_eater_rank_info )) {
+            JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+            stack->log( "Failed to add strange text to schema.");
+            return false;
+        }
+	}
+
+	Json::Value* kill_eater_types;
+	if(!get_member( result, &KILL_EATER_TYPE_NAME, &kill_eater_types )) {
+		stack->log( "Failed to find strange index in definitions." );
+		return false;
+	}
+	for (Json::ValueIterator t = kill_eater_types->begin(); t != kill_eater_types->end(); ++t) {
+		Json::Value& kill_eater_type = *t;
+		Json::Value* kill_eater_type_value;
+		Json::Value* kill_eater_type_description;
+		Json::Value* kill_eater_type_level_data;
+
+		if(!get_member( &kill_eater_type, &TYPE_NAME, &kill_eater_type_value )) {
+			stack->log( "Failed to find strange index in definitions." );
+			return false;
+		}
+		if(!get_member( &kill_eater_type, &KILL_EATER_TYPE_DESCRIPTION_NAME, &kill_eater_type_description )) {
+			stack->log( "Failed to find strange index in definitions." );
+			return false;
+		}
+		if(!get_member( &kill_eater_type, &KILL_EATER_TYPE_LEVEL_DATA_NAME, &kill_eater_type_level_data )) {
+			stack->log( "Failed to find strange index in definitions." );
+			return false;
+		}
+
+		JUTIL::DynamicString kill_eater_type_level_data_string;
+		if (!kill_eater_type_level_data_string.write( "%s", kill_eater_type_level_data->asCString() )) {
+			return false;
+		}
+
+		const KillEaterRank* kill_eater_rank_match = schema_->get_kill_eater_rank( &kill_eater_type_level_data_string );
+		if(kill_eater_rank_match == nullptr){
+			stack->log( "Failed to match strange text in definitions." );
+			return false;
+		}
+
+		// Allocate new description string.
+		JUTIL::DynamicString* kill_eater_type_description_string;
+		if (!JUTIL::BaseAllocator::allocate( &kill_eater_type_description_string )) {
+			return false;
+		}
+		kill_eater_type_description_string = new (kill_eater_type_description_string) JUTIL::DynamicString();
+		if (!kill_eater_type_description_string->write( "%s", kill_eater_type_description->asCString() )) {
+			JUTIL::BaseAllocator::destroy( kill_eater_type_description_string );
+			return false;
+		}
+
+		// Allocate information object.
+		KillEaterType* kill_eater_type_info;
+        if (!JUTIL::BaseAllocator::allocate( &kill_eater_type_info )) {
+			JUTIL::BaseAllocator::destroy( kill_eater_type_description_string );
+            return false;
+        }
+		kill_eater_type_info = new (kill_eater_type_info) KillEaterType( kill_eater_type_description_string, kill_eater_rank_match );
+
+		if (!schema_->add_kill_eater_type( kill_eater_type_value->asUInt(), kill_eater_type_info )) {
+            JUTIL::BaseAllocator::destroy( kill_eater_type_info );
+			JUTIL::BaseAllocator::destroy( kill_eater_type_description_string );
+            stack->log( "Failed to add strange text to schema.");
+            return false;
+        }
+
+		
 	}
 
 	// Get item member.

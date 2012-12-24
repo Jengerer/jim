@@ -4,6 +4,26 @@
 // TODO: Should change attribute iteration so we don't have to make copies.
 // Just iterate through both local and item attributes, and get from appropriate group.
 
+const JUTIL::ConstantString CANNOT_TRADE_NAME = "cannot trade";
+const JUTIL::ConstantString ALWAYS_TRADE_NAME = "always tradable";
+
+const JUTIL::ConstantString CRATE_ATTRIBUTE_NAME = "set supply crate series";
+const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_0 = "set item tint RGB";
+const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_1 = "set item tint RGB 2";
+
+const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_0 = "kill eater";
+const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_1 = "kill eater 2";
+const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_2 = "kill eater user 1";
+const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_3 = "kill eater user 2";
+const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_4 = "kill eater user 3";
+
+const JUTIL::ConstantString STRANGE_TYPE_NAME_0 = "kill eater score type";
+const JUTIL::ConstantString STRANGE_TYPE_NAME_1 = "kill eater score type 2";
+const JUTIL::ConstantString STRANGE_TYPE_NAME_2 = "kill eater user score type 1";
+const JUTIL::ConstantString STRANGE_TYPE_NAME_3 = "kill eater user score type 2";
+const JUTIL::ConstantString STRANGE_TYPE_NAME_4 = "kill eater user score type 3";
+
+
 /*
  * Item constructor from attributes.
  */
@@ -269,8 +289,6 @@ bool Item::has_valid_flags( void ) const
 /* Checks whether an item is allowed to be traded. */
 bool Item::is_tradable( void ) const
 {
-    const JUTIL::ConstantString CANNOT_TRADE_NAME = "cannot trade";
-    const JUTIL::ConstantString ALWAYS_TRADE_NAME = "always tradable";
 	return ((get_origin() != ORIGIN_ACHIEVEMENT) &&
 		(find_attribute( &CANNOT_TRADE_NAME ) == nullptr)) ||
 		(find_attribute( &ALWAYS_TRADE_NAME ) != nullptr);
@@ -333,8 +351,6 @@ void Item::set_equip( uint32 equip_class, bool equip )
  */
 uint32 Item::get_crate_number( void ) const
 {
-	//const JUTIL::ConstantString CRATE_SERIES_DESCRIPTION = "Crate Series #";
-	const JUTIL::ConstantString CRATE_ATTRIBUTE_NAME = "set supply crate series";
 	const Attribute* attribute = find_attribute(&CRATE_ATTRIBUTE_NAME);
 	if(attribute == nullptr){
 		return FL_ITEM_NOT_CRATE;
@@ -347,9 +363,6 @@ uint32 Item::get_crate_number( void ) const
  */
 uint32 Item::get_paint_value( uint32 index ) const
 {
-	//const JUTIL::ConstantString PAINT_DESCRIPTION = "Item tint color code: ";
-	const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_0 = "set item tint RGB";
-	const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_1 = "set item tint RGB 2";
 	const Attribute* attribute;
 	switch (index) {
 	case 0:
@@ -391,13 +404,12 @@ uint32 Item::get_craft_number( void ) const
 /*
  * Gets the strange number.  Returns FL_ITEM_NOT_STRANGE if no strange number is avaliable.
  * 
- * Passing in 0 will fetch the first strange kill count and passing in 1 will fetch the alternate
- * kill number, if it exists
+ * Passing in 0 will fetch the first strange kill count
+ * Passing in 1 will fetch the alternate kill count
+ * Passing in 2-4 will fetch the strange part kill counts
  */
 uint32 Item::get_strange_number( uint32 index ) const
 {
-	const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_0 = "kill eater";
-	const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_1 = "kill eater 2";
 	const Attribute* attribute;
 	switch (index) {
 	case 0:
@@ -408,6 +420,18 @@ uint32 Item::get_strange_number( uint32 index ) const
 		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_1);
 		break;
 
+	case 2:
+		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_2);
+		break;
+
+	case 3:
+		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_3);
+		break;
+
+	case 4:
+		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_4);
+		break;
+
 	default:
 		//should probably be some sort of INVALID_INDEX flag somewhere
 		return FL_ITEM_NOT_STRANGE;
@@ -416,6 +440,47 @@ uint32 Item::get_strange_number( uint32 index ) const
 		return FL_ITEM_NOT_STRANGE;
 	}
 	return attribute->get_value().as_uint32;
+}
+
+/*
+ * Gets the type of strange number.  Returns 0 if no strange type data is avaliable.
+ * 
+ * Passing in 0 will fetch the first strange kill count
+ * Passing in 1 will fetch the alternate kill count
+ * Passing in 2-4 will fetch the strange part kill counts
+ */
+uint32 Item::get_strange_type( uint32 index ) const
+{
+	const Attribute* attribute;
+	switch (index) {
+	case 0:
+		attribute = find_attribute(&STRANGE_TYPE_NAME_0);
+		break;
+
+	case 1:
+		attribute = find_attribute(&STRANGE_TYPE_NAME_1);
+		break;
+
+	case 2:
+		attribute = find_attribute(&STRANGE_TYPE_NAME_2);
+		break;
+
+	case 3:
+		attribute = find_attribute(&STRANGE_TYPE_NAME_3);
+		break;
+
+	case 4:
+		attribute = find_attribute(&STRANGE_TYPE_NAME_4);
+		break;
+
+	default:
+		//should probably be some sort of INVALID_INDEX flag somewhere
+		return 0;
+	}
+	if(attribute == nullptr){
+		return 0;
+	}
+	return (uint32) attribute->get_value().as_float;
 }
 
 /*
