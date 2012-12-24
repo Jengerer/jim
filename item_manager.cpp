@@ -942,7 +942,7 @@ bool ItemManager::start_definition_load( void )
     if (!JUTIL::BaseAllocator::allocate( &definition_loader_ )) {
         return false;
     }
-    definition_loader_ = new (definition_loader_) DefinitionLoader( &graphics_, &schema_ );
+    definition_loader_ = new (definition_loader_) DefinitionLoader( &graphics_, &schema_, notifications_ );
 	if (!definition_loader_->begin()) {
         return false;
     }
@@ -1715,7 +1715,7 @@ bool ItemManager::create_layout( void )
         stack->log( "Failed to allocate item display." );
 		return false;
 	}
-	item_display_ = new (item_display_) ItemDisplay();
+	item_display_ = new (item_display_) ItemDisplay( &schema_ );
 	if (!item_display_->initialize()) {
 		JUTIL::BaseAllocator::destroy( item_display_ );
 		stack->log( "Failed to initialize item display." );

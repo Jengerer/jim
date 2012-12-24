@@ -29,12 +29,14 @@ const int ITEM_DISPLAY_ALPHA_MAX = 210;
 /*
  * Item display constructor.
  */
-ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_PADDING )
+ItemDisplay::ItemDisplay( ItemSchema* schema ) : RoundedRectangleContainer( ITEM_DISPLAY_PADDING )
 {
 	// Set default attributes.
 	set_alpha( 0 );
 	set_item( nullptr );
 	set_active( false );
+
+	schema_ = schema;
 
 	// Null objects.
 	name_text_ = nullptr;
@@ -109,7 +111,29 @@ bool ItemDisplay::update_display( void )
 {
 	// Alter display based on quality.
 	name_text_->set_colour( item_->get_quality_colour() );
-	set_name( item_->get_name() );
+
+	JUTIL::DynamicString item_name;
+	if(item_->get_quality() != k_EItemQuality_Common && !item_->is_renamed()){
+		const JUTIL::DynamicString* quality_name = schema_->get_quality_name( item_->get_quality() );
+		if (quality_name != nullptr) {
+			if (!item_name.write( "%s ", quality_name->get_string() )) {
+				return false;
+			}
+		}
+	}
+
+	if(!item_name.write( "%s", item_->get_name()->get_string()) ){
+		return false;
+	}
+
+	// Get item craft number
+	const uint32 item_craft_number= item_->get_craft_number();
+	if(item_craft_number != 0){
+		if (!item_name.write( " #%u", item_craft_number )) {
+			return false;
+		}
+	}
+	set_name( &item_name );
 
 	// Build information text.
     JUTIL::DynamicString information;
@@ -124,9 +148,12 @@ bool ItemDisplay::update_display( void )
 		}
 	}
 
-	if (!information.write( "\nORIGIN: %s", item_->get_origin_name()->get_string() )) {
-        return false;
-    }
+	const JUTIL::DynamicString* origin_name = schema_->get_origin_name( item_->get_origin() );
+	if (origin_name != nullptr) {
+		if (!information.write( "\nORIGIN: %s", origin_name->get_string() )) {
+		    return false;
+		}
+	}
 
 	// Add crate number
 	item_value = item_->get_crate_number();
