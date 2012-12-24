@@ -413,17 +413,40 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 	}
 	
 	//load quality names
-	/*
 	Json::Value* qualities;
+	Json::Value* quality_names;
 	if (!get_member( result, &QUALITIES_NAME, &qualities )) {
 		stack->log( "Failed to find qualities in definitions." );
 		return false;
 	}
-	for (Json::ValueIterator q = qualities->begin(); q != qualities->end(); ++q) {
-		const char* quality_name = q.memberName();
-		int quality_index = (*q).asUInt();
+	if (!get_member( result, &QUALITYNAMES_NAME, &quality_names )) {
+		stack->log( "Failed to find quality names in definitions." );
+		return false;
 	}
-	*/
+	for (Json::ValueIterator q_index = qualities->begin(); q_index != qualities->end(); ++q_index) {
+		const JUTIL::ConstantString quality_index_desc = q_index.memberName();
+		for(Json::ValueIterator q_name = quality_names->begin(); q_name != quality_names->end(); ++q_name) {
+			const JUTIL::ConstantString quality_name_desc = q_name.memberName();
+			if(quality_index_desc.is_equal( &quality_name_desc )) {
+				// Allocate new name string.
+				JUTIL::DynamicString* quality_name_string;
+				if (!JUTIL::BaseAllocator::allocate( &quality_name_string )) {
+					return false;
+				}
+				quality_name_string = new (quality_name_string) JUTIL::DynamicString();
+				if (!quality_name_string->write( "%s", (*q_name).asCString() )) {
+					JUTIL::BaseAllocator::destroy( quality_name_string );
+					return false;
+				}
+				if (!schema_->add_quality_name( (*q_index).asUInt(), quality_name_string )) {
+					JUTIL::BaseAllocator::destroy( quality_name_string );
+					stack->log( "Failed to add quality to schema.");
+					return false;
+				}
+			}
+		}
+	}
+
 	//load origins
 	Json::Value* origins;
 	if(!get_member( result, &ORIGINNAMES_NAME, &origins )) {
@@ -506,21 +529,9 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
     schema_->set_fallback_definition( fallback );
 
 	// Get paint spill textures
-    if (!downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL )) {
-        stack->log( PAINT_SPILL_LOAD_FAIL_MESSAGE.get_string() );
-		if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, unknown_item)){
-			stack->log( "Failed to allocate spill response notification." );
-			return false;
-		}
-    }
-	if (!downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL )) {
-		stack->log( PAINT_SPILL_LOAD_FAIL_MESSAGE.get_string() );
-		if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, unknown_item)){
-			stack->log( "Failed to allocate spill response notification." );
-			return false;
-		}
-    }
-	if (!downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL )) {
+    if (!downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL )
+		|| !downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL )
+		|| !downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL )) {
         stack->log( PAINT_SPILL_LOAD_FAIL_MESSAGE.get_string() );
 		if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, unknown_item)){
 			stack->log( "Failed to allocate spill response notification." );

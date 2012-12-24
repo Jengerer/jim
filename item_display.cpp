@@ -111,7 +111,17 @@ bool ItemDisplay::update_display( void )
 {
 	// Alter display based on quality.
 	name_text_->set_colour( item_->get_quality_colour() );
+
 	JUTIL::DynamicString item_name;
+	if(item_->get_quality() != k_EItemQuality_Common && !item_->is_renamed()){
+		const JUTIL::DynamicString* quality_name = schema_->get_quality_name( item_->get_quality() );
+		if (quality_name != nullptr) {
+			if (!item_name.write( "%s ", quality_name->get_string() )) {
+				return false;
+			}
+		}
+	}
+
 	if(!item_name.write( "%s", item_->get_name()->get_string()) ){
 		return false;
 	}
@@ -138,9 +148,12 @@ bool ItemDisplay::update_display( void )
 		}
 	}
 
-	if (!information.write( "\nORIGIN: %s", schema_->get_origin_name( item_->get_origin() )->get_string() )) {
-        return false;
-    }
+	const JUTIL::DynamicString* origin_name = schema_->get_origin_name( item_->get_origin() );
+	if (origin_name != nullptr) {
+		if (!information.write( "\nORIGIN: %s", origin_name->get_string() )) {
+		    return false;
+		}
+	}
 
 	// Add crate number
 	item_value = item_->get_crate_number();

@@ -42,11 +42,12 @@ public:
 	void			set_flags( uint32 flags );
 	uint32			get_count( void ) const;
 	uint32			get_origin( void ) const;
+	bool			is_renamed( void ) const;
+	void			set_renamed( bool renamed );
 
 	// Secondary attributes.
 	const JUTIL::String* get_name( void ) const;
 	const JUI::Colour* get_quality_colour( void ) const;
-	const JUTIL::String* get_quality_name( void ) const;
 
 	// Position stored in Steam.
 	void set_position( uint16 position );
@@ -105,6 +106,7 @@ private:
 	uint32			count_;
 	uint32			flags_;
 	uint32			origin_;
+	bool			renamed_;
 
 	// Secondary information.
 	JUTIL::DynamicString item_name_;
