@@ -102,14 +102,6 @@ bool Item::set_custom_name( const JUTIL::String* custom_name )
         return false;
     }
 
-	// Get item craft number
-	/*const uint32 item_craft_number= get_craft_number();
-	if(item_craft_number != 0){
-		if (!item_name_.write( " #%u", item_craft_number )) {
-			return false;
-		}
-	}*/
-
 	return true;
 }
 
@@ -136,15 +128,6 @@ bool Item::generate_name( void )
 		stack->log( "Failed to write item type name when generating name string." );
         return false;
     }
-
-	// Get item craft number
-	const uint32 item_craft_number= get_craft_number();
-	if(item_craft_number != 0){
-		if (!item_name_.write( " #%u", item_craft_number )) {
-			stack->log( "Failed to write craft number name when generating name string." );
-			return false;
-		}
-	}
 
     return true;
 }
