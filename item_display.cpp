@@ -109,7 +109,21 @@ bool ItemDisplay::update_display( void )
 {
 	// Alter display based on quality.
 	name_text_->set_colour( item_->get_quality_colour() );
-	set_name( item_->get_name() );
+	JUTIL::DynamicString item_name;
+	if(!item_name.write( "%s", item_->get_name()->get_string()) ){
+		return false;
+	}
+
+	// Get item craft number
+	const uint32 item_craft_number= item_->get_craft_number();
+	if(item_craft_number != 0){
+		if (!item_name.write( " #%u", item_craft_number )) {
+			return false;
+		}
+	}
+
+
+	set_name( &item_name );
 
 	// Build information text.
     JUTIL::DynamicString information;
