@@ -47,8 +47,6 @@ public:
 	const JUTIL::String* get_name( void ) const;
 	const JUI::Colour* get_quality_colour( void ) const;
 	const JUTIL::String* get_quality_name( void ) const;
-	const JUTIL::String* get_origin_name( void ) const;
-
 
 	// Position stored in Steam.
 	void set_position( uint16 position );

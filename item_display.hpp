@@ -10,6 +10,7 @@
 
 #include "item.hpp"
 #include "rounded_rectangle_container.hpp"
+#include "item_schema.hpp"
 
 /*
  * Class for displaying item information.
@@ -20,7 +21,7 @@ class ItemDisplay : public RoundedRectangleContainer
 public:
 
 	// Constructor.
-	ItemDisplay( void );
+	ItemDisplay( ItemSchema* schema );
 	virtual ~ItemDisplay( void );
 
 	// Element initialization.
@@ -63,6 +64,8 @@ private:
 	bool is_active_;
 	const Item* item_;
 	const JUTIL::String* item_name_;
+
+	ItemSchema* schema_;
 
 	// Layout.
 	JUI::VerticalLayout* text_layout_;

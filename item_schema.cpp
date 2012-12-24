@@ -60,6 +60,28 @@ bool ItemSchema::add_attribute_definition( uint16 index, AttributeDefinition* at
 }
 
 /*
+ * Add quality name to schema.
+ */
+bool ItemSchema::add_quality_name( uint32 index, JUTIL::DynamicString* quality_name )
+{
+	if(!quality_names_.insert( index, quality_name )) {
+		return false;
+	}
+	return true;
+}
+
+/*
+ * Add origin name to schema.
+ */
+bool ItemSchema::add_origin_name( uint32 index, JUTIL::DynamicString* origin_name )
+{
+	if(!origin_names_.insert( index, origin_name )) {
+		return false;
+	}
+	return true;
+}
+
+/*
  * Set definition to return when no definition found.
  */
 void ItemSchema::set_fallback_definition( ItemDefinition* item_definition )
@@ -87,6 +109,22 @@ void ItemSchema::clear_definitions( void )
         JUTIL::BaseAllocator::destroy( definition );
     }
     attribute_definitions_.clear();
+
+	// Remove quality names.
+	QualityNameMap::Iterator k;
+    for (k = quality_names_.begin(); k.has_next(); k.next()) {
+        JUTIL::DynamicString* name = k.get_value();
+        JUTIL::BaseAllocator::destroy( name );
+    }
+    quality_names_.clear();
+
+	// Remove origin names.
+	OriginNameMap::Iterator l;
+    for (l = origin_names_.begin(); l.has_next(); l.next()) {
+        JUTIL::DynamicString* name = l.get_value();
+        JUTIL::BaseAllocator::destroy( name );
+    }
+    origin_names_.clear();
 }
 
 /*
@@ -115,6 +153,32 @@ const AttributeDefinition* ItemSchema::get_attribute_definition( uint16 attribut
         definition = nullptr;
     }
     return definition;
+}
+
+/*
+ * Get quality name for quality index.
+ * Returns nullptr if none found.
+ */
+const JUTIL::DynamicString* ItemSchema::get_quality_name( uint32 quality_index ) const
+{
+	JUTIL::DynamicString* name;
+	if(!quality_names_.get( quality_index, &name )) {
+		name = nullptr;
+	}
+	return name;
+}
+
+/*
+ * Get origin name for origin index.
+ * Returns nullptr if none found.
+ */
+const JUTIL::DynamicString* ItemSchema::get_origin_name( uint32 origin_index ) const
+{
+	JUTIL::DynamicString* name;
+	if(!origin_names_.get( origin_index, &name )) {
+		name = nullptr;
+	}
+	return name;
 }
 
 /*
