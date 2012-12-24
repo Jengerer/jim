@@ -29,12 +29,14 @@ const int ITEM_DISPLAY_ALPHA_MAX = 210;
 /*
  * Item display constructor.
  */
-ItemDisplay::ItemDisplay( void ) : RoundedRectangleContainer( ITEM_DISPLAY_PADDING )
+ItemDisplay::ItemDisplay( ItemSchema* schema ) : RoundedRectangleContainer( ITEM_DISPLAY_PADDING )
 {
 	// Set default attributes.
 	set_alpha( 0 );
 	set_item( nullptr );
 	set_active( false );
+
+	schema_ = schema;
 
 	// Null objects.
 	name_text_ = nullptr;
@@ -121,8 +123,6 @@ bool ItemDisplay::update_display( void )
 			return false;
 		}
 	}
-
-
 	set_name( &item_name );
 
 	// Build information text.
@@ -138,7 +138,7 @@ bool ItemDisplay::update_display( void )
 		}
 	}
 
-	if (!information.write( "\nORIGIN: %s", item_->get_origin_name()->get_string() )) {
+	if (!information.write( "\nORIGIN: %s", schema_->get_origin_name( item_->get_origin() )->get_string() )) {
         return false;
     }
 
