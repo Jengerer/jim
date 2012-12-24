@@ -81,6 +81,22 @@ bool ItemSchema::add_origin_name( uint32 index, JUTIL::DynamicString* origin_nam
 	return true;
 }
 
+bool ItemSchema::add_kill_eater_type( uint32 index, KillEaterType* kill_eater_type )
+{
+	if(!kill_eater_types_.insert( index, kill_eater_type )) {
+		return false;
+	}
+	return true;
+}
+
+bool ItemSchema::add_kill_eater_rank( const JUTIL::String* name, KillEaterRank* kill_eater_rank )
+{
+	if(!kill_eater_ranks_.insert( name, kill_eater_rank )) {
+		return false;
+	}
+	return true;
+}
+
 /*
  * Set definition to return when no definition found.
  */
@@ -179,6 +195,24 @@ const JUTIL::DynamicString* ItemSchema::get_origin_name( uint32 origin_index ) c
 		name = nullptr;
 	}
 	return name;
+}
+
+const KillEaterType* ItemSchema::get_kill_eater_type( uint32 type_index ) const
+{
+	KillEaterType* type;
+	if(!kill_eater_types_.get( type_index, &type )){
+		type = nullptr;
+	}
+	return type;
+}
+
+const KillEaterRank* ItemSchema::get_kill_eater_rank( const JUTIL::String* name ) const
+{
+	KillEaterRank* rank;
+	if(!kill_eater_ranks_.get( name, &rank )){
+		rank = nullptr;
+	}
+	return rank;
 }
 
 /*
