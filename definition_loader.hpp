@@ -12,6 +12,7 @@
 #include "item.hpp"
 #include "item_schema.hpp"
 #include "string_hasher.hpp"
+#include "notification_queue.hpp"
 
 enum DefinitionLoaderState
 {
@@ -36,7 +37,7 @@ class DefinitionLoader
 
 public:
 
-	DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schema );
+	DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schema, NotificationQueue* notifications );
 	~DefinitionLoader( void );
 
 	// Starting and ending the worker threads.
@@ -74,6 +75,7 @@ private:
 	// Resource parameters.
 	JUI::Graphics2D* graphics_;
     ItemSchema* schema_;
+	NotificationQueue* notifications_;
 
 	// Threading parameters.
 	volatile bool should_stop_;

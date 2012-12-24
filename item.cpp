@@ -4,42 +4,6 @@
 // TODO: Should change attribute iteration so we don't have to make copies.
 // Just iterate through both local and item attributes, and get from appropriate group.
 
-// Item quality names.
-// TODO: I think somebody mentioned these quality names are available elsewhere.
-const JUTIL::ConstantString VINTAGE_QUALITY_NAME = "Vintage";
-const JUTIL::ConstantString GENUINE_QUALITY_NAME = "Genuine";
-const JUTIL::ConstantString UNUSUAL_QUALITY_NAME = "Unusual";
-const JUTIL::ConstantString STRANGE_QUALITY_NAME = "Strange";
-const JUTIL::ConstantString COMMUNITY_QUALITY_NAME = "Community";
-const JUTIL::ConstantString SELF_MADE_QUALITY_NAME = "Self-Made";
-const JUTIL::ConstantString VALVE_QUALITY_NAME = "Valve";
-const JUTIL::ConstantString HAUNTED_QUALITY_NAME = "Haunted";
-
-
-const JUTIL::ConstantString DROPPED_ORIGIN_NAME = "Timed Drop";					//0
-const JUTIL::ConstantString ACHIEVEMENT_ORIGIN_NAME = "Achievement";			//1
-const JUTIL::ConstantString PURCHASED_ORIGIN_NAME = "Purchased";				//2
-const JUTIL::ConstantString TRADED_ORIGIN_NAME = "Traded";						//3
-const JUTIL::ConstantString CRAFTED_ORIGIN_NAME = "Crafted";					//4
-const JUTIL::ConstantString STORE_ORIGIN_NAME = "Store Promotion";				//5
-const JUTIL::ConstantString GIFTED_ORIGIN_NAME = "Gifted";						//6
-const JUTIL::ConstantString SUPPORT_ORIGIN_NAME = "Support Granted";			//7
-const JUTIL::ConstantString CRATE_ORIGIN_NAME = "Found in a Crate";				//8
-const JUTIL::ConstantString EARNED_ORIGIN_NAME = "Earned";						//9
-const JUTIL::ConstantString THIRDPARTY_ORIGIN_NAME = "Third-Party Promotion";	//10
-const JUTIL::ConstantString WRAPPED_ORIGIN_NAME = "Wrapped Gift";				//11
-const JUTIL::ConstantString HALLOWEEN_ORIGIN_NAME = "Halloween Drop";			//12
-const JUTIL::ConstantString STEAM_ORIGIN_NAME = "Steam Purchase";				//13
-const JUTIL::ConstantString FOREIGN_ORIGIN_NAME = "Foreign Item";				//14
-const JUTIL::ConstantString CD_ORIGIN_NAME = "CD Key";							//15
-const JUTIL::ConstantString REWARD_ORIGIN_NAME = "Collection Reward";			//16
-const JUTIL::ConstantString PREVIEW_ORIGIN_NAME = "Preview Item";				//17
-const JUTIL::ConstantString WORKSHOP_ORIGIN_NAME = "Workshop Contribution";		//18
-const JUTIL::ConstantString AWARDED_ORIGIN_NAME = "Periodic Score Reward";		//19
-const JUTIL::ConstantString MVMBADGE_ORIGIN_NAME = "MvM Badge completion reward";//20
-const JUTIL::ConstantString MVMSURPLUS_ORIGIN_NAME = "MvM Squad surplus reward";//21
-
-
 /*
  * Item constructor from attributes.
  */
@@ -61,6 +25,7 @@ Item::Item(
 	set_flags( flags );
 	set_index( get_position() );
 	set_origin( origin );
+	set_renamed( false );
 }
 
 /*
@@ -101,15 +66,7 @@ bool Item::set_custom_name( const JUTIL::String* custom_name )
     if (!item_name_.write( "\"%s\"", custom_name->get_string() )) {
         return false;
     }
-
-	// Get item craft number
-	/*const uint32 item_craft_number= get_craft_number();
-	if(item_craft_number != 0){
-		if (!item_name_.write( " #%u", item_craft_number )) {
-			return false;
-		}
-	}*/
-
+	set_renamed( true );
 	return true;
 }
 
@@ -121,30 +78,12 @@ bool Item::generate_name( void )
 	// Error stack for logging.
 	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
-    // Write string.
-    const JUTIL::String* quality_name = get_quality_name();
-    if (quality_name != nullptr) {
-        if (!item_name_.write( "%s ", quality_name->get_string() )) {
-			stack->log( "Failed to write item quality name when generating name string." );
-            return false;
-        }
-    }
-
     // Get item type name.
     const JUTIL::String* type_name = definition_->get_name();
     if (!item_name_.write( "%s", type_name->get_string() )) {
 		stack->log( "Failed to write item type name when generating name string." );
         return false;
     }
-
-	// Get item craft number
-	const uint32 item_craft_number= get_craft_number();
-	if(item_craft_number != 0){
-		if (!item_name_.write( " #%u", item_craft_number )) {
-			stack->log( "Failed to write craft number name when generating name string." );
-			return false;
-		}
-	}
 
     return true;
 }
@@ -221,6 +160,22 @@ uint32 Item::get_origin( void ) const
 }
 
 /*
+ * Is item renamed.
+ */
+bool Item::is_renamed( void ) const
+{
+	return renamed_;
+}
+
+/*
+ * Set renamed.
+ */
+void Item::set_renamed( bool renamed )
+{
+	renamed_ = renamed;
+}
+
+/*
  * Get string handle to item name.
  */
 const JUTIL::String* Item::get_name( void ) const
@@ -264,152 +219,6 @@ const JUI::Colour* Item::get_quality_colour( void ) const
 		return &QUALITY_COMMON_COLOUR;
 		break;
 	}
-}
-
-/*
- * Get quality name.
- */
-const JUTIL::String* Item::get_quality_name( void ) const
-{
-	switch (get_quality()) {
-	case k_EItemQuality_Vintage:
-		return &VINTAGE_QUALITY_NAME;
-		break;
-
-	case k_EItemQuality_Genuine:
-		return &GENUINE_QUALITY_NAME;
-		break;
-
-	case k_EItemQuality_Unusual:
-		return &UNUSUAL_QUALITY_NAME;
-		break;
-
-	case k_EItemQuality_Strange:
-		//todo, return proper name
-		return &STRANGE_QUALITY_NAME;
-		break;
-
-	case k_EItemQuality_Community:
-		return &COMMUNITY_QUALITY_NAME;
-		break;
-
-	case k_EItemQuality_SelfMade:
-		return &SELF_MADE_QUALITY_NAME;
-		break;
-
-	case k_EItemQuality_Valve:
-		return &VALVE_QUALITY_NAME;
-		break;
-
-	case k_EItemQuality_Haunted:
-		return &HAUNTED_QUALITY_NAME;
-		break;
-
-	default:
-		return nullptr;
-		break;
-	}
-}
-
-/*
- * Get origin name.
- */
-const JUTIL::String* Item::get_origin_name( void ) const
-{
-	switch (get_origin()) {
-	case k_EItemOrigin_Dropped:
-		return &DROPPED_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Achievement:
-		return &ACHIEVEMENT_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Purchased:
-		return &PURCHASED_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Traded:
-		return &TRADED_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Crafted:
-		return &CRAFTED_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Store:
-		return &STORE_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Gifted:
-		return &GIFTED_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Support:
-		return &SUPPORT_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Crate:
-		return &CRATE_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Earned:
-		return &EARNED_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_ThirdParty:
-		return &THIRDPARTY_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Wrapped:
-		return &WRAPPED_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Halloween:
-		return &HALLOWEEN_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Steam:
-		return &STEAM_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Foreign:
-		return &FOREIGN_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_CD:
-		return &CD_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Reward:
-		return &REWARD_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Preview:
-		return &PREVIEW_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Workshop:
-		return &WORKSHOP_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_Awarded:
-		return &AWARDED_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_MvMBadge:
-		return &MVMBADGE_ORIGIN_NAME;
-		break;
-
-	case k_EItemOrigin_MvMSurplus:
-		return &MVMSURPLUS_ORIGIN_NAME;
-		break;
-
-	default:
-		return nullptr;
-		break;
-	}
-
 }
 
 /*

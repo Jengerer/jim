@@ -46,10 +46,28 @@ const JUTIL::ConstantString FALLBACK_ITEM_NAME = "Unknown Item";
 const unsigned int FALLBACK_ITEM_CLASS_FLAGS = 0;
 const EItemSlot FALLBACK_ITEM_SLOT = SLOT_NONE;
 
+// Paint spill definitions.
+const JUTIL::ConstantString PAINT_SPILL_SINGLE_TEXTURE = "img/backpack/player/items/crafting/paintcan_paintcolor.png";
+const JUTIL::ConstantString PAINT_SPILL_SINGLE_TEXTURE_URL = "http://media.steampowered.com/apps/440/icons/paintcan_paintcolor.png";
+const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE = "img/backpack/player/items/crafting/teampaint_blu_mask.png";
+//const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE_URL = "http://media.steampowered.com/apps/440/icons/teampaint_blu_mask.png";
+const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/teampaint_blu_mask.png";
+const JUTIL::ConstantString PAINT_SPILL_RED_TEXTURE = "img/backpack/player/items/crafting/teampaint_red_mask.png";
+//const JUTIL::ConstantString PAINT_SPILL_RED_TEXTURE_URL = "http://media.steampowered.com/apps/440/icons/teampaint_red_mask.png";
+const JUTIL::ConstantString PAINT_SPILL_RED_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/teampaint_red_mask.png";
+
+const JUTIL::ConstantString PAINT_SPILL_LOAD_FAIL_MESSAGE = "Failed to download paint spill item texture";
+
 // JSON parsing object names.
 const JUTIL::ConstantString RESULT_NAME = "result";
 const JUTIL::ConstantString ATTRIBUTES_NAME = "attributes";
 const JUTIL::ConstantString ITEMS_NAME = "items";
+const JUTIL::ConstantString QUALITIES_NAME = "qualities";
+const JUTIL::ConstantString QUALITYNAMES_NAME = "qualityNames";
+const JUTIL::ConstantString ORIGINNAMES_NAME = "originNames";
+const JUTIL::ConstantString ORIGIN_NAME = "origin";
+const JUTIL::ConstantString NAME_NAME = "name";
+
 
 // Attribute JSON members.
 const JUTIL::ConstantString ATTRIBUTE_NAME = "name";
@@ -68,6 +86,7 @@ const JUTIL::ConstantString ATTRIBUTE_DESCRIPTION_FORMAT = "description_format";
 const JUTIL::ConstantString ITEM_INDEX = "defindex";
 const JUTIL::ConstantString ITEM_NAME = "item_name";
 const JUTIL::ConstantString ITEM_IMAGE = "image_inventory";
+const JUTIL::ConstantString ITEM_IMAGE_OVERLAY = "image_inventory_overlay";
 const JUTIL::ConstantString ITEM_IMAGE_URL = "image_url";
 const JUTIL::ConstantString ITEM_SLOT = "item_slot";
 const JUTIL::ConstantString ITEM_CLASSES = "used_by_classes";
@@ -96,10 +115,11 @@ bool get_member( Json::Value* root, const JUTIL::String* member, Json::Value** o
 /*
  * Definition loader constructor by graphics object.
  */
-DefinitionLoader::DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schema )
+DefinitionLoader::DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schema, NotificationQueue* notifications )
 {
 	graphics_ = graphics;
     schema_ = schema;
+	notifications_ = notifications;
     thread_ = nullptr;
 
     // Initialize progress/state.
@@ -391,6 +411,79 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		loaded_attribs++;
 		set_progress( loaded_attribs, num_attribs );
 	}
+	
+	//load quality names
+	Json::Value* qualities;
+	Json::Value* quality_names;
+	if (!get_member( result, &QUALITIES_NAME, &qualities )) {
+		stack->log( "Failed to find qualities in definitions." );
+		return false;
+	}
+	if (!get_member( result, &QUALITYNAMES_NAME, &quality_names )) {
+		stack->log( "Failed to find quality names in definitions." );
+		return false;
+	}
+	for (Json::ValueIterator q_index = qualities->begin(); q_index != qualities->end(); ++q_index) {
+		const JUTIL::ConstantString quality_index_desc = q_index.memberName();
+		for(Json::ValueIterator q_name = quality_names->begin(); q_name != quality_names->end(); ++q_name) {
+			const JUTIL::ConstantString quality_name_desc = q_name.memberName();
+			if(quality_index_desc.is_equal( &quality_name_desc )) {
+				// Allocate new name string.
+				JUTIL::DynamicString* quality_name_string;
+				if (!JUTIL::BaseAllocator::allocate( &quality_name_string )) {
+					return false;
+				}
+				quality_name_string = new (quality_name_string) JUTIL::DynamicString();
+				if (!quality_name_string->write( "%s", (*q_name).asCString() )) {
+					JUTIL::BaseAllocator::destroy( quality_name_string );
+					return false;
+				}
+				if (!schema_->add_quality_name( (*q_index).asUInt(), quality_name_string )) {
+					JUTIL::BaseAllocator::destroy( quality_name_string );
+					stack->log( "Failed to add quality to schema.");
+					return false;
+				}
+			}
+		}
+	}
+
+	//load origins
+	Json::Value* origins;
+	if(!get_member( result, &ORIGINNAMES_NAME, &origins )) {
+		stack->log( "Failed to find origins in definitions." );
+		return false;
+	}
+	for (Json::ValueIterator o = origins->begin(); o != origins->end(); ++o) {
+		Json::Value& origin = *o;
+		Json::Value* origin_index;
+		Json::Value* origin_name;
+
+		if(!get_member( &origin, &ORIGIN_NAME, &origin_index )) {
+			stack->log( "Failed to find origin index in definitions." );
+			return false;
+		}
+		if(!get_member( &origin, &NAME_NAME, &origin_name )) {
+			stack->log( "Failed to find origin index in definitions." );
+			return false;
+		}
+
+
+		// Allocate new name string.
+        JUTIL::DynamicString* origin_name_string;
+        if (!JUTIL::BaseAllocator::allocate( &origin_name_string )) {
+            return false;
+        }
+        origin_name_string = new (origin_name_string) JUTIL::DynamicString();
+		if (!origin_name_string->write( "%s", origin_name->asCString() )) {
+			JUTIL::BaseAllocator::destroy( origin_name_string );
+			return false;
+		}
+		if (!schema_->add_origin_name( origin_index->asUInt(), origin_name_string )) {
+            JUTIL::BaseAllocator::destroy( origin_name_string );
+            stack->log( "Failed to add origin to schema.");
+            return false;
+        }
+	}
 
 	// Get item member.
     Json::Value* items;
@@ -434,6 +527,17 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		FALLBACK_ITEM_CLASS_FLAGS,
 		FALLBACK_ITEM_SLOT );
     schema_->set_fallback_definition( fallback );
+
+	// Get paint spill textures
+    if (!downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL )
+		|| !downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL )
+		|| !downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL )) {
+        stack->log( PAINT_SPILL_LOAD_FAIL_MESSAGE.get_string() );
+		if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, unknown_item)){
+			stack->log( "Failed to allocate spill response notification." );
+			return false;
+		}
+    }
 
     // Strings for parsing.
     JUTIL::DynamicString* name = nullptr;
