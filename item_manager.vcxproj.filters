@@ -28,19 +28,19 @@
     <Filter Include="source\items">
       <UniqueIdentifier>{ff6eaa6b-4c24-4bd2-8f93-e39a7ad71d7f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="source\items\protobufs">
+    <Filter Include="source\protobufs">
       <UniqueIdentifier>{a628c3dd-565f-4484-b1de-6ecfd708f51d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="protobuf\gcsdk_gcmessages.pb.cc">
-      <Filter>source\items\protobufs</Filter>
+      <Filter>source\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\base_gcmessages.pb.cc">
-      <Filter>source\items\protobufs</Filter>
+      <Filter>source\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\steammessages.pb.cc">
-      <Filter>source\items\protobufs</Filter>
+      <Filter>source\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="item_display.cpp">
       <Filter>source</Filter>
@@ -94,7 +94,7 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc">
-      <Filter>source\items\protobufs</Filter>
+      <Filter>source\protobufs</Filter>
     </ClCompile>
     <ClCompile Include="item.cpp">
       <Filter>source\items</Filter>

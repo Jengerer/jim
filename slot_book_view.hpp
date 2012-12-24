@@ -30,6 +30,7 @@ public:
 
 	// JUI::Mouse* handling.
 	SlotView* get_touching_slot( JUI::Mouse* mouse ) const;
+	SlotView* get_slot_view( unsigned int index ) const;
 
 	// Page navigation.
 	bool next_page( void );
