@@ -140,7 +140,23 @@ void ItemSchema::clear_definitions( void )
         JUTIL::DynamicString* name = l.get_value();
         JUTIL::BaseAllocator::destroy( name );
     }
-    origin_names_.clear();
+	origin_names_.clear();
+
+	// Remove strange types.
+	KillEaterTypeMap::Iterator m;
+	for (m = kill_eater_types_.begin(); m.has_next(); m.next()) {
+        KillEaterType* type = m.get_value();
+        JUTIL::BaseAllocator::destroy( type );
+    }
+	kill_eater_types_.clear();
+
+	// Remove strange ranks.
+	KillEaterRankMap::Iterator n;
+    for (n = kill_eater_ranks_.begin(); n.has_next(); n.next()) {
+		KillEaterRank* rank = n.get_value();
+        JUTIL::BaseAllocator::destroy( rank );
+    }
+	kill_eater_ranks_.clear();
 }
 
 /*
