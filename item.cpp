@@ -33,7 +33,7 @@ Item::Item(
 	uint8 level,
 	EItemQuality quality,
 	uint32 count,
-	uint32 flags,
+	uint32 inventory_flags,
 	uint32 origin )
 {
 	// Set basic attributes.
@@ -42,7 +42,7 @@ Item::Item(
 	set_level( level );
 	set_quality( quality );
 	set_count( count );
-	set_flags( flags );
+	set_inventory_flags( inventory_flags );
 	set_index( get_position() );
 	set_origin( origin );
 	set_renamed( false );
@@ -158,9 +158,9 @@ EItemQuality Item::get_quality( void ) const
 /*
  * Get flags for item.
  */
-uint32 Item::get_flags( void ) const
+uint32 Item::get_inventory_flags( void ) const
 {
-	return flags_;
+	return inventory_flags_;
 }
 
 /*
@@ -218,8 +218,11 @@ const JUI::Colour* Item::get_quality_colour( void ) const
 		break;
 
 	case k_EItemQuality_Unusual:
-	case k_EItemQuality_Haunted:
 		return &QUALITY_UNUSUAL_COLOUR;
+		break;
+
+	case k_EItemQuality_Haunted:
+		return &QUALITY_HAUNTED_COLOUR;
 		break;
 
 	case k_EItemQuality_Strange:
@@ -247,7 +250,7 @@ const JUI::Colour* Item::get_quality_colour( void ) const
  */
 uint16 Item::get_position( void ) const
 {
-	return (get_flags() & FL_ITEM_POSITION) - 1;
+	return (get_inventory_flags() & FL_ITEM_POSITION) - 1;
 }
 
 /*
@@ -256,10 +259,10 @@ uint16 Item::get_position( void ) const
  */
 void Item::set_position( uint16 position )
 {
-	uint32 tempFlags = has_valid_flags() ? get_flags() : FL_ITEM_VALID;
+	uint32 tempFlags = has_valid_inventory_flags() ? get_inventory_flags() : FL_ITEM_VALID;
 	tempFlags &= FL_ITEM_NONPOSITION; // Remove current position.
 	tempFlags |= (position + 1) & FL_ITEM_POSITION; // Set new.
-	set_flags( tempFlags );
+	set_inventory_flags( tempFlags );
 }
 
 /*
@@ -281,9 +284,9 @@ void Item::set_index( uint32 index )
 /*
  * Return whether this item containts valid flags.
  */
-bool Item::has_valid_flags( void ) const
+bool Item::has_valid_inventory_flags( void ) const
 {
-	return (get_flags() & 0xF0000000) == FL_ITEM_VALID;
+	return (get_inventory_flags() & 0xF0000000) == FL_ITEM_VALID;
 }
 
 /* Checks whether an item is allowed to be traded. */
@@ -297,8 +300,8 @@ bool Item::is_tradable( void ) const
 /* Checks whether this item is equipped. */
 bool Item::is_equipped( uint32 equip_class ) const
 {
-	int equipFlags = flags_ & equip_class;
-	return has_valid_flags() && (equipFlags != 0);
+	int equipFlags = inventory_flags_ & equip_class;
+	return has_valid_inventory_flags() && (equipFlags != 0);
 }
 
 /* Checks if the equip flags match this item. */
@@ -332,16 +335,16 @@ uint8 Item::get_equip_class_count( void ) const
  */
 void Item::set_equip( uint32 equip_class, bool equip )
 {
-	if ((get_flags() & equip_class) != 0) {
+	if ((get_inventory_flags() & equip_class) != 0) {
 		if (!equip) {
 			// Item is equipped to this class; remove flag.
-			flags_ &= (FL_ITEM_ALL ^ equip_class);
+			inventory_flags_ &= (FL_ITEM_ALL ^ equip_class);
 		}
 	}
 	else {
 		if (equip) {
 			// This item is not equipped to the class; add flag.
-			flags_ |= equip_class;
+			inventory_flags_ |= equip_class;
 		}
 	}
 }
@@ -579,9 +582,9 @@ void Item::set_quality( EItemQuality quality )
 	quality_ = quality;
 }
 
-void Item::set_flags( uint32 flags )
+void Item::set_inventory_flags( uint32 inventory_flags )
 {
-	flags_ = flags;
+	inventory_flags_ = inventory_flags;
 }
 
 void Item::set_count( uint32 count )

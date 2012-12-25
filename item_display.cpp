@@ -176,11 +176,19 @@ bool ItemDisplay::update_display( void )
 
 #if defined( _DEBUG )
 
+	// Add use count
+	item_value = item_->get_count();
+	if (item_value != 1) {
+		if (!information.write( "\nUses: %u", item_value )) {
+			return false;
+		}
+	}
+
 	// Add paint number
 	for(int i = 0; i < 2; ++i){
 		item_value = item_->get_paint_value(i);
 		if (item_value != FL_ITEM_NOT_PAINTED) {
-			if (!information.write( "\nPAINT: 0x%X", item_value )) {
+			if (!information.write( "\nPaint: 0x%X", item_value )) {
 				return false;
 			}
 		}
@@ -239,7 +247,11 @@ bool ItemDisplay::update_display( void )
 #endif
 
 	// Add debugging information.
-    if (!information.write( "\nFLAGS: %x", item_->get_flags() )) {
+    if (!information.write( "\nFlags: %x", item_->get_inventory_flags() )) {
+        return false;
+    }
+
+	if (!information.write( "\nOther: %u", item_->get_other() )) {
         return false;
     }
 

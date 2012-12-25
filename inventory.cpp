@@ -157,7 +157,7 @@ void Inventory::remove_items( void )
  */
 bool Inventory::can_place( const Item* item ) const
 {
-	if (item->has_valid_flags()) {
+	if (item->has_valid_inventory_flags()) {
 		unsigned int index = item->get_position();
 		if (book_->is_valid_index( index )) {
 			// Allow insertion to existing slot.
