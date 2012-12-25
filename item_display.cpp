@@ -251,10 +251,6 @@ bool ItemDisplay::update_display( void )
         return false;
     }
 
-	if (!information.write( "\nOther: %u", item_->get_other() )) {
-        return false;
-    }
-
 #endif
 
 	// Output if item is not tradable.

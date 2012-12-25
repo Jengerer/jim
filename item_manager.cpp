@@ -1790,8 +1790,7 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 		static_cast<EItemQuality>(econ_item->quality()),
 		econ_item->quantity(),
 		econ_item->inventory(),
-		econ_item->origin(),
-		econ_item->flags()
+		econ_item->origin()
 		);
 
 	// Add the item's attributes.
