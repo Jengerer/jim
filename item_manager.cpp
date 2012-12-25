@@ -1255,7 +1255,7 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 
 				// Place item into excluded, to be resolved later.
 				backpack_->remove_item( target );
-				target->set_flags( updated_item.inventory() );
+				target->set_inventory_flags( updated_item.inventory() );
 				if (!backpack_->place_item( target )) {
                     stack->log( "Failed to update item position in backpack." );
                     return false;
@@ -1288,7 +1288,7 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 					if (target != nullptr) {
 						// TODO: bump old into excluded.
 						backpack_->remove_item( target );
-						target->set_flags( updated_item.inventory() );
+						target->set_inventory_flags( updated_item.inventory() );
 						if (!backpack_->place_item( target )) {
                             stack->log( "Failed to update multiple items from Steam message." );
                             return false;
@@ -1790,7 +1790,9 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 		static_cast<EItemQuality>(econ_item->quality()),
 		econ_item->quantity(),
 		econ_item->inventory(),
-		econ_item->origin() );
+		econ_item->origin(),
+		econ_item->flags()
+		);
 
 	// Add the item's attributes.
 	for (int j = 0; j < econ_item->attribute_size(); ++j) {

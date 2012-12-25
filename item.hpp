@@ -22,7 +22,7 @@ public:
 		uint8 level,
 		EItemQuality quality,
 		uint32 count,
-		uint32 flags,
+		uint32 inventory_flags,
 		uint32 origin );
 	virtual ~Item( void );
 
@@ -38,8 +38,8 @@ public:
 	uint16			get_type_index( void ) const;
 	uint8			get_level( void ) const;
 	EItemQuality	get_quality( void ) const;
-	uint32			get_flags( void ) const;
-	void			set_flags( uint32 flags );
+	uint32			get_inventory_flags( void ) const;
+	void			set_inventory_flags( uint32 inventory_flags );
 	uint32			get_count( void ) const;
 	uint32			get_origin( void ) const;
 	bool			is_renamed( void ) const;
@@ -58,7 +58,7 @@ public:
 	void set_index( uint32 position );
 
     // Item flag management.
-	bool has_valid_flags( void ) const;
+	bool has_valid_inventory_flags( void ) const;
 
 	// Equipment handling.
 	bool is_tradable( void ) const;
@@ -106,7 +106,7 @@ private:
 	uint8			level_;
 	EItemQuality	quality_;
 	uint32			count_;
-	uint32			flags_;
+	uint32			inventory_flags_;
 	uint32			origin_;
 	bool			renamed_;
 

@@ -103,7 +103,7 @@ void SteamItemHandler::update_item( const Item* item ) const
 {
 	GCSetItemPosition_t message;
 	message.itemID = item->get_unique_id();
-	message.position = item->get_flags();
+	message.position = item->get_inventory_flags();
 
 	// Send it.
 	send_message( 
