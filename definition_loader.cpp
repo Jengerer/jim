@@ -44,7 +44,7 @@ const JUTIL::ConstantString FALLBACK_ITEM_TEXTURE = "img/backpack/unknown_item.p
 const JUTIL::ConstantString FALLBACK_ITEM_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/unknown_item.png";
 const JUTIL::ConstantString FALLBACK_ITEM_NAME = "Unknown Item";
 const unsigned int FALLBACK_ITEM_CLASS_FLAGS = 0;
-const EItemSlot FALLBACK_ITEM_SLOT = SLOT_NONE;
+const EItemSlot FALLBACK_ITEM_SLOT = ITEM_SLOT_NONE;
 
 // Paint spill definitions.
 const JUTIL::ConstantString PAINT_SPILL_SINGLE_TEXTURE = "img/backpack/player/items/crafting/paintcan_paintcolor.png";
@@ -188,34 +188,34 @@ bool DefinitionLoader::load()
 	graphics_->set_render_context( graphics_->get_loading_context() );
 
 	// Create slot name map.
-    bool success = slots_.insert( &SLOT_NONE_NAME, SLOT_NONE ) &&
-        slots_.insert( &SLOT_INVALID_NAME, SLOT_INVALID ) &&
-        slots_.insert( &SLOT_PRIMARY_NAME, SLOT_PRIMARY ) &&
-        slots_.insert( &SLOT_SECONDARY_NAME, SLOT_SECONDARY ) &&
-        slots_.insert( &SLOT_MELEE_NAME, SLOT_MELEE ) &&
-        slots_.insert( &SLOT_PDA_NAME, SLOT_PDA ) &&
-        slots_.insert( &SLOT_PDA2_NAME, SLOT_PDA2 ) &&
-        slots_.insert( &SLOT_BUILDING_NAME, SLOT_BUILDING ) &&
-        slots_.insert( &SLOT_HEAD_NAME, SLOT_HEAD ) &&
-        slots_.insert( &SLOT_MISC_NAME, SLOT_MISC ) &&
-        slots_.insert( &SLOT_ACTION_NAME, SLOT_ACTION ) &&
-        slots_.insert( &SLOT_GRENADE_NAME, SLOT_GRENADE );
+    bool success = slots_.insert( &SLOT_NONE_NAME, ITEM_SLOT_NONE ) &&
+        slots_.insert( &SLOT_INVALID_NAME, ITEM_SLOT_INVALID ) &&
+        slots_.insert( &SLOT_PRIMARY_NAME, ITEM_SLOT_PRIMARY ) &&
+        slots_.insert( &SLOT_SECONDARY_NAME, ITEM_SLOT_SECONDARY ) &&
+        slots_.insert( &SLOT_MELEE_NAME, ITEM_SLOT_MELEE ) &&
+        slots_.insert( &SLOT_PDA_NAME, ITEM_SLOT_PDA ) &&
+        slots_.insert( &SLOT_PDA2_NAME, ITEM_SLOT_PDA2 ) &&
+        slots_.insert( &SLOT_BUILDING_NAME, ITEM_SLOT_BUILDING ) &&
+        slots_.insert( &SLOT_HEAD_NAME, ITEM_SLOT_HEAD ) &&
+        slots_.insert( &SLOT_MISC_NAME, ITEM_SLOT_MISC ) &&
+        slots_.insert( &SLOT_ACTION_NAME, ITEM_SLOT_ACTION ) &&
+        slots_.insert( &SLOT_GRENADE_NAME, ITEM_SLOT_GRENADE );
     if (!success) {
         stack->log( "Failed to create slot map." );
         return false;
     }
 
 	// Create class map.
-    success = classes_.insert( &CLASS_NONE_NAME, CLASS_NONE ) &&
-        classes_.insert( &CLASS_SCOUT_NAME, CLASS_SCOUT ) &&
-        classes_.insert( &CLASS_SOLDIER_NAME, CLASS_SOLDIER ) &&
-        classes_.insert( &CLASS_PYRO_NAME, CLASS_PYRO ) &&
-        classes_.insert( &CLASS_DEMOMAN_NAME, CLASS_DEMOMAN ) &&
-        classes_.insert( &CLASS_HEAVY_NAME, CLASS_HEAVY ) &&
-        classes_.insert( &CLASS_ENGINEER_NAME, CLASS_ENGINEER ) &&
-        classes_.insert( &CLASS_MEDIC_NAME, CLASS_MEDIC ) &&
-        classes_.insert( &CLASS_SNIPER_NAME, CLASS_SNIPER ) &&
-        classes_.insert( &CLASS_SPY_NAME, CLASS_SPY );
+    success = classes_.insert( &CLASS_NONE_NAME, INVENTORY_CLASS_NONE ) &&
+        classes_.insert( &CLASS_SCOUT_NAME, INVENTORY_CLASS_SCOUT ) &&
+        classes_.insert( &CLASS_SOLDIER_NAME, INVENTORY_CLASS_SOLDIER ) &&
+        classes_.insert( &CLASS_PYRO_NAME, INVENTORY_CLASS_PYRO ) &&
+        classes_.insert( &CLASS_DEMOMAN_NAME, INVENTORY_CLASS_DEMOMAN ) &&
+        classes_.insert( &CLASS_HEAVY_NAME, INVENTORY_CLASS_HEAVY ) &&
+        classes_.insert( &CLASS_ENGINEER_NAME, INVENTORY_CLASS_ENGINEER ) &&
+        classes_.insert( &CLASS_MEDIC_NAME, INVENTORY_CLASS_MEDIC ) &&
+        classes_.insert( &CLASS_SNIPER_NAME, INVENTORY_CLASS_SNIPER ) &&
+        classes_.insert( &CLASS_SPY_NAME, INVENTORY_CLASS_SPY );
     if (!success) {
         stack->log( "Failed to create class map.");
         return false;
@@ -816,7 +816,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
 
     // Load item slots.
     Json::Value* item_slot;
-    EItemSlot slot = SLOT_NONE;
+    EItemSlot slot = ITEM_SLOT_NONE;
     if (get_member( item, &ITEM_SLOT, &item_slot )) {
         const JUTIL::ConstantString slot_name = item_slot->asCString();
         if (!slots_.get( &slot_name, &slot )) {
@@ -827,7 +827,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
 
 	// Get classes, if they exist.
     Json::Value* item_classes;
-	unsigned int classes = CLASS_ALL;
+	unsigned int classes = INVENTORY_CLASS_ALL;
     if (get_member( item, &ITEM_CLASSES, &item_classes )) {
         size_t i;
         size_t length = item_classes->size();
@@ -835,13 +835,13 @@ bool DefinitionLoader::load_item( Json::Value* item,
             const JUTIL::ConstantString class_name = (*item_classes)[i].asCString();
 
             // Find enum for name.
-            EClassEquip class_equip;
-            if (!classes_.get( &class_name, &class_equip )) {
+            EInventoryClass single_class;
+            if (!classes_.get( &class_name, &single_class )) {
                 stack->log( "Unknown class type found in definitions.");
                 return false;
             }
 
-            classes |= static_cast<unsigned int>(class_equip);
+            classes |= static_cast<unsigned int>(single_class);
         }
     }
 

@@ -102,6 +102,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dynamic_slot_book.cpp" />
+    <ClCompile Include="equip_status.cpp" />
     <ClCompile Include="http_resource_loader.cpp" />
     <ClCompile Include="item_schema.cpp" />
     <ClCompile Include="kill_eater_level.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="animated_book_view.hpp" />
     <ClInclude Include="attribute_definition.hpp" />
     <ClInclude Include="dynamic_slot_book.hpp" />
+    <ClInclude Include="equip_status.hpp" />
     <ClInclude Include="item_definition.hpp" />
     <ClInclude Include="item_schema.hpp" />
     <ClInclude Include="kill_eater_level.hpp" />

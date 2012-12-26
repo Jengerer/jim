@@ -395,7 +395,9 @@ bool ItemManager::loading( void )
 
 	// Wait for item loading if definition loading hasn't started.
     if (definition_loader_ == nullptr) {
-		handle_callback();
+		if(!handle_callback()){
+			return false;
+		}
 
         // Have items been loaded?
 		if (backpack_ != nullptr && backpack_->is_loaded()) {
@@ -462,7 +464,9 @@ bool ItemManager::loading( void )
 
 bool ItemManager::running( void )
 {
-	handle_callback();
+	if(!handle_callback()){
+		return false;
+	}
 	notifications_->update_notifications();
 	inventory_view_->update_view();
 	update_item_display();
@@ -1798,8 +1802,22 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 	if (econ_item->contains_equipped_state()) {
 		for (j = 0; j < econ_item->equipped_state_size(); ++j) {
 			const CSOEconItemEquipped& equipped = econ_item->equipped_state( j );
-
-			// Add to JUTIL::Vector inside item, I guess. Error check, nukka!
+			EEquipClass equip_class = (EEquipClass) equipped.new_class();
+			EEquipSlot equip_slot = (EEquipSlot) equipped.new_slot();
+			if( equip_class != EQUIP_CLASS_SCOUT_UNUSED && equip_slot != EQUIP_SLOT_PREVIOUS ){
+				EquippedStatus* equipped_stat;
+				if(!JUTIL::BaseAllocator::allocate( &equipped_stat )) {
+					return nullptr;
+				}
+				equipped_stat = new (equipped_stat) EquippedStatus(
+					(EEquipClass) equipped.new_class(),
+					(EEquipSlot) equipped.new_slot()
+					);
+				if(!item->add_equipped_data( equipped_stat )) {
+					JUTIL::BaseAllocator::destroy( equipped_stat );
+					return nullptr;
+				}
+			}
 		}
 	}
 

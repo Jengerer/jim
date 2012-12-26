@@ -177,7 +177,7 @@ bool SteamItemHandler::craft_selected( void )
     return true;
 }
 
-void SteamItemHandler::equip_selected( EClassEquip whichClass, bool setEquip )
+void SteamItemHandler::equip_selected( EInventoryClass whichClass, bool setEquip )
 {
 	// To be implemented.
 }
@@ -190,7 +190,7 @@ bool SteamItemHandler::can_equip_selected( void ) const
         JUTIL::Set<SlotView*>::Iterator i = selected_.begin();
         SlotView* selected = i.get_value();
 		Item* item = selected->get_slot()->get_item();
-		return item->get_equip_class_count() != 0;
+		return item->get_inventory_class_count() != 0;
 	}
 
 	return false;

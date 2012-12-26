@@ -6,6 +6,7 @@
 #include "steam/UserItemsCommon.h"
 #include "item_shared.hpp"
 #include "item_definition.hpp"
+#include "equip_status.hpp"
 
 #include <containers/vector.hpp>
 #include <containers/map.hpp>
@@ -62,12 +63,10 @@ public:
 
 	// Equipment handling.
 	bool is_tradable( void ) const;
-	bool is_equipped( uint32 equip_class = CLASS_ALL ) const;
-	EItemSlot get_equip_slot( void ) const;
-	uint32 get_equip_classes( void ) const;
+	EItemSlot get_item_slot( void ) const;
+	uint32 get_inventory_classes( void ) const;
 	bool class_uses( uint32 class_flags ) const;
-	uint8 get_equip_class_count( void ) const;
-	void set_equip( uint32 equip_class, bool equip );
+	uint8 get_inventory_class_count( void ) const;
 
 	// Attribute based getters
 	uint32 get_crate_number( void ) const;
@@ -88,6 +87,16 @@ public:
     const Attribute* get_attribute( size_t index ) const;
     const Attribute* find_attribute( size_t index ) const;
 	const Attribute* find_attribute( const JUTIL::String* name ) const;
+
+	// Equipped data management
+	bool add_equipped_data( EquippedStatus* datum );
+	bool remove_equipped_data( EEquipClass equip_class );
+
+    size_t get_equipped_count( void ) const;
+    const EquippedStatus* get_EquippedStatus( size_t index ) const;
+	const EquippedStatus* find_EquippedStatus( EEquipClass equip_class ) const;
+
+	bool is_equipped( void ) const;
 
 private:
 
@@ -117,6 +126,7 @@ private:
 	uint32 index_;
 	const ItemDefinition* definition_;
 	JUTIL::Vector<Attribute*> attributes_;
+	JUTIL::Vector<EquippedStatus*> equipped_data_;
 
 };
 
