@@ -1793,8 +1793,18 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 		econ_item->origin()
 		);
 
+	// Check equip fields.
+	int j;
+	if (econ_item->contains_equipped_state()) {
+		for (j = 0; j < econ_item->equipped_state_size(); ++j) {
+			const CSOEconItemEquipped& equipped = econ_item->equipped_state( j );
+
+			// Add to JUTIL::Vector inside item, I guess. Error check, nukka!
+		}
+	}
+
 	// Add the item's attributes.
-	for (int j = 0; j < econ_item->attribute_size(); ++j) {
+	for (j = 0; j < econ_item->attribute_size(); ++j) {
 		const CSOEconItemAttribute& attribute = econ_item->attribute( j );
 		uint32 attrib_index = attribute.def_index();
 
