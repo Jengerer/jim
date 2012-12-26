@@ -61,6 +61,14 @@ Item::~Item( void )
         JUTIL::BaseAllocator::destroy( attribute );
     }
     attributes_.clear();
+
+	// Remove all equipped data.
+    length = equipped_data_.get_length();
+    for (i = 0; i < length; ++i) {
+		EquippedStatus* datum = equipped_data_.get( i );
+        JUTIL::BaseAllocator::destroy( datum );
+    }
+    equipped_data_.clear();
 }
 
 /*
@@ -297,27 +305,20 @@ bool Item::is_tradable( void ) const
 		(find_attribute( &ALWAYS_TRADE_NAME ) != nullptr);
 }
 
-/* Checks whether this item is equipped. */
-bool Item::is_equipped( uint32 equip_class ) const
-{
-	int equipFlags = inventory_flags_ & equip_class;
-	return has_valid_inventory_flags() && (equipFlags != 0);
-}
-
 /* Checks if the equip flags match this item. */
 bool Item::class_uses( uint32 class_flags ) const
 {
-	return (get_equip_classes() & class_flags) != 0;
+	return (get_inventory_classes() & class_flags) != 0;
 }
 
 /* Gets the slot this item equips to. */
-EItemSlot Item::get_equip_slot( void ) const
+EItemSlot Item::get_item_slot( void ) const
 {
 	return definition_->get_slot();
 }
 
 /* Gets all item equip flags. */
-uint32 Item::get_equip_classes( void ) const
+uint32 Item::get_inventory_classes( void ) const
 {
 	return definition_->get_class_flags();
 }
@@ -325,28 +326,9 @@ uint32 Item::get_equip_classes( void ) const
 /*
  * Get number of classes that this item can be equipped on.
  */
-uint8 Item::get_equip_class_count( void ) const
+uint8 Item::get_inventory_class_count( void ) const
 {
 	return definition_->get_class_count();
-}
-
-/*
- * Set the class bit-vector that this item is equipped on.
- */
-void Item::set_equip( uint32 equip_class, bool equip )
-{
-	if ((get_inventory_flags() & equip_class) != 0) {
-		if (!equip) {
-			// Item is equipped to this class; remove flag.
-			inventory_flags_ &= (FL_ITEM_ALL ^ equip_class);
-		}
-	}
-	else {
-		if (equip) {
-			// This item is not equipped to the class; add flag.
-			inventory_flags_ |= equip_class;
-		}
-	}
 }
 
 /*
@@ -560,6 +542,77 @@ const Attribute* Item::find_attribute( const JUTIL::String* name ) const
 
 	// Not found in local attributes, check definition.
 	return definition_->find_attribute( name );
+}
+
+bool Item::add_equipped_data( EquippedStatus* datum )
+{
+	// Check if we should replace the data.
+    size_t i;
+    size_t length = equipped_data_.get_length();
+    for (i = 0; i < length; ++i) {
+		EquippedStatus* current = equipped_data_.get( i );
+
+		// Check if we should replace.
+		if (datum->get_equip_class() == current->get_equip_class()) {
+			equipped_data_.set( i, datum );
+            JUTIL::BaseAllocator::destroy( current );
+			return true;
+		}
+	}
+
+	// Not overlapping, just append.
+	return equipped_data_.push( datum );
+}
+
+bool Item::remove_equipped_data( EEquipClass equip_class )
+{
+    size_t i;
+    size_t length = equipped_data_.get_length();
+    for (i = 0; i < length; ++i) {
+		EquippedStatus* current = equipped_data_.get( i );
+
+		// Check if we should remove.
+		if (current->get_equip_class() == equip_class) {
+			equipped_data_.remove( current );
+            JUTIL::BaseAllocator::destroy( current );
+			return true;
+		}
+	}
+
+	// Not found
+	return false;
+}
+
+size_t Item::get_equipped_count( void ) const
+{
+	return equipped_data_.get_length();
+}
+
+const EquippedStatus* Item::get_EquippedStatus( size_t index ) const
+{
+	return equipped_data_.get( index );
+}
+
+const EquippedStatus* Item::find_EquippedStatus( EEquipClass equip_class ) const
+{
+    size_t i;
+    size_t length = equipped_data_.get_length();
+    for (i = 0; i < length; ++i) {
+		EquippedStatus* current = equipped_data_.get( i );
+
+		// Check if we should remove.
+		if (current->get_equip_class() == equip_class) {
+			return current;
+		}
+	}
+
+	// Not found
+	return nullptr;
+}
+
+bool Item::is_equipped( void ) const
+{
+	return get_equipped_count() > 0;
 }
 
 void Item::set_unique_id( uint64 unique_id )

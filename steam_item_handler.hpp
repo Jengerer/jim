@@ -34,7 +34,7 @@ public:
 	// Handling Steam updating.
 	bool is_selected_tradable( void ) const;
 	bool craft_selected( void );
-	void equip_selected( EClassEquip whichClass, bool setEquip );
+	void equip_selected( EInventoryClass whichClass, bool setEquip );
 	bool can_equip_selected( void ) const;
 
 private:
