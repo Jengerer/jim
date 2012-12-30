@@ -34,8 +34,7 @@ Item::Item(
 	EItemQuality quality,
 	uint32 count,
 	uint32 inventory_flags,
-	uint32 origin
-	)
+	uint32 origin )
 {
 	// Set basic attributes.
 	set_unique_id( unique_id );
@@ -71,12 +70,6 @@ Item::~Item( void )
     }
     equipped_data_.clear();
 
-	/*length = textures_.get_length();
-    for (i = 0; i < length; ++i) {
-        JUI::Texture* texture = textures_.get( i );
-        JUTIL::BaseAllocator::destroy( texture );
-    }
-    textures_.clear();*/
 }
 
 /*
