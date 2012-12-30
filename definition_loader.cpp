@@ -46,17 +46,22 @@ const JUTIL::ConstantString FALLBACK_ITEM_NAME = "Unknown Item";
 const unsigned int FALLBACK_ITEM_CLASS_FLAGS = 0;
 const EItemSlot FALLBACK_ITEM_SLOT = ITEM_SLOT_NONE;
 
-// Paint spill definitions.
+// Paint definitions.
 const JUTIL::ConstantString PAINT_SPILL_SINGLE_TEXTURE = "img/backpack/player/items/crafting/paintcan_paintcolor.png";
-const JUTIL::ConstantString PAINT_SPILL_SINGLE_TEXTURE_URL = "http://media.steampowered.com/apps/440/icons/paintcan_paintcolor.png";
-const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE = "img/backpack/player/items/crafting/teampaint_blu_mask.png";
-//const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE_URL = "http://media.steampowered.com/apps/440/icons/teampaint_blu_mask.png";
-const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/teampaint_blu_mask.png";
+const JUTIL::ConstantString PAINT_SPILL_SINGLE_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/paintcan_paintcolor.png";
 const JUTIL::ConstantString PAINT_SPILL_RED_TEXTURE = "img/backpack/player/items/crafting/teampaint_red_mask.png";
-//const JUTIL::ConstantString PAINT_SPILL_RED_TEXTURE_URL = "http://media.steampowered.com/apps/440/icons/teampaint_red_mask.png";
 const JUTIL::ConstantString PAINT_SPILL_RED_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/teampaint_red_mask.png";
+const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE = "img/backpack/player/items/crafting/teampaint_blu_mask.png";
+const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/teampaint_blu_mask.png";
 
-const JUTIL::ConstantString PAINT_SPILL_LOAD_FAIL_MESSAGE = "Failed to download paint spill item texture";
+const JUTIL::ConstantString PAINT_SPLAT_SINGLE_TEXTURE = "img/backpack/player/items/crafting/backpack_jewel_paint_splatter.png";
+const JUTIL::ConstantString PAINT_SPLAT_SINGLE_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/backpack_jewel_paint_splatter.png";
+const JUTIL::ConstantString PAINT_SPLAT_RED_TEXTURE = "img/backpack/player/items/crafting/backpack_jewel_paint_splatter_red.png";
+const JUTIL::ConstantString PAINT_SPLAT_RED_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/backpack_jewel_paint_splatter_red.png";
+const JUTIL::ConstantString PAINT_SPLAT_BLU_TEXTURE = "img/backpack/player/items/crafting/backpack_jewel_paint_splatter_blu.png";
+const JUTIL::ConstantString PAINT_SPLAT_BLU_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/backpack_jewel_paint_splatter_blu.png";
+
+const JUTIL::ConstantString PAINT_SPILL_LOAD_FAIL_MESSAGE = "Failed to download paint item texture";
 
 // JSON parsing object names.
 const JUTIL::ConstantString RESULT_NAME = "result";
@@ -99,6 +104,55 @@ const JUTIL::ConstantString ITEM_IMAGE_URL = "image_url";
 const JUTIL::ConstantString ITEM_SLOT = "item_slot";
 const JUTIL::ConstantString ITEM_CLASSES = "used_by_classes";
 const JUTIL::ConstantString ITEM_ATTRIBUTES = "attributes";
+
+// Tool JSON members
+const JUTIL::ConstantString ITEM_TOOL = "tool";
+const JUTIL::ConstantString ITEM_TOOL_TYPE = "type";
+const JUTIL::ConstantString ITEM_TOOL_USAGE_CAPABILITIES = "usage_capabilities";
+const JUTIL::ConstantString ITEM_TOOL_PAINTABLE = "paintable";
+const JUTIL::ConstantString ITEM_TOOL_PAINTABLE_TEAM_COLORS = "paintable_team_colors";	
+
+const JUTIL::ConstantString ITEM_TOOL_TYPE_GIFT = "gift";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_DUEL_MINIGAME = "duel_minigame";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_NOISE_MAKER = "noise_maker";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_NAME_TAG = "name";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_KEY = "decoder_ring";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_CRATE = "";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_PAINT_CAN = "paint_can";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_DECAL = "customize_texture_item";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_GIFT_WRAP = "gift_wrap";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_WRAPPED_GIFT = "wrapped_gift";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_DESCRIPTION_TAG = "desc";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_BACKPACK_EXPANDER = "backpack_expander";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_WEDDING_RING = "wedding_ring";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_ACCOUNT_UPGRADE = "account_upgrade_to_premium";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_CLAIMCODE = "claimcode";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_STRANGE_PART = "strange_part";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_STRANGE_PART_RESTRICTION = "strange_part_restriction";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_SPELL = "apply_custom_attrib";
+
+const JUTIL::ConstantString* ITEM_TOOL_TYPES [] = 
+{
+	&ITEM_TOOL_TYPE_GIFT,
+	&ITEM_TOOL_TYPE_DUEL_MINIGAME,
+	&ITEM_TOOL_TYPE_NOISE_MAKER,
+	&ITEM_TOOL_TYPE_NAME_TAG,
+	&ITEM_TOOL_TYPE_KEY,
+	&ITEM_TOOL_TYPE_CRATE,
+	&ITEM_TOOL_TYPE_PAINT_CAN,
+	&ITEM_TOOL_TYPE_DECAL,
+	&ITEM_TOOL_TYPE_GIFT_WRAP,
+	&ITEM_TOOL_TYPE_WRAPPED_GIFT,
+	&ITEM_TOOL_TYPE_DESCRIPTION_TAG,
+	&ITEM_TOOL_TYPE_BACKPACK_EXPANDER,
+	&ITEM_TOOL_TYPE_WEDDING_RING,
+	&ITEM_TOOL_TYPE_ACCOUNT_UPGRADE,
+	&ITEM_TOOL_TYPE_CLAIMCODE,
+	&ITEM_TOOL_TYPE_STRANGE_PART,
+	&ITEM_TOOL_TYPE_STRANGE_PART_RESTRICTION,
+	&ITEM_TOOL_TYPE_SPELL,
+	nullptr
+};
 
 /*
  * Get the member from a node if it exists.
@@ -690,17 +744,6 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		FALLBACK_ITEM_SLOT );
     schema_->set_fallback_definition( fallback );
 
-	// Get paint spill textures
-    if (!downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL )
-		|| !downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL )
-		|| !downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL )) {
-        stack->log( PAINT_SPILL_LOAD_FAIL_MESSAGE.get_string() );
-		if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, unknown_item)){
-			stack->log( "Failed to allocate spill response notification." );
-			return false;
-		}
-    }
-
     // Strings for parsing.
     JUTIL::DynamicString* name = nullptr;
 
@@ -849,7 +892,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
 	const JUI::Texture* texture = nullptr;
 
     // Load texture; fall back to default if failed.
-    JUI::FileTexture* item_texture = nullptr;;
+    JUI::FileTexture* item_texture = nullptr;
     JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
     if (downloader->check_and_get( image, image_url )) {
         JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( image, &item_texture );
@@ -865,6 +908,74 @@ bool DefinitionLoader::load_item( Json::Value* item,
         return false;
     }
     information = new (information) ItemDefinition( name, texture, classes, slot );
+
+	// Load tool info and alternate textures
+	Json::Value* tool;
+	Json::Value* tool_type;
+	Json::Value* tool_usage;
+	Json::Value* tool_usage_value;
+	if (get_member( item, &ITEM_TOOL, &tool )) {
+		if (get_member( tool, &ITEM_TOOL_TYPE, &tool_type )) {
+			JUTIL::ConstantString tool_type_name = tool_type->asCString();
+			for(int i = 0; ITEM_TOOL_TYPES[i] != nullptr; ++i) {
+				if(ITEM_TOOL_TYPES[i]->is_equal( &tool_type_name )){
+					information->set_tool_type(i + 1);
+					break;
+				}
+			}
+		}
+
+		if (get_member( tool, &ITEM_TOOL_USAGE_CAPABILITIES, &tool_usage )) {
+			if(get_member( tool_usage, &ITEM_TOOL_PAINTABLE, &tool_usage_value )){
+				if(	tool_usage_value->asBool() ){
+					
+					if (downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL )) {
+						JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPILL_SINGLE_TEXTURE, &item_texture );
+						if (status == JUI::Graphics2D::Success) {
+							texture = static_cast<JUI::Texture*>(item_texture);
+							information->add_texture(texture);
+						}
+					}else{
+						if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
+							stack->log( "Failed to allocate spill response notification." );
+							return false;
+						}
+					}
+
+				}
+			}else if(get_member( tool_usage, &ITEM_TOOL_PAINTABLE_TEAM_COLORS, &tool_usage_value )){
+				if(	tool_usage_value->asBool() ){
+				
+					if (downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL )) {
+						JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPILL_RED_TEXTURE, &item_texture );
+						if (status == JUI::Graphics2D::Success) {
+							texture = static_cast<JUI::Texture*>(item_texture);
+							information->add_texture(texture);
+						}
+					}else{
+						if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
+							stack->log( "Failed to allocate spill response notification." );
+							return false;
+						}
+					}
+					if (downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL )) {
+						JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPILL_BLU_TEXTURE, &item_texture );
+						if (status == JUI::Graphics2D::Success) {
+							texture = static_cast<JUI::Texture*>(item_texture);
+							information->add_texture(texture);
+						}
+					}else{
+						if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
+							stack->log( "Failed to allocate spill response notification." );
+							return false;
+						}
+					}
+
+				}
+			}
+		}
+	}
+
 
 	// Now add attributes, if they exist.
     Json::Value* item_attributes;
@@ -1084,5 +1195,59 @@ bool DefinitionLoader::update_progress_message( void )
 	}
 
 	// Successfully set.
+	return true;
+}
+
+bool DefinitionLoader::get_alt_texture( Item* item ) const
+{
+	if(item->get_tool_type() == TOOL_PAINT_CAN){
+		return true;
+	}
+	if(item->get_paint_value(1) != FL_ITEM_NOT_PAINTED){
+		// Painted Team Spirit
+		JUI::Texture* texture = nullptr;
+		JUI::FileTexture* item_texture = nullptr;
+		JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
+		if (downloader->check_and_get( &PAINT_SPLAT_RED_TEXTURE, &PAINT_SPLAT_RED_TEXTURE_URL )) {
+			JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPLAT_RED_TEXTURE, &item_texture );
+			if (status == JUI::Graphics2D::Success) {
+				texture = static_cast<JUI::Texture*>(item_texture);
+				item->add_texture(texture);
+			}
+		}else{
+			if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
+				return false;
+			}
+		}
+		if (downloader->check_and_get( &PAINT_SPLAT_BLU_TEXTURE, &PAINT_SPLAT_BLU_TEXTURE_URL )) {
+			JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPLAT_BLU_TEXTURE, &item_texture );
+			if (status == JUI::Graphics2D::Success) {
+				texture = static_cast<JUI::Texture*>(item_texture);
+				item->add_texture(texture);
+			}
+		}else{
+			if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
+				return false;
+			}
+		}
+		return true;
+	}else if(item->get_paint_value(0) != FL_ITEM_NOT_PAINTED){
+		// Regular Paint
+		JUI::Texture* texture = nullptr;
+		JUI::FileTexture* item_texture = nullptr;
+		JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
+		if (downloader->check_and_get( &PAINT_SPLAT_SINGLE_TEXTURE, &PAINT_SPLAT_SINGLE_TEXTURE_URL )) {
+			JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPLAT_SINGLE_TEXTURE, &item_texture );
+			if (status == JUI::Graphics2D::Success) {
+				texture = static_cast<JUI::Texture*>(item_texture);
+				item->add_texture(texture);
+			}
+		}else{
+			if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
+				return false;
+			}
+		}
+		return true;
+	}
 	return true;
 }

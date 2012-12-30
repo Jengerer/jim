@@ -4,6 +4,7 @@
 #include "dynamic_slot_book.hpp"
 #include "item.hpp"
 #include "item_schema.hpp"
+#include "definition_loader.hpp"
 #include "slot.hpp"
 #include "slot_book.hpp"
 
@@ -18,7 +19,7 @@ public:
 	virtual ~Inventory( void );
 
 	// Resolving definitions.
-	bool resolve_definitions( const ItemSchema* schema );
+	bool resolve_definitions( const ItemSchema* schema, const DefinitionLoader* definition_loader );
 
 	// Slot vector getters.
 	const SlotBook* get_book( void ) const;

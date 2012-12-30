@@ -251,6 +251,10 @@ bool ItemDisplay::update_display( void )
         return false;
     }
 
+	if (!information.write( "\nTool: %u", item_->get_tool_type() )) {
+        return false;
+    }
+
 #endif
 
 	// Output if item is not tradable.

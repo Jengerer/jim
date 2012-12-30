@@ -53,7 +53,7 @@ private:
 	RoundedRectangle* slot_rectangle_;
 
 	// Item icon image.
-	JUI::Image* item_image_;
+	JUTIL::Vector<JUI::Image*> item_images_;
 
 	Slot* slot_;
 	bool is_selected_;

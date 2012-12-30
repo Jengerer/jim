@@ -45,6 +45,7 @@ public:
 	uint32			get_origin( void ) const;
 	bool			is_renamed( void ) const;
 	void			set_renamed( bool renamed );
+	uint32			get_tool_type( void ) const;
 
 	// Secondary attributes.
 	const JUTIL::String* get_name( void ) const;
@@ -76,7 +77,9 @@ public:
 	uint32 get_strange_type( uint32 index ) const;
 
 	// Drawing and interaction.
-	const JUI::Texture* get_texture( void );
+	bool add_texture( JUI::Texture* texture );
+	size_t get_texture_count( void ) const;
+	const JUI::Texture* get_texture( size_t index ) const;
 
 	// Attribute management.
 	bool add_attribute( Attribute* attribute );
@@ -127,6 +130,7 @@ private:
 	const ItemDefinition* definition_;
 	JUTIL::Vector<Attribute*> attributes_;
 	JUTIL::Vector<EquippedStatus*> equipped_data_;
+	JUTIL::Vector<JUI::Texture*> textures_;
 
 };
 

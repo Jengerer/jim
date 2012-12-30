@@ -10,9 +10,10 @@ ItemDefinition::ItemDefinition(
 	EItemSlot slot )
 {
 	set_name( name );
-	set_texture( texture );
+	add_texture( texture );
 	set_class_flags( class_flags );
 	set_slot( slot );
+	set_tool_type( TOOL_NOT_A_TOOL );
 }
 
 /*
@@ -29,6 +30,13 @@ ItemDefinition::~ItemDefinition( void )
     }
     attributes_.clear();
 
+	/*(length = textures_.get_length();
+    for (i = 0; i < length; ++i) {
+        JUI::Texture* texture = textures_.get( i );
+        JUTIL::BaseAllocator::destroy( texture );
+    }
+    textures_.clear();*/
+
     // Destroy name.
     JUTIL::BaseAllocator::destroy( name_ );
 }
@@ -39,14 +47,6 @@ ItemDefinition::~ItemDefinition( void )
 const JUTIL::String* ItemDefinition::get_name( void ) const
 {
 	return name_;
-}
-
-/*
- * Get texture for item icon.
- */
-const JUI::Texture* ItemDefinition::get_texture( void ) const
-{
-	return texture_;
 }
 
 /*
@@ -71,6 +71,14 @@ uint8 ItemDefinition::get_class_count( void ) const
 EItemSlot ItemDefinition::get_slot( void ) const
 {
 	return slot_;
+}
+
+/*
+ * Get item tool type.
+ */
+uint32 ItemDefinition::get_tool_type( void ) const
+{
+	return tool_type_;
 }
 
 /*
@@ -118,14 +126,34 @@ const Attribute* ItemDefinition::find_attribute( const JUTIL::String* name ) con
 	return nullptr;
 }
 
+/*
+ * Add a texture generic to this item type.
+ */
+bool ItemDefinition::add_texture( const JUI::Texture* texture)
+{
+	return textures_.push( texture );
+}
+
+/*
+ * Get the number of textures generic to this item type.
+ */
+size_t ItemDefinition::get_texture_count( void ) const
+{
+	return textures_.get_length();
+}
+
+/*
+ * Get a texture by index.
+ */
+const JUI::Texture* ItemDefinition::get_texture( size_t index ) const
+{
+	return textures_.get( index );
+}
+
+
 void ItemDefinition::set_name( JUTIL::String* name )
 {
 	name_ = name;
-}
-
-void ItemDefinition::set_texture( const JUI::Texture *texture )
-{
-	texture_ = texture;
 }
 
 void ItemDefinition::set_class_flags( uint32 class_flags )
@@ -146,4 +174,9 @@ void ItemDefinition::set_class_flags( uint32 class_flags )
 void ItemDefinition::set_slot( EItemSlot slot )
 {
 	slot_ = slot;
+}
+
+void ItemDefinition::set_tool_type( uint32 tool_type )
+{
+	tool_type_ = tool_type;
 }
