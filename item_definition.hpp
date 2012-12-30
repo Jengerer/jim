@@ -26,10 +26,11 @@ public:
 
 	// Item information attributes.
 	const JUTIL::String* get_name( void ) const;
-	const JUI::Texture* get_texture( void ) const;
 	uint32 get_class_flags( void ) const;
 	uint8 get_class_count( void ) const;
 	EItemSlot get_slot( void ) const;
+	uint32 get_tool_type( void ) const;
+	void set_tool_type( uint32 tool_type );
 
 	// Attribute functions.
 	bool add_attribute( Attribute* attribute );
@@ -37,11 +38,14 @@ public:
 	const Attribute* get_attribute( size_t index ) const;
 	const Attribute* find_attribute( const JUTIL::String* name ) const;
 
+	bool add_texture( const JUI::Texture* texture );
+	size_t get_texture_count( void ) const;
+	const JUI::Texture* get_texture( size_t index ) const;
+
 private:
 
 	// Private attribute setters.
 	void set_name( JUTIL::String* name );
-	void set_texture( const JUI::Texture* texture );
 	void set_class_flags( uint32 class_flags );
 	void set_slot( EItemSlot slot );
 
@@ -49,10 +53,11 @@ private:
 
     // Private item information attributes.
 	JUTIL::String* name_;
-	const JUI::Texture* texture_;
+	JUTIL::Vector<const JUI::Texture*> textures_;
 	uint32 class_flags_;
 	uint8 class_count_;
 	EItemSlot slot_;
+	uint32 tool_type_;
 	JUTIL::Vector<Attribute*> attributes_;
 
 };

@@ -420,14 +420,14 @@ bool ItemManager::loading( void )
 
 			case LOADING_STATE_FINISHED:
 			{
-				// Remove threaded loader.
-				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
-
 				// Resolve all item definitions.
 				schema_.set_loaded( true );
-				if (!backpack_->resolve_definitions( &schema_ )) {
+				if (!backpack_->resolve_definitions( &schema_, definition_loader_ )) {
 					return false;
 				}
+
+				// Remove threaded loader.
+				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
 
 				// Generate UI.
 				if (!create_layout()) {
@@ -1360,7 +1360,7 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 					stack->log( "Failed to create new item message." );
 					return false;
 				}
-				if (!notifications_->add_notification( &message, item->get_texture() )) {
+				if (!notifications_->add_notification( &message, item->get_texture(0) )) {
 					stack->log( "Failed to add new item message to notifications." );
 					return false;
 				}
@@ -1855,6 +1855,13 @@ Item* ItemManager::create_item_from_message( CSOEconItem* econ_item )
 
 		// Finalize state.
 		item->update_attributes();
+
+		// Add alt textures
+		if(!definition_loader_->get_alt_texture( item )){
+			JUTIL::BaseAllocator::destroy( item );
+			return false;
+		}
+
 	}
 
 	// Generate name.

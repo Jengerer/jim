@@ -22,7 +22,7 @@ Inventory::~Inventory( void )
 /*
  * Resolve item definitions after they've been loaded.
  */
-bool Inventory::resolve_definitions( const ItemSchema* schema )
+bool Inventory::resolve_definitions( const ItemSchema* schema, const DefinitionLoader* definition_loader )
 {
 	// Resolve all items.
 	JUTIL::Set<Item*>::Iterator i;
@@ -31,6 +31,11 @@ bool Inventory::resolve_definitions( const ItemSchema* schema )
 		if (!schema->resolve( item )) {
             return false;
         }
+
+		// Add alt textures
+		if(!definition_loader->get_alt_texture( item )){
+			return false;
+		}
 	}
     return true;
 }

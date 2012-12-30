@@ -34,7 +34,8 @@ Item::Item(
 	EItemQuality quality,
 	uint32 count,
 	uint32 inventory_flags,
-	uint32 origin )
+	uint32 origin
+	)
 {
 	// Set basic attributes.
 	set_unique_id( unique_id );
@@ -69,6 +70,13 @@ Item::~Item( void )
         JUTIL::BaseAllocator::destroy( datum );
     }
     equipped_data_.clear();
+
+	/*length = textures_.get_length();
+    for (i = 0; i < length; ++i) {
+        JUI::Texture* texture = textures_.get( i );
+        JUTIL::BaseAllocator::destroy( texture );
+    }
+    textures_.clear();*/
 }
 
 /*
@@ -185,6 +193,14 @@ uint32 Item::get_count( void ) const
 uint32 Item::get_origin( void ) const
 {
 	return origin_;
+}
+
+/*
+ * Get item tool type.
+ */
+uint32 Item::get_tool_type( void ) const
+{
+	return definition_->get_tool_type();
 }
 
 /*
@@ -469,11 +485,30 @@ uint32 Item::get_strange_type( uint32 index ) const
 }
 
 /*
- * Get a pointer to the texture for this item, if any.
+ * Add a texture generic to this item type.
  */
-const JUI::Texture* Item::get_texture( void )
+bool Item::add_texture( JUI::Texture* texture)
 {
-	return definition_->get_texture();
+	return textures_.push( texture );
+}
+
+/*
+ * Get the number of textures generic to this item type.
+ */
+size_t Item::get_texture_count( void ) const
+{
+	return definition_->get_texture_count() + textures_.get_length();
+}
+
+/*
+ * Get a texture by index.
+ */
+const JUI::Texture* Item::get_texture( size_t index ) const
+{
+	if( index < definition_->get_texture_count() ){
+		return definition_->get_texture( index );
+	}
+	return textures_.get( index - definition_->get_texture_count() );
 }
 
 /*
