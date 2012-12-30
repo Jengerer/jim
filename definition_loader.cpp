@@ -744,6 +744,21 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		FALLBACK_ITEM_SLOT );
     schema_->set_fallback_definition( fallback );
 
+	// Prefetch paint textures so only 1 fail message appears
+	if (
+		   !downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL )
+		|| !downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL )
+		|| !downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL )
+		|| !downloader->check_and_get( &PAINT_SPLAT_SINGLE_TEXTURE, &PAINT_SPLAT_SINGLE_TEXTURE_URL )
+		|| !downloader->check_and_get( &PAINT_SPLAT_RED_TEXTURE, &PAINT_SPLAT_RED_TEXTURE_URL )
+		|| !downloader->check_and_get( &PAINT_SPLAT_BLU_TEXTURE, &PAINT_SPLAT_BLU_TEXTURE_URL )
+		) {
+			if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, unknown_item)){
+			stack->log( "Failed to allocate spill response notification." );
+			return false;
+		}
+	}
+
     // Strings for parsing.
     JUTIL::DynamicString* name = nullptr;
 
@@ -935,11 +950,6 @@ bool DefinitionLoader::load_item( Json::Value* item,
 							texture = static_cast<JUI::Texture*>(item_texture);
 							information->add_texture(texture);
 						}
-					}else{
-						if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
-							stack->log( "Failed to allocate spill response notification." );
-							return false;
-						}
 					}
 
 				}
@@ -952,22 +962,12 @@ bool DefinitionLoader::load_item( Json::Value* item,
 							texture = static_cast<JUI::Texture*>(item_texture);
 							information->add_texture(texture);
 						}
-					}else{
-						if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
-							stack->log( "Failed to allocate spill response notification." );
-							return false;
-						}
 					}
 					if (downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL )) {
 						JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPILL_BLU_TEXTURE, &item_texture );
 						if (status == JUI::Graphics2D::Success) {
 							texture = static_cast<JUI::Texture*>(item_texture);
 							information->add_texture(texture);
-						}
-					}else{
-						if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
-							stack->log( "Failed to allocate spill response notification." );
-							return false;
 						}
 					}
 
@@ -1214,22 +1214,16 @@ bool DefinitionLoader::get_alt_texture( Item* item ) const
 				texture = static_cast<JUI::Texture*>(item_texture);
 				item->add_texture(texture);
 			}
-		}else{
-			if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
-				return false;
-			}
 		}
+
 		if (downloader->check_and_get( &PAINT_SPLAT_BLU_TEXTURE, &PAINT_SPLAT_BLU_TEXTURE_URL )) {
 			JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPLAT_BLU_TEXTURE, &item_texture );
 			if (status == JUI::Graphics2D::Success) {
 				texture = static_cast<JUI::Texture*>(item_texture);
 				item->add_texture(texture);
 			}
-		}else{
-			if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
-				return false;
-			}
 		}
+
 		return true;
 	}else if(item->get_paint_value(0) != FL_ITEM_NOT_PAINTED){
 		// Regular Paint
@@ -1242,11 +1236,8 @@ bool DefinitionLoader::get_alt_texture( Item* item ) const
 				texture = static_cast<JUI::Texture*>(item_texture);
 				item->add_texture(texture);
 			}
-		}else{
-			if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, nullptr)){
-				return false;
-			}
 		}
+
 		return true;
 	}
 	return true;
