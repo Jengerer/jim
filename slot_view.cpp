@@ -40,7 +40,7 @@ const unsigned int CRATE_FONT_SIZE			= 10;
 const bool CRATE_FONT_BOLDED				= false;
 const int CRATE_PADDING						= 5;
 
-const int NUM_IMAGES = 10;
+const int NUM_IMAGES = 3;
 
 /*
  * Slot view constructor.
