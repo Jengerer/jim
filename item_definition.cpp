@@ -30,13 +30,6 @@ ItemDefinition::~ItemDefinition( void )
     }
     attributes_.clear();
 
-	/*(length = textures_.get_length();
-    for (i = 0; i < length; ++i) {
-        JUI::Texture* texture = textures_.get( i );
-        JUTIL::BaseAllocator::destroy( texture );
-    }
-    textures_.clear();*/
-
     // Destroy name.
     JUTIL::BaseAllocator::destroy( name_ );
 }
