@@ -174,15 +174,21 @@ bool ItemDisplay::update_display( void )
 		}
 	}
 
-#if defined( _DEBUG )
-
-	// Add use count
-	item_value = item_->get_count();
-	if (item_value != 1) {
-		if (!information.write( "\nUses: %u", item_value )) {
-			return false;
+	item_value = item_->get_tool_type();
+	if(item_value == TOOL_DUEL_MINIGAME || item_value == TOOL_NOISE_MAKER) {
+		item_value = item_->get_count();
+		if(item_value == FL_ITEM_UNLIMITED_COUNT){
+			if (!information.write( "\nUses: Unlimited" )) {
+				return false;
+			}
+		}else{
+			if (!information.write( "\nUses: %u", item_value )) {
+				return false;
+			}
 		}
 	}
+
+#if defined( _DEBUG )
 
 	// Add paint number
 	for(int i = 0; i < 2; ++i){
