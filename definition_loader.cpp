@@ -933,7 +933,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
 		if (get_member( tool, &ITEM_TOOL_TYPE, &tool_type )) {
 			JUTIL::ConstantString tool_type_name = tool_type->asCString();
 			for(int i = 0; ITEM_TOOL_TYPES[i] != nullptr; ++i) {
-				if(ITEM_TOOL_TYPES[i]->is_equal( &tool_type_name )){
+				if(tool_type_name.is_equal(ITEM_TOOL_TYPES[i])){
 					information->set_tool_type(i + 1);
 					break;
 				}

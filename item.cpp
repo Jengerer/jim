@@ -7,6 +7,9 @@
 const JUTIL::ConstantString CANNOT_TRADE_NAME = "cannot trade";
 const JUTIL::ConstantString ALWAYS_TRADE_NAME = "always tradable";
 
+const JUTIL::ConstantString CRAFT_ATTRIBUTE_NAME = "unique craft index";
+const JUTIL::ConstantString UNLIMITED_COUNT_ATTRIBUTE_NAME = "unlimited quantity";
+
 const JUTIL::ConstantString CRATE_ATTRIBUTE_NAME = "set supply crate series";
 const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_0 = "set item tint RGB";
 const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_1 = "set item tint RGB 2";
@@ -177,7 +180,11 @@ uint32 Item::get_inventory_flags( void ) const
  */
 uint32 Item::get_count( void ) const
 {
-	return count_;
+	const Attribute* attribute = find_attribute(&UNLIMITED_COUNT_ATTRIBUTE_NAME);
+	if(attribute == nullptr){
+		return count_;
+	}
+	return FL_ITEM_UNLIMITED_COUNT;
 }
 
 /*
@@ -387,7 +394,6 @@ uint32 Item::get_paint_value( uint32 index ) const
  */
 uint32 Item::get_craft_number( void ) const
 {
-	const JUTIL::ConstantString CRAFT_ATTRIBUTE_NAME = "unique craft index";
 	const Attribute* attribute = find_attribute(&CRAFT_ATTRIBUTE_NAME);
 	if(attribute == nullptr){
 		return 0;
