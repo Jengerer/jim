@@ -35,6 +35,8 @@ public:
 	// Page navigation.
 	bool next_page( void );
 	bool previous_page( void );
+	bool first_page( void );
+	bool last_page( void );
 	void update_offset( void );
 	virtual void update_view( void );
 
