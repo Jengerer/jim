@@ -29,8 +29,12 @@
 #define SORT_NOT_IMPLEMENTED
 
 // Application attributes.
-const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager Lite";
+const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
+#if defined( _DEBUG )
+const JUTIL::ConstantString APPLICATION_VERSION = "Internal Alpha";
+#else
 const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.7.9";
+#endif
 const int APPLICATION_WIDTH	= 795;
 const int APPLICATION_HEIGHT = 540;
 
@@ -785,11 +789,6 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
 	// Now handle ourselves.
     JUI::IOResult result = JUI::IO_RESULT_HANDLED;
 	switch (key) {
-    // Quit application on escape.
-	case VK_ESCAPE:
-		exit_application();
-        break;
-
     // Pass enter to popups.
 	case VK_RETURN:
 		result = popups_->on_key_pressed( key );
@@ -802,6 +801,9 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
 
     // Switch to left page.
 	case VK_LEFT:
+	case VK_DOWN:
+	case 'A':
+	case 'S':
 		if (inventory_view_->previous_page()) {
 		    if (!update_page_display()) {
                 result = JUI::IO_RESULT_ERROR;
@@ -811,7 +813,28 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
 
     // Switch to right page.
 	case VK_RIGHT:
+	case VK_UP:
+	case 'D':
+	case 'W':
 		if (inventory_view_->next_page()) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
+		break;
+
+	// Switch to first page
+	case VK_HOME:
+		if (inventory_view_->first_page()) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
+		break;
+
+	// Switch to last page
+	case VK_END:
+		if (inventory_view_->last_page()) {
 		    if (!update_page_display()) {
                 result = JUI::IO_RESULT_ERROR;
             }
@@ -955,6 +978,8 @@ bool ItemManager::start_definition_load( void )
 
 bool ItemManager::is_latest_version( void ) const
 {
+	// Do not check for updated when running debug builds
+#if !defined( _DEBUG )
 	// Check for program updates.
 	const JUTIL::ConstantString VERSION_URL = "http://www.jengerer.com/item_manager/item_manager.txt";
 	JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
@@ -966,6 +991,7 @@ bool ItemManager::is_latest_version( void ) const
 			}
 		}
 	}
+#endif
 
 	// If failed to get version, assume latest.
 	return true;

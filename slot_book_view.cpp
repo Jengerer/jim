@@ -201,6 +201,26 @@ bool SlotBookView::previous_page( void )
 }
 
 /*
+ * Move to first page. Return true if we moved to
+ * first page.
+ */
+bool SlotBookView::first_page( void )
+{
+	set_active_page( 0 );
+	return true;
+}
+
+/*
+ * Move to last page. Return true if we moved to
+ * last page.
+ */
+bool SlotBookView::last_page( void )
+{
+	set_active_page( get_page_count() - 1 );
+	return true;
+}
+
+/*
  * Update offset for book view.
  */
 void SlotBookView::update_offset( void )
