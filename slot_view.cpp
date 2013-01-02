@@ -113,7 +113,14 @@ void SlotView::update( void )
 	if (slot->has_item()) {
 		item = slot->get_item();
 		slot_rectangle_->set_stroke( SLOT_STROKE_WIDTH, item->get_quality_colour() );
-		slot_rectangle_->set_colour( is_selected() ? item->get_quality_colour() : &SLOT_NORMAL_COLOUR );
+		if( is_selected() ) {
+			JUI::Colour quality_colour_background = (*item->get_quality_colour());
+			quality_colour_background.set_value( quality_colour_background.get_value() / 2 );
+			slot_rectangle_->set_colour( &quality_colour_background );
+		}else{
+			slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
+		}
+		
 	}
 	else {
 		slot_rectangle_->set_stroke( 0, &SLOT_STROKE_NORMAL_COLOUR );
