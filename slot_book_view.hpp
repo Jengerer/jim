@@ -9,6 +9,11 @@
 #include "slot_book.hpp"
 #include "slot_grid_view.hpp"
 
+const unsigned int SLOT_BOOK_VIEW_SHIFT_ON = 10;
+const unsigned int SLOT_BOOK_VIEW_SHIFT_OFF = 1;
+
+const unsigned int SLOT_BOOK_VIEW_SHIFT_DIFF = SLOT_BOOK_VIEW_SHIFT_ON;
+
 class SlotBookView : public JUI::ConstrainedContainer
 {
 
@@ -38,6 +43,9 @@ public:
 	bool first_page( void );
 	bool last_page( void );
 	bool jump_to_page_char( unsigned char character );
+	unsigned int get_shift_multiple( void ) const;
+	void set_shift_multiple( unsigned int multiple );
+
 	void update_offset( void );
 	virtual void update_view( void );
 
@@ -79,10 +87,7 @@ private:
 	unsigned int page_;
 	JUTIL::Vector<SlotGridView*> slot_grid_views_;
 
-	// Jump members
-	unsigned int jump_page_; // 1 is origin rather than 0
-	unsigned int jump_digit_count_;
-
+	unsigned int shift_multiple_;
 
 };
 

@@ -803,6 +803,11 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
 		steam_items_.set_select_mode( SELECT_MODE_MULTIPLE );
 		break;
 
+	// Toggle fask skip mode with shift
+	case VK_SHIFT:
+		inventory_view_->set_shift_multiple( SLOT_BOOK_VIEW_SHIFT_ON );
+		break;
+
     // Switch to left page.
 	case VK_LEFT:
 	case VK_DOWN:
@@ -881,6 +886,11 @@ JUI::IOResult ItemManager::on_key_released( int key )
     // Toggle select mode with control release.
 	case VK_CONTROL:
 		steam_items_.set_select_mode( SELECT_MODE_SINGLE );
+		break;
+
+	// Toggle fask skip mode with shift
+	case VK_SHIFT:
+		inventory_view_->set_shift_multiple( SLOT_BOOK_VIEW_SHIFT_OFF );
 		break;
 
     // Key event not handled.
