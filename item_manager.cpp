@@ -788,6 +788,10 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
 {
 	// Now handle ourselves.
     JUI::IOResult result = JUI::IO_RESULT_HANDLED;
+	if (inventory_view_ == nullptr) {
+		return JUI::IO_RESULT_ERROR;
+	}
+
 	switch (key) {
     // Pass enter to popups.
 	case VK_RETURN:
