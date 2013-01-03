@@ -37,6 +37,7 @@ public:
 	bool previous_page( void );
 	bool first_page( void );
 	bool last_page( void );
+	bool jump_to_page_char( unsigned char character );
 	void update_offset( void );
 	virtual void update_view( void );
 
@@ -77,6 +78,11 @@ private:
 	// View offset.
 	unsigned int page_;
 	JUTIL::Vector<SlotGridView*> slot_grid_views_;
+
+	// Jump members
+	unsigned int jump_page_; // 1 is origin rather than 0
+	unsigned int jump_digit_count_;
+
 
 };
 

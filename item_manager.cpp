@@ -845,6 +845,23 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
         }
 		break;
 
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+		if (inventory_view_->jump_to_page_char( key )) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
+		break;
+
     // Key event not handled.
     default:
         result = JUI::IO_RESULT_UNHANDLED;

@@ -19,6 +19,10 @@ SlotBookView::SlotBookView( const SlotBook* slot_book,
 	// Pages to be created.
 	pages_layout_ = nullptr;
 	pages_constraint_ = nullptr;
+
+	// Jump members
+	jump_page_ = 0;
+	jump_digit_count_ = 1;
 }
 
 /*
@@ -217,6 +221,24 @@ bool SlotBookView::first_page( void )
 bool SlotBookView::last_page( void )
 {
 	set_active_page( get_page_count() - 1 );
+	return true;
+}
+
+bool SlotBookView::jump_to_page_char( unsigned char character )
+{
+	if( character < '0' || character > '9' ){
+		return false;
+	}
+	jump_page_ *= 10;
+	jump_page_ += (character - '0');
+	jump_digit_count_ *= 10;
+	if( jump_digit_count_ > get_page_count() ){
+		if( jump_page_ > 0 && jump_page_ <= get_page_count() ){
+			set_active_page( jump_page_ - 1 );
+		}
+		jump_page_ = 0;
+		jump_digit_count_ = 1;
+	}
 	return true;
 }
 
