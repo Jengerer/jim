@@ -860,13 +860,31 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
 	case '7':
 	case '8':
 	case '9':
-		if (inventory_view_->jump_to_page_char( key )) {
+		if (inventory_view_->jump_to_page( key - '0' )) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
+		break;
+	/* NumPad does not work with shift
+	case VK_NUMPAD0:
+	case VK_NUMPAD1:
+	case VK_NUMPAD2:
+	case VK_NUMPAD3:
+	case VK_NUMPAD4:
+	case VK_NUMPAD5:
+	case VK_NUMPAD6:
+	case VK_NUMPAD7:
+	case VK_NUMPAD8:
+	case VK_NUMPAD9:
+		if (inventory_view_->jump_to_page( key - VK_NUMPAD0 )) {
 		    if (!update_page_display()) {
                 result = JUI::IO_RESULT_ERROR;
             }
         }
 		break;
 
+	*/
     // Key event not handled.
     default:
         result = JUI::IO_RESULT_UNHANDLED;

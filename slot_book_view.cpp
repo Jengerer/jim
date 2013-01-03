@@ -226,17 +226,17 @@ bool SlotBookView::last_page( void )
 	return true;
 }
 
-bool SlotBookView::jump_to_page_char( unsigned char character )
+bool SlotBookView::jump_to_page( unsigned int digit )
 {
-	if( character < '0' || character > '9' ){
+	if( digit >= SLOT_BOOK_VIEW_SHIFT_DIFF ){
 		return false;
 	}
-	unsigned int current_page = get_active_page() + 1; // One based for user interaction
+	unsigned int current_page = get_active_page() + 1; // One based origin for user interaction
 	unsigned int lower_part = current_page % shift_multiple_;
 	unsigned int upper_part = current_page / (shift_multiple_ * SLOT_BOOK_VIEW_SHIFT_DIFF);
 	// Strip the current level
 	current_page = lower_part + (upper_part * (shift_multiple_ * SLOT_BOOK_VIEW_SHIFT_DIFF));
-	current_page += (character - '0') * shift_multiple_;
+	current_page += digit * shift_multiple_;
 	if( current_page < 1 ){
 		return first_page();
 	}
