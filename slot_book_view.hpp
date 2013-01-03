@@ -42,7 +42,7 @@ public:
 	bool previous_page( void );
 	bool first_page( void );
 	bool last_page( void );
-	bool jump_to_page_char( unsigned char character );
+	bool jump_to_page( unsigned int digit );
 	unsigned int get_shift_multiple( void ) const;
 	void set_shift_multiple( unsigned int multiple );
 
