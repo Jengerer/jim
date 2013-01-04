@@ -106,28 +106,9 @@ bool Inventory::place_item( Item* item )
 }
 
 /*
- * Move an item to an index in the inventory book. Assumes valid index and
- * that the item exists in the inventory/excluded already.
+ * Remove item from slot containers, but keep in set.
  */
-void Inventory::move_item( Item* item, unsigned int index )
-{
-	// Remove item from its 
-	if (is_excluded( item )) {
-		excluded_book_->remove_item( item );
-	}
-	else {
-		book_->remove_item( item );
-	}
-
-	// Move to new slot.
-	item->set_position( index );
-	book_->insert_item( item, index );
-}
-
-/*
- * Remove an item from the inventory.
- */
-void Inventory::remove_item( Item* item )
+void Inventory::displace_item( Item* item )
 {
 	// Remove item from slot.
 	if (book_->has_item( item )) {
@@ -136,7 +117,25 @@ void Inventory::remove_item( Item* item )
 	else if (excluded_book_->has_item( item )) {
 		excluded_book_->remove_item( item );
 	}
+}
 
+/*
+ * Move an item to an index in the inventory book. Assumes slot at
+ * index is empty.
+ */
+void Inventory::move_item( Item* item, unsigned int index )
+{
+	// Move to new slot.
+	item->set_position( index );
+	place_item( item );
+}
+
+/*
+ * Remove an item from the inventory.
+ */
+void Inventory::remove_item( Item* item )
+{
+	displace_item( item );
 	items_.remove( item );
 }
 

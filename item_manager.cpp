@@ -752,10 +752,18 @@ bool ItemManager::on_slot_released( SlotView* slot_view )
 			// Swap slots if not excluded.
 			if (!is_excluded) {
 				Item* touched_item = touched_slot->get_item();
+
+				// Keep track of positions.
 				unsigned int old_index = dragged_item->get_index();
 				unsigned int new_index = touched_item->get_index();
+
+				// Displace and place.
+				backpack_->displace_item( touched_item );
+				backpack_->displace_item( dragged_item );
 				backpack_->move_item( dragged_item, new_index );
 				backpack_->move_item( touched_item, old_index );
+
+				// Push change to Steam.
 				steam_items_.update_item( dragged_item );
 				steam_items_.update_item( touched_item );
 			}
@@ -1288,7 +1296,7 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 				}
 
 				// Place item into excluded, to be resolved later.
-				backpack_->remove_item( target );
+				backpack_->displace_item( target );
 				target->set_inventory_flags( updated_item.inventory() );
 				if (!backpack_->place_item( target )) {
                     stack->log( "Failed to update item position in backpack." );
@@ -1321,7 +1329,7 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 					Item* target = backpack_->find_item( updated_item.id() );
 					if (target != nullptr) {
 						// TODO: bump old into excluded.
-						backpack_->remove_item( target );
+						backpack_->displace_item( target );
 						target->set_inventory_flags( updated_item.inventory() );
 						if (!backpack_->place_item( target )) {
                             stack->log( "Failed to update multiple items from Steam message." );
