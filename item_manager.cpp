@@ -698,9 +698,9 @@ bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 			dragged_view_->set_position( view_x, view_y );
 			dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
 			dragged_view_->set_alpha( 200 );
-			if (!steam_items_.select( dragged_view_ )) {
-				JUTIL::BaseAllocator::destroy( dragged_view_ );
-				stack->log( "Failed to select dragged slot view." );
+			if (!steam_items_.select( slot_view )) {
+				JUTIL::BaseAllocator::destroy( slot_view );
+				stack->log( "Failed to select slot being dragged." );
 				return false;
 			}
 			if (!add( dragged_view_ )) {
@@ -735,10 +735,6 @@ bool ItemManager::on_slot_released( SlotView* slot_view )
 	// Reset selections.
 	inventory_view_->set_enabled( true );
 	excluded_view_->set_enabled( true );
-	steam_items_.deselect_all();
-
-	// Check if item came from excluded.
-	bool is_excluded = backpack_->is_excluded( dragged_item );
 
 	// Delete temporary dragged.
 	remove( dragged_view_ );
@@ -750,29 +746,31 @@ bool ItemManager::on_slot_released( SlotView* slot_view )
 		Slot* touched_slot = slot_view->get_slot();
 		if (touched_slot->has_item()) {
 			// Swap slots if not excluded.
-			if (!is_excluded) {
-				Item* touched_item = touched_slot->get_item();
+			Item* touched_item = touched_slot->get_item();
 
-				// Keep track of positions.
-				unsigned int old_index = dragged_item->get_index();
-				unsigned int new_index = touched_item->get_index();
+			// Keep track of positions.
+			unsigned int old_index = dragged_item->get_index();
+			unsigned int new_index = touched_item->get_index();
 
-				// Displace and place.
-				backpack_->displace_item( touched_item );
-				backpack_->displace_item( dragged_item );
-				backpack_->move_item( dragged_item, new_index );
-				backpack_->move_item( touched_item, old_index );
+			// Displace and place.
+			backpack_->displace_item( touched_item );
+			backpack_->displace_item( dragged_item );
+			backpack_->move_item( dragged_item, new_index );
+			backpack_->move_item( touched_item, old_index );
 
-				// Push change to Steam.
-				steam_items_.update_item( dragged_item );
-				steam_items_.update_item( touched_item );
-			}
+			// Push change to Steam.
+			steam_items_.update_item( dragged_item );
+			steam_items_.update_item( touched_item );
 		}
 		else {
 			dragged_slot->remove_item();
 			backpack_->move_item( dragged_item, touched_slot->get_index() );
 			steam_items_.update_item( dragged_item );
 		}
+
+		// Deselect all only if releasing on a slot.
+		steam_items_.deselect_all();
+		steam_items_.select( slot_view );
 	}
 
 	update_buttons();
