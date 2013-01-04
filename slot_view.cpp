@@ -14,7 +14,7 @@ const JUI::Colour SLOT_STROKE_NORMAL_COLOUR( 248, 212, 0 );
 // Slot colour attributes.
 const JUI::Colour SLOT_NORMAL_COLOUR( 60, 53, 46 );
 const JUI::Colour SLOT_SELECTED_COLOUR( 90, 80, 72 ); 
-const double BACKGROUND_VALUE_RATIO = 2.2;
+const double BACKGROUND_VALUE_RATIO = 2.8;
 
 // Slot display attributes.
 const unsigned int ENABLED_ALPHA				= 255;
