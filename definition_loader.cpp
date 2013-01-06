@@ -296,18 +296,11 @@ bool DefinitionLoader::load()
 			return false;
 		}
 		// Skip the cache in case of a fail
-		/*/
 		if (!downloader->read( &SCHEMA_URL, &definition )) {
 			stack->log( "Failed to read schema from Steam web API.");
 			set_state( LOADING_STATE_ERROR );
 			return false;
 		}
-		//*/
-		//*/
-		stack->log( "Failed to read cached schema from Steam web API.");
-		set_state( LOADING_STATE_ERROR );
-		return false;
-		//*/
     }
 
 	if( definition.get_length() == 0 ){
@@ -316,18 +309,11 @@ bool DefinitionLoader::load()
 			return false;
 		}
 		// Skip the cache in case of a fail
-		/*/
 		if (!downloader->read( &SCHEMA_URL, &definition )) {
 			stack->log( "Failed to read schema from Steam web API.");
 			set_state( LOADING_STATE_ERROR );
 			return false;
 		}
-		//*/
-		//*/
-		stack->log( "Cached schema return null string.");
-		set_state( LOADING_STATE_ERROR );
-		return false;
-		//*/
 	}
 
 	// Parse definition file.
