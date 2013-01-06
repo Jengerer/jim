@@ -4,6 +4,9 @@
 
 // Schema URL.
 const JUTIL::ConstantString SCHEMA_URL = "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en";
+const JUTIL::ConstantString SCHEMA_FILE_LOCATION = "schema/schema.json";
+
+const JUTIL::ConstantString SCHEMA_CACHED_LOAD_FAIL_MESSAGE = "Failed to load cached item schema";
 
 // Status strings.
 const JUTIL::ConstantString DEFAULT_STATUS_MESSAGE = "Loading...\nCouldn't generate progress string...\nJengerer's prescription: proceed as normal...";
@@ -287,11 +290,45 @@ bool DefinitionLoader::load()
 
 	// Get definition file.
     JUTIL::DynamicString definition;
-    if (!downloader->read( &SCHEMA_URL, &definition )) {
-        stack->log( "Failed to read schema from Steam web API.");
-        set_state( LOADING_STATE_ERROR );
-        return false;
+    if (!downloader->read_cached( &SCHEMA_FILE_LOCATION, &SCHEMA_URL, &definition )) {
+		if (!notifications_->add_notification(&SCHEMA_CACHED_LOAD_FAIL_MESSAGE, nullptr)){
+			stack->log( "Failed to allocate schema response notification." );
+			return false;
+		}
+		// Skip the cache in case of a fail
+		/*/
+		if (!downloader->read( &SCHEMA_URL, &definition )) {
+			stack->log( "Failed to read schema from Steam web API.");
+			set_state( LOADING_STATE_ERROR );
+			return false;
+		}
+		//*/
+		//*/
+		stack->log( "Failed to read cached schema from Steam web API.");
+		set_state( LOADING_STATE_ERROR );
+		return false;
+		//*/
     }
+
+	if( definition.get_length() == 0 ){
+		if (!notifications_->add_notification(&SCHEMA_CACHED_LOAD_FAIL_MESSAGE, nullptr)){
+			stack->log( "Failed to allocate schema response notification." );
+			return false;
+		}
+		// Skip the cache in case of a fail
+		/*/
+		if (!downloader->read( &SCHEMA_URL, &definition )) {
+			stack->log( "Failed to read schema from Steam web API.");
+			set_state( LOADING_STATE_ERROR );
+			return false;
+		}
+		//*/
+		//*/
+		stack->log( "Cached schema return null string.");
+		set_state( LOADING_STATE_ERROR );
+		return false;
+		//*/
+	}
 
 	// Parse definition file.
 	Json::Reader reader;
