@@ -20,6 +20,7 @@ public:
 
 	// Resource loader interface function.
 	bool get_resource( const JUTIL::String* file, const JUTIL::String* target ) const;
+	bool update_resource( const JUTIL::String* file, const JUTIL::String* target ) const;
 
 private:
 
