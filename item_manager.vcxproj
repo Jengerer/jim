@@ -156,6 +156,7 @@
     <ClInclude Include="kill_eater_level.hpp" />
     <ClInclude Include="kill_eater_rank.hpp" />
     <ClInclude Include="kill_eater_type.hpp" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="resource_loader_interface.hpp" />
     <ClInclude Include="slot_container.hpp" />
     <ClInclude Include="slot_array.hpp" />

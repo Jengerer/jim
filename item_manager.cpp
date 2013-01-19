@@ -18,6 +18,7 @@
 #include "protobuf/gcsdk_gcmessages.pb.h"
 
 #include "http_resource_loader.hpp"
+#include "resource.h"
 #include "item_manager.hpp"
 
 #ifdef _DEBUG
@@ -110,7 +111,8 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 	JUI::Window* window = get_window();
 	window->set_title( APPLICATION_TITLE );
 	window->set_border( true );
-	window->set_fullscreen( false );	
+	window->set_fullscreen( false );
+	window->set_icon( IDI_ICON1 );
 
 	// Alerts and errors.
 	alert_ = nullptr;
@@ -1009,8 +1011,8 @@ bool ItemManager::is_latest_version( void ) const
 
 void ItemManager::launch_updater( void ) const
 {
-	// Get updater if not exists.
-	site_loader_->get_resource( &UPDATER_PATH, &UPDATER_PATH );
+	// Get updater always.
+	site_loader_->update_resource( &UPDATER_PATH, &UPDATER_PATH );
 
 	// TODO: Make an error type enum and launch this on update error.
 	int result = (int)ShellExecute( 0, 0, "auto_updater.exe", 0, 0, SW_SHOWDEFAULT );

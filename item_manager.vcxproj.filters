@@ -11,10 +11,6 @@
     <Filter Include="headers\ui">
       <UniqueIdentifier>{957f0045-9501-4099-ba1c-f5c8844a2648}</UniqueIdentifier>
     </Filter>
-    <Filter Include="resources">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
-    </Filter>
     <Filter Include="headers\items">
       <UniqueIdentifier>{13ec254b-52c7-4800-858e-e19883df257d}</UniqueIdentifier>
     </Filter>
@@ -30,6 +26,9 @@
     </Filter>
     <Filter Include="source\protobufs">
       <UniqueIdentifier>{a628c3dd-565f-4484-b1de-6ecfd708f51d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{02def50d-7781-44cb-b896-f3dae5776985}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -307,6 +306,9 @@
     </ClInclude>
     <ClInclude Include="equip_status.hpp">
       <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
