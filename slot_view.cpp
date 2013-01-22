@@ -1,14 +1,12 @@
 #include "slot_view.hpp"
 
 // Slot layout attributes.
-const unsigned int SLOT_PADDING	= 5;
-const unsigned int SLOT_SPACING	= 5;
-const unsigned int SLOT_WIDTH	= 70;
+const unsigned int SLOT_WIDTH	= 80;
 const unsigned int SLOT_HEIGHT	= 60;
-const unsigned int ITEM_SIZE	= 60;
+const unsigned int ITEM_SIZE	= 80;
 
 // Slot stroke attributes.
-const unsigned int SLOT_STROKE_WIDTH			= 2;
+const unsigned int SLOT_STROKE_WIDTH			= 3;
 const JUI::Colour SLOT_STROKE_NORMAL_COLOUR( 248, 212, 0 );
 
 // Slot colour attributes.
@@ -20,7 +18,7 @@ const double BACKGROUND_VALUE_RATIO = 2.8;
 const unsigned int ENABLED_ALPHA				= 255;
 const unsigned int DISABLED_ALPHA				= 50;
 const unsigned int DRAG_ALPHA					= 185;
-const unsigned int SLOT_RADIUS					= 5;
+const unsigned int SLOT_RADIUS					= 7;
 
 // Class-wide font/text resources.
 JUI::FontInterface* SlotView::equipped_font_	= nullptr;
@@ -79,8 +77,10 @@ bool SlotView::initialize( void )
         JUTIL::BaseAllocator::destroy( slot_rectangle_ );
         return false;
     }
-	int center_x = (SLOT_WIDTH - ITEM_SIZE) / 2;
-	int center_y = (SLOT_HEIGHT - ITEM_SIZE) / 2;
+	int center_x = SLOT_WIDTH - ITEM_SIZE;
+	int center_y = SLOT_HEIGHT - ITEM_SIZE;
+	center_x /= 2;
+	center_y /= 2;
 
 	size_t i;
 	size_t length = item_images_.get_length();

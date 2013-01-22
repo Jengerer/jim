@@ -36,7 +36,7 @@ const JUTIL::ConstantString APPLICATION_VERSION = "Internal Alpha";
 #else
 const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.7.9";
 #endif
-const int APPLICATION_WIDTH	= 795;
+const int APPLICATION_WIDTH	= 965;
 const int APPLICATION_HEIGHT = 540;
 
 // Updater resources.
@@ -86,7 +86,7 @@ const int EXCLUDED_WIDTH = 5;
 const int EXCLUDED_HEIGHT = 1;
 
 // Slot layout.
-const int SLOT_SPACING		= 5;
+const int SLOT_SPACING		= 12;
 const int PAGE_SPACING		= 50;
 
 // General application layout.
