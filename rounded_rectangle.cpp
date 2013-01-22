@@ -51,25 +51,16 @@ void RoundedRectangle::draw( JUI::Graphics2D* graphics )
 		float stroke_alpha = static_cast<float>(get_alpha()) * static_cast<float>(stroke_colour_.get_alpha()) / (255.0f);
         colour.set_alpha( static_cast<GLubyte>(stroke_alpha) );
 		graphics->set_colour( colour );
-		graphics->draw_rounded_rectangle(
+		graphics->draw_rounded_rectangle_border(
 			x, y,
 			width, height,
-			radius );
+			radius, get_stroke_size() );
 
 		x += get_stroke_size();
 		y += get_stroke_size();
 		radius -= get_stroke_size();
 		width -= get_stroke_size() * 2;
 		height -= get_stroke_size() * 2;
-
-		// Empty inner area.
-		graphics->set_blend_state( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );
-		graphics->set_colour( JUI::COLOUR_WHITE );
-		graphics->draw_rounded_rectangle(
-			x, y,
-			width, height,
-			radius );
-		graphics->set_blend_state( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	}
 
 	// Draw inner.
