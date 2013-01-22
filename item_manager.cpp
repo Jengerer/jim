@@ -811,6 +811,11 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
 		steam_items_.set_select_mode( SELECT_MODE_MULTIPLE );
 		break;
 
+	// Toggle fask skip mode with shift
+	case VK_SHIFT:
+		inventory_view_->set_shift_multiple( SLOT_BOOK_VIEW_SHIFT_ON );
+		break;
+
     // Switch to left page.
 	case VK_LEFT:
 	case VK_DOWN:
@@ -853,6 +858,41 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
         }
 		break;
 
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+		if (inventory_view_->jump_to_page( key - '0' )) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
+		break;
+	/* NumPad does not work with shift
+	case VK_NUMPAD0:
+	case VK_NUMPAD1:
+	case VK_NUMPAD2:
+	case VK_NUMPAD3:
+	case VK_NUMPAD4:
+	case VK_NUMPAD5:
+	case VK_NUMPAD6:
+	case VK_NUMPAD7:
+	case VK_NUMPAD8:
+	case VK_NUMPAD9:
+		if (inventory_view_->jump_to_page( key - VK_NUMPAD0 )) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
+		break;
+
+	*/
     // Key event not handled.
     default:
         result = JUI::IO_RESULT_UNHANDLED;
@@ -872,6 +912,11 @@ JUI::IOResult ItemManager::on_key_released( int key )
     // Toggle select mode with control release.
 	case VK_CONTROL:
 		steam_items_.set_select_mode( SELECT_MODE_SINGLE );
+		break;
+
+	// Toggle fask skip mode with shift
+	case VK_SHIFT:
+		inventory_view_->set_shift_multiple( SLOT_BOOK_VIEW_SHIFT_OFF );
 		break;
 
     // Key event not handled.
