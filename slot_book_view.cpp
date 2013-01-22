@@ -12,6 +12,7 @@ SlotBookView::SlotBookView( const SlotBook* slot_book,
 	set_slot_book( slot_book );
 	set_view_offset( DEFAULT_VIEW_OFFSET );
 	set_active_page( DEFAULT_PAGE );
+	set_shift_multiple( SLOT_BOOK_VIEW_SHIFT_OFF );
 
     // Layout parameters.
     slot_spacing_ = slot_spacing;
@@ -19,6 +20,7 @@ SlotBookView::SlotBookView( const SlotBook* slot_book,
 	// Pages to be created.
 	pages_layout_ = nullptr;
 	pages_constraint_ = nullptr;
+
 }
 
 /*
@@ -171,12 +173,14 @@ SlotView* SlotBookView::get_slot_view( unsigned int index ) const
 bool SlotBookView::next_page( void )
 {
 	unsigned int current_page = get_active_page();
-	current_page++;
+	current_page += get_shift_multiple();
 
 	// Only update if within bound.
 	if (current_page < get_page_count()) {
 		set_active_page( current_page );
 		return true;
+	}else{
+		return last_page();
 	}
 
 	return false;
@@ -190,11 +194,13 @@ bool SlotBookView::previous_page( void )
 {
 	unsigned int current_page = get_active_page();
 
-	// Only update if not already at left-most page.
-	if (current_page > 0) {
-		current_page--;
+	// Only update if within bound.
+	if (current_page >= get_shift_multiple()) {
+		current_page -= get_shift_multiple();
 		set_active_page( current_page );
 		return true;
+	}else{
+		return first_page();
 	}
 
 	return false;
@@ -218,6 +224,37 @@ bool SlotBookView::last_page( void )
 {
 	set_active_page( get_page_count() - 1 );
 	return true;
+}
+
+bool SlotBookView::jump_to_page( unsigned int digit )
+{
+	if( digit >= SLOT_BOOK_VIEW_SHIFT_DIFF ){
+		return false;
+	}
+	unsigned int current_page = get_active_page() + 1; // One based origin for user interaction
+	unsigned int lower_part = current_page % shift_multiple_;
+	unsigned int upper_part = current_page / (shift_multiple_ * SLOT_BOOK_VIEW_SHIFT_DIFF);
+	// Strip the current level
+	current_page = lower_part + (upper_part * (shift_multiple_ * SLOT_BOOK_VIEW_SHIFT_DIFF));
+	current_page += digit * shift_multiple_;
+	if( current_page < 1 ){
+		return first_page();
+	}
+	if( current_page > get_page_count() ){
+		return last_page();
+	}
+	set_active_page( current_page - 1);
+	return true;
+}
+
+unsigned int SlotBookView::get_shift_multiple( void ) const
+{
+	return shift_multiple_;
+}
+
+void SlotBookView::set_shift_multiple( unsigned int multiple )
+{
+	shift_multiple_ = multiple;
 }
 
 /*
