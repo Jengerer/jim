@@ -5,6 +5,7 @@
 #include <jui/gfx/font_interface.hpp>
 #include <jui/gfx/font_factory.hpp>
 #include <jui/gfx/image.hpp>
+#include <jui/gfx/cropped_image.hpp>
 #include <jui/gfx/text.hpp>
 
 #include "item.hpp"
@@ -53,7 +54,7 @@ private:
 	RoundedRectangle* slot_rectangle_;
 
 	// Item icon image.
-	JUTIL::Vector<JUI::Image*> item_images_;
+	JUTIL::Vector<JUI::CroppedImage*> item_images_;
 
 	Slot* slot_;
 	bool is_selected_;

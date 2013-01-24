@@ -159,13 +159,6 @@ bool ItemDisplay::update_display( void )
 		}
 	}
 
-	const JUTIL::DynamicString* origin_name = schema_->get_origin_name( item_->get_origin() );
-	if (origin_name != nullptr) {
-		if (!information.write( "\nOrigin: %s", origin_name->get_string() )) {
-		    return false;
-		}
-	}
-
 	// Add crate number
 	uint32 item_value = item_->get_crate_number();
 	if (item_value != FL_ITEM_NOT_CRATE) {
@@ -185,6 +178,13 @@ bool ItemDisplay::update_display( void )
 			if (!information.write( "\nUses: %u", item_value )) {
 				return false;
 			}
+		}
+	}
+
+	const JUTIL::DynamicString* origin_name = schema_->get_origin_name( item_->get_origin() );
+	if (origin_name != nullptr) {
+		if (!information.write( "\nOrigin: %s", origin_name->get_string() )) {
+		    return false;
 		}
 	}
 

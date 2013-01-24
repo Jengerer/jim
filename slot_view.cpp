@@ -85,17 +85,18 @@ bool SlotView::initialize( void )
 	size_t i;
 	size_t length = item_images_.get_length();
     for (i = 0; i < length; ++i) {
-		JUI::Image* item_image = item_images_.get(i);
+		JUI::CroppedImage* item_image = item_images_.get(i);
 		// Create item image.
 		if (!JUTIL::BaseAllocator::allocate( &item_image )) {
 			return false;
 		}
-		item_image = new (item_image) JUI::Image( nullptr );
+		item_image = new (item_image) JUI::CroppedImage( nullptr );
 		if (!add( item_image )) {
 			JUTIL::BaseAllocator::destroy( item_image );
 			return false;
 		}
 		item_image->set_size( ITEM_SIZE, ITEM_SIZE );
+		item_image->set_cropped( -center_x, -center_y, SLOT_WIDTH, SLOT_HEIGHT );
 
 		// Align in center.
 		set_constraint( item_image, center_x, center_y );
@@ -132,7 +133,7 @@ void SlotView::update( void )
 	size_t i;
 	size_t length = item_images_.get_length();
 	for (i = 0; i < length; ++i) {
-		JUI::Image* item_image = item_images_.get(i);
+		JUI::CroppedImage* item_image = item_images_.get(i);
 		// Update item view.
 		if (item != nullptr) {
 			if(i < item->get_texture_count()){
