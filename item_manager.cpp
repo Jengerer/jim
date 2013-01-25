@@ -699,7 +699,6 @@ bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 			}
 			dragged_view_->set_position( view_x, view_y );
 			dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
-			dragged_view_->set_alpha( 200 );
 			if (!steam_items_.select( slot_view )) {
 				JUTIL::BaseAllocator::destroy( slot_view );
 				stack->log( "Failed to select slot being dragged." );

@@ -17,12 +17,19 @@ class SlotView: public JUI::ConstrainedContainer
 
 public:
 
+	// Slot display attributes.
+	static const unsigned int ENABLED_ALPHA  = 255;
+	static const unsigned int DISABLED_ALPHA = 50;
+	static const unsigned int DRAG_ALPHA     = 200;
+	static const unsigned int SLOT_RADIUS    = 7;
+
 	// Initialization and construction.
 	SlotView( Slot* slot );
     bool initialize( void );
 
 	// Over-ridden drawing function.
 	void update();
+	virtual void update_alpha( void );
 	void draw( JUI::Graphics2D* graphics );
 
 	// Getting the slot.
@@ -48,13 +55,15 @@ private:
 	static JUI::FontInterface* crate_font_;
 	static JUI::Text* crate_text_;
 
+protected:
+
+	// Item icon image.
+	JUTIL::Vector<JUI::CroppedImage*> item_images_;
+
 private:
 
 	// Rounded rectangle pointers.
 	RoundedRectangle* slot_rectangle_;
-
-	// Item icon image.
-	JUTIL::Vector<JUI::CroppedImage*> item_images_;
 
 	Slot* slot_;
 	bool is_selected_;

@@ -7,18 +7,11 @@ const unsigned int ITEM_SIZE	= 80;
 
 // Slot stroke attributes.
 const unsigned int SLOT_STROKE_WIDTH			= 3;
-const JUI::Colour SLOT_STROKE_NORMAL_COLOUR( 248, 212, 0 );
 
 // Slot colour attributes.
 const JUI::Colour SLOT_NORMAL_COLOUR( 60, 53, 46 );
 const JUI::Colour SLOT_SELECTED_COLOUR( 90, 80, 72 ); 
 const double BACKGROUND_VALUE_RATIO = 2.8;
-
-// Slot display attributes.
-const unsigned int ENABLED_ALPHA				= 255;
-const unsigned int DISABLED_ALPHA				= 50;
-const unsigned int DRAG_ALPHA					= 185;
-const unsigned int SLOT_RADIUS					= 7;
 
 // Class-wide font/text resources.
 JUI::FontInterface* SlotView::equipped_font_	= nullptr;
@@ -125,7 +118,7 @@ void SlotView::update( void )
 		
 	}
 	else {
-		slot_rectangle_->set_stroke( 0, &SLOT_STROKE_NORMAL_COLOUR );
+		slot_rectangle_->set_stroke( SLOT_STROKE_WIDTH, &SLOT_NORMAL_COLOUR );
 		slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
 	}
 
@@ -148,16 +141,23 @@ void SlotView::update( void )
 		else {
 			item_image->set_texture( nullptr );
 		}
+	}
+	update_alpha();
+}
 
-		// Dim image when disabled.
-		if (!is_enabled()) {
-			//set_alpha( DISABLED_ALPHA );
-			item_image->set_alpha( DISABLED_ALPHA );
-		}
-		else {
-			//set_alpha( ENABLED_ALPHA );
-			item_image->set_alpha( ENABLED_ALPHA );
-		}
+/*
+ * Update rectangle/image alpha
+ */
+void SlotView::update_alpha( void )
+{
+	// Dim image when disabled.
+	if (!is_enabled()) {
+		set_alpha( DISABLED_ALPHA );
+		//item_image->set_alpha( DISABLED_ALPHA );
+	}
+	else {
+		set_alpha( ENABLED_ALPHA );
+		//item_image->set_alpha( ENABLED_ALPHA );
 	}
 }
 
