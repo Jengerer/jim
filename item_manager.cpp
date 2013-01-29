@@ -818,9 +818,9 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
 
     // Switch to left page.
 	case VK_LEFT:
-	case VK_DOWN:
+	case VK_UP:
 	case 'A':
-	case 'S':
+	case 'W':
 		if (inventory_view_->previous_page()) {
 		    if (!update_page_display()) {
                 result = JUI::IO_RESULT_ERROR;
@@ -830,9 +830,9 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
 
     // Switch to right page.
 	case VK_RIGHT:
-	case VK_UP:
+	case VK_DOWN:
 	case 'D':
-	case 'W':
+	case 'S':
 		if (inventory_view_->next_page()) {
 		    if (!update_page_display()) {
                 result = JUI::IO_RESULT_ERROR;
@@ -858,6 +858,13 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
         }
 		break;
 
+	case VK_OEM_3:
+		if (inventory_view_->jump_to_page( key - VK_OEM_3 )) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+        }
+		break;
 	case '0':
 	case '1':
 	case '2':
