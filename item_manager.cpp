@@ -36,7 +36,7 @@ const JUTIL::ConstantString APPLICATION_VERSION = "Internal Alpha";
 #else
 const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.7.9";
 #endif
-const int APPLICATION_WIDTH	= 795;
+const int APPLICATION_WIDTH	= 965;
 const int APPLICATION_HEIGHT = 540;
 
 // Updater resources.
@@ -86,7 +86,7 @@ const int EXCLUDED_WIDTH = 5;
 const int EXCLUDED_HEIGHT = 1;
 
 // Slot layout.
-const int SLOT_SPACING		= 5;
+const int SLOT_SPACING		= 12;
 const int PAGE_SPACING		= 50;
 
 // General application layout.
@@ -699,7 +699,7 @@ bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 			}
 			dragged_view_->set_position( view_x, view_y );
 			dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
-			dragged_view_->set_alpha( 200 );
+			dragged_view_->set_selected( true );
 			if (!steam_items_.select( slot_view )) {
 				JUTIL::BaseAllocator::destroy( slot_view );
 				stack->log( "Failed to select slot being dragged." );

@@ -17,6 +17,8 @@ public:
 	DraggedSlotView( Slot* slot );
 	virtual ~DraggedSlotView( void );
 
+	void update_alpha( void );
+
 	// JUI::Mouse* handling.
 	JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
 	JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
