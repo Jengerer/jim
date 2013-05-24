@@ -1,26 +1,17 @@
 #include "slot_view.hpp"
 
 // Slot layout attributes.
-const unsigned int SLOT_PADDING	= 5;
-const unsigned int SLOT_SPACING	= 5;
-const unsigned int SLOT_WIDTH	= 70;
+const unsigned int SLOT_WIDTH	= 80;
 const unsigned int SLOT_HEIGHT	= 60;
-const unsigned int ITEM_SIZE	= 60;
+const unsigned int ITEM_SIZE	= 80;
 
 // Slot stroke attributes.
-const unsigned int SLOT_STROKE_WIDTH			= 2;
-const JUI::Colour SLOT_STROKE_NORMAL_COLOUR( 248, 212, 0 );
+const unsigned int SLOT_STROKE_WIDTH			= 3;
 
 // Slot colour attributes.
 const JUI::Colour SLOT_NORMAL_COLOUR( 60, 53, 46 );
 const JUI::Colour SLOT_SELECTED_COLOUR( 90, 80, 72 ); 
 const double BACKGROUND_VALUE_RATIO = 2.8;
-
-// Slot display attributes.
-const unsigned int ENABLED_ALPHA				= 255;
-const unsigned int DISABLED_ALPHA				= 50;
-const unsigned int DRAG_ALPHA					= 185;
-const unsigned int SLOT_RADIUS					= 5;
 
 // Class-wide font/text resources.
 JUI::FontInterface* SlotView::equipped_font_	= nullptr;
@@ -79,23 +70,26 @@ bool SlotView::initialize( void )
         JUTIL::BaseAllocator::destroy( slot_rectangle_ );
         return false;
     }
-	int center_x = (SLOT_WIDTH - ITEM_SIZE) / 2;
-	int center_y = (SLOT_HEIGHT - ITEM_SIZE) / 2;
+	int center_x = SLOT_WIDTH - ITEM_SIZE;
+	int center_y = SLOT_HEIGHT - ITEM_SIZE;
+	center_x /= 2;
+	center_y /= 2;
 
 	size_t i;
 	size_t length = item_images_.get_length();
     for (i = 0; i < length; ++i) {
-		JUI::Image* item_image = item_images_.get(i);
+		JUI::CroppedImage* item_image = item_images_.get(i);
 		// Create item image.
 		if (!JUTIL::BaseAllocator::allocate( &item_image )) {
 			return false;
 		}
-		item_image = new (item_image) JUI::Image( nullptr );
+		item_image = new (item_image) JUI::CroppedImage( nullptr );
 		if (!add( item_image )) {
 			JUTIL::BaseAllocator::destroy( item_image );
 			return false;
 		}
 		item_image->set_size( ITEM_SIZE, ITEM_SIZE );
+		item_image->set_cropped( -center_x, -center_y, SLOT_WIDTH, SLOT_HEIGHT );
 
 		// Align in center.
 		set_constraint( item_image, center_x, center_y );
@@ -124,7 +118,7 @@ void SlotView::update( void )
 		
 	}
 	else {
-		slot_rectangle_->set_stroke( 0, &SLOT_STROKE_NORMAL_COLOUR );
+		slot_rectangle_->set_stroke( SLOT_STROKE_WIDTH, &SLOT_NORMAL_COLOUR );
 		slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
 	}
 
@@ -132,7 +126,7 @@ void SlotView::update( void )
 	size_t i;
 	size_t length = item_images_.get_length();
 	for (i = 0; i < length; ++i) {
-		JUI::Image* item_image = item_images_.get(i);
+		JUI::CroppedImage* item_image = item_images_.get(i);
 		// Update item view.
 		if (item != nullptr) {
 			if(i < item->get_texture_count()){
@@ -147,16 +141,23 @@ void SlotView::update( void )
 		else {
 			item_image->set_texture( nullptr );
 		}
+	}
+	update_alpha();
+}
 
-		// Dim image when disabled.
-		if (!is_enabled()) {
-			//set_alpha( DISABLED_ALPHA );
-			item_image->set_alpha( DISABLED_ALPHA );
-		}
-		else {
-			//set_alpha( ENABLED_ALPHA );
-			item_image->set_alpha( ENABLED_ALPHA );
-		}
+/*
+ * Update rectangle/image alpha
+ */
+void SlotView::update_alpha( void )
+{
+	// Dim image when disabled.
+	if (!is_enabled()) {
+		set_alpha( DISABLED_ALPHA );
+		//item_image->set_alpha( DISABLED_ALPHA );
+	}
+	else {
+		set_alpha( ENABLED_ALPHA );
+		//item_image->set_alpha( ENABLED_ALPHA );
 	}
 }
 
