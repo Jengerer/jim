@@ -24,7 +24,7 @@ const unsigned int BUTTON_PADDING		= 15;
 // Button colours.
 const JUI::Colour BUTTON_COLOUR( 247, 231, 198 );
 const JUI::Colour BUTTON_COLOUR_HOVER( 180, 81, 14 );
-const JUI::Colour BUTTON_COLOUR_DISABLED( 247, 231, 198, 150 );
+const JUI::Colour BUTTON_COLOUR_DISABLED( 247, 231, 198, 100 );
 
 /*
  * Button default constructor.
@@ -115,6 +115,7 @@ void Button::update_button( void )
 void Button::set_enabled( bool is_enabled )
 {
 	is_enabled_ = is_enabled;
+	update_button();
 }
 
 /*

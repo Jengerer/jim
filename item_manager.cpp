@@ -572,6 +572,35 @@ JUI::IOResult ItemManager::on_mouse_released( JUI::Mouse* mouse )
         }
         return JUI::IO_RESULT_HANDLED;
 	}
+	if (craft_button_->on_mouse_released( mouse ) == JUI::IO_RESULT_HANDLED) {
+		if (steam_items_.is_selected_tradable()) {
+			steam_items_.craft_selected();
+			return JUI::IO_RESULT_HANDLED;
+		}
+		else {
+			//craft_check_ = popups_->create_confirmation( "One or more of the items you've selected are not tradable. The result will not be tradable. Continue?" );
+		}
+	}
+	else if (next_button_->on_mouse_released( mouse ) == JUI::IO_RESULT_HANDLED) {
+		if (inventory_view_->next_page()) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+			else {
+				return JUI::IO_RESULT_HANDLED;
+			}
+        }
+	}
+	else if (prev_button_->on_mouse_released( mouse ) == JUI::IO_RESULT_HANDLED) {
+		if (inventory_view_->previous_page()) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+			else {
+				return JUI::IO_RESULT_HANDLED;
+			}
+        }
+	}
 
     return JUI::IO_RESULT_UNHANDLED;
 }
