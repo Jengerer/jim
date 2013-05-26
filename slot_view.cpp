@@ -151,7 +151,7 @@ void SlotView::update( void )
 void SlotView::update_alpha( void )
 {
 	// Dim image when disabled.
-	if (!is_enabled()) {
+	if (!is_enabled() && get_slot()->has_item()) {
 		set_alpha( DISABLED_ALPHA );
 		//item_image->set_alpha( DISABLED_ALPHA );
 	}
@@ -176,13 +176,12 @@ void SlotView::draw( JUI::Graphics2D* graphics )
             int equipped_text_x = get_x() + get_width() - equipped_text_->get_width() - EQUIPPED_PADDING;
             int equipped_text_y = get_y() + get_height() - equipped_text_->get_height() - EQUIPPED_PADDING;
 			equipped_text_->set_position( equipped_text_x, equipped_text_y );
-			equipped_text_->set_text( &EQUIPPED_TEXT );
 			equipped_text_->draw( graphics );
 		}
 		uint32 item_value = item->get_crate_number();
-		JUTIL::DynamicString crate_string;
 		if (item_value != FL_ITEM_NOT_CRATE) {
 			// Write text.
+			JUTIL::DynamicString crate_string;
 			if (crate_string.write( "#%u", item_value )) {
 				crate_text_->set_text( &crate_string );
 
