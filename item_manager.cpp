@@ -794,7 +794,6 @@ bool ItemManager::on_slot_released( SlotView* slot_view )
 			steam_items_.update_item( touched_item );
 		}
 		else {
-			dragged_slot->remove_item();
 			backpack_->move_item( dragged_item, touched_slot->get_index() );
 			steam_items_.update_item( dragged_item );
 		}

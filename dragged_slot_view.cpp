@@ -23,19 +23,6 @@ DraggedSlotView::~DraggedSlotView()
 void DraggedSlotView::update_alpha( void )
 {
 	set_alpha( DRAG_ALPHA );
-
-	size_t i;
-	size_t length = item_images_.get_length();
-	for (i = 0; i < length; ++i) {
-	JUI::CroppedImage* item_image = item_images_.get(i);
-		// Retain slotview's image alphas
-		if (!is_enabled()) {
-			item_image->set_alpha( DISABLED_ALPHA );
-		}
-		else {
-			item_image->set_alpha( ENABLED_ALPHA );
-		}
-	}
 }
 
 /*
