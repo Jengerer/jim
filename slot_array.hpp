@@ -1,42 +1,42 @@
-#ifndef SLOT_ARRAY_H
-#define SLOT_ARRAY_H
+#ifndef SLOT_ARRAY_HPP
+#define SLOT_ARRAY_HPP
 
 #include "item.hpp"
 #include "slot.hpp"
-#include "slot_container.hpp"
+#include "slot_array_listener.hpp"
 #include <containers/vector.hpp>
 
 /*
  * Class for maintaining a set of slots.
  */
-class SlotArray : public SlotContainer
+class SlotArray
 {
 
 public:
 
-	SlotArray( unsigned int size, unsigned int start_index = 0 );
+	SlotArray( void );
 	~SlotArray( void );
 
 	// Slot management functions.
-    bool initialize( void );
-	unsigned int get_slot_count( void ) const;
+    bool set_size( unsigned int size );
+	unsigned int get_size( void ) const;
 
-	// Slot getter.
-	Slot* get_slot( unsigned int index ) const;
+	// Item management.
+	bool has_item( Item* item ) const;
+	void set_item( unsigned int index, Item* item );
+	const Item* get_item( unsigned int index ) const;
 
 private:
 
 	// Slot management functions.
-	void set_size( unsigned int size );
-	bool create_slots( unsigned int start_index );
 	void destroy_slots( void );
 
 private:
 
 	JUTIL::Vector<Slot*> slots_;
-	unsigned int	size_;
-    unsigned int    start_index_;
+	JUTIL::Map<Item*, unsigned int> positions_;
+	SlotArrayListener* listener_;
 
 };
 
-#endif // SLOT_ARRAY_H
+#endif // SLOT_ARRAY_HPP

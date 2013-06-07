@@ -17,19 +17,18 @@ class SlotGridView : public JUI::GridLayout
 public:
 
 	// Creation.
-	SlotGridView( unsigned int grid_width,
-		unsigned int spacing );
+	SlotGridView( void );
 
 	// Slot management.
-	bool add_slots( const SlotArray* slots );
+	bool set_grid_size( unsigned int width, unsigned int height );
 
 	// UI handling.
 	SlotView* get_touching_slot( JUI::Mouse* mouse ) const;
 	SlotView* get_slot_view( unsigned int index ) const;
 
 	// Slot view management.
-	void	set_enabled( bool is_enabled ) const;
-	void	disable_full( void ) const;
+	void set_enabled( bool is_enabled ) const;
+	void disable_full( void ) const;
 
 private:
 

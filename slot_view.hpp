@@ -21,7 +21,7 @@ public:
     bool initialize( void );
 
 	// Over-ridden drawing function.
-	void update();
+	bool update( Slot* slot );
 	void draw( JUI::Graphics2D* graphics );
 
 	// Getting the slot.
@@ -53,10 +53,8 @@ private:
 	RoundedRectangle* slot_rectangle_;
 
 	// Item icon image.
-	JUTIL::Vector<JUI::Image*> item_images_;
+	JUI::Image* image_;
 
-	Slot* slot_;
-	bool is_selected_;
 	bool is_enabled_;
 
 };

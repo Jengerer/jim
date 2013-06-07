@@ -6,25 +6,23 @@
 #include <jui/io/mouse.hpp>
 
 #include "slot_array.hpp"
-#include "slot_book.hpp"
 #include "slot_grid_view.hpp"
+#include "slot_array_listener.hpp"
 
 const unsigned int SLOT_BOOK_VIEW_SHIFT_ON = 10;
 const unsigned int SLOT_BOOK_VIEW_SHIFT_OFF = 1;
-
 const unsigned int SLOT_BOOK_VIEW_SHIFT_DIFF = SLOT_BOOK_VIEW_SHIFT_ON;
 
-class SlotBookView : public JUI::ConstrainedContainer
+/*
+ * Extension of slot grid view to switch between multiple pages.
+ */
+class SlotBookView : public SlotGridView
 {
 
 public:
 
-	SlotBookView( const SlotBook* slot_book,
-		unsigned int slot_spacing );
+	SlotBookView( void );
 	virtual ~SlotBookView( void );
-
-	// Layout functions.
-	void pack( void );
 
 	// Page management.
 	bool initialize( void );
@@ -60,10 +58,6 @@ protected:
 
 private:
 
-	// Book management.
-	void set_slot_book( const SlotBook* slot_book );
-	const SlotBook* get_slot_book( void ) const;
-
 	// Navigation functions.
 	void set_active_page( unsigned int page );
 	void set_view_offset( float view_offset );
@@ -76,9 +70,6 @@ protected:
 	float view_offset_;
 
 private:
-
-	// Data member.
-	const SlotBook* slot_book_;
 
 	// Layout attributes.
 	unsigned int slot_spacing_;

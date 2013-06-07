@@ -3,16 +3,15 @@
 /*
  * Slot constructor.
  */
-Slot::Slot( unsigned int index )
+Slot::Slot( void )
 {
-	remove_item();
-	set_index( index );
+	set_item( nullptr );
 }
 
 /*
  * Return whether there's an item in this slot.
  */
-bool Slot::has_item() const
+bool Slot::has_item( void ) const
 {
 	return item_ != nullptr;
 }
@@ -20,7 +19,7 @@ bool Slot::has_item() const
 /*
  * Get the item contained in this slot.
  */
-Item* Slot::get_item() const
+Item* Slot::get_item( void ) const
 {
 	return item_;
 }
@@ -31,28 +30,4 @@ Item* Slot::get_item() const
 void Slot::set_item( Item* item )
 {
 	item_ = item;
-}
-
-/*
- * Remove item from slot.
- */
-void Slot::remove_item( void )
-{
-	set_item( nullptr );
-}
-
-/*
- * Get slot index.
- */
-unsigned int Slot::get_index( void ) const
-{
-	return index_;
-}
-
-/*
- * Set slot index.
- */
-void Slot::set_index( unsigned int index )
-{
-	index_ = index;
 }

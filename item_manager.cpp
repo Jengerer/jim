@@ -86,7 +86,6 @@ const int EXCLUDED_WIDTH = 5;
 const int EXCLUDED_HEIGHT = 1;
 
 // Slot layout.
-const int SLOT_SPACING		= 5;
 const int PAGE_SPACING		= 50;
 
 // General application layout.
