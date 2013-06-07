@@ -36,7 +36,7 @@ const JUTIL::ConstantString APPLICATION_VERSION = "Internal Alpha";
 #else
 const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.7.9";
 #endif
-const int APPLICATION_WIDTH	= 795;
+const int APPLICATION_WIDTH	= 965;
 const int APPLICATION_HEIGHT = 540;
 
 // Updater resources.
@@ -571,6 +571,35 @@ JUI::IOResult ItemManager::on_mouse_released( JUI::Mouse* mouse )
         }
         return JUI::IO_RESULT_HANDLED;
 	}
+	if (craft_button_->on_mouse_released( mouse ) == JUI::IO_RESULT_HANDLED) {
+		if (steam_items_.is_selected_tradable()) {
+			steam_items_.craft_selected();
+			return JUI::IO_RESULT_HANDLED;
+		}
+		else {
+			//craft_check_ = popups_->create_confirmation( "One or more of the items you've selected are not tradable. The result will not be tradable. Continue?" );
+		}
+	}
+	else if (next_button_->on_mouse_released( mouse ) == JUI::IO_RESULT_HANDLED) {
+		if (inventory_view_->next_page()) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+			else {
+				return JUI::IO_RESULT_HANDLED;
+			}
+        }
+	}
+	else if (prev_button_->on_mouse_released( mouse ) == JUI::IO_RESULT_HANDLED) {
+		if (inventory_view_->previous_page()) {
+		    if (!update_page_display()) {
+                result = JUI::IO_RESULT_ERROR;
+            }
+			else {
+				return JUI::IO_RESULT_HANDLED;
+			}
+        }
+	}
 
     return JUI::IO_RESULT_UNHANDLED;
 }
@@ -698,7 +727,7 @@ bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 			}
 			dragged_view_->set_position( view_x, view_y );
 			dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
-			dragged_view_->set_alpha( 200 );
+			dragged_view_->set_selected( true );
 			if (!steam_items_.select( slot_view )) {
 				JUTIL::BaseAllocator::destroy( slot_view );
 				stack->log( "Failed to select slot being dragged." );
@@ -764,7 +793,6 @@ bool ItemManager::on_slot_released( SlotView* slot_view )
 			steam_items_.update_item( touched_item );
 		}
 		else {
-			dragged_slot->remove_item();
 			backpack_->move_item( dragged_item, touched_slot->get_index() );
 			steam_items_.update_item( dragged_item );
 		}

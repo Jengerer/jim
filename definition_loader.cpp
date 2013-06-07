@@ -375,8 +375,6 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         bool success = get_member( &attribute, &ATTRIBUTE_NAME, &attribute_name ) &&
             get_member( &attribute, &ATTRIBUTE_INDEX, &attribute_index ) &&
             get_member( &attribute, &ATTRIBUTE_CLASS, &attribute_class ) &&
-            get_member( &attribute, &ATTRIBUTE_MIN_VALUE, &attribute_min_value ) &&
-            get_member( &attribute, &ATTRIBUTE_MAX_VALUE, &attribute_max_value ) &&
             get_member( &attribute, &ATTRIBUTE_EFFECT_TYPE, &attribute_effect_type ) &&
             get_member( &attribute, &ATTRIBUTE_IS_HIDDEN, &attribute_is_hidden ) &&
             get_member( &attribute, &ATTRIBUTE_IS_INTEGER, &attribute_is_integer );
@@ -384,6 +382,9 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
             stack->log( "Unexpected attribute format found." );
             return false;
         }
+
+		get_member( &attribute, &ATTRIBUTE_MIN_VALUE, &attribute_min_value );
+        get_member( &attribute, &ATTRIBUTE_MAX_VALUE, &attribute_max_value );
 
 		// Get effect type, third char is different for each time.
         const JUTIL::ConstantString effect_string = attribute_effect_type->asCString();
@@ -428,8 +429,8 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 
         // Get rest of parameters and create information object.
         unsigned int index = attribute_index->asUInt();
-        float min_value = attribute_min_value->asFloat();
-        float max_value = attribute_max_value->asFloat();
+        float min_value = 0;//attribute_min_value->asFloat();
+        float max_value = 0;//attribute_max_value->asFloat();
         bool is_hidden = attribute_is_hidden->asBool();
         bool is_integer = attribute_is_integer->asBool();
 
