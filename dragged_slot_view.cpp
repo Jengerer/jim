@@ -18,6 +18,14 @@ DraggedSlotView::~DraggedSlotView()
 }
 
 /*
+ * Override update rectangle/image alpha
+ */
+void DraggedSlotView::update_alpha( void )
+{
+	set_alpha( DRAG_ALPHA );
+}
+
+/*
  * Return handled if mouse touching.
  */
 JUI::IOResult DraggedSlotView::on_mouse_clicked( JUI::Mouse* mouse )

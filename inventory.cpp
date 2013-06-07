@@ -126,6 +126,7 @@ void Inventory::displace_item( Item* item )
 void Inventory::move_item( Item* item, unsigned int index )
 {
 	// Move to new slot.
+	displace_item( item );
 	item->set_position( index );
 	place_item( item );
 }
