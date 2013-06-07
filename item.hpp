@@ -55,10 +55,6 @@ public:
 	void set_position( uint16 position );
 	uint16 get_position( void ) const;
 
-	// Index in slot array.
-	uint32 get_index( void ) const;
-	void set_index( uint32 position );
-
     // Item flag management.
 	bool has_valid_inventory_flags( void ) const;
 
@@ -78,8 +74,7 @@ public:
 
 	// Drawing and interaction.
 	bool add_texture( JUI::Texture* texture );
-	size_t get_texture_count( void ) const;
-	const JUI::Texture* get_texture( size_t index ) const;
+	const JUI::Texture* get_texture( void ) const;
 
 	// Attribute management.
 	bool add_attribute( Attribute* attribute );
@@ -96,15 +91,15 @@ public:
 	bool remove_equipped_data( EEquipClass equip_class );
 
     size_t get_equipped_count( void ) const;
-    const EquippedStatus* get_EquippedStatus( size_t index ) const;
-	const EquippedStatus* find_EquippedStatus( EEquipClass equip_class ) const;
+    const EquippedStatus* get_equipped_status( size_t index ) const;
+	const EquippedStatus* find_equipped_status( EEquipClass equip_class ) const;
 
 	bool is_equipped( void ) const;
 
 private:
 
 	void set_unique_id( uint64 unique_id );
-	void set_type_index( uint16 typeIndex );
+	void set_type_index( uint16 type_index );
 	void set_level( uint8 level );
 	void set_quality( EItemQuality quality );
 	void set_count( uint32 count );
@@ -126,7 +121,6 @@ private:
 	JUTIL::DynamicString item_name_;
 
 	// Item definition information.
-	uint32 index_;
 	const ItemDefinition* definition_;
 	JUTIL::Vector<Attribute*> attributes_;
 	JUTIL::Vector<EquippedStatus*> equipped_data_;

@@ -3,10 +3,8 @@
 /*
  * Slot array constructor.
  */
-SlotArray::SlotArray( unsigned int size, unsigned int start_index )
+SlotArray::SlotArray( void )
 {
-    start_index_ = start_index;
-	set_size( size );
 }
 
 /*
@@ -18,64 +16,58 @@ SlotArray::~SlotArray( void )
 }
 
 /*
- * Initialize slot array.
+ * Set slot array size.
  */
-bool SlotArray::initialize( void )
+bool SlotArray::set_size( unsigned int size )
 {
-    return create_slots( start_index_ );
+	unsigned int i;
+	unsigned int old_size = get_size();
+
+	// Delete slots if shrinking.
+	if (size < old_size) {
+		for (i = size; i < old_size; ++i) {
+			Slot* slot = slots_.at( i );
+			JUTIL::BaseAllocator::destroy( slot );
+		}
+		
+		if (!slots_.resize( size )) {
+			return false;
+		}
+	}
+	else {
+		// Add new slots.
+		if (!slots_.reserve( size )) {
+			return false;
+		}
+
+		// Create new slots if expanding.
+		for (unsigned int i = old_size; i < size; ++i) {
+			Slot* slot;
+			if (!JUTIL::BaseAllocator::allocate( &slot )) {
+				return false;
+			}
+
+			slot = new (slot) Slot();
+			slots_.push( slot );
+		}
+	}
+
+	return true;
 }
 
 /*
  * Get number of slots.
  */
-unsigned int SlotArray::get_slot_count( void ) const
+unsigned int SlotArray::get_size( void ) const
 {
-	return size_;
+	slots_.get_length();
 }
 
 /*
- * Get a slot at an index. Assumes index is valid.
+ * Set the item at the given slot.
  */
-Slot* SlotArray::get_slot( unsigned int index ) const
+void SlotArray::set_item( unsigned int index, Item* item )
 {
-	return slots_.get( index );
-}
-
-/*
- * Set array size.
- */
-void SlotArray::set_size( unsigned int size )
-{
-	size_ = size;
-}
-
-/*
- * Create slots.
- */
-bool SlotArray::create_slots( unsigned int start_index )
-{
-	unsigned int slot_count = get_slot_count();
-    if (!slots_.set_length( slot_count )) {
-        return false;
-    }
-
-	// Initialize slots.
-    bool success = true;
-	for (unsigned int i = 0; i < slot_count; i++) {
-        Slot* slot;
-        if (!JUTIL::BaseAllocator::allocate( &slot )) {
-            success = false;
-            break;
-        }
-        slot = new (slot) Slot( i + start_index );
-        slots_.set( i, slot );
-	}
-
-    // Clean if failed.
-    if (!success) {
-        slots_.clear();
-    }
-    return success;
 }
 
 /*
@@ -85,9 +77,9 @@ void SlotArray::destroy_slots( void )
 {
 	// Destroy slots.
     size_t i;
-    size_t length = get_slot_count();
+    size_t length = get_size();
 	for (i = 0; i < length; ++i) {
-        Slot* slot = slots_.get( i );
+        Slot* slot = slots_.at( i );
         JUTIL::BaseAllocator::destroy( slot );
 	}
     slots_.clear();

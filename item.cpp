@@ -60,7 +60,7 @@ Item::~Item( void )
     size_t i;
     size_t length = attributes_.get_length();
     for (i = 0; i < length; ++i) {
-        Attribute* attribute = attributes_.get( i );
+        Attribute* attribute = attributes_.at( i );
         JUTIL::BaseAllocator::destroy( attribute );
     }
     attributes_.clear();
@@ -68,7 +68,7 @@ Item::~Item( void )
 	// Remove all equipped data.
     length = equipped_data_.get_length();
     for (i = 0; i < length; ++i) {
-		EquippedStatus* datum = equipped_data_.get( i );
+		EquippedStatus* datum = equipped_data_.at( i );
         JUTIL::BaseAllocator::destroy( datum );
     }
     equipped_data_.clear();
@@ -287,22 +287,6 @@ void Item::set_position( uint16 position )
 	tempFlags &= FL_ITEM_NONPOSITION; // Remove current position.
 	tempFlags |= (position + 1) & FL_ITEM_POSITION; // Set new.
 	set_inventory_flags( tempFlags );
-}
-
-/*
- * Get item slot index.
- */
-uint32 Item::get_index( void ) const
-{
-	return index_;
-}
-
-/*
- * Set item slot index.
- */
-void Item::set_index( uint32 index )
-{
-	index_ = index;
 }
 
 /*
@@ -622,12 +606,12 @@ size_t Item::get_equipped_count( void ) const
 	return equipped_data_.get_length();
 }
 
-const EquippedStatus* Item::get_EquippedStatus( size_t index ) const
+const EquippedStatus* Item::get_equipped_status( size_t index ) const
 {
 	return equipped_data_.get( index );
 }
 
-const EquippedStatus* Item::find_EquippedStatus( EEquipClass equip_class ) const
+const EquippedStatus* Item::find_equipped_status( EEquipClass equip_class ) const
 {
     size_t i;
     size_t length = equipped_data_.get_length();
