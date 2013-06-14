@@ -117,6 +117,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="popup_display.cpp" />
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc" />
+    <ClCompile Include="slot_book.cpp" />
     <ClCompile Include="steam_item_handler.cpp" />
     <ClCompile Include="definition_loader.cpp" />
     <ClCompile Include="slot_book_view.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="popup_display.hpp" />
     <ClInclude Include="protobuf\tf_gcmessages.pb.h" />
     <ClInclude Include="slot_array_listener.hpp" />
+    <ClInclude Include="slot_book.hpp" />
     <ClInclude Include="steam_item_interface.hpp" />
     <ClInclude Include="steam_item_handler.hpp" />
     <ClInclude Include="definition_loader.hpp" />
