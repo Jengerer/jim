@@ -16,7 +16,7 @@ KillEaterRank::~KillEaterRank( void )
 	size_t i;
     size_t length = levels_.get_length();
     for (i = 0; i < length; ++i) {
-        KillEaterLevel* level = levels_.get( i );
+        KillEaterLevel* level = levels_.at( i );
         JUTIL::BaseAllocator::destroy( level );
     }
     levels_.clear();
@@ -34,7 +34,7 @@ size_t KillEaterRank::get_level_count( void ) const
 
 const KillEaterLevel* KillEaterRank::get_level( size_t index ) const
 {
-	return levels_.get( index );
+	return levels_.at( index );
 }
 
 const KillEaterLevel* KillEaterRank::find_level( uint32 score ) const

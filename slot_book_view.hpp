@@ -5,18 +5,13 @@
 #include <jui/layout/horizontal_layout.hpp>
 #include <jui/io/mouse.hpp>
 
-#include "slot_array.hpp"
 #include "slot_grid_view.hpp"
 #include "slot_array_listener.hpp"
-
-const unsigned int SLOT_BOOK_VIEW_SHIFT_ON = 10;
-const unsigned int SLOT_BOOK_VIEW_SHIFT_OFF = 1;
-const unsigned int SLOT_BOOK_VIEW_SHIFT_DIFF = SLOT_BOOK_VIEW_SHIFT_ON;
 
 /*
  * Extension of slot grid view to switch between multiple pages.
  */
-class SlotBookView : public SlotGridView
+class SlotBookView : public SlotGridView, public SlotArrayListener
 {
 
 public:
@@ -24,61 +19,17 @@ public:
 	SlotBookView( void );
 	virtual ~SlotBookView( void );
 
-	// Page management.
-	bool initialize( void );
-	bool update_pages( void );
-	unsigned int get_active_page( void ) const;
-	unsigned int get_page_count( void ) const;
-	SlotGridView* get_active_view( void ) const;
+	// Mouse event handling handling.
+	unsigned int get_touching_index( JUI::Mouse* mouse ) const;
 
-	// JUI::Mouse* handling.
-	SlotView* get_touching_slot( JUI::Mouse* mouse ) const;
-	SlotView* get_slot_view( unsigned int index ) const;
-
-	// Page navigation.
-	bool next_page( void );
-	bool previous_page( void );
-	bool first_page( void );
-	bool last_page( void );
-	bool jump_to_page( unsigned int digit );
-	unsigned int get_shift_multiple( void ) const;
-	void set_shift_multiple( unsigned int multiple );
-
-	void update_offset( void );
-	virtual void update_view( void );
-
-	// Slot view handling.
-	void set_enabled( bool is_enabled ) const;
-	void disable_full( void ) const;
-
-protected:
-
-	// Navigation functions.
-	float get_view_offset( void ) const;
+	// Slot array listener handlers.
+	virtual bool on_slot_updated( unsigned int index, Slot* slot );
 
 private:
 
 	// Navigation functions.
 	void set_active_page( unsigned int page );
 	void set_view_offset( float view_offset );
-
-protected:
-
-	// Navigation members.
-	JUI::HorizontalLayout* pages_layout_;
-	JUI::Constraint* pages_constraint_;
-	float view_offset_;
-
-private:
-
-	// Layout attributes.
-	unsigned int slot_spacing_;
-
-	// View offset.
-	unsigned int page_;
-	JUTIL::Vector<SlotGridView*> slot_grid_views_;
-
-	unsigned int shift_multiple_;
 
 };
 

@@ -31,11 +31,14 @@ private:
 	// Slot management functions.
 	void destroy_slots( void );
 
+protected:
+
+	SlotArrayListener* listener_;
+	JUTIL::Vector<Slot*> slots_;
+
 private:
 
-	JUTIL::Vector<Slot*> slots_;
 	JUTIL::Map<Item*, unsigned int> positions_;
-	SlotArrayListener* listener_;
 
 };
 

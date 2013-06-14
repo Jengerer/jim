@@ -6,21 +6,8 @@ const float DEFAULT_VIEW_OFFSET = 0.0f;
 /*
  * Slot book view constructor.
  */
-SlotBookView::SlotBookView( const SlotBook* slot_book,
-	unsigned int slot_spacing )
+SlotBookView::SlotBookView( void )
 {
-	set_slot_book( slot_book );
-	set_view_offset( DEFAULT_VIEW_OFFSET );
-	set_active_page( DEFAULT_PAGE );
-	set_shift_multiple( SLOT_BOOK_VIEW_SHIFT_OFF );
-
-    // Layout parameters.
-    slot_spacing_ = slot_spacing;
-
-	// Pages to be created.
-	pages_layout_ = nullptr;
-	pages_constraint_ = nullptr;
-
 }
 
 /*
@@ -28,20 +15,6 @@ SlotBookView::SlotBookView( const SlotBook* slot_book,
  */
 SlotBookView::~SlotBookView( void )
 {
-}
-
-/*
- * Pack layout.
- */
-void SlotBookView::pack( void )
-{
-	pages_layout_->pack();
-	
-	// Set size as active page (should all be equal).
-	bool has_page = !slot_grid_views_.is_empty();
-	int width = (has_page ? get_active_view()->get_width() : 0 );
-	int height = (has_page ? get_active_view()->get_height() : 0);
-	set_size( width, height );
 }
 
 /*
@@ -162,7 +135,7 @@ SlotView* SlotBookView::get_slot_view( unsigned int index ) const
 	unsigned int page_size = slot_book_->get_page_size();
 	unsigned int page = index / page_size;
 	unsigned int page_index = index % page_size;
-	SlotGridView* grid_page = slot_grid_views_.get( page );
+	SlotGridView* grid_page = slot_grid_views_.at( page );
 	return grid_page->get_slot_view( page_index );
 }
 
@@ -289,7 +262,7 @@ void SlotBookView::set_enabled( bool is_enabled ) const
     size_t i;
     size_t length = slot_grid_views_.get_length();
     for (i = 0; i < length; ++i) {
-        SlotGridView* grid_view = slot_grid_views_.get( i );
+        SlotGridView* grid_view = slot_grid_views_.at( i );
 		grid_view->set_enabled( is_enabled );
 	}
 }
@@ -303,7 +276,7 @@ void SlotBookView::disable_full( void ) const
     size_t i;
     size_t length = slot_grid_views_.get_length();
     for (i = 0; i < length; ++i) {
-        SlotGridView* grid_view = slot_grid_views_.get( i );
+        SlotGridView* grid_view = slot_grid_views_.at( i );
         grid_view->disable_full();
 	}
 }

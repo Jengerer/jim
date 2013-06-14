@@ -298,13 +298,13 @@
     <ClInclude Include="slot_array.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
-    <ClInclude Include="slot_array_listener.hpp">
-      <Filter>headers\items</Filter>
-    </ClInclude>
     <ClInclude Include="inventory_event_handler.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
     <ClInclude Include="steam_item_interface.hpp">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_array_listener.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>
