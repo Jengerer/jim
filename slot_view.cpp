@@ -54,58 +54,6 @@ SlotView::SlotView( Slot* slot )
  */
 bool SlotView::initialize( void )
 {
-    // Create slot rectangle.
-    if (!JUTIL::BaseAllocator::allocate( &slot_rectangle_ )) {
-        return false;
-    }
-	slot_rectangle_ = new (slot_rectangle_) RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, &SLOT_NORMAL_COLOUR );
-	if (!add( slot_rectangle_ )) {
-        JUTIL::BaseAllocator::destroy( slot_rectangle_ );
-        return false;
-    }
-<<<<<<< HEAD
-
-	int center_x = (SLOT_WIDTH - ITEM_SIZE) / 2;
-	int center_y = (SLOT_HEIGHT - ITEM_SIZE) / 2;
-	// Create item image.
-	if (!JUTIL::BaseAllocator::allocate( &image_ )) {
-		return false;
-=======
-	int center_x = SLOT_WIDTH - ITEM_SIZE;
-	int center_y = SLOT_HEIGHT - ITEM_SIZE;
-	center_x /= 2;
-	center_y /= 2;
-
-	size_t i;
-	size_t length = item_images_.get_length();
-    for (i = 0; i < length; ++i) {
-		JUI::CroppedImage* item_image = item_images_.get(i);
-		// Create item image.
-		if (!JUTIL::BaseAllocator::allocate( &item_image )) {
-			return false;
-		}
-		item_image = new (item_image) JUI::CroppedImage( nullptr );
-		if (!add( item_image )) {
-			JUTIL::BaseAllocator::destroy( item_image );
-			return false;
-		}
-		item_image->set_size( ITEM_SIZE, ITEM_SIZE );
-		item_image->set_cropped( -center_x, -center_y, SLOT_WIDTH, SLOT_HEIGHT );
-
-		// Align in center.
-		set_constraint( item_image, center_x, center_y );
-		item_images_.set(i, item_image);
->>>>>>> 234a885e662495aeef177dc4df240f7cf5eab3bb
-	}
-	image_ = new (image_) JUI::Image( nullptr );
-	if (!add( image_ )) {
-		JUTIL::BaseAllocator::destroy( image_ );
-		return false;
-	}
-	image_->set_size( ITEM_SIZE, ITEM_SIZE );
-
-	// Align in center.
-	set_constraint( image_, center_x, center_y );
 	return true;
 }
 
@@ -114,48 +62,6 @@ bool SlotView::initialize( void )
  */
 bool SlotView::update( Slot* slot )
 {
-	Item* item = slot->get_item();
-	if (item != nullptr) {
-		// Update item image.
-		image_->set_texture( item->get_texture() );
-		item = slot->get_item();
-		slot_rectangle_->set_stroke( SLOT_STROKE_WIDTH, item->get_quality_colour() );
-		if(is_selected()) {
-			JUI::Colour quality_colour_background = (*item->get_quality_colour());
-			quality_colour_background.set_value( quality_colour_background.get_value() / BACKGROUND_VALUE_RATIO );
-			slot_rectangle_->set_colour( &quality_colour_background );
-		}else{
-			slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
-		}
-	}
-	else {
-		slot_rectangle_->set_stroke( SLOT_STROKE_WIDTH, &SLOT_NORMAL_COLOUR );
-		slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
-	}
-<<<<<<< HEAD
-=======
-
-
-	size_t i;
-	size_t length = item_images_.get_length();
-	for (i = 0; i < length; ++i) {
-		JUI::CroppedImage* item_image = item_images_.get(i);
-		// Update item view.
-		if (item != nullptr) {
-			if(i < item->get_texture_count()){
-				item_image->set_texture( item->get_texture(i) );
-				if(i != 0){
-					uint32 paint_value = item->get_paint_value(i - 1);
-					JUI::Colour item_colour = JUI::Colour( (paint_value >> 16) & 0xff, (paint_value >> 8) & 0xff, (paint_value >> 0) & 0xff );
-					item_image->set_tint( &item_colour );
-				}
-			}
-		}
-		else {
-			item_image->set_texture( nullptr );
-		}
-	}
-	update_alpha();
 }
 
 /*
@@ -163,16 +69,6 @@ bool SlotView::update( Slot* slot )
  */
 void SlotView::update_alpha( void )
 {
-	// Dim image when disabled.
-	if (!is_enabled() && get_slot()->has_item()) {
-		set_alpha( DISABLED_ALPHA );
-		//item_image->set_alpha( DISABLED_ALPHA );
-	}
-	else {
-		set_alpha( ENABLED_ALPHA );
-		//item_image->set_alpha( ENABLED_ALPHA );
-	}
->>>>>>> 234a885e662495aeef177dc4df240f7cf5eab3bb
 }
 
 /*
@@ -180,34 +76,6 @@ void SlotView::update_alpha( void )
  */
 void SlotView::draw( JUI::Graphics2D* graphics )
 {
-	Container::draw( graphics );
-<<<<<<< HEAD
-=======
-
-	// Draw equipped text.
-	if (slot_->has_item()) {
-		Item* item = slot_->get_item();
-		if (item->is_equipped()) {
-            int equipped_text_x = get_x() + get_width() - equipped_text_->get_width() - EQUIPPED_PADDING;
-            int equipped_text_y = get_y() + get_height() - equipped_text_->get_height() - EQUIPPED_PADDING;
-			equipped_text_->set_position( equipped_text_x, equipped_text_y );
-			equipped_text_->draw( graphics );
-		}
-		uint32 item_value = item->get_crate_number();
-		if (item_value != FL_ITEM_NOT_CRATE) {
-			// Write text.
-			JUTIL::DynamicString crate_string;
-			if (crate_string.write( "#%u", item_value )) {
-				crate_text_->set_text( &crate_string );
-
-				// Position correctly.
-				int crate_text_x = get_x() + get_width() - crate_text_->get_width() - CRATE_PADDING;
-				int crate_text_y = get_y() + get_height() - crate_text_->get_height() - CRATE_PADDING;
-				crate_text_->set_position( crate_text_x, crate_text_y );
-				crate_text_->draw( graphics );
-			}
-		}
-	}
 }
 
 /*
@@ -232,7 +100,6 @@ void SlotView::set_slot( Slot* slot )
 void SlotView::set_selected( bool is_selected )
 {
 	is_selected_ = is_selected;
->>>>>>> 234a885e662495aeef177dc4df240f7cf5eab3bb
 }
 
 /*
