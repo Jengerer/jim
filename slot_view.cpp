@@ -6,7 +6,7 @@ const unsigned int SLOT_HEIGHT	= 60;
 const unsigned int ITEM_SIZE	= 80;
 
 // Slot stroke attributes.
-const unsigned int SLOT_STROKE_WIDTH			= 3;
+const unsigned int SLOT_STROKE_WIDTH = 3;
 
 // Slot colour attributes.
 const JUI::Colour SLOT_NORMAL_COLOUR( 60, 53, 46 );
@@ -35,12 +35,8 @@ const int CRATE_PADDING						= 5;
 /*
  * Slot view constructor.
  */
-SlotView::SlotView( Slot* slot )
+SlotView::SlotView( void )
 {
-	set_slot( slot );
-	set_selected( false );
-	set_enabled( true );
-
 	// Set default rectangle.
     slot_rectangle_ = nullptr;
 	image_ = nullptr;
@@ -54,60 +50,27 @@ SlotView::SlotView( Slot* slot )
  */
 bool SlotView::initialize( void )
 {
+	// Add rounded rectangle for slot.
+	if (!JUTIL::BaseAllocator::allocate( &slot_rectangle_ )) {
+		return false;
+	}
+	slot_rectangle_ = new (slot_rectangle_) RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, &SLOT_NORMAL_COLOUR );
+	if (!add( slot_rectangle_ )) {
+		JUTIL::BaseAllocator::destroy( slot_rectangle_ );
+		return false;
+	}
+
+	// Add image for item.
+	if (!JUTIL::BaseAllocator::allocate( &image_ )) {
+		return false;
+	}
+	image_ = new (image_) JUI::Image( nullptr );
+	if (!add( image_ )) {
+		JUTIL::BaseAllocator::destroy( image_ );
+		return false;
+	}
+	set_constraint( image_, (SLOT_WIDTH - ITEM_SIZE) / 2, 0 );
 	return true;
-}
-
-/*
- * Update slot display based on item.
- */
-bool SlotView::update( Slot* slot )
-{
-}
-
-/*
- * Update rectangle/image alpha
- */
-void SlotView::update_alpha( void )
-{
-}
-
-/*
- * Draw the slot view.
- */
-void SlotView::draw( JUI::Graphics2D* graphics )
-{
-}
-
-/*
- * Get the slot this view is representing.
- */
-Slot* SlotView::get_slot( void ) const
-{
-	return slot_;
-}
-
-/*
- * Set slot this view is representing.
- */
-void SlotView::set_slot( Slot* slot )
-{
-	slot_ = slot;
-}
-
-/*
- * Set whether this slot is being selected.
- */
-void SlotView::set_selected( bool is_selected )
-{
-	is_selected_ = is_selected;
-}
-
-/*
- * Check whether slot is enabled.
- */
-bool SlotView::is_enabled( void ) const
-{
-	return is_enabled_;
 }
 
 /*

@@ -25,7 +25,7 @@ ItemDefinition::~ItemDefinition( void )
     size_t i;
     size_t length = attributes_.get_length();
     for (i = 0; i < length; ++i) {
-        Attribute* attribute = attributes_.get( i );
+        Attribute* attribute = attributes_.at( i );
         JUTIL::BaseAllocator::destroy( attribute );
     }
     attributes_.clear();
@@ -95,7 +95,7 @@ size_t ItemDefinition::get_attribute_count( void ) const
  */
 const Attribute* ItemDefinition::get_attribute( size_t index ) const
 {
-	return attributes_.get( index );
+	return attributes_.at( index );
 }
 
 /*
@@ -140,7 +140,7 @@ size_t ItemDefinition::get_texture_count( void ) const
  */
 const JUI::Texture* ItemDefinition::get_texture( size_t index ) const
 {
-	return textures_.get( index );
+	return textures_.at( index );
 }
 
 

@@ -67,7 +67,7 @@ bool Notice::initialize( const JUTIL::String* message )
     if (!JUTIL::BaseAllocator::allocate( &content_ )) {
         return false;
     }
-	content_ = new (content_) JUI::VerticalLayout( NOTICE_SPACING, JUI::ALIGN_CENTER );
+	content_ = new (content_) JUI::VerticalLayout();
 	if (!rounded_container_->add( content_ ))
     {
         JUTIL::BaseAllocator::destroy( content_ );
@@ -99,7 +99,7 @@ bool Notice::initialize( const JUTIL::String* message )
  */
 void Notice::pack( void )
 {
-	content_->pack();
+	content_->pack( NOTICE_SPACING, JUI::ALIGN_CENTER );
 	rounded_container_->pack();
 	set_size( rounded_container_->get_width(), rounded_container_->get_height() );
 }

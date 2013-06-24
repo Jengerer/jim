@@ -68,7 +68,19 @@ unsigned int SlotArray::get_size( void ) const
  */
 void SlotArray::set_item( unsigned int index, Item* item )
 {
+	Slot* slot = slots_.at( index );
+	slot->set_item( item );
 }
+
+/*
+ * Get the item at the given slot.
+ */
+Item* SlotArray::get_item( unsigned int index )
+{
+	Slot* slot = slots_.at( index );
+	return slot->get_item();
+}
+ 
 
 /*
  * Destroy slots.

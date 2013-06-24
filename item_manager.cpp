@@ -651,34 +651,40 @@ JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 	}
 
 	// Check if we've hovering over an slot view.
-    SlotView* slot_view = nullptr;
-	if ((inventory_view_ != nullptr) && mouse->is_touching( inventory_view_ )) {
-		slot_view = inventory_view_->get_touching_slot( mouse );
+	Item* touched_item = nullptr;
+	const SlotView* touched_view;
+    unsigned int touched_index;
+	if (inventory_view_ != nullptr) {
+		// Get the touched item from inventory view, if any.
+		if (mouse->is_touching( inventory_view_ ) && inventory_view_->get_touching_index( mouse, &touched_index )) {
+			touched_item = inventory_book_->get_item_from_page( touched_index );
+			touched_view = inventory_view_->get_slot_view( touched_index );
+		}
 	}
-	else if ((excluded_view_ != nullptr) && mouse->is_touching( excluded_view_ )) {
-		slot_view = excluded_view_->get_touching_slot( mouse );
+	else if (excluded_view_ != nullptr) {
+		// Get the touched item from excluded view, if any.
+		if (mouse->is_touching( excluded_view_ ) && excluded_view_->get_touching_index( mouse, &touched_index )) {
+			touched_item = excluded_book_->get_item_from_page( touched_index );
+			touched_view = inventory_view_->get_slot_view( touched_index );
+		}
 	}
-	if (slot_view != nullptr) {
-		Slot* slot = slot_view->get_slot();
 
-		// Only display for full slots.
-		if (slot->has_item()) {
-			if (!item_display_->set_item( slot->get_item() )) {
-                return JUI::IO_RESULT_ERROR;
-            }
+	// Update the display with the new item.
+	if (touched_item != nullptr) {
+		if (!item_display_->set_item( touched_item )) {
+            return JUI::IO_RESULT_ERROR;
+        }
 
-            // Position display; move above mouse if hitting bottom.
-			int display_x = slot_view->get_x() + (slot_view->get_width() - item_display_->get_width()) / 2;
-			int display_y = slot_view->get_y() + slot_view->get_height() + ITEM_DISPLAY_SPACING;
-			if (display_y + item_display_->get_height() > get_height()) {
-				display_y = slot_view->get_y() - item_display_->get_height() - ITEM_DISPLAY_SPACING;
-			}
-
-            // Position and clamp.
-			item_display_->set_position( display_x, display_y );
-			clamp_child( item_display_, PADDING );
+        // Position display; move above mouse if hitting bottom.
+		int display_x = touched_view->get_x() + (touched_view->get_width() - item_display_->get_width()) / 2;
+		int display_y = touched_view->get_y() + touched_view->get_height() + ITEM_DISPLAY_SPACING;
+		if (display_y + item_display_->get_height() > get_height()) {
+			display_y = touched_view->get_y() - item_display_->get_height() - ITEM_DISPLAY_SPACING;
 		}
 
+        // Position and clamp.
+		item_display_->set_position( display_x, display_y );
+		clamp_child( item_display_, PADDING );
         return JUI::IO_RESULT_HANDLED;
 	}
 
@@ -688,129 +694,16 @@ JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 
 bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
 {
-	// Error logging.
-	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-
-	Slot* slot = slot_view->get_slot();
-	if (slot->has_item()) {
-		switch (steam_items_.get_select_mode()) {
-		case SELECT_MODE_SINGLE:
-		{
-			// Don't allow movement into full slots if excluded.
-			Item* item = slot->get_item();
-			if (backpack_->is_excluded( item )) {
-				inventory_view_->disable_full();
-			}
-			else {
-				// Just disable self.
-				slot_view->set_enabled( false );
-			}
-
-			// Excluded are never allowed as targets.
-			excluded_view_->set_enabled( false );
-				
-			assert( dragged_view_ == nullptr );
-			steam_items_.deselect_all();
-
-			// Start dragging.
-			int view_x = slot_view->get_x();
-			int view_y = slot_view->get_y();
-            if (!JUTIL::BaseAllocator::allocate( &dragged_view_ )) {
-				stack->log( "Failed to allocate dragged slot view." );
-                return false;
-            }
-			dragged_view_ = new (dragged_view_) DraggedSlotView( slot );
-			if (!dragged_view_->initialize()) {
-				JUTIL::BaseAllocator::destroy( dragged_view_ );
-				stack->log( "Failed to initialize dragged slot view." );
-				return false;
-			}
-			dragged_view_->set_position( view_x, view_y );
-			dragged_view_->set_offset( view_x - mouse->get_x(), view_y - mouse->get_y() );
-			dragged_view_->set_selected( true );
-			if (!steam_items_.select( slot_view )) {
-				JUTIL::BaseAllocator::destroy( slot_view );
-				stack->log( "Failed to select slot being dragged." );
-				return false;
-			}
-			if (!add( dragged_view_ )) {
-                JUTIL::BaseAllocator::destroy( &dragged_view_ );
-				stack->log( "Failed to add dragged slot view to layout." );
-                return false;
-            }
-			break;
-		}
-
-		case SELECT_MODE_MULTIPLE:
-			if (!steam_items_.toggle_select( slot_view )) {
-				return false;
-			}
-			break;
-		}
-	}
-	else if (steam_items_.get_select_mode() != SELECT_MODE_MULTIPLE) {
-		steam_items_.deselect_all();
-	}
-
-	update_buttons();
     return true;
 }
 
 bool ItemManager::on_slot_released( SlotView* slot_view )
 {
-	// Remove item from backpack temporarily.
-	Slot* dragged_slot = dragged_view_->get_slot();
-	Item* dragged_item = dragged_slot->get_item();
-
-	// Reset selections.
-	inventory_view_->set_enabled( true );
-	excluded_view_->set_enabled( true );
-
-	// Delete temporary dragged.
-	remove( dragged_view_ );
-	JUTIL::BaseAllocator::destroy( dragged_view_ );
-	dragged_view_ = nullptr;
-
-	// Do we have a slot to place it in?
-	if (slot_view != nullptr) {
-		Slot* touched_slot = slot_view->get_slot();
-		if (touched_slot->has_item()) {
-			// Swap slots if not excluded.
-			Item* touched_item = touched_slot->get_item();
-
-			// Keep track of positions.
-			unsigned int old_index = dragged_item->get_index();
-			unsigned int new_index = touched_item->get_index();
-
-			// Displace and place.
-			backpack_->displace_item( touched_item );
-			backpack_->displace_item( dragged_item );
-			backpack_->move_item( dragged_item, new_index );
-			backpack_->move_item( touched_item, old_index );
-
-			// Push change to Steam.
-			steam_items_.update_item( dragged_item );
-			steam_items_.update_item( touched_item );
-		}
-		else {
-			backpack_->move_item( dragged_item, touched_slot->get_index() );
-			steam_items_.update_item( dragged_item );
-		}
-
-		// Deselect all only if releasing on a slot.
-		steam_items_.deselect_all();
-		steam_items_.select( slot_view );
-	}
-
-	update_buttons();
 	return true;
 }
 
 void ItemManager::update_buttons()
 {
-	unsigned int selectedCount = steam_items_.get_selected_count();
-	craft_button_->set_enabled( selectedCount != 0 );
-
 #ifndef EQUIP_NOT_IMPLEMENTED
 	equip_button_->set_enabled( steam_items_.can_equip_selected() );
 #endif

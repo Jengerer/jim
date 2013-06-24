@@ -35,7 +35,19 @@ bool SlotGridView::set_grid_size( unsigned int width, unsigned int height )
     return true;
 }
 
-SlotView* SlotGridView::get_touching_slot( JUI::Mouse* mouse ) const
+/*
+ * Gets the slot view by index.
+ */
+const SlotView* SlotGridView::get_slot_view( unsigned int index ) const
+{
+	return slot_views_.at( index );
+}
+
+/*
+ * Fills out the index of the slot view being touched by the mouse, if any.
+ * Returns true if the mouse is touching a slot, false otherwise.
+ */
+bool SlotGridView::get_touching_index( const JUI::Mouse* mouse, unsigned int* index ) const
 {
 	// Find view being touched.
 	// TODO: This can be done with math.
@@ -44,45 +56,31 @@ SlotView* SlotGridView::get_touching_slot( JUI::Mouse* mouse ) const
     for (i = 0; i < length; ++i) {
         SlotView* view = slot_views_.at( i );
 		if (mouse->is_touching( view )) {
-			return (view->is_enabled() ? view : nullptr);
+			*index = i;
+			return true;
 		}
 	}
 
-	return nullptr;
+	return false;
 }
 
 /*
- * Return a slot view by its index.
+ * Updates the slot view at the given index.
  */
-SlotView* SlotGridView::get_slot_view( unsigned int index ) const
+bool SlotGridView::on_slot_updated( unsigned int index, Slot* slot )
 {
-	return slot_views_.at( index );
-}
+	// TODO: Use item decorator classes to draw different item types.
+	SlotView* view = slot_views_.at( index );
 
-/*
- * Enable all slot views.
- */
-void SlotGridView::set_enabled( bool is_enabled ) const
-{
-    size_t i;
-    size_t length = slot_views_.get_length();
-    for (i = 0; i < length; ++i) {
-        SlotView* slot_view = slot_views_.at( i );
-		slot_view->set_enabled( is_enabled );
+	// Set item texture.
+	Item* item;
+	const JUI::Texture* item_texture;
+	// Draw empty slot if past 
+	if (slot != nullptr && (item = slot->get_item()) != nullptr) {
+		item_texture = item->get_texture();
 	}
-}
-
-/*
- * Disable slot views with an item in them.
- */
-void SlotGridView::disable_full( void ) const
-{
-	size_t i;
-    size_t length = slot_views_.get_length();
-    for (i = 0; i < length; ++i) {
-        SlotView* slot_view = slot_views_.at( i );
-		if (slot_view->get_slot()->has_item()) {
-			slot_view->set_enabled( false );
-		}
+	else {
+		item_texture = nullptr;
 	}
+	view->set_item_texture( item_texture );
 }

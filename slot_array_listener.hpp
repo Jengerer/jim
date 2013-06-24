@@ -12,7 +12,7 @@ class SlotArrayListener
 public:
 
 	// Triggers when the item contained in a slot changes.
-	virtual bool on_slot_updated( unsigned int index, Slot* slot )  = 0;
+	virtual bool on_slot_updated( unsigned int index, Slot* slot ) = 0;
 
 };
 

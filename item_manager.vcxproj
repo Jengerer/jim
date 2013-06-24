@@ -120,7 +120,6 @@
     <ClCompile Include="slot_book.cpp" />
     <ClCompile Include="steam_item_handler.cpp" />
     <ClCompile Include="definition_loader.cpp" />
-    <ClCompile Include="slot_book_view.cpp" />
     <ClCompile Include="slot_grid_view.cpp" />
     <ClCompile Include="slot_view.cpp" />
     <ClCompile Include="alert.cpp" />
@@ -146,7 +145,6 @@
     <ClCompile Include="steam.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="animated_book_view.hpp" />
     <ClInclude Include="attribute_definition.hpp" />
     <ClInclude Include="dynamic_slot_book.hpp" />
     <ClInclude Include="equip_status.hpp" />
@@ -168,11 +166,9 @@
     <ClInclude Include="protobuf\tf_gcmessages.pb.h" />
     <ClInclude Include="slot_array_listener.hpp" />
     <ClInclude Include="slot_book.hpp" />
-    <ClInclude Include="steam_item_interface.hpp" />
     <ClInclude Include="steam_item_handler.hpp" />
     <ClInclude Include="definition_loader.hpp" />
     <ClInclude Include="slot.hpp" />
-    <ClInclude Include="slot_book_view.hpp" />
     <ClInclude Include="slot_grid_view.hpp" />
     <ClInclude Include="alert.hpp" />
     <ClInclude Include="backpack.hpp" />
@@ -195,6 +191,7 @@
     <ClInclude Include="serialized_buffer.hpp" />
     <ClInclude Include="slot_view.hpp" />
     <ClInclude Include="steam.hpp" />
+    <ClInclude Include="steam_item_interface.hpp" />
     <ClInclude Include="string_hasher.hpp" />
   </ItemGroup>
   <ItemGroup>

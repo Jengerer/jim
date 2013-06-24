@@ -71,7 +71,6 @@ bool ItemDisplay::initialize( void )
 		return false;
 	}
 	text_layout_ = new (text_layout_) JUI::VerticalLayout();
-	text_layout_->set_spacing( ITEM_DISPLAY_SPACING );
 	if (!add( text_layout_ )) {
 		JUTIL::BaseAllocator::destroy( text_layout_ );
 		return false;
@@ -309,7 +308,7 @@ void ItemDisplay::update_alpha( void )
  */
 void ItemDisplay::pack( void )
 {
-	text_layout_->pack();
+	text_layout_->pack( ITEM_DISPLAY_SPACING, JUI::ALIGN_CENTER );
 	RoundedRectangleContainer::pack();
 }
 

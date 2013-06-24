@@ -24,7 +24,7 @@ public:
 	// Item management.
 	bool has_item( Item* item ) const;
 	void set_item( unsigned int index, Item* item );
-	const Item* get_item( unsigned int index ) const;
+	Item* get_item( unsigned int index );
 
 private:
 
