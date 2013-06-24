@@ -11,12 +11,10 @@ class SlotBook : public SlotArray
 
 public:
 
-	SlotBook( unsigned int page_width, unsigned int page_height );
+	SlotBook( unsigned int page_size );
 	virtual ~SlotBook( void );
 
 	// Page size functions.
-	unsigned int get_page_width( void ) const;
-	unsigned int get_page_height( void ) const;
 	unsigned int get_page_size( void ) const;
 
 	// Page switching functions.
@@ -24,11 +22,13 @@ public:
 	unsigned int get_active_page( void ) const;
 	unsigned int get_page_count( void ) const;
 
+	// Paged item handling.
+	Item* get_item_from_page( unsigned int page_index );
+
 private:
 
 	unsigned int active_page_;
-	unsigned int page_width_;
-	unsigned int page_height_;
+	unsigned int page_size_;
 
 };
 

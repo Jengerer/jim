@@ -1,7 +1,6 @@
 #ifndef BACKPACK_H
 #define BACKPACK_H
 
-#include "animated_book_view.hpp"
 #include "inventory.hpp"
 #include "slot_grid_view.hpp"
 

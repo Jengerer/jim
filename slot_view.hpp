@@ -24,23 +24,11 @@ public:
 	static const unsigned int SLOT_RADIUS    = 7;
 
 	// Initialization and construction.
-	SlotView( Slot* slot );
+	SlotView( void );
     bool initialize( void );
 
-	// Over-ridden drawing function.
-	bool update( Slot* slot );
-	virtual void update_alpha( void );
-	void draw( JUI::Graphics2D* graphics );
-
-	// Getting the slot.
-	Slot* get_slot( void ) const;
-	void set_slot( Slot* slot );
-
-	// Status functions.
-	void set_selected( bool is_selected );
-	bool is_selected( void ) const;
-	void set_enabled( bool is_enabled );
-	bool is_enabled( void ) const;
+	// Item render updating.
+	void set_item_texture( const JUI::Texture* texture );
 
 	// Precaching class-wide resources.
 	static bool precache( JUI::Graphics2D* graphics );
@@ -55,22 +43,10 @@ private:
 	static JUI::FontInterface* crate_font_;
 	static JUI::Text* crate_text_;
 
-protected:
-
-	// Item icon image.
-	JUTIL::Vector<JUI::CroppedImage*> item_images_;
-
 private:
 
-	// Rounded rectangle pointers.
 	RoundedRectangle* slot_rectangle_;
-
-	// Item icon image.
 	JUI::Image* image_;
-
-	Slot* slot_;
-	bool is_selected_;
-	bool is_enabled_;
 
 };
 

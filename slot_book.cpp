@@ -1,8 +1,7 @@
 #include "slot_book.hpp"
 
-SlotBook::SlotBook( unsigned int page_width, unsigned int page_height )
-	: page_width_( page_width ),
-	  page_height_( page_height )
+SlotBook::SlotBook( unsigned int page_size )
+	: page_size_( page_size )
 {
 }
 
@@ -11,27 +10,11 @@ SlotBook::~SlotBook( void )
 }
 
 /*
- * Get the number of slots in one row of the page.
- */
-unsigned int SlotBook::get_page_width( void ) const
-{
-	return page_width_;
-}
-
-/*
- * Get the number of slots in one column.
- */
-unsigned int SlotBook::get_page_height( void ) const
-{
-	return page_height_;
-}
-
-/*
  * Get number of slots in a single page.
  */
 unsigned int SlotBook::get_page_size( void ) const
 {
-	return page_width_ * page_height_;
+	return page_size_;
 }
 
 /*
@@ -77,4 +60,13 @@ unsigned int SlotBook::get_page_count( void ) const
 	unsigned int page_size = get_page_size();
 	unsigned int pages = (get_size() + (page_size / 2)) / page_size;
 	return pages;
+}
+
+/*
+ * Return the item from the current active page by index.
+ */
+Item* SlotBook::get_item_from_page( unsigned int page_index )
+{
+	unsigned int index = (page_size_ * active_page_) + page_index;
+	return get_item( index );
 }

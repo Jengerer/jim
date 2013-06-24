@@ -58,7 +58,7 @@ bool Notification::initialize( const JUI::Texture *texture )
     if (!JUTIL::BaseAllocator::allocate( &layout_ )) {
         return false;
     }
-    layout_ = new (layout_) JUI::HorizontalLayout( NOTIFICATION_SPACING, JUI::ALIGN_MIDDLE );
+    layout_ = new (layout_) JUI::HorizontalLayout();
     if (!add( layout_ )) {
         JUTIL::BaseAllocator::destroy( layout_ );
         return false;
@@ -101,7 +101,7 @@ bool Notification::initialize( const JUI::Texture *texture )
 void Notification::pack( void )
 {
 	// Pack layout, add padding.
-	layout_->pack();
+	layout_->pack( NOTIFICATION_SPACING, JUI::ALIGN_MIDDLE );
 	RoundedRectangleContainer::pack();
 }
 

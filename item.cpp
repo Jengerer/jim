@@ -46,7 +46,6 @@ Item::Item(
 	set_quality( quality );
 	set_count( count );
 	set_inventory_flags( inventory_flags );
-	set_index( get_position() );
 	set_origin( origin );
 	set_renamed( false );
 }
@@ -476,25 +475,6 @@ bool Item::add_texture( JUI::Texture* texture)
 }
 
 /*
- * Get the number of textures generic to this item type.
- */
-size_t Item::get_texture_count( void ) const
-{
-	return definition_->get_texture_count() + textures_.get_length();
-}
-
-/*
- * Get a texture by index.
- */
-const JUI::Texture* Item::get_texture( size_t index ) const
-{
-	if( index < definition_->get_texture_count() ){
-		return definition_->get_texture( index );
-	}
-	return textures_.get( index - definition_->get_texture_count() );
-}
-
-/*
  * Add an attribute to this item.
  */
 bool Item::add_attribute( Attribute* attribute )
@@ -503,11 +483,11 @@ bool Item::add_attribute( Attribute* attribute )
     size_t i;
     size_t length = attributes_.get_length();
     for (i = 0; i < length; ++i) {
-		Attribute* current = attributes_.get( i );
+		Attribute* current = attributes_.at( i );
 
 		// Check if we should replace.
 		if (attribute->get_index() == current->get_index()) {
-			attributes_.set( i, attribute );
+			attributes_.at( i ) = attribute;
             JUTIL::BaseAllocator::destroy( current );
 			return true;
 		}
@@ -530,7 +510,7 @@ size_t Item::get_attribute_count( void ) const
  */
 Attribute* Item::get_attribute( size_t index )
 {
-    return attributes_.get( index );
+    return attributes_.at( index );
 }
 
 /*
@@ -538,7 +518,7 @@ Attribute* Item::get_attribute( size_t index )
  */
 const Attribute* Item::get_attribute( size_t index ) const
 {
-    return attributes_.get( index );
+    return attributes_.at( index );
 }
 
 /*
@@ -568,11 +548,11 @@ bool Item::add_equipped_data( EquippedStatus* datum )
     size_t i;
     size_t length = equipped_data_.get_length();
     for (i = 0; i < length; ++i) {
-		EquippedStatus* current = equipped_data_.get( i );
+		EquippedStatus* current = equipped_data_.at( i );
 
 		// Check if we should replace.
 		if (datum->get_equip_class() == current->get_equip_class()) {
-			equipped_data_.set( i, datum );
+			equipped_data_.at( i ) = datum;
             JUTIL::BaseAllocator::destroy( current );
 			return true;
 		}
