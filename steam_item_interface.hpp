@@ -12,8 +12,8 @@ class SteamItemInterface
 public:
 
 	// Single item change functions.
-	virtual bool update_item( const Item* item ) = 0;
-	virtual bool delete_item( const Item* item ) = 0;
+	virtual bool update_item( const Item* item ) const = 0;
+	virtual bool delete_item( const Item* item ) const = 0;
 	
 	// Craft handling functions.
 	virtual bool set_craft_size( unsigned int count ) = 0;

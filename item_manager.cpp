@@ -288,18 +288,14 @@ bool ItemManager::create_resources( void )
         stack->log( "Failed to create inventory book!" );
         return false;
     }
-    inventory_book_ = new (inventory_book_) SlotBook( PAGE_WIDTH, PAGE_HEIGHT );
+    inventory_book_ = new (inventory_book_) SlotBook( PAGE_WIDTH * PAGE_HEIGHT );
 
     // Create excluded slots.
     if (!JUTIL::BaseAllocator::allocate( &excluded_book_ )) {
         stack->log( "Failed to create excluded item book!" );
         return false;
     }
-    excluded_book_ = new (excluded_book_) DynamicSlotBook( EXCLUDED_WIDTH, EXCLUDED_HEIGHT );
-    if (!excluded_book_->initialize()) {
-        stack->log( "Failed to populate excluded item book!" );
-        return false;
-    }
+    excluded_book_ = new (excluded_book_) DynamicSlotBook( EXCLUDED_WIDTH * EXCLUDED_HEIGHT );
 
 	// Create backpack.
     if (!JUTIL::BaseAllocator::allocate( &backpack_ )) {
@@ -1711,15 +1707,15 @@ bool ItemManager::create_layout( void )
         stack->log( "Failed to allocate excluded slot view." );
 		return false;
 	}
-	excluded_view_ = new (excluded_view_) SlotBookView( excluded_book_, SLOT_SPACING );
-	if (!excluded_view_->initialize() || !layout->add( excluded_view_ )) {
+	excluded_view_ = new (excluded_view_) SlotGridView();
+	if (!excluded_view_->set_grid_size( EXCLUDED_WIDTH, EXCLUDED_HEIGHT ) || !layout->add( excluded_view_ )) {
 		JUTIL::BaseAllocator::destroy( excluded_view_ );
         stack->log( "Failed to add initialized excluded view to layout." );
 		return false;
 	}
 
 	// Pack top-most layout.
-	layout->pack();
+	layout->pack( SPACING, JUI::ALIGN_LEFT );
 	int center_x = (get_width() - layout->get_width()) / 2;
 	int center_y = (get_height() - layout->get_height()) / 2;
 	layout->set_position( center_x, center_y );

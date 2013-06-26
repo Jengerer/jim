@@ -104,7 +104,7 @@ private:
 	// Application interfaces.
 	SteamItemHandler steam_items_;
 	SlotBook* inventory_book_;
-	DynamicSlotBook* excluded_book_;
+	SlotBook* excluded_book_;
 	Backpack* backpack_;
 	HttpResourceLoader* site_loader_;
 
