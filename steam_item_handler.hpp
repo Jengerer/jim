@@ -13,7 +13,7 @@ public:
 
 	// Single item change functions.
 	virtual bool update_item( const Item* item ) const;
-	virtual bool delete_item( const Item* item );
+	virtual bool delete_item( const Item* item ) const;
 
 	// Craft handling functions.
 	virtual bool set_craft_size( unsigned int count );

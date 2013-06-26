@@ -34,7 +34,7 @@ bool SteamItemHandler::update_item( const Item* item ) const
 /*
  * Delete a single item.
  */
-bool SteamItemHandler::delete_item( const Item* item )
+bool SteamItemHandler::delete_item( const Item* item ) const
 {
 	GCDelete_t message;
 	message.itemID = item->get_unique_id();

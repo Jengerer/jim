@@ -567,7 +567,7 @@ bool Item::remove_equipped_data( EEquipClass equip_class )
     size_t i;
     size_t length = equipped_data_.get_length();
     for (i = 0; i < length; ++i) {
-		EquippedStatus* current = equipped_data_.get( i );
+		EquippedStatus* current = equipped_data_.at( i );
 
 		// Check if we should remove.
 		if (current->get_equip_class() == equip_class) {
@@ -588,7 +588,7 @@ size_t Item::get_equipped_count( void ) const
 
 const EquippedStatus* Item::get_equipped_status( size_t index ) const
 {
-	return equipped_data_.get( index );
+	return equipped_data_.at( index );
 }
 
 const EquippedStatus* Item::find_equipped_status( EEquipClass equip_class ) const
@@ -596,7 +596,7 @@ const EquippedStatus* Item::find_equipped_status( EEquipClass equip_class ) cons
     size_t i;
     size_t length = equipped_data_.get_length();
     for (i = 0; i < length; ++i) {
-		EquippedStatus* current = equipped_data_.get( i );
+		EquippedStatus* current = equipped_data_.at( i );
 
 		// Check if we should remove.
 		if (current->get_equip_class() == equip_class) {
