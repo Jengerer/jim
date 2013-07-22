@@ -12,7 +12,6 @@ SlotArray::SlotArray( void )
  */
 SlotArray::~SlotArray( void )
 {
-	destroy_slots();
 }
 
 /*
@@ -24,33 +23,15 @@ bool SlotArray::set_size( unsigned int size )
 	unsigned int old_size = get_size();
 
 	// Delete slots if shrinking.
-	if (size < old_size) {
-		for (i = size; i < old_size; ++i) {
-			Slot* slot = slots_.at( i );
-			JUTIL::BaseAllocator::destroy( slot );
-		}
-		
-		if (!slots_.resize( size )) {
-			return false;
-		}
+	if (!slots_.resize( size )) {
+		return false;
 	}
-	else {
-		// Add new slots.
-		if (!slots_.reserve( size )) {
-			return false;
-		}
 
-		// Create new slots if expanding.
-		for (unsigned int i = old_size; i < size; ++i) {
-			Slot* slot;
-			if (!JUTIL::BaseAllocator::allocate( &slot )) {
-				return false;
-			}
-
-			slot = new (slot) Slot();
-			slots_.push( slot );
-		}
-	}
+    // Construct new slots.
+    for (i = old_size; i < size; ++i) {
+        Slot* slot = &slots_.at( i );
+        new (slot) Slot();
+    }
 
 	return true;
 }
@@ -68,7 +49,7 @@ unsigned int SlotArray::get_size( void ) const
  */
 void SlotArray::set_item( unsigned int index, Item* item )
 {
-	Slot* slot = slots_.at( index );
+	Slot* slot = &slots_.at( index );
 	slot->set_item( item );
 }
 
@@ -77,22 +58,15 @@ void SlotArray::set_item( unsigned int index, Item* item )
  */
 Item* SlotArray::get_item( unsigned int index )
 {
-	Slot* slot = slots_.at( index );
+	Slot* slot = &slots_.at( index );
 	return slot->get_item();
 }
  
-
 /*
  * Destroy slots.
  */
 void SlotArray::destroy_slots( void )
 {
 	// Destroy slots.
-    size_t i;
-    size_t length = get_size();
-	for (i = 0; i < length; ++i) {
-        Slot* slot = slots_.at( i );
-        JUTIL::BaseAllocator::destroy( slot );
-	}
     slots_.clear();
 }

@@ -11,13 +11,13 @@ public:
 	Slot( void );
 
 	// Item functions.
-	bool			has_item( void ) const;
-	Item*			get_item( void ) const;
-	void			set_item( Item* item );
+	bool has_item( void ) const;
+	Item* get_item( void ) const;
+	void set_item( Item* item );
 
 private:
 
-	Item*			item_;
+	Item* item_;
 
 };
 

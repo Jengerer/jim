@@ -1,14 +1,10 @@
 #include "inventory.hpp"
 
-#include <algorithm>
-
 /*
  * Inventory constructor.
  */
-Inventory::Inventory( SlotBook* book, DynamicSlotBook* excluded )
+Inventory::Inventory( void )
 {
-	set_book( book );
-	set_excluded_book( excluded );
 }
 
 /*
@@ -16,28 +12,14 @@ Inventory::Inventory( SlotBook* book, DynamicSlotBook* excluded )
  */
 Inventory::~Inventory( void )
 {
-	remove_items();
+	delete_items();
 }
 
 /*
- * Resolve item definitions after they've been loaded.
+ * Initialize the inventory to default sizes.
  */
-bool Inventory::resolve_definitions( const ItemSchema* schema, const DefinitionLoader* definition_loader )
+bool Inventory::initialize( void )
 {
-	// Resolve all items.
-	JUTIL::Set<Item*>::Iterator i;
-	for (i = items_.begin(); i.has_next(); i.next()) {
-		Item* item = i.get_value();
-		if (!schema->resolve( item )) {
-            return false;
-        }
-
-		// Add alt textures
-		if(!definition_loader->get_alt_texture( item )){
-			return false;
-		}
-	}
-    return true;
 }
 
 /*
@@ -143,18 +125,10 @@ void Inventory::remove_item( Item* item )
 /*
  * Remove all items from inventory.
  */
-void Inventory::remove_items( void )
+void Inventory::delete_items( void )
 {
 	book_->empty_slots();
 	excluded_book_->empty_slots();
-
-	// Delete all items.
-	JUTIL::Set<Item*>::Iterator i;
-	for (i = items_.begin(); i.has_next(); i.next()) {
-		Item* item = i.get_value();
-		JUTIL::BaseAllocator::destroy( item );
-	}
-	items_.clear();
 }
 
 /*

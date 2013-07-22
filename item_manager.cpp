@@ -77,16 +77,10 @@ const unsigned int ITEM_DISPLAY_SPACING	= 10;
 const DWORD FRAME_SPEED = 1000 / 60;
 
 // Inventory attributes.
-const int PAGE_WIDTH = 10;
-const int PAGE_HEIGHT = 5;
-const int PAGE_COUNT = 6;
-const int DEFAULT_PAGE_COUNT = 1;
-const int TRIAL_PAGE_COUNT = 1;
-const int EXCLUDED_WIDTH = 5;
-const int EXCLUDED_HEIGHT = 1;
-
-// Slot layout.
-const int PAGE_SPACING		= 50;
+const unsigned int PAGE_WIDTH = 10;
+const unsigned int PAGE_HEIGHT = 5;
+const unsigned int EXCLUDED_WIDTH = 5;
+const unsigned int EXCLUDED_HEIGHT = 1;
 
 // General application layout.
 const unsigned int PADDING	= 20;
@@ -469,7 +463,6 @@ bool ItemManager::running( void )
 		return false;
 	}
 	notifications_->update_notifications();
-	inventory_view_->update_view();
 	update_item_display();
     return true;
 }
@@ -494,16 +487,20 @@ JUI::IOResult ItemManager::on_mouse_clicked( JUI::Mouse* mouse )
 	}
 
 	// Find slot view if touched.
-	SlotView* slot_view = nullptr;
-	if (mouse->is_touching( inventory_view_ )) {
-		slot_view = inventory_view_->get_touching_slot( mouse );
+    unsigned int index;
+    Item* item = nullptr;
+	const SlotView* slot_view = nullptr;
+	if (inventory_view_->get_touching_index( mouse, &index )) {
+        item = inventory_book_->get_item( index );
+        slot_view = inventory_view_->get_slot_view( index );
 	}
-	else if (mouse->is_touching( excluded_view_ )) {
-		slot_view = excluded_view_->get_touching_slot( mouse );
+	else if (excluded_view_->get_touching_index( mouse, &index )) {
+        item = excluded_book_->get_item( index );
+		slot_view = excluded_view_->get_slot_view( index );
 	}
 	if (slot_view != nullptr) {
         // Handle slot clicking if slot found.
-		if (!on_slot_clicked( slot_view, mouse )) {
+		if (!on_slot_clicked( slot_view, item, mouse )) {
             return JUI::IO_RESULT_ERROR;
         }
 		return JUI::IO_RESULT_HANDLED;
@@ -688,12 +685,25 @@ JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
     return JUI::IO_RESULT_UNHANDLED;
 }
 
-bool ItemManager::on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse )
+/*
+ * Handles item slot click events.
+ *
+ * slot_view - The slot view being clicked (guaranteed non-null).
+ * item      - The item pointer if the clicked slot contains one (null otherwise).
+ * mouse     - The mouse handle for this event.
+ */
+bool ItemManager::on_slot_clicked( const SlotView* slot_view, Item* item, JUI::Mouse* mouse )
 {
     return true;
 }
 
-bool ItemManager::on_slot_released( SlotView* slot_view )
+/*
+ * Handles slot release events.
+ *
+ * slot_view - The slot view being clicked (guaranteed non-null).
+ * item      - The item pointer if the clicked slot contains one (null otherwise).
+ */
+bool ItemManager::on_slot_released( const SlotView* slot_view, Item* item )
 {
 	return true;
 }
@@ -1359,7 +1369,6 @@ bool ItemManager::handle_protobuf( uint32 id, void* message, size_t size )
 				else {
 					source = &FOUND_SOURCE;
 				}
-
 
 				JUTIL::DynamicString message;
 				if (!message.write( "You have %s a %s.", source->get_string(), item->get_name()->get_string() )) {
