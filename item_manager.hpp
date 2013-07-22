@@ -76,8 +76,8 @@ public:
     JUI::IOResult handle_button_released( JUI::Mouse* mouse );
 
 	// Slot selection handling.
-	bool on_slot_clicked( SlotView* slot_view, JUI::Mouse* mouse );
-	bool on_slot_released( SlotView* slot_view );
+	bool on_slot_clicked( const SlotView* view, Item* item, JUI::Mouse* mouse );
+	bool on_slot_released( const SlotView* view, Item* item );
 	void update_buttons( void );
 
 	// Popup handling.
@@ -104,7 +104,7 @@ private:
 	// Application interfaces.
 	SteamItemHandler steam_items_;
 	SlotBook* inventory_book_;
-	SlotBook* excluded_book_;
+	DynamicSlotBook* excluded_book_;
 	Backpack* backpack_;
 	HttpResourceLoader* site_loader_;
 

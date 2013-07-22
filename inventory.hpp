@@ -1,61 +1,53 @@
-#ifndef INVENTORY_H
-#define INVENTORY_H
+#ifndef INVENTORY_HPP
+#define INVENTORY_HPP
 
 #include "dynamic_slot_book.hpp"
 #include "item.hpp"
 #include "item_schema.hpp"
-#include "definition_loader.hpp"
 #include "slot.hpp"
 #include "slot_book.hpp"
 
 /*
  * Class that manages an inventory book and fallback slots.
+ *
+ * The main invariant that this class aims to preserve is that
+ * item positions must be the same as stored on the Steam backend.
  */
 class Inventory
 {
 public:
 
-	Inventory( SlotBook* book, DynamicSlotBook* excluded );
+	Inventory( void );
 	virtual ~Inventory( void );
 
-	// Resolving definitions.
-	bool resolve_definitions( const ItemSchema* schema, const DefinitionLoader* definition_loader );
+    // Slot book primary and secondary initialization.
+    bool initialize( void );
+    bool set_inventory_size( unsigned int slots );
 
-	// Slot vector getters.
-	const SlotBook* get_book( void ) const;
-	const DynamicSlotBook* get_excluded_book( void ) const;
+	// Slot book getters.
+	SlotBook* get_book( void );
+	DynamicSlotBook* get_excluded_book( void );
 
-	// Item handling.
+	// Inventory item query functions.
 	Item* find_item( uint64 unique_id ) const;
-	bool add_item( Item* item );
-	bool place_item( Item* item );
-	void displace_item( Item* item );
-	void move_item( Item* item, unsigned int index );
-	void remove_item( Item* item );
-	void remove_items( void );
-	bool can_place( const Item* item ) const;
+    bool can_place( const Item* item ) const;
 	bool is_excluded( const Item* item ) const;
+
+    // Item addition/removal.
+	bool add_item( Item* item );
+	bool place_item( Item* item, unsigned int index );
+    void remove_item( Item* item );
+    void delete_item( Item* item );
+	void delete_items( void );
 
 	// Excluded handling.
 	bool resolve_excluded( void );
 
-private:
-
-	// Slot book setters.
-	void set_book( SlotBook* book );
-	void set_excluded_book( DynamicSlotBook* excluded_book );
-
 protected:
 
 	// Slot arrays.
-	SlotBook* book_;
-	DynamicSlotBook* excluded_book_;
-
-private:
-
-	// Item vectors.
-	JUTIL::Set<Item*> items_;
-	JUTIL::Set<Item*> selected_;
+	SlotBook book_;
+	DynamicSlotBook excluded_book_;
 
 };
 

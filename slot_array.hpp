@@ -20,9 +20,9 @@ public:
 	// Slot management functions.
     bool set_size( unsigned int size );
 	unsigned int get_size( void ) const;
+    bool is_valid_index( unsigned int index ) const;
 
 	// Item management.
-	bool has_item( Item* item ) const;
 	void set_item( unsigned int index, Item* item );
 	Item* get_item( unsigned int index );
 
@@ -33,12 +33,8 @@ private:
 
 protected:
 
+    JUTIL::Vector<Slot> slots_;
 	SlotArrayListener* listener_;
-	JUTIL::Vector<Slot*> slots_;
-
-private:
-
-	JUTIL::Map<Item*, unsigned int> positions_;
 
 };
 
