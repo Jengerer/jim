@@ -1,5 +1,5 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef BUTTON_HPP
+#define BUTTON_HPP
 
 #include <jui/layout/container.hpp>
 #include <jui/gfx/font_interface.hpp>
@@ -19,8 +19,7 @@ public:
 	Button( int x, int y );
 
 	// Layout handling.
-    bool initialize( void );
-	JUI::Layout* get_content_layout( void ) const;
+    bool initialize( const JUTIL::String* label, const JUI::Texture* icon );
 
 	// Updating colour based on state.
 	virtual void pack( void );
@@ -39,11 +38,6 @@ public:
     // Resource loading.
 	static bool precache( JUI::Graphics2D* graphics );
 	static void release( void );
-
-    // Button creation.
-	static Button* create_icon_button( JUI::Texture *texture );
-	static Button* create_label_button( const JUTIL::String* label, JUI::FontInterface* font = default_font_ );
-	static Button* create_icon_label_button( JUI::Texture *texture, const JUTIL::String* label, JUI::FontInterface* font = default_font_ );
 
 private:
 
@@ -68,4 +62,4 @@ private:
 
 };
 
-#endif // BUTTON_H
+#endif // BUTTON_HPP

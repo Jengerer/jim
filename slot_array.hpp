@@ -25,6 +25,8 @@ public:
 	// Item management.
 	void set_item( unsigned int index, Item* item );
 	Item* get_item( unsigned int index );
+    bool remove_item( Item* item );
+    void empty_slots( void );
 
 private:
 

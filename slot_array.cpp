@@ -61,6 +61,37 @@ Item* SlotArray::get_item( unsigned int index )
 	Slot* slot = &slots_.at( index );
 	return slot->get_item();
 }
+
+/*
+ * Remove an item from the inventory if it exists.
+ * Returns true if it existed, false otherwise.
+ */
+bool SlotArray::remove_item( Item* item )
+{
+    unsigned int i;
+    unsigned int end = get_size();
+    for (i = 0; i < end; ++i) {
+        Item* other = get_item( i );
+        if (item == other) {
+            set_item( i, nullptr );
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*
+ * Empty the slots in the array.
+ */
+void SlotArray::empty_slots( void )
+{
+    unsigned int i;
+    unsigned int end = get_size();
+    for (i = 0; i < end; ++i) {
+        set_item( i, nullptr );
+    }
+}
  
 /*
  * Destroy slots.
