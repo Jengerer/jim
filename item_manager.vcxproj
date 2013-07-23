@@ -101,9 +101,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="button_manager.cpp" />
     <ClCompile Include="dynamic_slot_book.cpp" />
     <ClCompile Include="equip_status.cpp" />
     <ClCompile Include="http_resource_loader.cpp" />
+    <ClCompile Include="item_manager_view.cpp" />
     <ClCompile Include="item_schema.cpp" />
     <ClCompile Include="kill_eater_level.cpp" />
     <ClCompile Include="kill_eater_rank.cpp" />
@@ -123,7 +125,6 @@
     <ClCompile Include="slot_grid_view.cpp" />
     <ClCompile Include="slot_view.cpp" />
     <ClCompile Include="alert.cpp" />
-    <ClCompile Include="backpack.cpp" />
     <ClCompile Include="button.cpp" />
     <ClCompile Include="draggable.cpp" />
     <ClCompile Include="inventory.cpp" />
@@ -146,10 +147,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="attribute_definition.hpp" />
+    <ClInclude Include="button_event_listener.hpp" />
+    <ClInclude Include="button_manager.hpp" />
     <ClInclude Include="dynamic_slot_book.hpp" />
     <ClInclude Include="equip_status.hpp" />
     <ClInclude Include="item_definition.hpp" />
     <ClInclude Include="inventory_event_handler.hpp" />
+    <ClInclude Include="item_manager_view.hpp" />
     <ClInclude Include="item_schema.hpp" />
     <ClInclude Include="kill_eater_level.hpp" />
     <ClInclude Include="kill_eater_rank.hpp" />
@@ -171,7 +175,6 @@
     <ClInclude Include="slot.hpp" />
     <ClInclude Include="slot_grid_view.hpp" />
     <ClInclude Include="alert.hpp" />
-    <ClInclude Include="backpack.hpp" />
     <ClInclude Include="button.hpp" />
     <ClInclude Include="draggable.hpp" />
     <ClInclude Include="inventory.hpp" />

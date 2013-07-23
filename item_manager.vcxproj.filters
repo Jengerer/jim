@@ -101,9 +101,6 @@
     <ClCompile Include="inventory.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
-    <ClCompile Include="backpack.cpp">
-      <Filter>source\items</Filter>
-    </ClCompile>
     <ClCompile Include="steam_item_handler.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
@@ -157,6 +154,12 @@
     </ClCompile>
     <ClCompile Include="slot_book.cpp">
       <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="item_manager_view.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="button_manager.cpp">
+      <Filter>headers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -219,9 +222,6 @@
     </ClInclude>
     <ClInclude Include="protobuf\tf_gcmessages.pb.h">
       <Filter>headers\protobufs</Filter>
-    </ClInclude>
-    <ClInclude Include="backpack.hpp">
-      <Filter>headers\items</Filter>
     </ClInclude>
     <ClInclude Include="inventory.hpp">
       <Filter>headers\items</Filter>
@@ -303,6 +303,15 @@
     </ClInclude>
     <ClInclude Include="steam_item_interface.hpp">
       <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="item_manager_view.hpp">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="button_manager.hpp">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="button_event_listener.hpp">
+      <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -33,7 +33,7 @@ bool SlotBook::set_active_page( unsigned int page )
 		// Update as empty slot if slot index is not valid.
 		Slot* slot;
 		if (slot_index < get_size()) {
-			slot = slots_.at( slot_index );
+			slot = &slots_.at( slot_index );
 		}
 		else {
 			slot = nullptr;

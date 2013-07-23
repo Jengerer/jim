@@ -43,7 +43,7 @@ Button::Button( int x, int y ) : RoundedRectangleContainer( BUTTON_PADDING, x, y
 /*
  * Button layout management.
  */
-bool Button::initialize( void )
+bool Button::initialize( const JUTIL::String* label, const JUI::Texture* icon )
 {
     // Initialize rounded container.
     if (!RoundedRectangleContainer::initialize()) {
@@ -62,6 +62,32 @@ bool Button::initialize( void )
         return false;
     }
 
+    // Add label and icon if exist.
+    if (icon!= nullptr) {
+        JUI::Image* image;
+        if (!JUTIL::BaseAllocator::allocate( &image )) {
+            return false;
+        }
+        new (image) JUI::Image( icon );
+        if (!layout_->add( image )) {
+            JUTIL::BaseAllocator::destroy( image );
+            return false;
+        }
+    }
+    if (label != nullptr) {
+        JUI::Text* text;
+        if (!JUTIL::BaseAllocator::allocate( &text )) {
+            return false;
+        }
+        new (text) JUI::Text( default_font_ );
+        if (!layout_->add( text )) {
+            JUTIL::BaseAllocator::destroy( text );
+            return false;
+        }
+        text->set_colour( &BUTTON_FONT_COLOUR );
+	    text->set_text( label );
+    }
+
 	// Set rounded container attributes.
 	set_content( layout_ );
 
@@ -69,6 +95,7 @@ bool Button::initialize( void )
     set_enabled( true );
     set_hovering( false );
     update_button();
+    pack();
     return true;
 }
 
@@ -77,16 +104,8 @@ bool Button::initialize( void )
  */
 void Button::pack( void )
 {
-	layout_->pack();
+	layout_->pack( BUTTON_SPACING, JUI::ALIGN_MIDDLE );
 	RoundedRectangleContainer::pack();
-}
-
-/*
- * Get a handle to the button's content layout object.
- */
-JUI::Layout* Button::get_content_layout( void ) const
-{
-	return layout_;
 }
 
 /*
@@ -218,115 +237,5 @@ Button* Button::create_generic_button( void )
 		return nullptr;
 	}
 
-	return button;
-}
-
-/*
- * Create icon button given a texture.
- */
-Button* Button::create_icon_button( JUI::Texture* texture )
-{
-    // Start with generic button.
-    Button* button = create_generic_button();
-    if (button == nullptr) {
-        return nullptr;
-    }
-	JUI::Layout* layout = button->get_content_layout();
-
-    // Create image.
-    JUI::Image* icon;
-    if (!JUTIL::BaseAllocator::allocate( &icon )) {
-        JUTIL::BaseAllocator::destroy( button );
-        return nullptr;
-    }
-    icon = new (icon) JUI::Image( texture );
-	if (!layout->add( icon ))
-    {
-        JUTIL::BaseAllocator::destroy( icon );
-        JUTIL::BaseAllocator::destroy( button );
-        return nullptr;
-    }
-
-    // Pack and return.
-	button->pack();
-	return button;
-}
-
-/*
- * Create a button with a label.
- */
-Button* Button::create_label_button( const JUTIL::String* label, JUI::FontInterface* font )
-{
-    // Start with generic button.
-    Button* button = create_generic_button();
-    if (button == nullptr) {
-        return nullptr;
-    }
-	JUI::Layout* layout = button->get_content_layout();
-
-    // Create label.
-    JUI::Text *text;
-    if (!JUTIL::BaseAllocator::allocate( &text )) {
-        JUTIL::BaseAllocator::destroy( button );
-        return nullptr;
-    }
-    text = new (text) JUI::Text( font );
-	text->set_colour( &BUTTON_FONT_COLOUR );
-	text->set_text( label );
-	if (!layout->add( text ))
-    {
-        JUTIL::BaseAllocator::destroy( text );
-        JUTIL::BaseAllocator::destroy( button );
-        return nullptr;
-    }
-
-    // Pack and return.
-	button->pack();
-	return button;
-}
-
-/*
- * Create button with both icon and label.
- */
-Button* Button::create_icon_label_button( JUI::Texture* texture, const JUTIL::String* label, JUI::FontInterface* font )
-{
-    // Start with generic button.
-    Button* button = create_generic_button();
-    if (button == nullptr) {
-        return nullptr;
-    }
-	JUI::Layout* layout = button->get_content_layout();
-
-    // Create image.
-    JUI::Image* icon;
-    if (!JUTIL::BaseAllocator::allocate( &icon )) {
-        JUTIL::BaseAllocator::destroy( button );
-        return nullptr;
-    }
-    icon = new (icon) JUI::Image( texture );
-	if (!layout->add( icon )) {
-        JUTIL::BaseAllocator::destroy( icon );
-        JUTIL::BaseAllocator::destroy( button );
-        return nullptr;
-    }
-    icon->set_size( BUTTON_ICON_SIZE, BUTTON_ICON_SIZE );
-
-    // Create label.
-    JUI::Text *text;
-    if (!JUTIL::BaseAllocator::allocate( &text )) {
-        JUTIL::BaseAllocator::destroy( button );
-        return nullptr;
-    }
-    text = new (text) JUI::Text( font );
-	text->set_colour( &BUTTON_FONT_COLOUR );
-	text->set_text( label );
-	if (!layout->add( text )) {
-        JUTIL::BaseAllocator::destroy( text );
-        JUTIL::BaseAllocator::destroy( button );
-        return nullptr;
-    }
-
-    // Pack and return.
-	button->pack();
 	return button;
 }

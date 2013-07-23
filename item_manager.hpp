@@ -2,12 +2,12 @@
 #define ITEM_MANAGER_HPP
 
 #include "alert.hpp"
-#include "backpack.hpp"
 #include "button.hpp"
 #include "definition_loader.hpp"
 #include "dragged_slot_view.hpp"
 #include "dynamic_slot_book.hpp"
 #include "http_resource_loader.hpp"
+#include "inventory.hpp"
 #include "ipopup_handler.hpp"
 #include "item_display.hpp"
 #include "item_schema.hpp"
@@ -17,13 +17,11 @@
 #include "popup_display.hpp"
 #include "steam_item_handler.hpp"
 #include "slot_book.hpp"
-
+#include "slot_grid_view.hpp"
 #include <jui/application/application.hpp>
 #include <jui/layout/horizontal_split_layout.hpp>
 #include <jui/layout/vertical_layout.hpp>
-
 #include <containers/vector.hpp>
-
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
@@ -33,7 +31,7 @@ class ItemManager: public JUI::Application, public IPopupHandler
 public:
 
 	ItemManager( HINSTANCE instance );
-	virtual ~ItemManager();
+	virtual ~ItemManager( void );
 
 	// Starting up.
 	virtual JUI::Application::ReturnStatus initialize( void );
@@ -92,10 +90,6 @@ public:
 
 private:
 
-	// Layout handling.
-	bool create_layout( void );
-	bool create_layers( void );
-
     // Item management.
     Item* create_item_from_message( CSOEconItem* item );
 
@@ -103,24 +97,16 @@ private:
 
 	// Application interfaces.
 	SteamItemHandler steam_items_;
-	SlotBook* inventory_book_;
-	DynamicSlotBook* excluded_book_;
-	Backpack* backpack_;
 	HttpResourceLoader* site_loader_;
 
-    // Item definitions.
+    // Inventory and item members.
+    SlotBook inventory_book_;
+	DynamicSlotBook excluded_book_;
+	Inventory inventory_;
     ItemSchema schema_;
 
 	// Display layers.
 	Container* user_layer_;
-
-	// User interface members.
-	SlotGridView* inventory_view_;
-	SlotGridView* excluded_view_;
-	Button* craft_button_;
-	Button* equip_button_;
-	Button* sort_button_;
-	Button* delete_button_;
 
 	// Page handling members.
 	JUI::WrappedText* page_display_;
@@ -128,7 +114,6 @@ private:
 	Button* next_button_;
 
 	// Item selection handling.
-	DraggedSlotView* dragged_view_;
 	DWORD page_delay_;
 
 	// Running think function.
@@ -136,27 +121,6 @@ private:
 
 	// Threaded loader for resources.
 	DefinitionLoader* definition_loader_;
-
-	// Top-level fonts.
-	JUI::FontInterface* title_font_;
-	JUI::FontInterface* page_font_;
-
-	// Popup manager.
-	PopupDisplay* popups_;
-
-	// Display for item information.
-	ItemDisplay* item_display_;
-
-	// Information notifications.
-	NotificationQueue* notifications_;
-
-	// Popups.
-	Alert* alert_;
-	Alert* error_;
-	bool update_error_;
-	Notice* load_progress_;
-	Confirmation* craft_check_;
-	Confirmation* delete_check_;
 
 };
 

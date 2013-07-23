@@ -15,39 +15,38 @@
  */
 class Inventory
 {
+
 public:
 
-	Inventory( void );
+	Inventory( SlotBook* book, DynamicSlotBook* excluded );
 	virtual ~Inventory( void );
 
-    // Slot book primary and secondary initialization.
-    bool initialize( void );
+    // Slot book management.
     bool set_inventory_size( unsigned int slots );
 
-	// Slot book getters.
-	SlotBook* get_book( void );
-	DynamicSlotBook* get_excluded_book( void );
-
-	// Inventory item query functions.
+	// Item query functions.
 	Item* find_item( uint64 unique_id ) const;
-    bool can_place( const Item* item ) const;
-	bool is_excluded( const Item* item ) const;
+    Item* get_inventory_item( unsigned int index ) const;
+    Item* get_excluded_item( unsigned int index ) const;
 
     // Item addition/removal.
 	bool add_item( Item* item );
+    bool can_place( const Item* item ) const;
 	bool place_item( Item* item, unsigned int index );
+    void displace_item( Item* item );
     void remove_item( Item* item );
-    void delete_item( Item* item );
-	void delete_items( void );
+	void remove_items( void );
+    void delete_items( void );
 
 	// Excluded handling.
 	bool resolve_excluded( void );
 
-protected:
+private:
 
 	// Slot arrays.
-	SlotBook book_;
-	DynamicSlotBook excluded_book_;
+	SlotBook* book_;
+	DynamicSlotBook* excluded_;
+    JUTIL::Vector<Item*> items_;
 
 };
 

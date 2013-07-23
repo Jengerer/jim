@@ -11,8 +11,7 @@ public:
 	DynamicSlotBook( unsigned int page_size );
 
 	// Dynamic slot management.
-	bool has_empty_slot( void ) const;
-	unsigned int get_empty_slot_index( void ) const;
+    bool push_item( Item* item );
 	bool compress_slots( void );
 
 };
