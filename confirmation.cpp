@@ -12,8 +12,8 @@ const JUTIL::ConstantString NO_BUTTON_LABEL = "no";
  * Confirmation constructor.
  */
 Confirmation::Confirmation( void )
+    : response_( RESPONSE_NULL )
 {
-    response_ = RESPONSE_NULL;
 }
 
 /*
@@ -28,53 +28,40 @@ Confirmation::~Confirmation( void )
  */
 bool Confirmation::initialize( const JUTIL::String* question )
 {
-    // Base notice initialization.
-    if (!Notice::initialize( question ))
-    {
+    // Base button notice initialization.
+    if (!ButtonNotice::initialize( question )) {
+        return false;
+    }
+
+    // Create layout for buttons.
+	JUI::HorizontalLayout* buttons;
+    if (!JUTIL::BaseAllocator::allocate( &buttons )) {
+        return false;
+    }
+    new (buttons) JUI::HorizontalLayout();
+    if (!layout_->add( buttons )) {
+        JUTIL::BaseAllocator::destroy( buttons );
         return false;
     }
 
     // Create response buttons.
-	yes_ = Button::create_label_button( &YES_BUTTON_LABEL);
+    yes_ = button_manager_.create( &YES_BUTTON_LABEL, nullptr );
     if (yes_ == nullptr) {
         return false;
     }
-
-	no_ = Button::create_label_button( &NO_BUTTON_LABEL );
+    if (!buttons->add( yes_ )) {
+        JUTIL::BaseAllocator::destroy( yes_ );
+        return false;
+    }
+	no_ = button_manager_.create( &NO_BUTTON_LABEL, nullptr );
     if (no_ == nullptr) {
-        JUTIL::BaseAllocator::destroy( yes_ );
         return false;
     }
-	
-	// Create layout for buttons.
-	JUI::HorizontalLayout* layout;
-    if (!JUTIL::BaseAllocator::allocate( &layout )) {
-        JUTIL::BaseAllocator::destroy( yes_ );
-        JUTIL::BaseAllocator::destroy( no_ );
-        return false;
-    }
-    layout = new (layout) JUI::HorizontalLayout( BUTTON_SPACING );
-    if (!content_->add( layout )) {
-        JUTIL::BaseAllocator::destroy( yes_ );
-        JUTIL::BaseAllocator::destroy( no_ );
-        JUTIL::BaseAllocator::destroy( layout );
-        return false;
-    }
-
-    // Add buttons to layout.
-	if (!layout->add( yes_ )) {
-        JUTIL::BaseAllocator::destroy( yes_ );
-        JUTIL::BaseAllocator::destroy( no_ );
-        return false;
-    }
-    else if (!layout->add( no_ )) {
+    if (!buttons->add( no_ )) {
         JUTIL::BaseAllocator::destroy( no_ );
         return false;
     }
 
-	// Pack it up!
-    layout->pack();
-    pack();
     return true;
 }
 
@@ -88,34 +75,16 @@ ConfirmationResponse Confirmation::get_response( void ) const
 }
 
 /*
- * Trigger response based on which button pressed.
+ * Handle button release event.
  */
-JUI::IOResult Confirmation::on_mouse_released( JUI::Mouse* mouse )
+bool Confirmation::on_button_released( Button* button )
 {
-	// Set response based on button clicked.
-	if (yes_->on_mouse_released( mouse )) {
-		response_ = RESPONSE_YES;
-	}
-	else if (no_->on_mouse_released( mouse )) {
-		response_ = RESPONSE_NO;
-	}
-	else {
-		// No button pressed, but still handled.
-		return Notice::on_mouse_released( mouse );
-	}
-
-	// Responded.
-	set_state( POPUP_STATE_KILLED );
-	return JUI::IO_RESULT_HANDLED;
-}
-
-/*
- * Hover over response buttons.
- */
-JUI::IOResult Confirmation::on_mouse_moved( JUI::Mouse* mouse )
-{
-	// Notify buttons.
-	yes_->on_mouse_moved( mouse );
-	no_->on_mouse_moved( mouse );
-	return Notice::on_mouse_moved( mouse );
+    assert( button == yes_button_ || button == no_button_ );
+    if (button == yes_button_) {
+        response_ = RESPONSE_YES;
+    }
+    else {
+        response_ = RESPONSE_NO;
+    }
+    set_state( POPUP_STATE_KILLED );
 }

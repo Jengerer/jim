@@ -18,12 +18,9 @@ public:
 
 	// Layout management.
     virtual bool initialize( const JUTIL::String* message );
-	virtual void pack( void );
 
 	// Message handling.
-	const JUTIL::String* get_message( void ) const;
-    bool set_message( const JUTIL::String* message );
-	bool append_message( const JUTIL::String* message );
+    void set_message( const JUTIL::String* message );
 
 	// Loading class-wide resources.
 	static bool precache( JUI::Graphics2D* graphics );
@@ -34,15 +31,10 @@ protected:
 	// Class-wide texture and font.
 	static JUI::FontInterface* font_;
 
-    // Class-family layout member.
-    JUI::VerticalLayout* content_;
-
 private:
 
     // Notice layout members.
-	RoundedRectangleContainer* rounded_container_;
 	JUI::WrappedText* text_;
-	JUTIL::DynamicString message_;
 
 };
 

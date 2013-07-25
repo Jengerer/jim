@@ -161,6 +161,9 @@
     <ClCompile Include="button_manager.cpp">
       <Filter>headers</Filter>
     </ClCompile>
+    <ClCompile Include="button_notice.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protobuf\base_gcmessages.pb.h">
@@ -247,9 +250,6 @@
     <ClInclude Include="popup_display.hpp">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="ipopup_handler.hpp">
-      <Filter>headers\ui</Filter>
-    </ClInclude>
     <ClInclude Include="http_resource_loader.hpp">
       <Filter>headers</Filter>
     </ClInclude>
@@ -312,6 +312,12 @@
     </ClInclude>
     <ClInclude Include="button_event_listener.hpp">
       <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="button_notice.hpp">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_handler.hpp">
+      <Filter>headers\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

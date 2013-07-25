@@ -22,7 +22,7 @@ PopupDisplay::PopupDisplay( int x, int y ) : Container( x, y )
 /*
  * Sets the interface to call when popup events occur.
  */
-void PopupDisplay::set_popup_handler( IPopupHandler* handler )
+void PopupDisplay::set_popup_handler( PopupHandler* handler )
 {
 	handler_ = handler;
 }
@@ -107,149 +107,156 @@ bool PopupDisplay::add_popup( Popup* popup )
 void PopupDisplay::hide_popup( Popup* popup )
 {
 	// Remove from list.
-	auto i = find( popups_.begin(), popups_.end(), popup );
-	if (i == popups_.end()) {
-		throw std::runtime_error( "Tried to remove popup that didn't exist." );
-	}
-	popups_.erase( i );
-
-	// Remove from container.
+    popups_.remove( popup );
 	remove( popup );
 }
 
-void PopupDisplay::remove_popup( Popup* popup )
+void PopupDisplay::delete_popup( Popup* popup )
 {
-	// Full removal.
+	// Full destructive remove.
 	hide_popup( popup );
 	JUTIL::BaseAllocator::destroy( popup );
 };
 
+/*
+ * Pass mouse click event to top popup if one exists.
+ */
 JUI::IOResult PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {
 		Popup* top = get_top_popup();
 
-		// Send the popup the message.
-		if (top->on_mouse_clicked( mouse )) {
-			// Pass to handler.
-			if (handler_ != nullptr) {
-				handler_->on_popup_clicked( top );
-			}
+        // Pass message to popup.
+        JUI::IOResult result = top->on_mouse_clicked( mouse );
+        if (result == JUI::IO_RESULT_HANDLED) {
+            if (!handle_popup_state( top )) {
+                return JUI::IO_RESULT_ERROR;
+            }
+        }
 
-			// Remove if killed/hidden.
-			handle_popup_state( top );
-		}
-
-        return JUI::IO_RESULT_HANDLED;
+        return result;
 	}
 
     return JUI::IO_RESULT_UNHANDLED;
 }
 
-JUI::IOResult PopupDisplay::on_mouse_released( JUI::Mouse* mouse )
+/*
+ * Pass mouse release event to top popup if one exists.
+ */
+JUI::IOResult PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {
 		Popup* top = get_top_popup();
 
-		// Send the popup the message.
-		JUI::IOResult result = top->on_mouse_released( mouse );
-		if (result == JUI::IO_RESULT_HANDLED) {
-			// Pass to handler.
-			if (handler_ != nullptr) {
-				if (!handler_->on_popup_released( top )) {
-					return JUI::IO_RESULT_ERROR;
-				}
-			}
+        // Pass message to popup.
+        JUI::IOResult result = top->on_mouse_released( mouse );
+        if (result == JUI::IO_RESULT_HANDLED) {
+            if (!handle_popup_state( top )) {
+                return JUI::IO_RESULT_ERROR;
+            }
+        }
 
-			// Check if we should remove popup.
-			handle_popup_state( top );
-		}
-
-		return JUI::IO_RESULT_HANDLED;
+        return result;
 	}
 
     return JUI::IO_RESULT_UNHANDLED;
 }
 
+/*
+ * Pass mouse movement event to top popup if one exists.
+ */
 JUI::IOResult PopupDisplay::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {
 		Popup* top = get_top_popup();
-		return top->on_mouse_moved( mouse );
+		JUI::IOResult result = top->on_mouse_moved( mouse );
+        return result;
 	}
 
 	// Always let other components get movement.
     return JUI::IO_RESULT_UNHANDLED;
 }
 
+/*
+ * Pass key pressed event to top popup if one exists.
+ */
 JUI::IOResult PopupDisplay::on_key_pressed( int key )
 {
 	// Check list front.
 	if (has_popup()) {
 		Popup* top = get_top_popup();
-		
-		// Send popup the message.
-		if (top->on_key_pressed( key )) {
-			// Pass to handler.
-			if (handler_ != nullptr) {
-				handler_->on_popup_key_pressed( top );
-			}
-
-			// Check if we should remove popup.
-			handle_popup_state( top );
+        JUI::IOResult result = top->on_key_pressed( key );
+        if (result == JUI::IO_RESULT_HANDLED) {
+            if (!handle_popup_state( top )) {
+                return JUI::IO_RESULT_ERROR;
+            }
 		}
 
-		return JUI::IO_RESULT_HANDLED;
+		return result;
 	}
 
     return JUI::IO_RESULT_UNHANDLED;
 }
 
-JUI::IOResult PopupDisplay::on_key_released( int key )
+/*
+ * Pass key released event to top popup if one exists.
+ */
+JUI::IOResult PopupDisplay::on_key_pressed( int key )
 {
 	// Check list front.
 	if (has_popup()) {
 		Popup* top = get_top_popup();
-
-		// Send popup the message.
-		if (top->on_key_released( key )) {
-			// Pass to handler.
-			if (handler_ != nullptr) {
-				handler_->on_popup_key_released( top );
-			}
-
-			// Check if we should remove popup.
-			handle_popup_state( top );
+        JUI::IOResult result = top->on_key_pressed( key );
+        if (result == JUI::IO_RESULT_HANDLED) {
+            if (!handle_popup_state( top )) {
+                return JUI::IO_RESULT_ERROR;
+            }
 		}
 
-		return JUI::IO_RESULT_HANDLED;
+		return result;
 	}
 
     return JUI::IO_RESULT_UNHANDLED;
 }
 
+/*
+ * Returns a pointer to the most relevant popup.
+ */
 Popup* PopupDisplay::get_top_popup( void ) const
 {
 	return popups_.front();
 }
 
+/*
+ * Returns whether a popup exists in this display.
+ */
 bool PopupDisplay::has_popup( void ) const
 {
 	return !popups_.empty();
 }
 
-void PopupDisplay::handle_popup_state( Popup* popup )
+/*
+ * Handle a possible change in popup state.
+ * Returns true if handling successful, false otherwise.
+ */
+bool PopupDisplay::handle_popup_state( Popup* popup )
 {
 	// Check if we should remove popup.
 	switch (popup->get_state()) {
-	case POPUP_STATE_KILLED: // Intentional overflow.
-		remove_popup( popup );
+	case POPUP_STATE_KILLED:
+        if (!handler_->on_popup_killed( popup )) {
+            return false;
+        }
+		delete_popup( popup );
 		break;
 	case POPUP_STATE_HIDDEN:
 		hide_popup( popup );
 		break;
 	}
+
+    // Nothing bad happened, return success.
+    return true;
 }

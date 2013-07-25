@@ -2,9 +2,7 @@
 #define CONFIRMATION_H
 
 #include <jui/io/mouse.hpp>
-
-#include "notice.hpp"
-#include "button.hpp"
+#include "button_notice.hpp"
 
 enum ConfirmationResponse
 {
@@ -17,7 +15,7 @@ enum ConfirmationResponse
  * UI object that will ask the user a boolean question and return
  * response when polled/killed.
  */
-class Confirmation: public Notice
+class Confirmation: public ButtonNotice
 {
 
 public:
@@ -29,17 +27,16 @@ public:
     virtual bool initialize( const JUTIL::String* question );
 
     // Get response on button press.
-	ConfirmationResponse	get_response( void ) const;
+	ConfirmationResponse get_response( void ) const;
 
-    // Mouse handling functions.
-	virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
-	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
+    // Button release event handling.
+    virtual bool on_button_released( Button* button );
 
 private:
 
 	ConfirmationResponse response_;
-	Button* yes_;
-	Button* no_;
+	Button* yes_button_;
+	Button* no_button_;
 
 };
 

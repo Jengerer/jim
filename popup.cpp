@@ -1,17 +1,24 @@
 #include "popup.hpp"
 
+// Popup UI constants.
+const unsigned int POPUP_PADDING = 20;
+const unsigned int POPUP_CORNER_RADIUS = 5;
+const unsigned int POPUP_STROKE_WIDTH = 5;
+const unsigned int POPUP_CONTENT_SPACING = 10;
+const JUI::Colour POPUP_STROKE_COLOUR( 255, 255, 255, 100 );
+const JUI::Colour* POPUP_COLOUR = &JUI::COLOUR_BLACK;
+
 /*
  * Default popup constructor.
  */
-Popup::Popup( void )
+Popup::Popup( void ) : RoundedRectangleContainer( POPUP_PADDING )
 {
 }
 
 /*
  * Popup constructor with default position.
  */
-Popup::Popup( int x, int y )
-    : JUI::ConstrainedContainer( x, y )
+Popup::Popup( int x, int y ) : RoundedRectangleContainer( POPUP_PADDING, x, y )
 {
 }
 
@@ -24,9 +31,47 @@ Popup::~Popup( void )
 }
 
 /*
+ * Popup initialization.
+ * No pack should be done in this or derived initialization methods.
+ */
+bool Popup::initialize( void )
+{
+    // Initialize rounded container.
+    if (!RoundedRectangleContainer::initialize()) {
+        return false;
+    }
+
+    // Create layout to store in rounded rectangle.
+    if (!JUTIL::BaseAllocator::allocate( &layout_ )) {
+        return false;
+    }
+    new (layout_) JUI::VerticalLayout();
+    if (!add( layout_ )) {
+        JUTIL::BaseAllocator::destroy( layout_ );
+        return false;
+    }
+        
+    // Style rounded rectangle.
+    RoundedRectangle* rounded_rect = get_rounded_rectangle();
+    rounded_rect->set_radius( POPUP_CORNER_RADIUS );
+	rounded_rect->set_stroke( POPUP_STROKE_WIDTH, &POPUP_STROKE_COLOUR );
+	rounded_rect->set_stroke_type( STROKE_TYPE_OUTER );
+	rounded_rect->set_colour( POPUP_COLOUR );
+}
+
+/*
+ * Pack the popup layout.
+ */
+void Popup::pack( void )
+{
+    layout_->pack( POPUP_CONTENT_SPACING, JUI::ALIGN_CENTER );
+    RoundedRectangleContainer::pack();
+}
+
+/*
  * Set popup state.
  */
-void Popup::set_state( EPopupState state )
+void Popup::set_state( PopupState state )
 {
 	state_ = state;
 }
@@ -34,7 +79,7 @@ void Popup::set_state( EPopupState state )
 /*
  * Get popup state.
  */
-EPopupState Popup::get_state( void ) const
+PopupState Popup::get_state( void ) const
 {
 	return state_;
 }
