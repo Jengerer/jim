@@ -1,20 +1,19 @@
 #ifndef POPUP_H
 #define POPUP_H
 
-#include <jui/layout/container.hpp>
 #include <jui/io/mouse_handler_interface.hpp>
 #include <jui/io/keyboard_handler_interface.hpp>
+#include <jui/layout/vertical_layout.hpp>
+#include "rounded_rectangle_container.hpp"
 
-#include "draggable.hpp"
-
-enum EPopupState
+enum PopupState
 {
 	POPUP_STATE_ACTIVE,
 	POPUP_STATE_HIDDEN,
 	POPUP_STATE_KILLED,
 };
 
-class Popup: public JUI::ConstrainedContainer, public JUI::MouseHandlerInterface, public JUI::KeyboardHandlerInterface
+class Popup: public RoundedRectangleContainer, public JUI::MouseHandlerInterface, public JUI::KeyboardHandlerInterface
 {
 public:
 
@@ -22,14 +21,18 @@ public:
 	Popup( int x, int y );
 	virtual ~Popup( void );
 
-	// Get activity state.
-	void set_state( EPopupState state );
-	EPopupState get_state( void ) const;
+    // UI initialization.
+    bool initialize( void );
+    virtual void pack( void );
 
-	// JUI::Mouse* handling.
+	// Get activity state.
+	void set_state( PopupState state );
+	PopupState get_state( void ) const;
+
+	// Mouse event handling.
+    virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
 	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
 	virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
-	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
 
 	// Keyboard handling.
 	virtual JUI::IOResult on_key_pressed( int key_code );
@@ -38,9 +41,15 @@ public:
 	// Position alignment.
 	void center_to( const Container* parent );
 
+protected:
+
+    // UI layout variables.
+    JUI::VerticalLayout* layout_;
+
 private:
 
-	EPopupState state_;
+    // Popup active state.
+	PopupState state_;
 
 };
 

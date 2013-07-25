@@ -1,13 +1,11 @@
-#ifndef ALERT_H
-#define ALERT_H
+#ifndef ALERT_HPP
+#define ALERT_HPP
 
 #include <jui/layout/container.hpp>
 #include <jui/io/mouse.hpp>
+#include "button_notice.hpp"
 
-#include "button.hpp"
-#include "notice.hpp"
-
-class Alert: public Notice
+class Alert: public ButtonNotice
 {
 
 public:
@@ -17,20 +15,17 @@ public:
 
     // Layout management.
     virtual bool initialize( const JUTIL::String* message );
-	const Button* get_button( void ) const;
 
 	// Keyboard handling.
 	virtual JUI::IOResult on_key_released( int key );
 
-	// JUI::Mouse* handling.
-	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
-	virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
-	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
+    // Alert OK button event handlers.
+    virtual bool on_button_released( Button* button );
 
 private:
 
-	Button* ok_;
+	Button* ok_button_;
 
 };
 
-#endif // ALERT_H
+#endif // ALERT_HPP

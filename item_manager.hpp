@@ -108,11 +108,6 @@ private:
 	// Display layers.
 	Container* user_layer_;
 
-	// Page handling members.
-	JUI::WrappedText* page_display_;
-	Button* prev_button_;
-	Button* next_button_;
-
 	// Item selection handling.
 	DWORD page_delay_;
 

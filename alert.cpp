@@ -23,31 +23,20 @@ Alert::~Alert( void )
 bool Alert::initialize( const JUTIL::String* message )
 {
     // Create notice.
-    if (!Notice::initialize( message ))
-    {
+    if (!ButtonNotice::initialize( message )) {
         return false;
     }
 
     // Make OK button.
-    ok_ = Button::create_label_button( &OKAY_BUTTON_LABEL );
-    if (ok_ == nullptr) {
+    ok_button_ = button_manager_.create( &OKAY_BUTTON_LABEL, nullptr );
+    if (ok_button_ == nullptr) {
         return false;
     }
-    if (!content_->add( ok_ ))
-    {
-        JUTIL::BaseAllocator::destroy( ok_ );
+    if (!layout_->add( ok_button_ )) {
+        JUTIL::BaseAllocator::destroy( ok_button_ );
         return false;
     }
-    pack();
     return true;
-}
-
-/*
- * Get handle to alert button.
- */
-const Button* Alert::get_button( void ) const
-{
-	return ok_;
 }
 
 /*
@@ -65,37 +54,12 @@ JUI::IOResult Alert::on_key_released( int key )
 }
 
 /*
- * Hover over button.
+ * Handle OK button release event to change alert state.
  */
-JUI::IOResult Alert::on_mouse_moved( JUI::Mouse* mouse )
+bool Alert::on_button_released( Button* button )
 {
-	// Parent behaviour.
-	JUI::IOResult result = ok_->on_mouse_moved( mouse );
-	if (result != JUI::IO_RESULT_UNHANDLED) {
-		return result;
-	}
-
-	return Notice::on_mouse_moved( mouse );
-}
-
-/*
- * Click on button.
- */
-JUI::IOResult Alert::on_mouse_clicked( JUI::Mouse* mouse )
-{
-	return Notice::on_mouse_clicked( mouse );
-}
-
-/*
- * Release on button.
- */
-JUI::IOResult Alert::on_mouse_released( JUI::Mouse* mouse )
-{
-    // Set to killed if okay pressed.
-	JUI::IOResult result = ok_->on_mouse_released( mouse );
-	if (result == JUI::IO_RESULT_HANDLED) {
-		set_state( POPUP_STATE_KILLED );
-	}
-
-	return JUI::IO_RESULT_HANDLED;
+    // We expect that the button pressed is the only one; OK...
+    assert( button == ok_button_ );
+    set_state( POPUP_STATE_KILLED );
+    return true;
 }

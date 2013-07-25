@@ -386,6 +386,7 @@ bool ItemManager::loading( void )
 					stack->log( "Failed to set progress message for loader." );
 					return false;
 				}
+                load_progress_->pack();
 				load_progress_->center_to( this );
 				break;
 			}
@@ -892,6 +893,7 @@ bool ItemManager::start_definition_load( void )
 	// Set the message and redraw.
     const JUTIL::ConstantString LOADING_DEFINITION_MESSAGE = "Loading item definitions...";
 	load_progress_->set_message( &LOADING_DEFINITION_MESSAGE );
+    load_progress_->pack();
 
 	// Set up loader.
     // TODO: Don't need to allocate this; can use the "done" flag in loader instead of checking pointer null.

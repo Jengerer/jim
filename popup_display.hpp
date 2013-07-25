@@ -1,16 +1,14 @@
-#ifndef POPUP_DISPLAY_H
-#define POPUP_DISPLAY_H
+#ifndef POPUP_DISPLAY_HPP
+#define POPUP_DISPLAY_HPP
 
 #include <list>
 #include <string/constant_string.hpp>
-
 #include <jui/layout/container.hpp>
 #include <jui/io/keyboard_handler_interface.hpp>
 #include <jui/io/mouse_handler_interface.hpp>
-
 #include "alert.hpp"
 #include "confirmation.hpp"
-#include "ipopup_handler.hpp"
+#include "popup_handler.hpp"
 #include "notice.hpp"
 
 class PopupDisplay: public JUI::Container, public JUI::MouseHandlerInterface, public JUI::KeyboardHandlerInterface
@@ -22,7 +20,7 @@ public:
 	PopupDisplay( int x, int y );
 
 	// Set-up.
-	void set_popup_handler( IPopupHandler* handler );
+	void set_popup_handler( PopupHandler* handler );
 
 	// Popup creators.
 	Notice* create_notice( const JUTIL::String* message );
@@ -30,12 +28,12 @@ public:
 	Confirmation* create_confirmation( const JUTIL::String* question );
 
 	// Popup handling.
-	bool	has_popup( void ) const;
-	bool    add_popup( Popup* popup );
-	void	hide_popup( Popup* popup );
-	void	remove_popup( Popup* popup );
+	bool has_popup( void ) const;
+	bool add_popup( Popup* popup );
+	void hide_popup( Popup* popup );
+	void delete_popup( Popup* popup );
 	
-	// JUI::Mouse* handling for popups.
+	// Mouse handling for popups.
 	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
 	virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
 	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
@@ -46,14 +44,15 @@ public:
 
 private:
 
-	Popup*	get_top_popup( void ) const;
-	void	handle_popup_state( Popup* popup );
+    // Popup stack handling.
+	Popup* get_top_popup( void ) const;
+	bool handle_popup_state( Popup* popup );
 
 private:
 	
 	std::list<Popup*> popups_;
-	IPopupHandler* handler_;
+	PopupHandler* handler_;
 
 };
 
-#endif // POPUP_DISPLAY_H
+#endif // POPUP_DISPLAY_HPP

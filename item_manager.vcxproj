@@ -102,6 +102,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="button_manager.cpp" />
+    <ClCompile Include="button_notice.cpp" />
     <ClCompile Include="dynamic_slot_book.cpp" />
     <ClCompile Include="equip_status.cpp" />
     <ClCompile Include="http_resource_loader.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="attribute_definition.hpp" />
     <ClInclude Include="button_event_listener.hpp" />
     <ClInclude Include="button_manager.hpp" />
+    <ClInclude Include="button_notice.hpp" />
     <ClInclude Include="dynamic_slot_book.hpp" />
     <ClInclude Include="equip_status.hpp" />
     <ClInclude Include="item_definition.hpp" />
@@ -165,7 +167,7 @@
     <ClInclude Include="attribute.hpp" />
     <ClInclude Include="confirmation.hpp" />
     <ClInclude Include="dragged_slot_view.hpp" />
-    <ClInclude Include="ipopup_handler.hpp" />
+    <ClInclude Include="popup_handler.hpp" />
     <ClInclude Include="popup_display.hpp" />
     <ClInclude Include="protobuf\tf_gcmessages.pb.h" />
     <ClInclude Include="slot_array_listener.hpp" />

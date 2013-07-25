@@ -8,23 +8,32 @@
 /*
  * Button event management class.
  */
-class ButtonManager : public JUI::MouseList
+class ButtonManager : public JUI::MouseHandlerInterface
 {
 
 public:
 
-    ButtonManager( ButtonEventListener* listener );
+    ButtonManager( void );
     ~ButtonManager( void );
 
+    // Button event management functions.
+    void set_event_listener( ButtonEventListener* listener );
+
     // Button creation.
-    Button* create_button( const JUTIL::String* label, const JUI::Texture* icon );
+    Button* create( const JUTIL::String* label, const JUI::Texture* icon );
 
     // Button management starting/ending.
-    bool add_button( Button* button );
-    void remove_button( Button* button );
+    bool add( Button* button );
+    bool remove( Button* button );
+
+    // Mouse handler functions.
+    virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
+    virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
+    virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
 
 private:
 
+    Button* clicked_;
     JUTIL::Vector<Button*> buttons_;
     ButtonEventListener* listener_;
 
