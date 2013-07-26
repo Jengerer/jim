@@ -1,7 +1,7 @@
 #ifndef RESOURCE_LOADER_INTERFACE_HPP
 #define RESOURCE_LOADER_INTERFACE_HPP
 
-#include <string/constant_string.hpp>
+#include <string/string.hpp>
 
 /*
  * Interface for loading an asset from a source.

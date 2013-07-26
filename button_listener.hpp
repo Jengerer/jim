@@ -1,12 +1,12 @@
-#ifndef BUTTON_EVENT_LISTENER_HPP
-#define BUTTON_EVENT_LISTENER_HPP
+#ifndef BUTTON_LISTENER_HPP
+#define BUTTON_LISTENER_HPP
 
 #include "button.hpp"
 
 /*
  * Interface for handling button events.
  */
-class ButtonEventListener
+class ButtonListener
 {
 
 public:
@@ -16,4 +16,4 @@ public:
 
 };
 
-#endif // BUTTON_EVENT_LISTENER_HPP
+#endif // BUTTON_LISTENER_HPP

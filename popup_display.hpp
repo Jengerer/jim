@@ -8,7 +8,7 @@
 #include <jui/io/mouse_handler_interface.hpp>
 #include "alert.hpp"
 #include "confirmation.hpp"
-#include "popup_handler.hpp"
+#include "popup_listener.hpp"
 #include "notice.hpp"
 
 class PopupDisplay: public JUI::Container, public JUI::MouseHandlerInterface, public JUI::KeyboardHandlerInterface
@@ -20,7 +20,7 @@ public:
 	PopupDisplay( int x, int y );
 
 	// Set-up.
-	void set_popup_handler( PopupHandler* handler );
+	void set_popup_listener( PopupListener* handler );
 
 	// Popup creators.
 	Notice* create_notice( const JUTIL::String* message );
@@ -51,7 +51,7 @@ private:
 private:
 	
 	std::list<Popup*> popups_;
-	PopupHandler* handler_;
+	PopupListener* handler_;
 
 };
 

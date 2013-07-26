@@ -1,18 +1,18 @@
-#include "steam_item_handler.hpp"
+#include "steam_inventory_manager.hpp"
 #include "serialized_buffer.hpp"
 #include "jui/application/error_stack.hpp"
 
 /*
  * Item and selection handler constructor.
  */
-SteamItemHandler::SteamItemHandler( void )
+SteamInventoryManager::SteamInventoryManager( void )
 {
 }
 
 /*
  * Item and selection handler destructor.
  */
-SteamItemHandler::~SteamItemHandler( void )
+SteamInventoryManager::~SteamInventoryManager( void )
 {
 	close_interfaces();
 }
@@ -20,7 +20,7 @@ SteamItemHandler::~SteamItemHandler( void )
 /*
  * Update a single item.
  */
-bool SteamItemHandler::update_item( const Item* item ) const
+bool SteamInventoryManager::update_item( const Item* item ) const
 {
 	GCSetItemPosition_t message;
 	message.itemID = item->get_unique_id();
@@ -34,7 +34,7 @@ bool SteamItemHandler::update_item( const Item* item ) const
 /*
  * Delete a single item.
  */
-bool SteamItemHandler::delete_item( const Item* item ) const
+bool SteamInventoryManager::delete_item( const Item* item ) const
 {
 	GCDelete_t message;
 	message.itemID = item->get_unique_id();
@@ -47,7 +47,7 @@ bool SteamItemHandler::delete_item( const Item* item ) const
 /*
  * Set number of items to be sent to craft message.
  */
-bool SteamItemHandler::set_craft_size( unsigned int count )
+bool SteamInventoryManager::set_craft_size( unsigned int count )
 {
 	// Allocate space for base message and item IDs.
 	unsigned int message_size = sizeof(GCCraft_t);
@@ -62,7 +62,7 @@ bool SteamItemHandler::set_craft_size( unsigned int count )
 /*
  * Add an item to the item craft buffer.
  */
-void SteamItemHandler::set_craft_item( unsigned int index, const Item* item )
+void SteamInventoryManager::set_craft_item( unsigned int index, const Item* item )
 {
 	char* items_offset = craft_buffer_.get_array() + sizeof(GCCraft_t);
 	uint64* items = reinterpret_cast<uint64*>(items_offset);
@@ -72,7 +72,7 @@ void SteamItemHandler::set_craft_item( unsigned int index, const Item* item )
 /*
  * Send the item IDs in the craft buffer array to be crafted.
  */
-bool SteamItemHandler::craft_items( void )
+bool SteamInventoryManager::craft_items( void )
 {
 	// Send message.
 	if (!send_message( GCCraft_t::k_iMessage, craft_buffer_.get_array(), craft_buffer_.get_size() )) {

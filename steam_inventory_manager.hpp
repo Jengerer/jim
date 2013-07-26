@@ -1,15 +1,16 @@
-#ifndef STEAM_ITEM_HANDLER_H
-#define STEAM_ITEM_HANDLER_H
+#ifndef STEAM_INVENTORY_MANAGER_HPP
+#define STEAM_INVENTORY_MANAGER_HPP
 
 #include "steam.hpp"
-#include "steam_item_interface.hpp"
+#include "steam_inventory_interface.hpp"
 
-class SteamItemHandler : public Steam, public SteamItemInterface
+class SteamInventoryManager : public Steam, public SteamInventoryInterface
 {
+
 public:
 
-	SteamItemHandler( void );
-	virtual ~SteamItemHandler( void );
+	SteamInventoryManager( void );
+	virtual ~SteamInventoryManager( void );
 
 	// Single item change functions.
 	virtual bool update_item( const Item* item ) const;
@@ -27,4 +28,4 @@ private:
 
 };
 
-#endif // STEAM_ITEM_HANDLER_HPP
+#endif // STEAM_INVENTORY_MANAGER_HPP

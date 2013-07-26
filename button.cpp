@@ -56,7 +56,7 @@ bool Button::initialize( const JUTIL::String* label, const JUI::Texture* icon )
     if (!JUTIL::BaseAllocator::allocate( &layout_ )) {
         return false;
     }
-	layout_ = new (layout_) JUI::HorizontalLayout( BUTTON_SPACING, JUI::ALIGN_MIDDLE );
+	layout_ = new (layout_) JUI::HorizontalLayout();
 	if (!add( layout_ )) {
         JUTIL::BaseAllocator::destroy( layout_ );
         return false;

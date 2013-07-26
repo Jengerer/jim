@@ -1,12 +1,18 @@
 #include "inventory.hpp"
 
+// Inventory attributes.
+const unsigned int INVENTORY_PAGE_WIDTH = 10;
+const unsigned int INVENTORY_PAGE_HEIGHT = 5;
+const unsigned int EXCLUDED_PAGE_WIDTH = 5;
+const unsigned int EXCLUDED_PAGE_HEIGHT = 1;
+
 /*
  * Inventory constructor.
  */
-Inventory::Inventory( SlotBook* book, DynamicSlotBook* excluded )
+Inventory::Inventory( void )
+    : inventory_book_( INVENTORY_PAGE_WIDTH, INVENTORY_PAGE_HEIGHT ),
+      excluded_book_( EXCLUDED_PAGE_WIDTH, EXCLUDED_PAGE_HEIGHT )
 {
-    book_ = book;
-    excluded_ = excluded;
 }
 
 /*
@@ -18,11 +24,19 @@ Inventory::~Inventory( void )
 }
 
 /*
- * Initialize the inventory to default sizes.
+ * Get handle to inventory schema.
  */
-bool Inventory::set_inventory_size( unsigned int slots )
+ItemSchema* Inventory::get_schema( void )
 {
-    book_->set_size( slots );
+    return &schema_;
+}
+
+/*
+ * Map definitions to items that have not resolved their
+ * definition yet.
+ */
+bool Inventory::resolve_definitions( void )
+{
 }
 
 /*
@@ -69,9 +83,11 @@ bool Inventory::can_place( const Item* item ) const
 {
 	if (item->has_valid_inventory_flags()) {
 		unsigned int index = item->get_position();
-		if (book_->is_valid_index( index )) {
+		if (inventory_book_.is_valid_index( index )) {
 			// Allow insertion to existing slot.
-			return book_->get_item( index ) == nullptr;
+			if (!inventory_book_.has_item( index )) {
+                return true;
+            }
 		}
 	}
 
@@ -88,11 +104,11 @@ bool Inventory::place_item( Item* item, unsigned int index )
 	// Check if item has spot in inventory.
 	if (can_place( item )) {
         unsigned int index = item->get_position();
-		book_->set_item( index, item );
+		inventory_book_.set_item( index, item );
 	}
 	else {
         // Add to excluded, and expand if necessary.
-		if (!excluded_->push_item( item )) {
+		if (!excluded_book_.push_item( item )) {
             return false;
         }
 	}
@@ -106,8 +122,8 @@ bool Inventory::place_item( Item* item, unsigned int index )
 void Inventory::displace_item( Item* item )
 {
 	// Remove item from slot.
-    if (!book_->remove_item( item )) {
-        excluded_->remove_item( item );
+    if (!inventory_book_.remove_item( item )) {
+        excluded_book_.remove_item( item );
     }
 }
 
@@ -125,8 +141,8 @@ void Inventory::remove_item( Item* item )
  */
 void Inventory::remove_items( void )
 {
-	book_->empty_slots();
-    excluded_->empty_slots();
+	inventory_book_.empty_slots();
+    excluded_book_.empty_slots();
     items_.clear();
 }
 
@@ -150,9 +166,9 @@ void Inventory::delete_items( void )
 bool Inventory::resolve_excluded( void )
 {
 	unsigned int i = 0;
-    unsigned int end = excluded_->get_size();
+    unsigned int end = excluded_book_.get_size();
 	for (i = 0; i < end; ++i) {
-		Item* item = excluded_->get_item( i );
+		Item* item = excluded_book_.get_item( i );
 		if ((item != nullptr) && can_place( item )) {
 			unsigned int index = item->get_position();
             place_item( item, index );
