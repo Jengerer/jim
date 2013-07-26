@@ -8,7 +8,7 @@ class DynamicSlotBook : public SlotBook
 
 public:
 
-	DynamicSlotBook( unsigned int page_size );
+	DynamicSlotBook( unsigned int page_width, unsigned int page_height );
 
 	// Dynamic slot management.
     bool push_item( Item* item );

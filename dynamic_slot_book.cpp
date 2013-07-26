@@ -3,8 +3,8 @@
 /*
  * Dynamic slot book constructor.
  */
-DynamicSlotBook::DynamicSlotBook( unsigned int page_size )
-	: SlotBook( page_size )
+DynamicSlotBook::DynamicSlotBook( unsigned int page_width, unsigned int page_height )
+	: SlotBook( page_width, page_height )
 {
 }
 

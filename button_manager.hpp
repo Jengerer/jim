@@ -3,7 +3,7 @@
 
 #include <containers/vector.hpp>
 #include "button.hpp"
-#include "button_event_listener.hpp"
+#include "button_listener.hpp"
 
 /*
  * Button event management class.
@@ -17,7 +17,7 @@ public:
     ~ButtonManager( void );
 
     // Button event management functions.
-    void set_event_listener( ButtonEventListener* listener );
+    void set_event_listener( ButtonListener* listener );
 
     // Button creation.
     Button* create( const JUTIL::String* label, const JUI::Texture* icon );
@@ -35,7 +35,7 @@ private:
 
     Button* clicked_;
     JUTIL::Vector<Button*> buttons_;
-    ButtonEventListener* listener_;
+    ButtonListener* listener_;
 
 };
 

@@ -23,6 +23,7 @@ public:
     bool is_valid_index( unsigned int index ) const;
 
 	// Item management.
+    bool has_item( unsigned int index ) const;
 	void set_item( unsigned int index, Item* item );
 	Item* get_item( unsigned int index );
     bool remove_item( Item* item );

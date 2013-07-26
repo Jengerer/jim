@@ -1,12 +1,12 @@
-#ifndef STEAM_ITEM_INTERFACE_HPP
-#define STEAM_ITEM_INTERFACE_HPP
+#ifndef STEAM_INVENTORY_INTERFACE_HPP
+#define STEAM_INVENTORY_INTERFACE_HPP
 
 #include "item.hpp"
 
 /*
  * Interface for pushing item changes to Steam.
  */
-class SteamItemInterface
+class SteamInventoryInterface
 {
 
 public:
@@ -22,4 +22,4 @@ public:
 
 };
 
-#endif // STEAM_ITEM_INTERFACE_HPP
+#endif // STEAM_INVENTORY_INTERFACE_HPP

@@ -7,7 +7,7 @@
 PopupDisplay::PopupDisplay( void )
 {
 	// No default handler.
-	set_popup_handler( nullptr );
+	set_popup_listener( nullptr );
 }
 
 /*
@@ -16,13 +16,13 @@ PopupDisplay::PopupDisplay( void )
 PopupDisplay::PopupDisplay( int x, int y ) : Container( x, y )
 {
 	// No default handler.
-	set_popup_handler( nullptr );
+	set_popup_listener( nullptr );
 }
 
 /*
  * Sets the interface to call when popup events occur.
  */
-void PopupDisplay::set_popup_handler( PopupHandler* handler )
+void PopupDisplay::set_popup_listener( PopupListener* handler )
 {
 	handler_ = handler;
 }
@@ -144,7 +144,7 @@ JUI::IOResult PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )
 /*
  * Pass mouse release event to top popup if one exists.
  */
-JUI::IOResult PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )
+JUI::IOResult PopupDisplay::on_mouse_released( JUI::Mouse* mouse )
 {
 	// Check list front.
 	if (has_popup()) {
@@ -204,12 +204,12 @@ JUI::IOResult PopupDisplay::on_key_pressed( int key )
 /*
  * Pass key released event to top popup if one exists.
  */
-JUI::IOResult PopupDisplay::on_key_pressed( int key )
+JUI::IOResult PopupDisplay::on_key_released( int key )
 {
 	// Check list front.
 	if (has_popup()) {
 		Popup* top = get_top_popup();
-        JUI::IOResult result = top->on_key_pressed( key );
+        JUI::IOResult result = top->on_key_released( key );
         if (result == JUI::IO_RESULT_HANDLED) {
             if (!handle_popup_state( top )) {
                 return JUI::IO_RESULT_ERROR;

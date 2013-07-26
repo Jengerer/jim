@@ -45,20 +45,20 @@ bool Confirmation::initialize( const JUTIL::String* question )
     }
 
     // Create response buttons.
-    yes_ = button_manager_.create( &YES_BUTTON_LABEL, nullptr );
-    if (yes_ == nullptr) {
+    yes_button_ = button_manager_.create( &YES_BUTTON_LABEL, nullptr );
+    if (yes_button_ == nullptr) {
         return false;
     }
-    if (!buttons->add( yes_ )) {
-        JUTIL::BaseAllocator::destroy( yes_ );
+    if (!buttons->add( yes_button_ )) {
+        JUTIL::BaseAllocator::destroy( yes_button_ );
         return false;
     }
-	no_ = button_manager_.create( &NO_BUTTON_LABEL, nullptr );
-    if (no_ == nullptr) {
+	no_button_ = button_manager_.create( &NO_BUTTON_LABEL, nullptr );
+    if (no_button_ == nullptr) {
         return false;
     }
-    if (!buttons->add( no_ )) {
-        JUTIL::BaseAllocator::destroy( no_ );
+    if (!buttons->add( no_button_ )) {
+        JUTIL::BaseAllocator::destroy( no_button_ );
         return false;
     }
 

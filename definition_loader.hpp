@@ -49,8 +49,6 @@ public:
 	float get_progress( void ) const;
 	const JUTIL::String* get_progress_message( void );
 
-	bool get_alt_texture( Item* item ) const;
-
 private:
 
 	bool load( void );

@@ -1,31 +1,18 @@
 #ifndef ITEM_MANAGER_HPP
 #define ITEM_MANAGER_HPP
 
-#include "alert.hpp"
-#include "button.hpp"
-#include "definition_loader.hpp"
-#include "dragged_slot_view.hpp"
-#include "dynamic_slot_book.hpp"
-#include "http_resource_loader.hpp"
-#include "inventory.hpp"
-#include "ipopup_handler.hpp"
-#include "item_display.hpp"
-#include "item_schema.hpp"
-#include "notice.hpp"
-#include "notification_queue.hpp"
-#include "notification.hpp"
-#include "popup_display.hpp"
-#include "steam_item_handler.hpp"
-#include "slot_book.hpp"
-#include "slot_grid_view.hpp"
 #include <jui/application/application.hpp>
 #include <jui/layout/horizontal_split_layout.hpp>
 #include <jui/layout/vertical_layout.hpp>
 #include <containers/vector.hpp>
-#include <boost/bind.hpp>
-#include <boost/thread.hpp>
+#include "definition_loader.hpp"
+#include "http_resource_loader.hpp"
+#include "inventory.hpp"
+#include "item_manager_view.hpp"
+#include "item_schema.hpp"
+#include "steam_item_handler.hpp"
 
-class ItemManager: public JUI::Application, public IPopupHandler
+class ItemManager: public JUI::Application
 {
 
 public:
@@ -40,10 +27,6 @@ public:
 
 	// Inventory and definition loading.
 	bool start_definition_load( void );
-
-	// Startup testing.
-	bool is_latest_version( void ) const;
-	void launch_updater( void ) const;
 
 	// Application running functions.
     JUI::Application::ReturnStatus run( void );
@@ -70,19 +53,8 @@ public:
 	virtual JUI::IOResult on_key_pressed( int key );
 	virtual JUI::IOResult on_key_released( int key );
 
-    // Generic UI handling.
-    JUI::IOResult handle_button_released( JUI::Mouse* mouse );
-
 	// Slot selection handling.
-	bool on_slot_clicked( const SlotView* view, Item* item, JUI::Mouse* mouse );
-	bool on_slot_released( const SlotView* view, Item* item );
 	void update_buttons( void );
-
-	// Popup handling.
-	bool on_popup_clicked( Popup* popup );
-	bool on_popup_released( Popup* popup );
-	bool on_popup_key_pressed( Popup* popup );
-	bool on_popup_key_released( Popup* popup );
 
 	// Updating displays.
 	void update_item_display( void );
@@ -96,26 +68,18 @@ private:
 private:
 
 	// Application interfaces.
-	SteamItemHandler steam_items_;
 	HttpResourceLoader* site_loader_;
+    DefinitionLoader* definition_loader_;
 
     // Inventory and item members.
-    SlotBook inventory_book_;
-	DynamicSlotBook excluded_book_;
 	Inventory inventory_;
-    ItemSchema schema_;
+    SteamInventoryManager steam_items_;
 
-	// Display layers.
-	Container* user_layer_;
-
-	// Item selection handling.
-	DWORD page_delay_;
+    // User interface handle.
+    ItemManagerView* view_;
 
 	// Running think function.
 	bool (ItemManager::*think_function_)( void );
-
-	// Threaded loader for resources.
-	DefinitionLoader* definition_loader_;
 
 };
 

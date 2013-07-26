@@ -24,7 +24,7 @@ bool HttpResourceLoader::get_resource( const JUTIL::String* file, const JUTIL::S
 }
 
 /*
- * Get a file, always updating it from the url
+ * Get a file, always updating it from the url.
  */
 bool HttpResourceLoader::update_resource( const JUTIL::String* file, const JUTIL::String* target ) const
 {

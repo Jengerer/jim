@@ -7,6 +7,10 @@
 #include "slot.hpp"
 #include "slot_book.hpp"
 
+// Application attributes.
+const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.7.9";
+
 /*
  * Class that manages an inventory book and fallback slots.
  *
@@ -18,11 +22,16 @@ class Inventory
 
 public:
 
-	Inventory( SlotBook* book, DynamicSlotBook* excluded );
-	virtual ~Inventory( void );
+	Inventory( void );
+	~Inventory( void );
 
-    // Slot book management.
-    bool set_inventory_size( unsigned int slots );
+    // Item slot book handling.
+    SlotBook* get_inventory_book( void );
+    DynamicSlotBook* get_excluded_book( void );
+
+    // Item schema handling.
+    ItemSchema* get_schema( void );
+    bool resolve_definitions( void );
 
 	// Item query functions.
 	Item* find_item( uint64 unique_id ) const;
@@ -44,10 +53,13 @@ public:
 private:
 
 	// Slot arrays.
-	SlotBook* book_;
-	DynamicSlotBook* excluded_;
+	SlotBook inventory_book_;
+	DynamicSlotBook excluded_book_;
     JUTIL::Vector<Item*> items_;
+
+    // Item definition schema.
+    ItemSchema schema_;
 
 };
 
-#endif // INVENTORY_H
+#endif // INVENTORY_HPP

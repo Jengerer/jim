@@ -13,7 +13,7 @@ ButtonManager::~ButtonManager( void )
  * Set the interface pointer for the button event listener.
  * This pointer must be set before button events are handled.
  */
-void ButtonManager::set_event_listener( ButtonEventListener* listener )
+void ButtonManager::set_event_listener( ButtonListener* listener )
 {
     listener_ = listener;
 }

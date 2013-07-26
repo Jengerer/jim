@@ -291,30 +291,18 @@ bool DefinitionLoader::load()
 	// Get definition file.
     JUTIL::DynamicString definition;
     if (!downloader->read_cached( &SCHEMA_FILE_LOCATION, &SCHEMA_URL, &definition )) {
-		if (!notifications_->add_notification(&SCHEMA_CACHED_LOAD_FAIL_MESSAGE, nullptr)){
+		if (!notifications_->add_notification( &SCHEMA_CACHED_LOAD_FAIL_MESSAGE, nullptr )){
 			stack->log( "Failed to allocate schema response notification." );
 			return false;
 		}
-		// Skip the cache in case of a fail
+
+		// Skip the cache in case of a fail.
 		if (!downloader->read( &SCHEMA_URL, &definition )) {
 			stack->log( "Failed to read schema from Steam web API.");
 			set_state( LOADING_STATE_ERROR );
 			return false;
 		}
     }
-
-	if( definition.get_length() == 0 ){
-		if (!notifications_->add_notification(&SCHEMA_CACHED_LOAD_FAIL_MESSAGE, nullptr)){
-			stack->log( "Failed to allocate schema response notification." );
-			return false;
-		}
-		// Skip the cache in case of a fail
-		if (!downloader->read( &SCHEMA_URL, &definition )) {
-			stack->log( "Failed to read schema from Steam web API.");
-			set_state( LOADING_STATE_ERROR );
-			return false;
-		}
-	}
 
 	// Parse definition file.
 	Json::Reader reader;
@@ -533,7 +521,7 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		}
 	}
 
-	//load origins
+	// Load origins.
 	Json::Value* origins;
 	if(!get_member( result, &ORIGINNAMES_NAME, &origins )) {
 		stack->log( "Failed to find origins in definitions." );
@@ -544,15 +532,14 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		Json::Value* origin_index;
 		Json::Value* origin_name;
 
-		if(!get_member( &origin, &ORIGIN_NAME, &origin_index )) {
+		if (!get_member( &origin, &ORIGIN_NAME, &origin_index )) {
 			stack->log( "Failed to find origin index in definitions." );
 			return false;
 		}
-		if(!get_member( &origin, &NAME_NAME, &origin_name )) {
+		if (!get_member( &origin, &NAME_NAME, &origin_name )) {
 			stack->log( "Failed to find origin index in definitions." );
 			return false;
 		}
-
 
 		// Allocate new name string.
         JUTIL::DynamicString* origin_name_string;
@@ -571,7 +558,7 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         }
 	}
 
-	//load strange text
+	// Load strange text.
 	Json::Value* kill_eater_ranks;
 	if(!get_member( result, &KILL_EATER_RANKS_NAME, &kill_eater_ranks )) {
 		stack->log( "Failed to find strange index in definitions." );
@@ -1219,50 +1206,5 @@ bool DefinitionLoader::update_progress_message( void )
 	}
 
 	// Successfully set.
-	return true;
-}
-
-bool DefinitionLoader::get_alt_texture( Item* item ) const
-{
-	if(item->get_tool_type() == TOOL_PAINT_CAN){
-		return true;
-	}
-	if(item->get_paint_value(1) != FL_ITEM_NOT_PAINTED){
-		// Painted Team Spirit
-		JUI::Texture* texture = nullptr;
-		JUI::FileTexture* item_texture = nullptr;
-		JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
-		if (downloader->check_and_get( &PAINT_SPLAT_RED_TEXTURE, &PAINT_SPLAT_RED_TEXTURE_URL )) {
-			JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPLAT_RED_TEXTURE, &item_texture );
-			if (status == JUI::Graphics2D::Success) {
-				texture = static_cast<JUI::Texture*>(item_texture);
-				item->add_texture(texture);
-			}
-		}
-
-		if (downloader->check_and_get( &PAINT_SPLAT_BLU_TEXTURE, &PAINT_SPLAT_BLU_TEXTURE_URL )) {
-			JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPLAT_BLU_TEXTURE, &item_texture );
-			if (status == JUI::Graphics2D::Success) {
-				texture = static_cast<JUI::Texture*>(item_texture);
-				item->add_texture(texture);
-			}
-		}
-
-		return true;
-	}else if(item->get_paint_value(0) != FL_ITEM_NOT_PAINTED){
-		// Regular Paint
-		JUI::Texture* texture = nullptr;
-		JUI::FileTexture* item_texture = nullptr;
-		JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
-		if (downloader->check_and_get( &PAINT_SPLAT_SINGLE_TEXTURE, &PAINT_SPLAT_SINGLE_TEXTURE_URL )) {
-			JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPLAT_SINGLE_TEXTURE, &item_texture );
-			if (status == JUI::Graphics2D::Success) {
-				texture = static_cast<JUI::Texture*>(item_texture);
-				item->add_texture(texture);
-			}
-		}
-
-		return true;
-	}
 	return true;
 }
