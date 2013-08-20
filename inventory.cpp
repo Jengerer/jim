@@ -24,22 +24,6 @@ Inventory::~Inventory( void )
 }
 
 /*
- * Get handle to inventory schema.
- */
-ItemSchema* Inventory::get_schema( void )
-{
-    return &schema_;
-}
-
-/*
- * Map definitions to items that have not resolved their
- * definition yet.
- */
-bool Inventory::resolve_definitions( void )
-{
-}
-
-/*
  * Find item by unique ID.
  */
 Item* Inventory::find_item( uint64 unique_id ) const
@@ -61,19 +45,7 @@ Item* Inventory::find_item( uint64 unique_id ) const
  */
 bool Inventory::add_item( Item* item )
 {
-	// Add to item set.
-	if (!items_.push( item )) {
-        return false;
-    }
 
-	// Attempt to place item.
-    unsigned int position = item->get_position();
-    if (!place_item( item, position )) {
-        remove_item( item );
-        return false;
-    }
-
-    return true;
 }
 
 /*
@@ -176,4 +148,94 @@ bool Inventory::resolve_excluded( void )
 	}
 
 	return true;
+}
+
+/*
+ * Handle item creation event.
+ */
+bool Inventory::on_item_added( Item* item )
+{
+	// Attempt to place item.
+    unsigned int position = item->get_position();
+    if (!place_item( item, position )) {
+        remove_item( item );
+        return false;
+    }
+
+    // Add to item set.
+	if (!items_.push( item )) {
+        return false;
+    }
+
+    return true;
+}
+
+/*
+ * Handle item deletion event.
+ */
+bool Inventory::on_item_deleted( uint64 unique_id )
+{
+    // Try to find the item with the matching ID.
+    unsigned int i;
+    unsigned int end = items_.get_length();
+    Item* deleted = nullptr;
+    for (i = 0; i < end; ++i) {
+        Item* item = items_.at( i );
+        if (item->get_unique_id() == unique_id) {
+            // Item exists, now find it in the containers.
+            deleted = item;
+            items_.erase( i );
+            break;
+        }
+    }
+    if (deleted == nullptr) {
+        return false;
+    }
+
+    // Clear from slots.
+    inventory_book_.remove_item( deleted );
+    excluded_book_.remove_item( deleted );
+    // selected_book_.remove_item( item );
+}
+
+/*
+ * Handle an item's flags being updated by backend.
+ */
+bool Inventory::on_item_updated( uint64 unique_id, uint32 flags )
+{
+    // Find item with matching ID.
+    unsigned int i;
+    unsigned int end = items_.get_length();
+    Item* updated = nullptr;
+    for (i = 0; i < end; ++i) {
+        Item* item = items_.at( i );
+        if (item->get_unique_id() == unique_id) {
+            // Item exists, now find it in the containers.
+            updated = item;
+            updated->set_inventory_flags( flags );
+            items_.erase( i );
+            break;
+        }
+    }
+    if (updated == nullptr) {
+        return false;
+    }
+
+    // If item is excluded, see if we can replace into inventory.
+    unsigned int excluded_index;
+    if (excluded_book_.contains_item( updated, &excluded_index )) {
+        if (updated->has_valid_inventory_flags()) {
+            excluded_book_.remove_item( updated );
+
+            // Move current item to excluded if there is one.
+            unsigned int position = updated->get_position();
+            if (!inventory_book_.is_slot_empty( position )) {
+                Item* replaced = inventory_book_.get_item( position );
+                excluded_book_.set_item( excluded_index, replaced );
+            }
+            inventory_book_.set_item( position, updated );
+        }
+    }
+    else {
+        // Inventory item, just move/replace.
 }

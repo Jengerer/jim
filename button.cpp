@@ -220,22 +220,3 @@ void Button::release( void )
 {
     JUI::FontFactory::destroy_font( default_font_ );
 }
-
-/*
- * Create generic button.
- */
-Button* Button::create_generic_button( void )
-{
-	// Create and initialize button.
-	Button* button;
-	if (!JUTIL::BaseAllocator::allocate( &button )) {
-		return nullptr;
-	}
-	button = new (button) Button();
-	if (!button->initialize()) {
-		JUTIL::BaseAllocator::destroy( button );
-		return nullptr;
-	}
-
-	return button;
-}

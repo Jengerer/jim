@@ -40,6 +40,7 @@ JUI::IOResult ButtonNotice::on_mouse_released( JUI::Mouse* mouse )
  */
 bool ButtonNotice::on_button_pressed( Button* button )
 {
+    return true;
 }
 
 /*
@@ -47,4 +48,5 @@ bool ButtonNotice::on_button_pressed( Button* button )
  */
 bool ButtonNotice::on_button_released( Button* button )
 {
+    return true;
 }
