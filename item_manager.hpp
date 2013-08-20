@@ -10,7 +10,7 @@
 #include "inventory.hpp"
 #include "item_manager_view.hpp"
 #include "item_schema.hpp"
-#include "steam_item_handler.hpp"
+#include "steam_inventory_manager.hpp"
 
 class ItemManager: public JUI::Application
 {
@@ -59,11 +59,6 @@ public:
 	// Updating displays.
 	void update_item_display( void );
 	bool update_page_display( void );
-
-private:
-
-    // Item management.
-    Item* create_item_from_message( CSOEconItem* item );
 
 private:
 

@@ -319,6 +319,9 @@
     <ClInclude Include="steam_inventory_interface.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
+    <ClInclude Include="steam_inventory_listener.hpp">
+      <Filter>headers\items</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="jim_icon.ico">

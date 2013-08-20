@@ -45,6 +45,35 @@ unsigned int SlotArray::get_size( void ) const
 }
 
 /*
+ * Return whether a slot has no item.
+ */
+bool SlotArray::is_slot_empty( unsigned int index ) const
+{
+    return get_item( index ) == nullptr;
+}
+
+/*
+ * Returns whether the slot array contains an item, and optionally fills out
+ * the index it's contained at.
+ */
+bool SlotArray::contains_item( Item* item, unsigned int* index ) const
+{
+    unsigned int i;
+    unsigned int end = get_size();
+    for (i = 0; i < end; ++i) {
+        Item* current = get_item( i );
+        if (item == current) {
+            if (index != nullptr) {
+                *index == i;
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*
  * Set the item at the given slot.
  */
 void SlotArray::set_item( unsigned int index, Item* item )
@@ -56,9 +85,9 @@ void SlotArray::set_item( unsigned int index, Item* item )
 /*
  * Get the item at the given slot.
  */
-Item* SlotArray::get_item( unsigned int index )
+Item* SlotArray::get_item( unsigned int index ) const
 {
-	Slot* slot = &slots_.at( index );
+	const Slot* slot = &slots_.at( index );
 	return slot->get_item();
 }
 

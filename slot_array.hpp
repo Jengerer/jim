@@ -23,9 +23,10 @@ public:
     bool is_valid_index( unsigned int index ) const;
 
 	// Item management.
-    bool has_item( unsigned int index ) const;
+    bool is_slot_empty( unsigned int index ) const;
+    bool contains_item( Item* item, unsigned int* index = nullptr ) const;
 	void set_item( unsigned int index, Item* item );
-	Item* get_item( unsigned int index );
+	Item* get_item( unsigned int index ) const;
     bool remove_item( Item* item );
     void empty_slots( void );
 

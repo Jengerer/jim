@@ -41,9 +41,6 @@ public:
 
 private:
 
-    // Button generic creation.
-    static Button* create_generic_button( void );
-
     // Update hover state.
     void set_hovering( bool is_hovering );
 
