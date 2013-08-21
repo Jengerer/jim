@@ -246,15 +246,6 @@ bool ItemManager::loading( void )
 		if (!handle_callback()) {
 			return false;
 		}
-
-        // Have items been loaded?
-		if (backpack_ != nullptr && backpack_->is_loaded()) {
-            // Start loading item definitions.
-	        if (!start_definition_load()) {
-                stack->log( "Failed to start loading item definitions." );
-                return false;
-            }
-        }
     }
     else {
         // Parse definition loading state.

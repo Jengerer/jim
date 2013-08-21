@@ -64,7 +64,7 @@ bool SlotArray::contains_item( Item* item, unsigned int* index ) const
         Item* current = get_item( i );
         if (item == current) {
             if (index != nullptr) {
-                *index == i;
+                *index = i;
             }
             return true;
         }

@@ -41,14 +41,6 @@ Item* Inventory::find_item( uint64 unique_id ) const
 }
 
 /*
- * Add an item to be handled by the inventory.
- */
-bool Inventory::add_item( Item* item )
-{
-
-}
-
-/*
  * Check if an item can be inserted.
  */
 bool Inventory::can_place( const Item* item ) const
@@ -57,7 +49,7 @@ bool Inventory::can_place( const Item* item ) const
 		unsigned int index = item->get_position();
 		if (inventory_book_.is_valid_index( index )) {
 			// Allow insertion to existing slot.
-			if (!inventory_book_.has_item( index )) {
+			if (inventory_book_.is_slot_empty( index )) {
                 return true;
             }
 		}
@@ -123,12 +115,7 @@ void Inventory::remove_items( void )
  */
 void Inventory::delete_items( void )
 {
-    unsigned int i;
-    unsigned int end = items_.get_length();
-    for (i = 0; i < end; ++i) {
-        Item* item = items_.at( i );
-        JUTIL::BaseAllocator::destroy( item );
-    }
+	items_.clear();
     remove_items();
 }
 
@@ -153,7 +140,7 @@ bool Inventory::resolve_excluded( void )
 /*
  * Handle item creation event.
  */
-bool Inventory::on_item_added( Item* item )
+bool Inventory::on_item_created( Item* item )
 {
 	// Attempt to place item.
     unsigned int position = item->get_position();
@@ -176,66 +163,49 @@ bool Inventory::on_item_added( Item* item )
 bool Inventory::on_item_deleted( uint64 unique_id )
 {
     // Try to find the item with the matching ID.
-    unsigned int i;
-    unsigned int end = items_.get_length();
-    Item* deleted = nullptr;
-    for (i = 0; i < end; ++i) {
-        Item* item = items_.at( i );
-        if (item->get_unique_id() == unique_id) {
-            // Item exists, now find it in the containers.
-            deleted = item;
-            items_.erase( i );
-            break;
-        }
-    }
+    Item* deleted = items_.get_item( unique_id );
     if (deleted == nullptr) {
         return false;
     }
+	items_.delete_item( deleted );
 
     // Clear from slots.
-    inventory_book_.remove_item( deleted );
-    excluded_book_.remove_item( deleted );
-    // selected_book_.remove_item( item );
+    if (!inventory_book_.remove_item( deleted )) {
+		excluded_book_.remove_item( deleted );
+	}
+    // TODO: selected_book_.remove_item( item );
+	return true;
 }
 
 /*
  * Handle an item's flags being updated by backend.
+ * Assumes that an excluded item will never be told to replace
+ * an inventory item and that an inventory item will never need
+ * to move to excluded.
  */
 bool Inventory::on_item_updated( uint64 unique_id, uint32 flags )
 {
     // Find item with matching ID.
-    unsigned int i;
-    unsigned int end = items_.get_length();
-    Item* updated = nullptr;
-    for (i = 0; i < end; ++i) {
-        Item* item = items_.at( i );
-        if (item->get_unique_id() == unique_id) {
-            // Item exists, now find it in the containers.
-            updated = item;
-            updated->set_inventory_flags( flags );
-            items_.erase( i );
-            break;
-        }
-    }
+	Item* updated = items_.get_item( unique_id );
+	assert( updated != nullptr );
     if (updated == nullptr) {
         return false;
     }
+	updated->set_inventory_flags( flags );
 
-    // If item is excluded, see if we can replace into inventory.
-    unsigned int excluded_index;
-    if (excluded_book_.contains_item( updated, &excluded_index )) {
-        if (updated->has_valid_inventory_flags()) {
-            excluded_book_.remove_item( updated );
+	// If this is an inventory item, swap with replaced, if exists.
+	unsigned int index;
+	unsigned int destination = updated->get_position();
+	if (inventory_book_.contains_item( updated, &index )) {
+		Item* replaced = inventory_book_.get_item( destination );
+		inventory_book_.set_item( index, replaced );
+	}
+	inventory_book_.set_item( destination, updated );
+}
 
-            // Move current item to excluded if there is one.
-            unsigned int position = updated->get_position();
-            if (!inventory_book_.is_slot_empty( position )) {
-                Item* replaced = inventory_book_.get_item( position );
-                excluded_book_.set_item( excluded_index, replaced );
-            }
-            inventory_book_.set_item( position, updated );
-        }
-    }
-    else {
-        // Inventory item, just move/replace.
+/*
+ * Handle craft failure event.
+ */
+bool Inventory::on_craft_failed( void )
+{
 }

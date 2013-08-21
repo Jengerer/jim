@@ -4,6 +4,7 @@
 #include "dynamic_slot_book.hpp"
 #include "item.hpp"
 #include "item_schema.hpp"
+#include "item_set.hpp"
 #include "slot.hpp"
 #include "slot_book.hpp"
 #include "steam_inventory_listener.hpp"
@@ -51,7 +52,7 @@ public:
 	bool resolve_excluded( void );
 
     // Steam inventory listener handling functions.
-    virtual bool on_item_added( Item* item );
+    virtual bool on_item_created( Item* item );
     virtual bool on_item_deleted( uint64 unique_id );
     virtual bool on_item_updated( uint64 unique_id, uint32 flags );
     virtual bool on_craft_failed( void );
@@ -65,7 +66,7 @@ private:
 	// Slot arrays.
 	SlotBook inventory_book_;
 	DynamicSlotBook excluded_book_;
-    JUTIL::Vector<Item*> items_;
+    ItemSet items_;
 
 };
 
