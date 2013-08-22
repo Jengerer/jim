@@ -112,8 +112,6 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 {
     // Handle callback if it's a GC message.
     if (id == GCMessageAvailable_t::k_iCallback) {
-        GCMessageAvailable_t *message = reinterpret_cast<GCMessageAvailable_t*>(message);
-
         // Get size of message waiting.
 	    uint32 size;
         if (!has_message( &size )) {

@@ -28,6 +28,7 @@ bool SlotGridView::set_grid_size( unsigned int width, unsigned int height )
 		if (!JUTIL::BaseAllocator::allocate( &view )) {
 			return false;
 		}
+		new (view) SlotView();
 		add( view );
 	}
 

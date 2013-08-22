@@ -34,7 +34,17 @@ const unsigned int ITEM_DISPLAY_SPACING	= 10;
 const unsigned int BUTTON_SPACING = 5;
 
 ItemManagerView::ItemManagerView( Inventory* inventory )
-    : inventory_( inventory )
+    : inventory_( inventory ),
+	  load_progress_( nullptr ),
+	  alert_( nullptr ),
+	  error_( nullptr ),
+	  craft_check_( nullptr ),
+	  delete_check_( nullptr ),
+	  craft_button_( nullptr ),
+	  sort_button_( nullptr ),
+	  delete_button_( nullptr ),
+	  prev_button_( nullptr ),
+	  next_button_( nullptr )
 {
     button_manager_.set_event_listener( this );
 }
@@ -92,6 +102,14 @@ bool ItemManagerView::initialize( JUI::Graphics2D* graphics )
     if (page_font_ == nullptr) {
         return false;
     }
+
+	// Create layers for UI, then initialize layout.
+	if (!create_layers()) {
+		return false;
+	}
+	if (!create_layout( graphics )) {
+		return false;
+	}
     return true;
 }
 
@@ -221,7 +239,7 @@ bool ItemManagerView::create_layers( void )
         stack->log( "Failed to allocate popup layer." );
 		return false;
 	}
-	popups_ = new (popups_) PopupDisplay();
+	new (popups_) PopupDisplay();
 	if (!add( popups_ )) {
 		JUTIL::BaseAllocator::destroy( popups_ );
         stack->log( "Failed to add popup layer to application." );
@@ -365,16 +383,31 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         stack->log( "Failed to create craft button." );
         return false;
     }
+	if (!inventory_buttons->add( craft_button_ )) {
+		button_manager_.remove( craft_button_ );
+		stack->log( "Failed to add craft button to layout." );
+		return false;
+	}
     sort_button_ = button_manager_.create( &SORT_BUTTON_LABEL, sort_texture );
     if (sort_button_ == nullptr ) {
         stack->log( "Failed to create sort button." );
         return false;
     }
+	if (!inventory_buttons->add( sort_button_ )) {
+		stack->log( "Failed to add sort button to layout." );
+		button_manager_.remove( sort_button_ );
+		return false;
+	}
     delete_button_ = button_manager_.create( &DELETE_BUTTON_LABEL, delete_texture );
     if (delete_button_ == nullptr) {
         stack->log( "Failed to create delete button." );
         return false;
     }
+	if (!inventory_buttons->add( delete_button_ )) {
+		stack->log( "Failed to add delete button to layout." );
+		button_manager_.remove( delete_button_ );
+		return false;
+	}
 
 	// Set button states.
 	craft_button_->set_enabled( false );
