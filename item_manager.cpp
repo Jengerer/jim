@@ -243,7 +243,7 @@ bool ItemManager::loading( void )
 
 	// Wait for item loading if definition loading hasn't started.
     if (definition_loader_ == nullptr) {
-		if (!handle_callback()) {
+		if (!steam_items_.handle_callbacks()) {
 			return false;
 		}
     }
@@ -259,16 +259,11 @@ bool ItemManager::loading( void )
 
 			case LOADING_STATE_FINISHED:
 			{
-				// Resolve all item definitions.
-                if (!inventory_.resolve_definitions()) {
-					return false;
-				}
-
 				// Remove threaded loader.
 				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
 
                 // Finished loading!
-                view_->hide_loading_notice();
+                view_->destroy_loading_notice();
                 set_think( &ItemManager::running );
 				break;
 			}
@@ -296,10 +291,9 @@ bool ItemManager::loading( void )
 
 bool ItemManager::running( void )
 {
-	if(!handle_callback()){
+	if (!steam_items_.handle_callbacks()){
 		return false;
 	}
-	update_item_display();
     return true;
 }
 
@@ -323,13 +317,6 @@ JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Nothing left.
     return JUI::IO_RESULT_UNHANDLED;
-}
-
-void ItemManager::update_buttons()
-{
-#ifndef EQUIP_NOT_IMPLEMENTED
-	equip_button_->set_enabled( steam_items_.can_equip_selected() );
-#endif
 }
 
 /*

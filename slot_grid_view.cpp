@@ -3,10 +3,11 @@
 // Layout constants.
 const unsigned int SLOT_SPACING = 5;
 
-/*
- * Slot grid view constructor.
- */
 SlotGridView::SlotGridView( void )
+{
+}
+
+SlotGridView::~SlotGridView( void )
 {
 }
 
@@ -75,7 +76,7 @@ bool SlotGridView::on_slot_updated( unsigned int index, Slot* slot )
 	// Set item texture.
 	Item* item;
 	const JUI::Texture* item_texture;
-	// Draw empty slot if past 
+	// Draw empty slot if beyond last item.
 	if (slot != nullptr && (item = slot->get_item()) != nullptr) {
 		item_texture = item->get_texture();
 	}
@@ -83,4 +84,5 @@ bool SlotGridView::on_slot_updated( unsigned int index, Slot* slot )
 		item_texture = nullptr;
 	}
 	view->set_item_texture( item_texture );
+    return true;
 }

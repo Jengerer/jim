@@ -87,4 +87,5 @@ bool Confirmation::on_button_released( Button* button )
         response_ = RESPONSE_NO;
     }
     set_state( POPUP_STATE_KILLED );
+    return true;
 }

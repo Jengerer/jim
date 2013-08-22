@@ -54,8 +54,11 @@ bool SlotBook::set_active_page( unsigned int page )
 		else {
 			slot = nullptr;
 		}
-		listener_->on_slot_updated( i, slot );
+		if (!listener_->on_slot_updated( i, slot )) {
+            return false;
+        }
 	}
+    return true;
 }
 
 /*

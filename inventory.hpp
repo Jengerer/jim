@@ -33,19 +33,14 @@ public:
 
     // Item schema handling.
     ItemSchema* get_schema( void );
-    bool resolve_definitions( void );
 
 	// Item query functions.
-	Item* find_item( uint64 unique_id ) const;
-    Item* get_inventory_item( unsigned int index ) const;
-    Item* get_excluded_item( unsigned int index ) const;
+	Item* find_item( uint64 unique_id );
 
     // Item addition/removal.
     bool can_place( const Item* item ) const;
-	bool place_item( Item* item, unsigned int index );
+	bool place_item( Item* item );
     void displace_item( Item* item );
-    void remove_item( Item* item );
-	void remove_items( void );
     void delete_items( void );
 
 	// Excluded handling.
@@ -63,10 +58,13 @@ public:
 
 private:
 
+    // Item set and schema.
+    ItemSet items_;
+    ItemSchema* schema_;
+
 	// Slot arrays.
 	SlotBook inventory_book_;
 	DynamicSlotBook excluded_book_;
-    ItemSet items_;
 
 };
 

@@ -249,7 +249,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
                             }
 
                             // Send to listener.
-                            if (!listener_->on_item_added( item )) {
+                            if (!listener_->on_item_created( item )) {
                                 JUTIL::BaseAllocator::destroy( item );
                                 stack->log( "Failed to add item to inventory." );
                                 return false;
@@ -409,7 +409,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 
             // Pass new item to listener.
             // TODO: This would probably be a good place to resolve schema if it's loaded.
-            if (!listener_->on_item_added( item )) {
+            if (!listener_->on_item_created( item )) {
                 JUTIL::BaseAllocator::destroy( item );
                 stack->log( "Failed to add item to inventory." );
                 return false;
@@ -519,18 +519,6 @@ Item* SteamInventoryManager::create_item_from_message( CSOEconItem* econ_item )
 			stack->log( "Failed to add attribute to item." );
 			return false;
 		}
-	}
-	
-	// Load item and attribute definitions.
-    if (schema_.is_loaded()) {
-        if (!schema_.resolve( item )) {
-			JUTIL::BaseAllocator::destroy( item );
-            stack->log( "Failed to resolve item definition from schema." );
-			return false;
-		}
-
-		// Finalize state.
-		item->update_attributes();
 	}
 
 	// Generate name.

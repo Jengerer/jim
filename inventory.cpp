@@ -5,13 +5,16 @@ const unsigned int INVENTORY_PAGE_WIDTH = 10;
 const unsigned int INVENTORY_PAGE_HEIGHT = 5;
 const unsigned int EXCLUDED_PAGE_WIDTH = 5;
 const unsigned int EXCLUDED_PAGE_HEIGHT = 1;
+const unsigned int TRIAL_ACCOUNT_PAGES = 1;
+const unsigned int PREMIUM_ACCOUNT_PAGES = 6;
 
 /*
  * Inventory constructor.
  */
 Inventory::Inventory( void )
     : inventory_book_( INVENTORY_PAGE_WIDTH, INVENTORY_PAGE_HEIGHT ),
-      excluded_book_( EXCLUDED_PAGE_WIDTH, EXCLUDED_PAGE_HEIGHT )
+      excluded_book_( EXCLUDED_PAGE_WIDTH, EXCLUDED_PAGE_HEIGHT ),
+      schema_( nullptr )
 {
 }
 
@@ -20,24 +23,42 @@ Inventory::Inventory( void )
  */
 Inventory::~Inventory( void )
 {
+    // Destroy schema if loaded.
+    JUTIL::BaseAllocator::safe_destroy( &schema_ );
 	delete_items();
+}
+
+/*
+ * Get the handle to the inventory book.
+ */
+SlotBook* Inventory::get_inventory_book( void )
+{
+    return &inventory_book_;
+}
+
+/*
+ * Get the handle to the excluded book.
+ */
+DynamicSlotBook* Inventory::get_excluded_book( void )
+{
+    return &excluded_book_;
+}
+
+/*
+ * Get a handle to the schema the inventory has, if any.
+ */
+ItemSchema* Inventory::get_schema( void )
+{
+    return schema_;
 }
 
 /*
  * Find item by unique ID.
  */
-Item* Inventory::find_item( uint64 unique_id ) const
+Item* Inventory::find_item( uint64 unique_id )
 {
-    unsigned int i;
-    unsigned int length = items_.get_length();
-    for (i = 0; i < length; ++i) {
-        Item* item = items_.at( i );
-        if (item->get_unique_id() == unique_id) {
-            return item;
-        }
-    }
-
-	return nullptr;
+    Item* item = items_.find( unique_id );
+    return item;
 }
 
 /*
@@ -63,7 +84,7 @@ bool Inventory::can_place( const Item* item ) const
  * Returns true if able to insert into inventory and excluded
  * book, false otherwise.
  */
-bool Inventory::place_item( Item* item, unsigned int index )
+bool Inventory::place_item( Item* item )
 {
 	// Check if item has spot in inventory.
 	if (can_place( item )) {
@@ -92,31 +113,13 @@ void Inventory::displace_item( Item* item )
 }
 
 /*
- * Remove an item from the inventory.
- */
-void Inventory::remove_item( Item* item )
-{
-	displace_item( item );
-	items_.remove( item );
-}
-
-/*
- * Remove all items from inventory.
- */
-void Inventory::remove_items( void )
-{
-	inventory_book_.empty_slots();
-    excluded_book_.empty_slots();
-    items_.clear();
-}
-
-/*
  * Delete all items in the inventory.
  */
 void Inventory::delete_items( void )
 {
 	items_.clear();
-    remove_items();
+    inventory_book_.empty_slots();
+    excluded_book_.empty_slots();
 }
 
 /*
@@ -129,11 +132,11 @@ bool Inventory::resolve_excluded( void )
 	for (i = 0; i < end; ++i) {
 		Item* item = excluded_book_.get_item( i );
 		if ((item != nullptr) && can_place( item )) {
-			unsigned int index = item->get_position();
-            place_item( item, index );
+            place_item( item );
 		}
 	}
 
+    // TODO: compress excluded here? Don't know if we have to do that anymore.
 	return true;
 }
 
@@ -142,16 +145,22 @@ bool Inventory::resolve_excluded( void )
  */
 bool Inventory::on_item_created( Item* item )
 {
-	// Attempt to place item.
-    unsigned int position = item->get_position();
-    if (!place_item( item, position )) {
-        remove_item( item );
+    // Add to item set.
+	if (!items_.add( item )) {
         return false;
     }
 
-    // Add to item set.
-	if (!items_.push( item )) {
-        return false;
+	// Attempt to place item if schema is loaded.
+    if (schema_ != nullptr) {
+        // Resolve definition.
+        if (!schema_->resolve( item )) {
+            return false;
+        }
+
+        // Place item into inventory.
+        if (!place_item( item )) {
+            return false;
+        }
     }
 
     return true;
@@ -163,11 +172,11 @@ bool Inventory::on_item_created( Item* item )
 bool Inventory::on_item_deleted( uint64 unique_id )
 {
     // Try to find the item with the matching ID.
-    Item* deleted = items_.get_item( unique_id );
+    Item* deleted = items_.find( unique_id );
     if (deleted == nullptr) {
         return false;
     }
-	items_.delete_item( deleted );
+	items_.destroy( deleted );
 
     // Clear from slots.
     if (!inventory_book_.remove_item( deleted )) {
@@ -186,7 +195,7 @@ bool Inventory::on_item_deleted( uint64 unique_id )
 bool Inventory::on_item_updated( uint64 unique_id, uint32 flags )
 {
     // Find item with matching ID.
-	Item* updated = items_.get_item( unique_id );
+	Item* updated = items_.find( unique_id );
 	assert( updated != nullptr );
     if (updated == nullptr) {
         return false;
@@ -201,6 +210,7 @@ bool Inventory::on_item_updated( uint64 unique_id, uint32 flags )
 		inventory_book_.set_item( index, replaced );
 	}
 	inventory_book_.set_item( destination, updated );
+    return true;
 }
 
 /*
@@ -208,4 +218,74 @@ bool Inventory::on_item_updated( uint64 unique_id, uint32 flags )
  */
 bool Inventory::on_craft_failed( void )
 {
+    return true;
+}
+
+/*
+ * Handle inventory reset event.
+ */
+bool Inventory::on_inventory_reset( void )
+{
+    delete_items();
+    return true;
+}
+
+/*
+ * Handle inventory size change event.
+ */
+bool Inventory::on_inventory_resize( bool is_trial_account, uint32 extra_slots )
+{
+    // Calculate number of slots to resize to.
+    unsigned int total_slots = INVENTORY_PAGE_WIDTH * INVENTORY_PAGE_HEIGHT;
+    if (is_trial_account) {
+        // Should be no extra slots for trial accounts.
+        total_slots *= TRIAL_ACCOUNT_PAGES;
+    }
+    else {
+        total_slots = (total_slots * PREMIUM_ACCOUNT_PAGES) + extra_slots;
+    }
+    if (total_slots < inventory_book_.get_size()) {
+        return false;
+    }
+
+    // Attempt to set inventory book size.
+    if (!inventory_book_.set_size( total_slots )) {
+        return false;
+    }
+    return true;
+}
+
+/*
+ * Handle inventory load completion event; notify to start loading schema.
+ */
+bool Inventory::on_inventory_loaded( void )
+{
+    return true;
+}
+
+/*
+ * Handle schema load completed event.
+ */
+bool Inventory::on_schema_loaded( ItemSchema* schema )
+{
+    // Resolve and place all items.
+    unsigned int i;
+    unsigned int end = items_.get_size();
+    for (i = 0; i < end; ++i) {
+        Item* item = items_.get_item( i );
+
+        // Find definition for item.
+        if (!schema->resolve( item )) {
+            return false;
+        }
+
+        // Try to place item.
+        unsigned int position = item->get_position();
+        if (!place_item( item )) {
+            return false;
+        }
+    }
+
+    schema_ = schema;
+    return true;
 }

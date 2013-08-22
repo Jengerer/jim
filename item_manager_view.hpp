@@ -32,7 +32,7 @@ public:
     bool create_alert( const JUTIL::String* message );
     bool create_error( const JUTIL::String* message );
     bool set_loading_notice( const JUTIL::String* message );
-    void hide_loading_notice( void );
+    void destroy_loading_notice( void );
     NotificationQueue* get_notification_queue( void );
 
     // Frame updating.

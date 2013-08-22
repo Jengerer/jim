@@ -74,6 +74,14 @@ bool SlotView::initialize( void )
 }
 
 /*
+ * Set the texture of the item being shown here.
+ */
+void SlotView::set_item_texture( const JUI::Texture* texture )
+{
+    image_->set_texture( texture );
+}
+
+/*
  * Precache font and text object.
  */
 bool SlotView::precache( JUI::Graphics2D* graphics )

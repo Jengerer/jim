@@ -14,7 +14,7 @@ class DraggedSlotView: public SlotView, public JUI::MouseHandlerInterface
 
 public:
 
-	DraggedSlotView( Slot* slot );
+	DraggedSlotView( void );
 	virtual ~DraggedSlotView( void );
 
 	void update_alpha( void );

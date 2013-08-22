@@ -6,6 +6,8 @@
 
 /*
  * Class for handling the global pool of items in an inventory.
+ * Set takes ownership of the items, so they are to be destroyed if not
+ * handled by the item set anymore.
  */
 class ItemSet
 {
@@ -16,10 +18,14 @@ public:
 	~ItemSet( void );
 
 	// Item management functions.
-	bool add_item( Item* item );
-	void delete_item( Item* item );
-	Item* get_item( uint64 unique_id );
+	bool add( Item* item );
+	void destroy( Item* item );
+	Item* find( uint64 unique_id );
 	void clear( void );
+
+    // Item iteration functions.
+    unsigned int get_size( void ) const;
+    Item* get_item( unsigned int index );
 
 private:
 
