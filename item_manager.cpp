@@ -111,6 +111,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
         return PrecacheResourcesFailure;
     }
     new (view_) ItemManagerView( &inventory_ );
+	view_->set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
     if (!add( view_ )) {
         stack->log( "Failed to add item manager view object to application." );
         return PrecacheResourcesFailure;

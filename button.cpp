@@ -63,12 +63,13 @@ bool Button::initialize( const JUTIL::String* label, const JUI::Texture* icon )
     }
 
     // Add label and icon if exist.
-    if (icon!= nullptr) {
+    if (icon != nullptr) {
         JUI::Image* image;
         if (!JUTIL::BaseAllocator::allocate( &image )) {
             return false;
         }
         new (image) JUI::Image( icon );
+		image->set_size( icon->get_width(), icon->get_height() );
         if (!layout_->add( image )) {
             JUTIL::BaseAllocator::destroy( image );
             return false;

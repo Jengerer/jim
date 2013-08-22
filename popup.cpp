@@ -57,6 +57,7 @@ bool Popup::initialize( void )
 	rounded_rect->set_stroke( POPUP_STROKE_WIDTH, &POPUP_STROKE_COLOUR );
 	rounded_rect->set_stroke_type( STROKE_TYPE_OUTER );
 	rounded_rect->set_colour( POPUP_COLOUR );
+	return true;
 }
 
 /*
