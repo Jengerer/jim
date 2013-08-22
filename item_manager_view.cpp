@@ -44,14 +44,15 @@ ItemManagerView::ItemManagerView( Inventory* inventory )
 	  sort_button_( nullptr ),
 	  delete_button_( nullptr ),
 	  prev_button_( nullptr ),
-	  next_button_( nullptr )
+	  next_button_( nullptr ),
+      title_font_( nullptr ),
+      page_font_( nullptr )
 {
     button_manager_.set_event_listener( this );
 }
 
 ItemManagerView::~ItemManagerView( void )
 {
-    clean_up();
 }
 
 /*
@@ -78,7 +79,7 @@ bool ItemManagerView::download_resources( ResourceLoaderInterface* loader )
     else if (!loader->get_resource( &DELETE_ICON_TEXTURE, &DELETE_ICON_TEXTURE )) {
         return false;
     }
-
+    
     // Download fallback item icon.
     if (!loader->get_resource( &UNKNOWN_ITEM_ICON_TEXTURE, &UNKNOWN_ITEM_ICON_TEXTURE )) {
         return false;
@@ -115,12 +116,17 @@ bool ItemManagerView::initialize( JUI::Graphics2D* graphics )
 
 /*
  * Clean up item manager view objects.
+ * This should be called before font factory destroyed.
  */
 void ItemManagerView::clean_up( void )
 {
     // Remove font resources.
-    JUI::FontFactory::destroy_font( title_font_ );
-    JUI::FontFactory::destroy_font( page_font_ );
+    if (title_font_ != nullptr) {
+        JUI::FontFactory::destroy_font( title_font_ );
+    }
+    if (page_font_ != nullptr) {
+        JUI::FontFactory::destroy_font( page_font_ );
+    }
 }
 
 /*
@@ -448,9 +454,9 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         stack->log( "Failed to create next page button." );
 		return false;
 	}
-	if (!page_display_layout->add( prev_button_ )) {
-		JUTIL::BaseAllocator::destroy( prev_button_ );
-        stack->log( "Failed to add previous button to page display layout." );
+	if (!page_display_layout->add( next_button_ )) {
+		JUTIL::BaseAllocator::destroy( next_button_ );
+        stack->log( "Failed to add next button to page display layout." );
 		return false;
 	}
 
