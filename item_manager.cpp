@@ -182,6 +182,11 @@ bool ItemManager::create_resources( void )
 
 void ItemManager::close_interfaces( void )
 {
+    // Clean up view resources.
+    if (view_ != nullptr) {
+        view_->clean_up();
+    }
+
     // Delete definition resources.
     JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
 
