@@ -41,7 +41,15 @@ bool SlotArray::set_size( unsigned int size )
  */
 unsigned int SlotArray::get_size( void ) const
 {
-	slots_.get_length();
+	return slots_.get_length();
+}
+
+/*
+ * Returns whether the index corresponds to a valid slot.
+ */
+bool SlotArray::is_valid_index( unsigned int index ) const
+{
+    return index < get_size();
 }
 
 /*

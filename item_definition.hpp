@@ -38,9 +38,8 @@ public:
 	const Attribute* get_attribute( size_t index ) const;
 	const Attribute* find_attribute( const JUTIL::String* name ) const;
 
-	bool add_texture( const JUI::Texture* texture );
-	size_t get_texture_count( void ) const;
-	const JUI::Texture* get_texture( size_t index ) const;
+    // Get the texture for this item.
+	const JUI::Texture* get_texture( void ) const;
 
 private:
 
@@ -53,7 +52,7 @@ private:
 
     // Private item information attributes.
 	JUTIL::String* name_;
-	JUTIL::Vector<const JUI::Texture*> textures_;
+	const JUI::Texture* texture_;
 	uint32 class_flags_;
 	uint8 class_count_;
 	EItemSlot slot_;

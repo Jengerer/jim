@@ -4,7 +4,7 @@
  * Dragged slot view constructor. Slot is mimicked; should
  * either be an existing slot, or one that will be destroyed.
  */
-DraggedSlotView::DraggedSlotView( Slot* slot ) : SlotView( slot )
+DraggedSlotView::DraggedSlotView( void )
 {
 	// Nothing.
 }

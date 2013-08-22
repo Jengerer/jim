@@ -7,7 +7,6 @@
 ItemSchema::ItemSchema( void )
 {
     fallback_ = nullptr;
-    set_loaded( false );
 }
 
 /*
@@ -19,22 +18,6 @@ ItemSchema::~ItemSchema( void )
 
     // Destroy fallback.
     JUTIL::BaseAllocator::safe_destroy( &fallback_ );
-}
-
-/*
- * Set schema load state.
- */
-void ItemSchema::set_loaded( bool is_loaded )
-{
-	is_loaded_ = is_loaded;
-}
-
-/*
- * Return whether schema has been fully loaded.
- */
-bool ItemSchema::is_loaded( void ) const
-{
-	return is_loaded_;
 }
 
 /*

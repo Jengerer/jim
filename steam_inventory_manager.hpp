@@ -49,9 +49,6 @@ private:
     // Steam inventory listener handle.
     SteamInventoryListener* listener_;
 
-    // Item definition schema.
-    ItemSchema schema_;
-
 };
 
 #endif // STEAM_INVENTORY_MANAGER_HPP

@@ -113,9 +113,6 @@
     <ClCompile Include="main.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="animated_book_view.cpp">
-      <Filter>source\ui</Filter>
-    </ClCompile>
     <ClCompile Include="dynamic_slot_book.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -162,6 +159,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="steam_inventory_manager.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="item_set.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
   </ItemGroup>

@@ -467,11 +467,11 @@ uint32 Item::get_strange_type( uint32 index ) const
 }
 
 /*
- * Add a texture generic to this item type.
+ * Get the texture for this item, if any.
  */
-bool Item::add_texture( JUI::Texture* texture)
+const JUI::Texture* Item::get_texture( void ) const
 {
-	return textures_.push( texture );
+    return definition_->get_texture();
 }
 
 /*

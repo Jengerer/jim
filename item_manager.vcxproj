@@ -106,13 +106,13 @@
     <ClCompile Include="dynamic_slot_book.cpp" />
     <ClCompile Include="equip_status.cpp" />
     <ClCompile Include="http_resource_loader.cpp" />
+    <ClCompile Include="item_set.cpp" />
     <ClCompile Include="item_manager_view.cpp" />
     <ClCompile Include="item_schema.cpp" />
     <ClCompile Include="kill_eater_level.cpp" />
     <ClCompile Include="kill_eater_rank.cpp" />
     <ClCompile Include="kill_eater_type.cpp" />
     <ClCompile Include="slot_array.cpp" />
-    <ClCompile Include="animated_book_view.cpp" />
     <ClCompile Include="attribute.cpp" />
     <ClCompile Include="attribute_definition.cpp" />
     <ClCompile Include="confirmation.cpp" />

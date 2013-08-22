@@ -73,6 +73,7 @@ bool ItemManagerView::download_resources( ResourceLoaderInterface* loader )
     if (!loader->get_resource( &UNKNOWN_ITEM_ICON_TEXTURE, &UNKNOWN_ITEM_ICON_TEXTURE )) {
         return false;
     }
+    return true;
 }
 
 /*
@@ -91,6 +92,7 @@ bool ItemManagerView::initialize( JUI::Graphics2D* graphics )
     if (page_font_ == nullptr) {
         return false;
     }
+    return true;
 }
 
 /*
@@ -104,10 +106,73 @@ void ItemManagerView::clean_up( void )
 }
 
 /*
+ * Create generic alert to display.
+ * There should be at most one alert at a time.
+ */
+bool ItemManagerView::create_alert( const JUTIL::String* message )
+{
+    Alert* alert = popups_->create_alert( message );
+    if (alert == nullptr) {
+        return false;
+    }
+    alert_ = alert;
+    return true;
+}
+
+/*
+ * Create and display an error popup to the user.
+ */
+bool ItemManagerView::create_error( const JUTIL::String* message )
+{
+    Alert* error = popups_->create_alert( message );
+    if (error == nullptr) {
+        return false;
+    }
+    error_ = error;
+    return true;
+}
+
+/*
+ * Set message to be displayed in the loading popup notice.
+ */
+bool ItemManagerView::set_loading_notice( const JUTIL::String* message )
+{
+    // Create loading notice if none exists.
+    if (load_progress_ == nullptr) {
+        load_progress_ = popups_->create_notice( message );
+        if (load_progress_ == nullptr) {
+            return false;
+        }
+    }
+    else {
+        load_progress_->set_message( message );
+    }
+    return true;
+}
+
+/*
+ * Destroy the loading notice from the user on load complete/error.
+ */
+void ItemManagerView::destroy_loading_notice( void )
+{
+    assert( load_progress_ != nullptr );
+    popups_->delete_popup( load_progress_ );
+}
+
+/*
+ * Get a handle to the notification queue.
+ */
+NotificationQueue* ItemManagerView::get_notification_queue( void )
+{
+    return notifications_;
+}
+
+/*
  * Handle button press events.
  */
 bool ItemManagerView::on_button_pressed( Button* button )
 {
+    return true;
 }
 
 /*
@@ -125,6 +190,7 @@ bool ItemManagerView::on_button_released( Button* button )
     }
     else if (button == next_button_) {
     }
+    return true;
 }
 
 /*
@@ -414,4 +480,21 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
  */
 bool ItemManagerView::on_popup_killed( Popup* popup )
 {
+    return true;
+}
+
+/*
+ * Update the item display with the current item we're hovering over.
+ */
+bool ItemManagerView::update_item_display( void )
+{
+    return true;
+}
+
+/*
+ * Update page display with the current displayed page number.
+ */
+bool ItemManagerView::update_page_display( void )
+{
+    return true;
 }

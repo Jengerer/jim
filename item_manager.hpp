@@ -36,11 +36,6 @@ public:
 	bool running( void );
 	bool exiting( void );
 
-	// Steam handling.
-	bool handle_callback( void );
-	bool handle_message( uint32 id, void* message, size_t size );
-	bool handle_protobuf( uint32 id, void* message, size_t size );
-
 	// Input handling.
 	bool handle_keyboard( void );
 
@@ -52,13 +47,6 @@ public:
 	// Keyboard input handling.
 	virtual JUI::IOResult on_key_pressed( int key );
 	virtual JUI::IOResult on_key_released( int key );
-
-	// Slot selection handling.
-	void update_buttons( void );
-
-	// Updating displays.
-	void update_item_display( void );
-	bool update_page_display( void );
 
 private:
 

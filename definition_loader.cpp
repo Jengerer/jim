@@ -938,55 +938,17 @@ bool DefinitionLoader::load_item( Json::Value* item,
 	// Load tool info and alternate textures
 	Json::Value* tool;
 	Json::Value* tool_type;
-	Json::Value* tool_usage;
-	Json::Value* tool_usage_value;
 	if (get_member( item, &ITEM_TOOL, &tool )) {
 		if (get_member( tool, &ITEM_TOOL_TYPE, &tool_type )) {
 			JUTIL::ConstantString tool_type_name = tool_type->asCString();
-			for(int i = 0; ITEM_TOOL_TYPES[i] != nullptr; ++i) {
-				if(tool_type_name.is_equal(ITEM_TOOL_TYPES[i])){
+			for (int i = 0; ITEM_TOOL_TYPES[i] != nullptr; ++i) {
+				if (tool_type_name.is_equal(ITEM_TOOL_TYPES[i])){
 					information->set_tool_type(i + 1);
 					break;
 				}
 			}
 		}
-
-		if (get_member( tool, &ITEM_TOOL_USAGE_CAPABILITIES, &tool_usage )) {
-			if(get_member( tool_usage, &ITEM_TOOL_PAINTABLE, &tool_usage_value )){
-				if(	tool_usage_value->asBool() ){
-					
-					if (downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL )) {
-						JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPILL_SINGLE_TEXTURE, &item_texture );
-						if (status == JUI::Graphics2D::Success) {
-							texture = static_cast<JUI::Texture*>(item_texture);
-							information->add_texture(texture);
-						}
-					}
-
-				}
-			}else if(get_member( tool_usage, &ITEM_TOOL_PAINTABLE_TEAM_COLORS, &tool_usage_value )){
-				if(	tool_usage_value->asBool() ){
-				
-					if (downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL )) {
-						JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPILL_RED_TEXTURE, &item_texture );
-						if (status == JUI::Graphics2D::Success) {
-							texture = static_cast<JUI::Texture*>(item_texture);
-							information->add_texture(texture);
-						}
-					}
-					if (downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL )) {
-						JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( &PAINT_SPILL_BLU_TEXTURE, &item_texture );
-						if (status == JUI::Graphics2D::Success) {
-							texture = static_cast<JUI::Texture*>(item_texture);
-							information->add_texture(texture);
-						}
-					}
-
-				}
-			}
-		}
-	}
-
+    }
 
 	// Now add attributes, if they exist.
     Json::Value* item_attributes;

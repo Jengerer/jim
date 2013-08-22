@@ -73,7 +73,6 @@ public:
 	uint32 get_strange_type( uint32 index ) const;
 
 	// Drawing and interaction.
-	bool add_texture( JUI::Texture* texture );
 	const JUI::Texture* get_texture( void ) const;
 
 	// Attribute management.
@@ -124,7 +123,6 @@ private:
 	const ItemDefinition* definition_;
 	JUTIL::Vector<Attribute*> attributes_;
 	JUTIL::Vector<EquippedStatus*> equipped_data_;
-	JUTIL::Vector<JUI::Texture*> textures_;
 
 };
 

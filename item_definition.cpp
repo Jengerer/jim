@@ -7,10 +7,10 @@ ItemDefinition::ItemDefinition(
 	JUTIL::String* name,
 	const JUI::Texture* texture,
 	uint32 class_flags,
-	EItemSlot slot )
+	EItemSlot slot ) :
+    texture_( texture )
 {
 	set_name( name );
-	add_texture( texture );
 	set_class_flags( class_flags );
 	set_slot( slot );
 	set_tool_type( TOOL_NOT_A_TOOL );
@@ -120,27 +120,11 @@ const Attribute* ItemDefinition::find_attribute( const JUTIL::String* name ) con
 }
 
 /*
- * Add a texture generic to this item type.
- */
-bool ItemDefinition::add_texture( const JUI::Texture* texture)
-{
-	return textures_.push( texture );
-}
-
-/*
- * Get the number of textures generic to this item type.
- */
-size_t ItemDefinition::get_texture_count( void ) const
-{
-	return textures_.get_length();
-}
-
-/*
  * Get a texture by index.
  */
-const JUI::Texture* ItemDefinition::get_texture( size_t index ) const
+const JUI::Texture* ItemDefinition::get_texture( void ) const
 {
-	return textures_.at( index );
+	return texture_;
 }
 
 
