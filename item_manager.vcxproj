@@ -84,6 +84,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
       <AdditionalDependencies>jutil.lib;jui.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>

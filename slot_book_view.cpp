@@ -51,9 +51,13 @@ unsigned int SlotBookView::get_active_page( void ) const
  */
 unsigned int SlotBookView::get_page_count( void ) const
 {
-	// Round up: add page_size / 2 and round down.
+	// Round up and minimize to one page.
+    unsigned int slot_count = slot_array_->get_size();
 	unsigned int page_size = get_grid_size();
-	unsigned int pages = (slot_array_->get_size() + (page_size / 2)) / page_size;
+    if (slot_count < page_size) {
+        slot_count = page_size;
+    }
+	unsigned int pages = (slot_count + (page_size - 1)) / page_size;
 	return pages;
 }
 

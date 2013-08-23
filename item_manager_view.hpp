@@ -6,6 +6,7 @@
 #include "dragged_slot_view.hpp"
 #include "inventory.hpp"
 #include "item_display.hpp"
+#include "item_manager_view_listener.hpp"
 #include <jui/io/mouse_handler_interface.hpp>
 #include "notification_queue.hpp"
 #include "popup_display.hpp"
@@ -27,6 +28,9 @@ public:
 
     ItemManagerView( Inventory* inventory );
     virtual ~ItemManagerView( void );
+
+    // Listener pointer setting.
+    void set_listener( ItemManagerViewListener* listener );
 
     // Interface initialization.
     bool download_resources( ResourceLoaderInterface* loader );
@@ -109,7 +113,7 @@ private:
 	JUI::FontInterface* page_font_;
 
     // Item manager event handling interface.
-
+    ItemManagerViewListener* listener_;
 
 };
 

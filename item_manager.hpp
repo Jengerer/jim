@@ -10,10 +10,14 @@
 #include "inventory.hpp"
 #include "inventory_listener.hpp"
 #include "item_manager_view.hpp"
+#include "item_manager_view_listener.hpp"
 #include "item_schema.hpp"
 #include "steam_inventory_manager.hpp"
 
-class ItemManager: public JUI::Application, public InventoryListener
+class ItemManager
+    : public JUI::Application,
+      public ItemManagerViewListener,
+      public InventoryListener
 {
 
 public:
@@ -37,6 +41,9 @@ public:
 	bool loading_schema( void );
 	bool running( void );
 	bool exiting( void );
+
+    // View listener functions.
+    virtual bool on_error_acknowledged( void );
 
 	// Inventory listener functions.
 	virtual bool on_inventory_loaded( void );

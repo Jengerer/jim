@@ -7,6 +7,11 @@
  */
 class ItemManagerViewListener
 {
+
+public:
+
+    virtual bool on_error_acknowledged( void ) = 0;
+
 };
 
 #endif // ITEM_MANAGER_VIEW_LISTENER_HPP
