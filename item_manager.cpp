@@ -115,6 +115,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
     }
     new (view_) ItemManagerView( &inventory_ );
 	view_->set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
+    view_->set_listener( this );
     if (!add( view_ )) {
         stack->log( "Failed to add item manager view object to application." );
         return PrecacheResourcesFailure;
@@ -320,6 +321,17 @@ bool ItemManager::running( void )
 bool ItemManager::exiting( void )
 {
 	// Just wait for exit.
+    return true;
+}
+
+/*
+ * Handle error acknowledge event from view.
+ */
+bool ItemManager::on_error_acknowledged( void )
+{
+    // TODO: if this error is update-related, launch it here.
+    exit_application();
+    set_think( &ItemManager::exiting );
     return true;
 }
 

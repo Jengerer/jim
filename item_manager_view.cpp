@@ -62,6 +62,14 @@ ItemManagerView::~ItemManagerView( void )
 }
 
 /*
+ * Set the handler for item manager view events.
+ */
+void ItemManagerView::set_listener( ItemManagerViewListener* listener )
+{
+    listener_ = listener;
+}
+
+/*
  * Download resources from item manager file repository of necessary.
  * Returns true on success, false otherwise.
  */
@@ -514,7 +522,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 
 	// Pack buttons.
 	inventory_buttons->pack( BUTTON_SPACING, JUI::ALIGN_TOP );
-	page_display_layout->pack( BUTTON_SPACING, JUI::ALIGN_TOP );
+	page_display_layout->pack( BUTTON_SPACING, JUI::ALIGN_MIDDLE );
 	button_layout->pack();
 
 	// Create excluded view.
@@ -563,6 +571,12 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
  */
 bool ItemManagerView::on_popup_killed( Popup* popup )
 {
+    // Tell parent that we closed an error if it was killed.
+    if (popup == error_) {
+        if (!listener_->on_error_acknowledged()) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -579,5 +593,13 @@ bool ItemManagerView::update_item_display( void )
  */
 bool ItemManagerView::update_page_display( void )
 {
+    // Update page display to show current page.
+    unsigned int active_page = inventory_view_->get_active_page() + 1;
+    unsigned int total_pages = inventory_view_->get_page_count();
+    JUTIL::DynamicString string;
+    if (!string.write( "%u/%u", active_page, total_pages )) {
+        return false;
+    }
+    page_display_->set_text( &string );
     return true;
 }
