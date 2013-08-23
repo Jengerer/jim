@@ -30,6 +30,10 @@ public:
     ItemSchema( void );
     ~ItemSchema( void );
 
+	// Schema state functions.
+	bool is_loaded( void ) const;
+	void set_loaded( bool is_loaded );
+
     // Definition management.
     bool add_item_definition( uint16 index, ItemDefinition* item_definition );
     bool add_attribute_definition( uint16 index, AttributeDefinition* attribute_definition );
@@ -54,6 +58,9 @@ public:
     bool resolve( Attribute* attribute ) const;
 
 private:
+
+	// Schema state variables.
+	bool is_loaded_;
 
     // Maps for definitions.
     ItemDefinitionMap item_definitions_;

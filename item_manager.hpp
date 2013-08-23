@@ -8,11 +8,12 @@
 #include "definition_loader.hpp"
 #include "http_resource_loader.hpp"
 #include "inventory.hpp"
+#include "inventory_listener.hpp"
 #include "item_manager_view.hpp"
 #include "item_schema.hpp"
 #include "steam_inventory_manager.hpp"
 
-class ItemManager: public JUI::Application
+class ItemManager: public JUI::Application, public InventoryListener
 {
 
 public:
@@ -32,9 +33,13 @@ public:
     JUI::Application::ReturnStatus run( void );
 	void set_think( bool (ItemManager::*think_function)( void ) );
 	bool think( void );
-	bool loading( void );
+	bool waiting_for_items( void );
+	bool loading_schema( void );
 	bool running( void );
 	bool exiting( void );
+
+	// Inventory listener functions.
+	virtual bool on_inventory_loaded( void );
 
 	// Input handling.
 	bool handle_keyboard( void );

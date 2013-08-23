@@ -33,6 +33,12 @@ const unsigned int ITEM_DISPLAY_SPACING	= 10;
 // Button layout.
 const unsigned int BUTTON_SPACING = 5;
 
+// Inventory/excluded view dimensions.
+const unsigned int INVENTORY_PAGE_WIDTH = 10;
+const unsigned int INVENTORY_PAGE_HEIGHT = 5;
+const unsigned int EXCLUDED_PAGE_WIDTH = 5;
+const unsigned int EXCLUDED_PAGE_HEIGHT = 1;
+
 ItemManagerView::ItemManagerView( Inventory* inventory )
     : inventory_( inventory ),
 	  load_progress_( nullptr ),
@@ -170,6 +176,8 @@ bool ItemManagerView::set_loading_notice( const JUTIL::String* message )
     }
     else {
         load_progress_->set_message( message );
+		load_progress_->pack();
+		load_progress_->center_to( popups_ );
     }
     return true;
 }
@@ -337,23 +345,22 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	}
 
 	// Create inventory view.
-    SlotBook* book = inventory_->get_inventory_book();
-    unsigned int page_width = book->get_page_width();
-    unsigned int page_height = book->get_page_height();
+    SlotArray* book = inventory_->get_inventory_slots();
 	if (!JUTIL::BaseAllocator::allocate( &inventory_view_ )) {
         stack->log( "Failed to allocate inventory view." );
 		return false;
 	}
-    new (inventory_view_) SlotGridView();
+    new (inventory_view_) SlotBookView( book, INVENTORY_PAGE_WIDTH, INVENTORY_PAGE_HEIGHT );
 	if (!layout->add( inventory_view_ )) {
 		JUTIL::BaseAllocator::destroy( inventory_view_ );
         stack->log( "Failed to add initialized inventory view to layout." );
 		return false;
 	}
-    if (!inventory_view_->set_grid_size( page_width, page_height )) {
+    if (!inventory_view_->initialize()) {
         stack->log( "Failed to resize inventory view grid." );
         return false;
     }
+	book->set_listener( inventory_view_ );
 
 	// Create button layout.
 	JUI::HorizontalSplitLayout* button_layout;
@@ -511,15 +518,13 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	button_layout->pack();
 
 	// Create excluded view.
-    book = inventory_->get_excluded_book();
-    page_width = book->get_page_width();
-    page_height = book->get_page_height();
+    book = inventory_->get_excluded_slots();
 	if (!JUTIL::BaseAllocator::allocate( &excluded_view_ )) {
         stack->log( "Failed to allocate excluded slot view." );
 		return false;
 	}
-	excluded_view_ = new (excluded_view_) SlotGridView();
-	if (!excluded_view_->set_grid_size( page_width, page_height ) || !layout->add( excluded_view_ )) {
+	excluded_view_ = new (excluded_view_) SlotBookView( book, EXCLUDED_PAGE_WIDTH, EXCLUDED_PAGE_HEIGHT );
+	if (!excluded_view_->initialize() || !layout->add( excluded_view_ )) {
 		JUTIL::BaseAllocator::destroy( excluded_view_ );
         stack->log( "Failed to add initialized excluded view to layout." );
 		return false;

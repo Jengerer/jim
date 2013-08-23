@@ -67,8 +67,11 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
     // Web interface.
     site_loader_ = nullptr;
 
+	// Set inventory event handler.
+    inventory_.set_listener( this );
+
 	// Set default running function.
-	set_think( &ItemManager::loading );
+	set_think( &ItemManager::waiting_for_items );
 }
 
 /*
@@ -169,6 +172,7 @@ bool ItemManager::create_resources( void )
 	if (!steam_items_.load_interfaces()) {
 		return false;
 	}
+	steam_items_.set_listener( &inventory_ );
 
 	// Show progress notice.
     const JUTIL::ConstantString PREPARING_MESSAGE = "Waiting for inventory message from Steam...";
@@ -242,52 +246,62 @@ bool ItemManager::think( void )
 	return (this->*think_function_)();
 }
 
-bool ItemManager::loading( void )
+/*
+ * Handle callbacks until inventory loaded event comes.
+ */
+bool ItemManager::waiting_for_items( void )
+{
+	if (!steam_items_.handle_callbacks()) {
+		return false;
+	}
+	return true;
+}
+
+/*
+ * Handle definition load state.
+ */
+bool ItemManager::loading_schema( void )
 {
 	// Stack for reporting and getting.
 	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
-	// Wait for item loading if definition loading hasn't started.
-    if (definition_loader_ == nullptr) {
-		if (!steam_items_.handle_callbacks()) {
+    // Parse definition loading state.
+	switch (definition_loader_->get_state()) {
+		case LOADING_STATE_ERROR:
+		{
+			// Remove threaded loader.
+			JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
 			return false;
 		}
-    }
-    else {
-        // Parse definition loading state.
-		switch (definition_loader_->get_state()) {
-			case LOADING_STATE_ERROR:
-			{
-				// Remove threaded loader.
-				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
+
+		case LOADING_STATE_FINISHED:
+		{
+			// Remove threaded loader.
+			JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
+
+            // Finished loading!
+            view_->destroy_loading_notice();
+			if (!inventory_.on_schema_loaded()) {
+				stack->log( "Failed to run post-schema load inventory event." );
 				return false;
 			}
+            set_think( &ItemManager::running );
+			break;
+		}
 
-			case LOADING_STATE_FINISHED:
-			{
-				// Remove threaded loader.
-				JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
-
-                // Finished loading!
-                view_->destroy_loading_notice();
-                set_think( &ItemManager::running );
-				break;
+		default:
+		{
+            // Print message.
+			const JUTIL::String* progress_message = definition_loader_->get_progress_message();
+			if (progress_message == nullptr) {
+				stack->log( "Failed to get progress message from loader." );
+				return false;
 			}
-
-			default:
-			{
-                // Print message.
-				const JUTIL::String* progress_message = definition_loader_->get_progress_message();
-				if (progress_message == nullptr) {
-					stack->log( "Failed to get progress message from loader." );
-					return false;
-				}
-                if (!view_->set_loading_notice( progress_message )) {
-					stack->log( "Failed to set progress message for loader." );
-					return false;
-				}
-				break;
+            if (!view_->set_loading_notice( progress_message )) {
+				stack->log( "Failed to set progress message for loader." );
+				return false;
 			}
+			break;
 		}
 	}
 
@@ -307,6 +321,19 @@ bool ItemManager::exiting( void )
 {
 	// Just wait for exit.
     return true;
+}
+
+/*
+ * Handle inventory load completion event.
+ */
+bool ItemManager::on_inventory_loaded( void )
+{
+	// Create thread to load item definitions.
+	if (!start_definition_load()) {
+		return false;
+	}
+	set_think( &ItemManager::loading_schema );
+	return true;
 }
 
 JUI::IOResult ItemManager::on_mouse_clicked( JUI::Mouse* mouse )

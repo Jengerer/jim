@@ -15,6 +15,22 @@ SlotArray::~SlotArray( void )
 }
 
 /*
+ * Get slot by index.
+ */
+const Slot* SlotArray::get_slot( unsigned int index ) const
+{
+	return &slots_.at( index );
+}
+
+/*
+ * Set handler for slot update events.
+ */
+void SlotArray::set_listener( SlotArrayListener* listener )
+{
+	listener_ = listener;
+}
+
+/*
  * Set slot array size.
  */
 bool SlotArray::set_size( unsigned int size )
@@ -84,10 +100,14 @@ bool SlotArray::contains_item( Item* item, unsigned int* index ) const
 /*
  * Set the item at the given slot.
  */
-void SlotArray::set_item( unsigned int index, Item* item )
+bool SlotArray::set_item( unsigned int index, Item* item )
 {
 	Slot* slot = &slots_.at( index );
 	slot->set_item( item );
+	if (!listener_->on_slot_updated( index, slot )) {
+		return false;
+	}
+	return true;
 }
 
 /*

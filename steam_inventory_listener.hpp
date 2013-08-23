@@ -25,9 +25,6 @@ public:
     virtual bool on_inventory_resize( bool is_trial_account, uint32 extra_slots ) = 0;
     virtual bool on_inventory_loaded( void ) = 0;
 
-    // Schema definitions.
-    virtual bool on_schema_loaded( ItemSchema* schema ) = 0;
-
 };
 
 #endif // STEAM_INVENTORY_LISTENER_HPP

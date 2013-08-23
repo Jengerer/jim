@@ -3,7 +3,9 @@
 // Layout constants.
 const unsigned int SLOT_SPACING = 5;
 
-SlotGridView::SlotGridView( void )
+SlotGridView::SlotGridView( unsigned int grid_width, unsigned int grid_height )
+	: grid_width_( grid_width ),
+	  grid_height_( grid_height )
 {
 }
 
@@ -14,11 +16,11 @@ SlotGridView::~SlotGridView( void )
 /*
  * Add slots from an array to the grid.
  */
-bool SlotGridView::set_grid_size( unsigned int width, unsigned int height )
+bool SlotGridView::initialize( void )
 {
 	// Reserve space for elements.
-	unsigned int elements = width * height;
-	if (!reserve( elements )) {
+	unsigned int elements = grid_width_ * grid_height_;
+	if (!reserve( elements ) || !slot_views_.reserve( elements )) {
 		return false;
 	}
 
@@ -30,14 +32,39 @@ bool SlotGridView::set_grid_size( unsigned int width, unsigned int height )
 		}
 		new (view) SlotView();
 		add( view );
+		slot_views_.push( view );
         if (!view->initialize()) {
             return false;
         }
 	}
 
 	// Pack grid.
-	pack( width, SLOT_SPACING );
+	pack( grid_width_, SLOT_SPACING );
     return true;
+}
+
+/*
+ * Get the number of slots in a row.
+ */
+unsigned int SlotGridView::get_grid_width( void ) const
+{
+	return grid_width_;
+}
+
+/*
+ * Get the number of slots in a column.
+ */
+unsigned int SlotGridView::get_grid_height( void ) const
+{
+	return grid_height_;
+}
+
+/*
+ * Get total slots in grid view.
+ */
+unsigned int SlotGridView::get_grid_size( void ) const
+{
+	return grid_width_ * grid_height_;
 }
 
 /*
@@ -72,7 +99,7 @@ bool SlotGridView::get_touching_index( const JUI::Mouse* mouse, unsigned int* in
 /*
  * Updates the slot view at the given index.
  */
-bool SlotGridView::on_slot_updated( unsigned int index, Slot* slot )
+bool SlotGridView::on_slot_updated( unsigned int index, const Slot* slot )
 {
 	// TODO: Use item decorator classes to draw different item types.
 	SlotView* view = slot_views_.at( index );

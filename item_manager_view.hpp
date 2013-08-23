@@ -11,7 +11,7 @@
 #include "popup_display.hpp"
 #include "popup_listener.hpp"
 #include "resource_loader_interface.hpp"
-#include "slot_grid_view.hpp"
+#include "slot_book_view.hpp"
 
 /*
  * Class for managing the item manager UI.
@@ -93,8 +93,8 @@ private:
 
     // User interface members.
     ButtonManager button_manager_;
-	SlotGridView* inventory_view_;
-	SlotGridView* excluded_view_;
+	SlotBookView* inventory_view_;
+	SlotBookView* excluded_view_;
     DraggedSlotView* dragged_view_;
 
     // UI buttons.
