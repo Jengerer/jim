@@ -1,20 +1,13 @@
 #include "inventory.hpp"
 
 // Inventory attributes.
-const unsigned int INVENTORY_PAGE_WIDTH = 10;
-const unsigned int INVENTORY_PAGE_HEIGHT = 5;
-const unsigned int EXCLUDED_PAGE_WIDTH = 5;
-const unsigned int EXCLUDED_PAGE_HEIGHT = 1;
-const unsigned int TRIAL_ACCOUNT_PAGES = 1;
-const unsigned int PREMIUM_ACCOUNT_PAGES = 6;
+const unsigned int TRIAL_SLOT_COUNT = 50;
+const unsigned int PREMIUM_SLOT_COUNT = 300;
 
 /*
  * Inventory constructor.
  */
 Inventory::Inventory( void )
-    : inventory_book_( INVENTORY_PAGE_WIDTH, INVENTORY_PAGE_HEIGHT ),
-      excluded_book_( EXCLUDED_PAGE_WIDTH, EXCLUDED_PAGE_HEIGHT ),
-      schema_( nullptr )
 {
 }
 
@@ -23,25 +16,30 @@ Inventory::Inventory( void )
  */
 Inventory::~Inventory( void )
 {
-    // Destroy schema if loaded.
-    JUTIL::BaseAllocator::safe_destroy( &schema_ );
-	delete_items();
+}
+
+/*
+ * Setting inventory listener handle.
+ */
+void Inventory::set_listener( InventoryListener* listener )
+{
+	listener_ = listener;
 }
 
 /*
  * Get the handle to the inventory book.
  */
-SlotBook* Inventory::get_inventory_book( void )
+SlotArray* Inventory::get_inventory_slots( void )
 {
-    return &inventory_book_;
+    return &inventory_slots_;
 }
 
 /*
  * Get the handle to the excluded book.
  */
-DynamicSlotBook* Inventory::get_excluded_book( void )
+DynamicSlotArray* Inventory::get_excluded_slots( void )
 {
-    return &excluded_book_;
+    return &excluded_slots_;
 }
 
 /*
@@ -49,7 +47,33 @@ DynamicSlotBook* Inventory::get_excluded_book( void )
  */
 ItemSchema* Inventory::get_schema( void )
 {
-    return schema_;
+    return &schema_;
+}
+
+/*
+ * Handle schema load completed event.
+ */
+bool Inventory::on_schema_loaded( void )
+{
+    // Resolve and place all items.
+    unsigned int i;
+    unsigned int end = items_.get_size();
+    for (i = 0; i < end; ++i) {
+        Item* item = items_.get_item( i );
+
+        // Find definition for item.
+        if (!schema_.resolve( item )) {
+            return false;
+        }
+
+        // Try to place item.
+        unsigned int position = item->get_position();
+        if (!place_item( item )) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /*
@@ -68,9 +92,9 @@ bool Inventory::can_place( const Item* item ) const
 {
 	if (item->has_valid_inventory_flags()) {
 		unsigned int index = item->get_position();
-		if (inventory_book_.is_valid_index( index )) {
+		if (inventory_slots_.is_valid_index( index )) {
 			// Allow insertion to existing slot.
-			if (inventory_book_.is_slot_empty( index )) {
+			if (inventory_slots_.is_slot_empty( index )) {
                 return true;
             }
 		}
@@ -89,11 +113,11 @@ bool Inventory::place_item( Item* item )
 	// Check if item has spot in inventory.
 	if (can_place( item )) {
         unsigned int index = item->get_position();
-		inventory_book_.set_item( index, item );
+		inventory_slots_.set_item( index, item );
 	}
 	else {
         // Add to excluded, and expand if necessary.
-		if (!excluded_book_.push_item( item )) {
+		if (!excluded_slots_.push_item( item )) {
             return false;
         }
 	}
@@ -107,8 +131,8 @@ bool Inventory::place_item( Item* item )
 void Inventory::displace_item( Item* item )
 {
 	// Remove item from slot.
-    if (!inventory_book_.remove_item( item )) {
-        excluded_book_.remove_item( item );
+    if (!inventory_slots_.remove_item( item )) {
+        excluded_slots_.remove_item( item );
     }
 }
 
@@ -118,8 +142,8 @@ void Inventory::displace_item( Item* item )
 void Inventory::delete_items( void )
 {
 	items_.clear();
-    inventory_book_.empty_slots();
-    excluded_book_.empty_slots();
+    inventory_slots_.empty_slots();
+    excluded_slots_.empty_slots();
 }
 
 /*
@@ -128,9 +152,9 @@ void Inventory::delete_items( void )
 bool Inventory::resolve_excluded( void )
 {
 	unsigned int i = 0;
-    unsigned int end = excluded_book_.get_size();
+    unsigned int end = excluded_slots_.get_size();
 	for (i = 0; i < end; ++i) {
-		Item* item = excluded_book_.get_item( i );
+		Item* item = excluded_slots_.get_item( i );
 		if ((item != nullptr) && can_place( item )) {
             place_item( item );
 		}
@@ -151,9 +175,9 @@ bool Inventory::on_item_created( Item* item )
     }
 
 	// Attempt to place item if schema is loaded.
-    if (schema_ != nullptr) {
+    if (schema_.is_loaded()) {
         // Resolve definition.
-        if (!schema_->resolve( item )) {
+        if (!schema_.resolve( item )) {
             return false;
         }
 
@@ -179,8 +203,8 @@ bool Inventory::on_item_deleted( uint64 unique_id )
 	items_.destroy( deleted );
 
     // Clear from slots.
-    if (!inventory_book_.remove_item( deleted )) {
-		excluded_book_.remove_item( deleted );
+    if (!inventory_slots_.remove_item( deleted )) {
+		excluded_slots_.remove_item( deleted );
 	}
     // TODO: selected_book_.remove_item( item );
 	return true;
@@ -205,11 +229,11 @@ bool Inventory::on_item_updated( uint64 unique_id, uint32 flags )
 	// If this is an inventory item, swap with replaced, if exists.
 	unsigned int index;
 	unsigned int destination = updated->get_position();
-	if (inventory_book_.contains_item( updated, &index )) {
-		Item* replaced = inventory_book_.get_item( destination );
-		inventory_book_.set_item( index, replaced );
+	if (inventory_slots_.contains_item( updated, &index )) {
+		Item* replaced = inventory_slots_.get_item( destination );
+		inventory_slots_.set_item( index, replaced );
 	}
-	inventory_book_.set_item( destination, updated );
+	inventory_slots_.set_item( destination, updated );
     return true;
 }
 
@@ -236,20 +260,20 @@ bool Inventory::on_inventory_reset( void )
 bool Inventory::on_inventory_resize( bool is_trial_account, uint32 extra_slots )
 {
     // Calculate number of slots to resize to.
-    unsigned int total_slots = INVENTORY_PAGE_WIDTH * INVENTORY_PAGE_HEIGHT;
+    unsigned int total_slots;
     if (is_trial_account) {
         // Should be no extra slots for trial accounts.
-        total_slots *= TRIAL_ACCOUNT_PAGES;
+        total_slots = TRIAL_SLOT_COUNT;
     }
     else {
-        total_slots = (total_slots * PREMIUM_ACCOUNT_PAGES) + extra_slots;
+        total_slots = PREMIUM_SLOT_COUNT + extra_slots;
     }
-    if (total_slots < inventory_book_.get_size()) {
+    if (total_slots < inventory_slots_.get_size()) {
         return false;
     }
 
     // Attempt to set inventory book size.
-    if (!inventory_book_.set_size( total_slots )) {
+    if (!inventory_slots_.set_size( total_slots )) {
         return false;
     }
     return true;
@@ -260,32 +284,8 @@ bool Inventory::on_inventory_resize( bool is_trial_account, uint32 extra_slots )
  */
 bool Inventory::on_inventory_loaded( void )
 {
-    return true;
-}
-
-/*
- * Handle schema load completed event.
- */
-bool Inventory::on_schema_loaded( ItemSchema* schema )
-{
-    // Resolve and place all items.
-    unsigned int i;
-    unsigned int end = items_.get_size();
-    for (i = 0; i < end; ++i) {
-        Item* item = items_.get_item( i );
-
-        // Find definition for item.
-        if (!schema->resolve( item )) {
-            return false;
-        }
-
-        // Try to place item.
-        unsigned int position = item->get_position();
-        if (!place_item( item )) {
-            return false;
-        }
-    }
-
-    schema_ = schema;
+	if (!listener_->on_inventory_loaded()) {
+		return false;
+	}
     return true;
 }

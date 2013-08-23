@@ -46,6 +46,7 @@ Notice* PopupDisplay::create_notice( const JUTIL::String* message )
         return nullptr;
     }
     notice->pack();
+	notice->center_to( this );
 	return notice;
 }
 

@@ -3,7 +3,7 @@
 // Slot layout attributes.
 const unsigned int SLOT_WIDTH	= 80;
 const unsigned int SLOT_HEIGHT	= 60;
-const unsigned int ITEM_SIZE	= 80;
+const unsigned int ITEM_SIZE	= 60;
 
 // Slot stroke attributes.
 const unsigned int SLOT_STROKE_WIDTH = 3;
@@ -69,6 +69,7 @@ bool SlotView::initialize( void )
 		JUTIL::BaseAllocator::destroy( image_ );
 		return false;
 	}
+	image_->set_size( ITEM_SIZE, ITEM_SIZE );
 	set_constraint( image_, (SLOT_WIDTH - ITEM_SIZE) / 2, 0 );
 	return true;
 }

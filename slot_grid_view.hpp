@@ -17,22 +17,27 @@ class SlotGridView : public JUI::GridLayout, public SlotArrayListener
 public:
 
 	// Creation.
-	SlotGridView( void );
+	SlotGridView( unsigned int grid_width, unsigned int grid_height );
 	virtual ~SlotGridView( void );
 
-	// Slot management.
-	bool set_grid_size( unsigned int width, unsigned int height );
+	// Slot grid functions.
+	bool initialize( void );
+	unsigned int get_grid_width( void ) const;
+	unsigned int get_grid_height( void ) const;
+	unsigned int get_grid_size( void ) const;
 
 	// UI handling.
 	const SlotView* get_slot_view( unsigned int index ) const;
 	bool get_touching_index( const JUI::Mouse* mouse, unsigned int* index ) const;
 
 	// Array listener interface.
-	virtual bool on_slot_updated( unsigned int index, Slot* slot );
+	virtual bool on_slot_updated( unsigned int index, const Slot* slot );
 
 private:
 
 	JUTIL::Vector<SlotView*> slot_views_;
+	unsigned int grid_width_;
+	unsigned int grid_height_;
 
 };
 

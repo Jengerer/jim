@@ -21,22 +21,29 @@ SteamInventoryManager::~SteamInventoryManager( void )
 }
 
 /*
+ * Set the interface for handling steam inventory events.
+ */
+void SteamInventoryManager::set_listener( SteamInventoryListener* listener )
+{
+	listener_ = listener;
+}
+
+/*
  * Set the pointer for the interface that will handle inventory-specific
  * Steam events.
  */
 bool SteamInventoryManager::handle_callbacks( void )
 {
     CallbackMsg_t callback;
-    if (!get_callback( &callback )) {
-        return false;
-    }
-
-    // Pass callback to handling function.
-    unsigned int id = callback.m_iCallback;
-    void* message = callback.m_pubParam;
-    if (!handle_callback( id, message )) {
-        return false;
-    }
+    if (get_callback( &callback )) {
+		// Pass callback to handling function.
+		unsigned int id = callback.m_iCallback;
+		void* message = callback.m_pubParam;
+		if (!handle_callback( id, message )) {
+			return false;
+		}
+		release_callback();
+	}
     return true;
 }
 
@@ -119,21 +126,21 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
         }
 		
         // Get message from Steam.
-        uint32 id;
+        uint32 message_id;
         uint32 real_size;
         JUTIL::ArrayBuilder<uint8> buffer;
         if (!buffer.set_size( size )) {
             return false;
         }
-        if (!get_message( &id, buffer.get_array(), size, &real_size )) {
+        if (!get_message( &message_id, buffer.get_array(), size, &real_size )) {
             return false;
         }
 
         // Check if message is protobuf message.
         const unsigned int PROTOBUF_FLAG = 0x80000000;
-        if ((id & PROTOBUF_FLAG) != 0) {
+        if ((message_id & PROTOBUF_FLAG) != 0) {
             // Clear flag to get real message ID.
-			id &= ~PROTOBUF_FLAG;
+			message_id &= ~PROTOBUF_FLAG;
 
 			// First get the protobuf struct header.
 			SerializedBuffer header_buffer( buffer.get_array() );
@@ -156,13 +163,13 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 
             // Pass message to protobuf handler.
 			uint32 body_size = size - sizeof(GCProtobufHeader_t) - header_size;
-			if (!handle_protobuf( id, header_buffer.here(), body_size )) {
+ 			if (!handle_protobuf( message_id, header_buffer.here(), body_size )) {
                 return false;
             }
 		}
 		else {
             // Handle non-protobuf message.
-			if (!handle_message( id, buffer.get_array() )) {
+			if (!handle_message( message_id, buffer.get_array() )) {
                 return false;
             }
 		}
@@ -312,7 +319,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
                 // TODO: How do we serialize without string?
                 // TODO: Magic numbers YOLO.
 				std::string refreshString = refresh.SerializeAsString();
-				if (!send_message( 0x80000028, (void*)refreshString.c_str(), refreshString.size() )) {
+				if (!send_message( 0x80000000 | 28, (void*)refreshString.c_str(), refreshString.size() )) {
                     stack->log( "Failed to send inventory subscription refresh to Steam." );
                     return false;
                 }

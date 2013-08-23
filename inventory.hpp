@@ -1,12 +1,12 @@
 #ifndef INVENTORY_HPP
 #define INVENTORY_HPP
 
-#include "dynamic_slot_book.hpp"
+#include "dynamic_slot_array.hpp"
+#include "inventory_listener.hpp"
 #include "item.hpp"
 #include "item_schema.hpp"
 #include "item_set.hpp"
 #include "slot.hpp"
-#include "slot_book.hpp"
 #include "steam_inventory_listener.hpp"
 
 // Application attributes.
@@ -27,12 +27,16 @@ public:
 	Inventory( void );
 	~Inventory( void );
 
+	// Inventory handler setter.
+	void set_listener( InventoryListener* listener );
+
     // Item slot book handling.
-    SlotBook* get_inventory_book( void );
-    DynamicSlotBook* get_excluded_book( void );
+    SlotArray* get_inventory_slots( void );
+    DynamicSlotArray* get_excluded_slots( void );
 
     // Item schema handling.
     ItemSchema* get_schema( void );
+	bool on_schema_loaded( void );
 
 	// Item query functions.
 	Item* find_item( uint64 unique_id );
@@ -54,17 +58,19 @@ public:
     virtual bool on_inventory_reset( void );
     virtual bool on_inventory_resize( bool is_trial_account, uint32 extra_slots );
     virtual bool on_inventory_loaded( void );
-    virtual bool on_schema_loaded( ItemSchema* schema );
 
 private:
 
     // Item set and schema.
     ItemSet items_;
-    ItemSchema* schema_;
+    ItemSchema schema_;
 
 	// Slot arrays.
-	SlotBook inventory_book_;
-	DynamicSlotBook excluded_book_;
+	SlotArray inventory_slots_;
+	DynamicSlotArray excluded_slots_;
+
+	// Inventory event listener handle.
+	InventoryListener* listener_;
 
 };
 
