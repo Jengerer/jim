@@ -30,6 +30,9 @@ bool SlotGridView::set_grid_size( unsigned int width, unsigned int height )
 		}
 		new (view) SlotView();
 		add( view );
+        if (!view->initialize()) {
+            return false;
+        }
 	}
 
 	// Pack grid.
