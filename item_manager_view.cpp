@@ -192,6 +192,45 @@ NotificationQueue* ItemManagerView::get_notification_queue( void )
 }
 
 /*
+ * Handle mouse movement event.
+ */
+JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
+{
+    // Pass to popup handler.
+    JUI::IOResult result = popups_->on_mouse_moved( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+    return result;
+}
+
+/*
+ * Handle mouse click event.
+ */
+JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
+{
+    // Pass to popup handler.
+    JUI::IOResult result = popups_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+    return JUI::IO_RESULT_UNHANDLED;
+}
+
+/*
+ * Handle mouse release event.
+ */
+JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
+{
+    // Pass to popup handler.
+    JUI::IOResult result = popups_->on_mouse_released( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+    return JUI::IO_RESULT_UNHANDLED;
+}
+
+/*
  * Handle button press events.
  */
 bool ItemManagerView::on_button_pressed( Button* button )

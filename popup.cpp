@@ -50,6 +50,7 @@ bool Popup::initialize( void )
         JUTIL::BaseAllocator::destroy( layout_ );
         return false;
     }
+    set_content( layout_ );
         
     // Style rounded rectangle.
     RoundedRectangle* rounded_rect = get_rounded_rectangle();

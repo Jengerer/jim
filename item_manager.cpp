@@ -25,7 +25,7 @@
 #define EQUIP_NOT_IMPLEMENTED
 #define SORT_NOT_IMPLEMENTED
 
-const int APPLICATION_WIDTH	= 965;
+const int APPLICATION_WIDTH	= 900;
 const int APPLICATION_HEIGHT = 540;
 
 // Updater resources.
@@ -311,18 +311,23 @@ bool ItemManager::exiting( void )
 
 JUI::IOResult ItemManager::on_mouse_clicked( JUI::Mouse* mouse )
 {
-	return JUI::IO_RESULT_UNHANDLED;
+    // Pass message to item manager view.
+    JUI::IOResult result = view_->on_mouse_clicked( mouse );
+    return result;
 }
 
 JUI::IOResult ItemManager::on_mouse_released( JUI::Mouse* mouse )
 {
-    return JUI::IO_RESULT_UNHANDLED;
+    // Pass message to item manager view.
+    JUI::IOResult result = view_->on_mouse_released( mouse );
+    return result;
 }
 
 JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 {
-	// Nothing left.
-    return JUI::IO_RESULT_UNHANDLED;
+	// Pass message to item manager view.
+    JUI::IOResult result = view_->on_mouse_moved( mouse );
+    return result;
 }
 
 /*

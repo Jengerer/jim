@@ -45,6 +45,7 @@ Notice* PopupDisplay::create_notice( const JUTIL::String* message )
         JUTIL::BaseAllocator::destroy( notice );
         return nullptr;
     }
+    notice->pack();
 	return notice;
 }
 
@@ -62,7 +63,12 @@ Alert* PopupDisplay::create_alert( const JUTIL::String* message )
     alert = new (alert) Alert();
 
     // Initialize notice layout and message.
-    if (!alert->initialize( message ) || !add_popup( alert )) {
+    if (!alert->initialize( message )) {
+        JUTIL::BaseAllocator::destroy( alert );
+        return nullptr;
+    }
+    alert->pack();
+    if (!add_popup( alert )) {
         JUTIL::BaseAllocator::destroy( alert );
         return nullptr;
     }
@@ -87,6 +93,7 @@ Confirmation* PopupDisplay::create_confirmation( const JUTIL::String* question )
         JUTIL::BaseAllocator::destroy( confirmation );
         return nullptr;
     }
+    confirmation->pack();
 	return confirmation;
 }
 

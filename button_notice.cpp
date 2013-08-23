@@ -2,6 +2,7 @@
 
 ButtonNotice::ButtonNotice( void )
 {
+    button_manager_.set_event_listener( this );
 }
 
 ButtonNotice::~ButtonNotice( void )

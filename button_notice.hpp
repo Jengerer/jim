@@ -7,7 +7,7 @@
 /*
  * Generic class for a notice that contains at least one button.
  */
-class ButtonNotice : public Notice
+class ButtonNotice : public Notice, public ButtonListener
 {
 
 public:

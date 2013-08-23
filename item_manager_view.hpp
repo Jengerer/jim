@@ -6,6 +6,7 @@
 #include "dragged_slot_view.hpp"
 #include "inventory.hpp"
 #include "item_display.hpp"
+#include <jui/io/mouse_handler_interface.hpp>
 #include "notification_queue.hpp"
 #include "popup_display.hpp"
 #include "popup_listener.hpp"
@@ -15,7 +16,11 @@
 /*
  * Class for managing the item manager UI.
  */
-class ItemManagerView: public JUI::Container, public ButtonListener, public PopupListener
+class ItemManagerView:
+    public JUI::Container,
+    public JUI::MouseHandlerInterface,
+    public ButtonListener,
+    public PopupListener
 {
 
 public:
@@ -37,6 +42,11 @@ public:
 
     // Frame updating.
     bool on_enter_frame( void );
+
+    // Mouse handling functions.
+    virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
+    virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
+    virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
 
     // Button handling functions.
     virtual bool on_button_pressed( Button* button );
