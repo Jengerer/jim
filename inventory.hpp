@@ -29,6 +29,7 @@ public:
     // Item slot book handling.
     SlotArray* get_inventory_slots( void );
     DynamicSlotArray* get_excluded_slots( void );
+    DynamicSlotArray* get_selected_slots( void );
 
     // Item schema handling.
     ItemSchema* get_schema( void );
@@ -42,6 +43,10 @@ public:
 	bool place_item( Item* item );
     void displace_item( Item* item );
     void delete_items( void );
+
+    // Item selection handling.
+    bool set_selected( const Slot* slot, bool is_selected );
+    bool clear_selection( void );
 
 	// Excluded handling.
 	bool resolve_excluded( void );
@@ -64,6 +69,7 @@ private:
 	// Slot arrays.
 	SlotArray inventory_slots_;
 	DynamicSlotArray excluded_slots_;
+    DynamicSlotArray selected_slots_;
 
 	// Inventory event listener handle.
 	InventoryListener* listener_;

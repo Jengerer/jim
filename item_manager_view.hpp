@@ -3,7 +3,6 @@
 
 #include "button_listener.hpp"
 #include "button_manager.hpp"
-#include "dragged_slot_view.hpp"
 #include "inventory.hpp"
 #include "item_display.hpp"
 #include "item_manager_view_listener.hpp"
@@ -13,6 +12,7 @@
 #include "popup_listener.hpp"
 #include "resource_loader_interface.hpp"
 #include "slot_book_view.hpp"
+#include "slot_stack_view.hpp"
 
 /*
  * Class for managing the item manager UI.
@@ -21,7 +21,8 @@ class ItemManagerView:
     public JUI::Container,
     public JUI::MouseHandlerInterface,
     public ButtonListener,
-    public PopupListener
+    public PopupListener,
+    public SlotArrayViewListener
 {
 
 public:
@@ -61,6 +62,11 @@ public:
     // Popup listener functions.
     virtual bool on_popup_killed( Popup* popup );
 
+    // Slot array view listener handling.
+    virtual bool on_slot_hovered( SlotArrayInterface* slot_array, unsigned int index );
+    virtual bool on_slot_clicked( SlotArrayInterface* slot_array, unsigned int index );
+    virtual bool on_slot_released( SlotArrayInterface* slot_array, unsigned int index );
+
 private:
 
     // Interface sub-initializers.
@@ -99,7 +105,7 @@ private:
     ButtonManager button_manager_;
 	SlotBookView* inventory_view_;
 	SlotBookView* excluded_view_;
-    DraggedSlotView* dragged_view_;
+    SlotStackView* selected_view_;
 
     // UI buttons.
 	Button* craft_button_;

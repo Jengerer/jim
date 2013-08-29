@@ -43,6 +43,14 @@ DynamicSlotArray* Inventory::get_excluded_slots( void )
 }
 
 /*
+ * Get the handle to the selected slot array.
+ */
+DynamicSlotArray* Inventory::get_selected_slots( void )
+{
+    return &selected_slots_;
+}
+
+/*
  * Get a handle to the schema the inventory has, if any.
  */
 ItemSchema* Inventory::get_schema( void )
@@ -144,6 +152,23 @@ void Inventory::delete_items( void )
 	items_.clear();
     inventory_slots_.empty_slots();
     excluded_slots_.empty_slots();
+}
+
+/*
+ * Toggle selection of a specific slot.
+ */
+bool Inventory::set_selected( const Slot* slot, bool is_selected )
+{
+    // Toggle selection state in container.
+    Item* item = slot->get_item();
+    if (is_selected) {
+        if (!selected_slots_.push_item( item )) {
+            return false;
+        }
+    }
+    else {
+        selected_slots_.remove_item( item );
+    }
 }
 
 /*

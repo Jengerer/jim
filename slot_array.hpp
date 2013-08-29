@@ -27,11 +27,17 @@ public:
     bool set_size( unsigned int size );
     bool is_valid_index( unsigned int index ) const;
 
-	// Item management.
+	// Item and slot query functions.
     bool is_slot_empty( unsigned int index ) const;
+    bool is_slot_enabled( unsigned int index ) const;
+    bool is_slot_selected( unsigned int index ) const;
     bool contains_item( Item* item, unsigned int* index = nullptr ) const;
+    Item* get_item( unsigned int index ) const;
+
+    // Slot state functions.
 	bool set_item( unsigned int index, Item* item );
-	Item* get_item( unsigned int index ) const;
+    bool set_selected( unsigned int index, bool is_selected );
+    bool set_enabled( unsigned int index, bool is_enabled );
     bool remove_item( Item* item );
     void empty_slots( void );
 
@@ -42,7 +48,7 @@ private:
 
 protected:
 
-    JUTIL::Vector<Slot> slots_;
+    JUTIL::Vector<Slot*> slots_;
 	SlotArrayListener* listener_;
 
 };

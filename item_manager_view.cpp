@@ -45,6 +45,8 @@ const unsigned int EXCLUDED_PAGE_HEIGHT = 1;
 
 ItemManagerView::ItemManagerView( Inventory* inventory )
     : inventory_( inventory ),
+      inventory_view_( nullptr ),
+      excluded_view_( nullptr ),
 	  load_progress_( nullptr ),
 	  alert_( nullptr ),
 	  error_( nullptr ),
@@ -166,6 +168,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         stack->log( "Failed to resize inventory view grid." );
         return false;
     }
+    inventory_view_->set_listener( this );
 	book->set_listener( inventory_view_ );
 
 	// Create button layout.
@@ -335,6 +338,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         stack->log( "Failed to add initialized excluded view to layout." );
 		return false;
 	}
+    excluded_view_->set_listener( this );
 	book->set_listener( excluded_view_ );
 
 	// Pack top-most layout.
@@ -342,6 +346,24 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	int center_x = (get_width() - layout->get_width()) / 2;
 	int center_y = (get_height() - layout->get_height()) / 2;
 	layout->set_position( center_x, center_y );
+
+    // Create selected item view.
+    book = inventory_->get_selected_slots();
+    if (!JUTIL::BaseAllocator::allocate( &selected_view_ )) {
+        stack->log( "Failed to allocate selected item view." );
+        return false;
+    }
+    new (selected_view_) SlotStackView( book );
+    if (!user_layer_->add( selected_view_ )) {
+        JUTIL::BaseAllocator::destroy( &selected_view_ );
+        stack->log( "Failed to add selected item view to user layer." );
+        return false;
+    }
+    if (!selected_view_->initialize()) {
+        stack->log( "Failed to initialize selected item view." );
+        return false;
+    }
+    book->set_listener( selected_view_ );
 
 	// Create item display.
     ItemSchema* schema = inventory_->get_schema();
@@ -471,6 +493,14 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
         return result;
     }
 
+    // Handle item containers.
+    if (inventory_view_ != nullptr) {
+        result = inventory_view_->on_mouse_moved( mouse );
+        if (result != JUI::IO_RESULT_UNHANDLED) {
+            return result;
+        }
+    }
+    
 	// Pass to button manager.
 	result = button_manager_.on_mouse_moved( mouse );
 	if (result != JUI::IO_RESULT_UNHANDLED) {
@@ -488,6 +518,14 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
     JUI::IOResult result = popups_->on_mouse_clicked( mouse );
     if (result != JUI::IO_RESULT_UNHANDLED) {
         return result;
+    }
+
+    // Handle item containers.
+    if (inventory_view_ != nullptr) {
+        result = inventory_view_->on_mouse_clicked( mouse );
+        if (result != JUI::IO_RESULT_HANDLED) {
+            return result;
+        }
     }
 
 	// Pass to button manager.
@@ -564,6 +602,76 @@ bool ItemManagerView::on_button_released( Button* button )
 }
 
 /*
+ * Handle UI popup events for confirmations and alerts.
+ */
+bool ItemManagerView::on_popup_killed( Popup* popup )
+{
+    // Tell parent that we closed an error if it was killed.
+    if (popup == error_) {
+        if (!listener_->on_error_acknowledged()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/*
+ * Handle slot hover event.
+ */
+bool ItemManagerView::on_slot_hovered( SlotArrayInterface* slot_array, unsigned int index )
+{
+    // Check which container is triggering this.
+    const SlotView* view;
+    const Slot* slot = slot_array->get_slot( index );
+    if (slot_array == inventory_->get_inventory_slots()) {
+        view = inventory_view_->get_slot_view( index );
+    }
+    else if (slot_array == inventory_->get_excluded_slots()) {
+        view = excluded_view_->get_slot_view( index );
+    }
+    item_display_->set_item( slot->get_item() );
+    return true;
+}
+
+/*
+ * Handle slot click event.
+ */
+bool ItemManagerView::on_slot_clicked( SlotArrayInterface* slot_array, unsigned int index )
+{
+    const SlotView* view;
+    const Slot* slot = slot_array->get_slot( index );
+    SlotArray* container;
+    SlotArray* inventory = inventory_->get_inventory_slots();
+    SlotArray* excluded = inventory_->get_excluded_slots();
+    bool new_selected = !slot->is_selected();
+
+    // Check which container we're clicking from.
+    if (slot_array == inventory) {
+        container = inventory;
+        view = inventory_view_->get_slot_view( index );
+    }
+    else if (slot_array == excluded) {
+        container = excluded;
+        view = excluded_view_->get_slot_view( index );
+    }
+    if (!container->set_selected( index, new_selected )) {
+        return false;
+    }
+    if (!inventory_->set_selected( slot, new_selected )) {
+        return false;
+    }
+    return true;
+}
+
+/*
+ * Handle slot release event.
+ */
+bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned int index )
+{
+    return true;
+}
+
+/*
  * Create the user and popup layer and add them to the interface.
  */
 bool ItemManagerView::create_layers( void )
@@ -600,20 +708,6 @@ bool ItemManagerView::create_layers( void )
 	popups_->set_size( get_width(), get_height() );
 	popups_->set_popup_listener( this );
 	return true;
-}
-
-/*
- * Handle UI popup events for confirmations and alerts.
- */
-bool ItemManagerView::on_popup_killed( Popup* popup )
-{
-    // Tell parent that we closed an error if it was killed.
-    if (popup == error_) {
-        if (!listener_->on_error_acknowledged()) {
-            return false;
-        }
-    }
-    return true;
 }
 
 /*

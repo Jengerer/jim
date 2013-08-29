@@ -1,5 +1,5 @@
-#ifndef SLOT_VIEW_H
-#define SLOT_VIEW_H
+#ifndef SLOT_VIEW_HPP
+#define SLOT_VIEW_HPP
 
 #include <jui/layout/constrained_container.hpp>
 #include <jui/gfx/font_interface.hpp>
@@ -48,4 +48,4 @@ private:
 
 };
 
-#endif // SLOT_VIEW_H
+#endif // SLOT_VIEW_HPP
