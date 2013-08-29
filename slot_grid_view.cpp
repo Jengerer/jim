@@ -3,14 +3,23 @@
 // Layout constants.
 const unsigned int SLOT_SPACING = 5;
 
-SlotGridView::SlotGridView( unsigned int grid_width, unsigned int grid_height )
-	: grid_width_( grid_width ),
+SlotGridView::SlotGridView( SlotArrayInterface* slot_array, unsigned int grid_width, unsigned int grid_height )
+    : slot_array_( slot_array ),
+	  grid_width_( grid_width ),
 	  grid_height_( grid_height )
 {
 }
 
 SlotGridView::~SlotGridView( void )
 {
+}
+
+/*
+ * Set the handler for slot grid view events.
+ */
+void SlotGridView::set_listener( SlotArrayViewListener* listener )
+{
+    listener_ = listener;
 }
 
 /*
@@ -94,6 +103,54 @@ bool SlotGridView::get_touching_index( const JUI::Mouse* mouse, unsigned int* in
 	}
 
 	return false;
+}
+
+/*
+ * Handle mouse move event for slot hover.
+ */
+JUI::IOResult SlotGridView::on_mouse_moved( JUI::Mouse* mouse )
+{
+    // Check if hovering over a slot.
+    unsigned int index;
+    if (get_touching_index( mouse, &index )) {
+        if (!listener_->on_slot_hovered( slot_array_, index )) {
+            return JUI::IO_RESULT_ERROR;
+        }
+        return JUI::IO_RESULT_HANDLED;
+    }
+    return JUI::IO_RESULT_UNHANDLED;
+}
+
+/*
+ * Handle mouse click events for slot click.
+ */
+JUI::IOResult SlotGridView::on_mouse_clicked( JUI::Mouse* mouse )
+{
+    // Check if clicking on a slot.
+    unsigned int index;
+    if (get_touching_index( mouse, &index )) {
+        if (!listener_->on_slot_clicked( slot_array_, index )) {
+            return JUI::IO_RESULT_ERROR;
+        }
+        return JUI::IO_RESULT_HANDLED;
+    }
+    return JUI::IO_RESULT_UNHANDLED;
+}
+
+/*
+ * Handle mouse release event for releasing onto slot.
+ */
+JUI::IOResult SlotGridView::on_mouse_released( JUI::Mouse* mouse )
+{
+    // Check if releasing mouse over a slot.
+    unsigned int index;
+    if (get_touching_index( mouse, &index )) {
+        if (!listener_->on_slot_released( slot_array_, index )) {
+            return JUI::IO_RESULT_ERROR;
+        }
+        return JUI::IO_RESULT_HANDLED;
+    }
+    return JUI::IO_RESULT_UNHANDLED;
 }
 
 /*

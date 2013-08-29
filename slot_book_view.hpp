@@ -19,13 +19,18 @@ public:
 	unsigned int get_active_page( void ) const;
 	unsigned int get_page_count( void ) const;
 
+    // UI handling.
+    const SlotView* get_slot_view( unsigned int index ) const;
+
 	// Slot update event over-ride.
 	virtual bool on_slot_updated( unsigned int index, const Slot* slot );
 
-private:
+protected:
 
-	// Slot array interface for querying slots.
-	SlotArrayInterface* slot_array_;
+    // Over-ride touching index.
+    virtual bool get_touching_index( const JUI::Mouse* mouse, unsigned int* index ) const;
+
+private:
 
 	// Page parameters.
 	unsigned int active_page_;

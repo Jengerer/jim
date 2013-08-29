@@ -15,9 +15,17 @@ public:
 	Item* get_item( void ) const;
 	void set_item( Item* item );
 
+    // Slot state functions.
+    bool is_enabled( void ) const;
+    void set_enabled( bool is_enabled );
+    bool is_selected( void ) const;
+    void set_selected( bool is_selected );
+
 private:
 
 	Item* item_;
+    bool is_enabled_;
+    bool is_selected_;
 
 };
 

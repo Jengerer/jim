@@ -5,20 +5,28 @@
 
 #include <jui/layout/grid_layout.hpp>
 #include <jui/io/mouse.hpp>
+#include <jui/io/mouse_handler_interface.hpp>
 
 #include "slot_array.hpp"
+#include "slot_array_view_listener.hpp"
 #include "slot_view.hpp"
 
 /*
  * Visual component for slot grid.
  */
-class SlotGridView : public JUI::GridLayout, public SlotArrayListener
+class SlotGridView
+    : public JUI::GridLayout,
+      public SlotArrayListener,
+      public JUI::MouseHandlerInterface
 {
 public:
 
 	// Creation.
-	SlotGridView( unsigned int grid_width, unsigned int grid_height );
+	SlotGridView( SlotArrayInterface* slot_array, unsigned int grid_width, unsigned int grid_height );
 	virtual ~SlotGridView( void );
+
+    // Listener setting.
+    void set_listener( SlotArrayViewListener* listener );
 
 	// Slot grid functions.
 	bool initialize( void );
@@ -28,13 +36,29 @@ public:
 
 	// UI handling.
 	const SlotView* get_slot_view( unsigned int index ) const;
-	bool get_touching_index( const JUI::Mouse* mouse, unsigned int* index ) const;
+    virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
+    virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
+    virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
 
 	// Array listener interface.
 	virtual bool on_slot_updated( unsigned int index, const Slot* slot );
 
+protected:
+
+    // Get the index of slot the mouse is touching, if any.
+    virtual bool get_touching_index( const JUI::Mouse* mouse, unsigned int* index ) const;
+
+protected:
+
+    // Slot array interface for querying slots.
+	SlotArrayInterface* slot_array_;
+
 private:
 
+    // UI event listener.
+    SlotArrayViewListener* listener_;
+
+    // Slot view parameters.
 	JUTIL::Vector<SlotView*> slot_views_;
 	unsigned int grid_width_;
 	unsigned int grid_height_;

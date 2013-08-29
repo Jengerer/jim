@@ -1,8 +1,7 @@
 #include "slot_book_view.hpp"
 
 SlotBookView::SlotBookView( SlotArrayInterface* slot_array, unsigned int page_width, unsigned int page_height )
-	: SlotGridView( page_width, page_height ),
-	  slot_array_( slot_array ),
+	: SlotGridView( slot_array, page_width, page_height ),
 	  active_page_( 0 )
 {
 }
@@ -14,8 +13,8 @@ SlotBookView::~SlotBookView( void )
 /*
  * Sets the page that is being focused on and updates the listener.
  * This function assumes that the listener is set up to handle indices
- * in [0, page_size - 1] and will update them as such to represent
- * the active page.
+ * in [0, page_size) and will update them as such to represent the
+ * active page.
  */
 bool SlotBookView::set_active_page( unsigned int page )
 {
@@ -63,6 +62,17 @@ unsigned int SlotBookView::get_page_count( void ) const
 }
 
 /*
+ * Get slot view by index; take into account active page.
+ */
+const SlotView* SlotBookView::get_slot_view( unsigned int index ) const
+{
+    unsigned int page_size = get_grid_size();
+	unsigned int active_page_start = get_active_page() * page_size;
+    JUTIL::JUTILBase::debug_assert( index >= active_page_start );
+    return SlotGridView::get_slot_view( index - active_page_start );
+}
+
+/*
  * Handle slot updated event for page view.
  */
 bool SlotBookView::on_slot_updated( unsigned int index, const Slot* slot)
@@ -78,4 +88,20 @@ bool SlotBookView::on_slot_updated( unsigned int index, const Slot* slot)
 		}
 	}
 	return true;
+}
+
+/*
+ * Get the index of slot being touched, if any.
+ * Convert the grid index to take into account active page index.
+ */
+bool SlotBookView::get_touching_index( const JUI::Mouse* mouse, unsigned int* index ) const
+{
+    unsigned int local_index;
+    if (SlotGridView::get_touching_index( mouse, &local_index )) {
+        unsigned int page_size = get_grid_size();
+	    unsigned int active_page_start = get_active_page() * page_size;
+        *index = active_page_start + local_index;
+        return true;
+    }
+    return false;
 }

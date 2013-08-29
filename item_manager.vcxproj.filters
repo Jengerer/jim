@@ -77,12 +77,6 @@
     <ClCompile Include="rounded_rectangle.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="slot.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="definition_loader.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="slot_grid_view.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -116,9 +110,6 @@
     <ClCompile Include="http_resource_loader.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="slot_array.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="rounded_rectangle_container.cpp">
       <Filter>source\ui</Filter>
     </ClCompile>
@@ -130,15 +121,6 @@
     </ClCompile>
     <ClCompile Include="item_schema.cpp">
       <Filter>source\items</Filter>
-    </ClCompile>
-    <ClCompile Include="kill_eater_level.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="kill_eater_rank.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="kill_eater_type.cpp">
-      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="equip_status.cpp">
       <Filter>source\items</Filter>
@@ -161,8 +143,29 @@
     <ClCompile Include="slot_book_view.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
+    <ClCompile Include="slot_stack_view.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="slot.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="slot_array.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="kill_eater_type.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="kill_eater_level.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="kill_eater_rank.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
     <ClCompile Include="dynamic_slot_array.cpp">
-      <Filter>source</Filter>
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="definition_loader.cpp">
+      <Filter>source\items</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -330,6 +333,12 @@
     </ClInclude>
     <ClInclude Include="dynamic_slot_array.hpp">
       <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_array_view_listener.hpp">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_stack_view.hpp">
+      <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
