@@ -9,10 +9,6 @@
 #include "slot.hpp"
 #include "steam_inventory_listener.hpp"
 
-// Application attributes.
-const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.7.9";
-
 /*
  * Class that manages an inventory book and fallback slots.
  *

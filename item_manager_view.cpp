@@ -2,6 +2,10 @@
 #include <jui/application/error_stack.hpp>
 #include <jui/layout/horizontal_split_layout.hpp>
 
+// Application attributes.
+const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.7.9";
+
 // General application layout.
 const unsigned int PADDING = 20;
 const unsigned int LAYOUT_SPACING = 10;
@@ -143,26 +147,6 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	if (!user_layer_->add( layout )) {
 		JUTIL::BaseAllocator::destroy( layout );
         stack->log( "Failed to add layout to user layer." );
-		return false;
-	}
-
-	// Create title.
-	JUTIL::DynamicString title;
-	if (!title.write( "%s %s", APPLICATION_TITLE.get_string(), APPLICATION_VERSION.get_string() )) {
-        stack->log( "Failed to write title string." );
-		return false;
-	}
-	JUI::Text* title_text;
-	if (!JUTIL::BaseAllocator::allocate( &title_text )) {
-		stack->log( "Failed to allocate title text element." );
-		return false;
-	}
-	new (title_text) JUI::Text( title_font_ );
-	title_text->set_text( &title );
-	title_text->set_colour( &TITLE_COLOUR );
-	if (!layout->add( title_text )) {
-		JUTIL::BaseAllocator::destroy( title_text );
-        stack->log( "Failed to add title to layout." );
 		return false;
 	}
 
