@@ -8,7 +8,8 @@ enum EffectType
 {
 	EFFECT_POSITIVE,
 	EFFECT_NEGATIVE,
-	EFFECT_NEUTRAL
+	EFFECT_NEUTRAL,
+	EFFECT_VISUALS_MVM_BOSS,
 };
 
 class AttributeDefinition

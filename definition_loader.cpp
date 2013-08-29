@@ -41,6 +41,7 @@ const JUTIL::ConstantString CLASS_SPY_NAME = "Spy";
 const JUTIL::ConstantString EFFECT_TYPE_POSITIVE = "positive";
 const JUTIL::ConstantString EFFECT_TYPE_NEGATIVE = "negative";
 const JUTIL::ConstantString EFFECT_TYPE_NEUTRAL = "neutral";
+const JUTIL::ConstantString EFFECT_TYPE_VISUALS_MVM_BOSS = "visuals_mvm_boss";
 
 // Fallback definitions.
 const JUTIL::ConstantString FALLBACK_ITEM_TEXTURE = "img/backpack/unknown_item.png";
@@ -386,8 +387,11 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         else if (effect_string.is_equal( &EFFECT_TYPE_NEUTRAL )) {
 			effect_type = EFFECT_NEUTRAL;
 		}
+		else if (effect_string.is_equal( &EFFECT_TYPE_VISUALS_MVM_BOSS )) {
+			effect_type = EFFECT_VISUALS_MVM_BOSS;
+		}
 		else {
-            stack->log( "Unexpected attribute effect type received.");
+            stack->log( "Unexpected attribute effect type '%s' received.", effect_string.get_string() );
             return false;
 		}
 

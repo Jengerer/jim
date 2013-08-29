@@ -34,7 +34,8 @@ public:
 
     // Interface initialization.
     bool download_resources( ResourceLoaderInterface* loader );
-    bool initialize( JUI::Graphics2D* graphics );
+    bool initialize( void );
+	bool create_layout( JUI::Graphics2D* graphics );
     void clean_up( void );
 
     // Top-down UI management functions.
@@ -45,7 +46,8 @@ public:
     NotificationQueue* get_notification_queue( void );
 
     // Frame updating.
-    bool on_enter_frame( void );
+    bool on_enter_frame( void ); // TODO: delete?
+	bool update_page_display( void );
 
     // Mouse handling functions.
     virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
@@ -63,11 +65,9 @@ private:
 
     // Interface sub-initializers.
     bool create_layers( void );
-    bool create_layout( JUI::Graphics2D* graphics );
 
     // UI updating helpers.
     bool update_item_display( void );
-    bool update_page_display( void );
 
 private:
 

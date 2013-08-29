@@ -103,17 +103,8 @@ bool SlotGridView::on_slot_updated( unsigned int index, const Slot* slot )
 {
 	// TODO: Use item decorator classes to draw different item types.
 	SlotView* view = slot_views_.at( index );
-
-	// Set item texture.
-	Item* item;
-	const JUI::Texture* item_texture;
-	// Draw empty slot if beyond last item.
-	if (slot != nullptr && (item = slot->get_item()) != nullptr) {
-		item_texture = item->get_texture();
+	if (!view->update( slot )) {
+		return false;
 	}
-	else {
-		item_texture = nullptr;
-	}
-	view->set_item_texture( item_texture );
     return true;
 }
