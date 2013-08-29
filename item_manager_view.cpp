@@ -104,7 +104,7 @@ bool ItemManagerView::download_resources( ResourceLoaderInterface* loader )
 /*
  * Initialize item manager view based on inventory.
  */
-bool ItemManagerView::initialize( JUI::Graphics2D* graphics )
+bool ItemManagerView::initialize( void )
 {
     // Load title font.
 	title_font_ = JUI::FontFactory::create_font( TITLE_FONT_FACE, TITLE_FONT_SIZE );
@@ -122,193 +122,7 @@ bool ItemManagerView::initialize( JUI::Graphics2D* graphics )
 	if (!create_layers()) {
 		return false;
 	}
-	if (!create_layout( graphics )) {
-		return false;
-	}
     return true;
-}
-
-/*
- * Clean up item manager view objects.
- * This should be called before font factory destroyed.
- */
-void ItemManagerView::clean_up( void )
-{
-    // Remove font resources.
-    if (title_font_ != nullptr) {
-        JUI::FontFactory::destroy_font( title_font_ );
-    }
-    if (page_font_ != nullptr) {
-        JUI::FontFactory::destroy_font( page_font_ );
-    }
-}
-
-/*
- * Create generic alert to display.
- * There should be at most one alert at a time.
- */
-bool ItemManagerView::create_alert( const JUTIL::String* message )
-{
-    Alert* alert = popups_->create_alert( message );
-    if (alert == nullptr) {
-        return false;
-    }
-    alert_ = alert;
-    return true;
-}
-
-/*
- * Create and display an error popup to the user.
- */
-bool ItemManagerView::create_error( const JUTIL::String* message )
-{
-    Alert* error = popups_->create_alert( message );
-    if (error == nullptr) {
-        return false;
-    }
-    error_ = error;
-    return true;
-}
-
-/*
- * Set message to be displayed in the loading popup notice.
- */
-bool ItemManagerView::set_loading_notice( const JUTIL::String* message )
-{
-    // Create loading notice if none exists.
-    if (load_progress_ == nullptr) {
-        load_progress_ = popups_->create_notice( message );
-        if (load_progress_ == nullptr) {
-            return false;
-        }
-    }
-    else {
-        load_progress_->set_message( message );
-		load_progress_->pack();
-		load_progress_->center_to( popups_ );
-    }
-    return true;
-}
-
-/*
- * Destroy the loading notice from the user on load complete/error.
- */
-void ItemManagerView::destroy_loading_notice( void )
-{
-    assert( load_progress_ != nullptr );
-    popups_->delete_popup( load_progress_ );
-}
-
-/*
- * Get a handle to the notification queue.
- */
-NotificationQueue* ItemManagerView::get_notification_queue( void )
-{
-    return notifications_;
-}
-
-/*
- * Handle mouse movement event.
- */
-JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
-{
-    // Pass to popup handler.
-    JUI::IOResult result = popups_->on_mouse_moved( mouse );
-    if (result != JUI::IO_RESULT_UNHANDLED) {
-        return result;
-    }
-    return result;
-}
-
-/*
- * Handle mouse click event.
- */
-JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
-{
-    // Pass to popup handler.
-    JUI::IOResult result = popups_->on_mouse_clicked( mouse );
-    if (result != JUI::IO_RESULT_UNHANDLED) {
-        return result;
-    }
-    return JUI::IO_RESULT_UNHANDLED;
-}
-
-/*
- * Handle mouse release event.
- */
-JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
-{
-    // Pass to popup handler.
-    JUI::IOResult result = popups_->on_mouse_released( mouse );
-    if (result != JUI::IO_RESULT_UNHANDLED) {
-        return result;
-    }
-    return JUI::IO_RESULT_UNHANDLED;
-}
-
-/*
- * Handle button press events.
- */
-bool ItemManagerView::on_button_pressed( Button* button )
-{
-    return true;
-}
-
-/*
- * Handle button release events.
- */
-bool ItemManagerView::on_button_released( Button* button )
-{
-    if (button == craft_button_) {
-    }
-    else if (button == sort_button_) {
-    }
-    else if (button == delete_button_) {
-    }
-    else if (button == prev_button_) {
-    }
-    else if (button == next_button_) {
-    }
-    return true;
-}
-
-/*
- * Create the user and popup layer and add them to the interface.
- */
-bool ItemManagerView::create_layers( void )
-{
-    // Error stack for logging.
-    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-
-	// Create the user layer.
-	if (!JUTIL::BaseAllocator::allocate( &user_layer_ ))
-	{
-        stack->log( "Failed to allocate user layer." );
-		return false;
-	}
-	user_layer_ = new (user_layer_) Container();
-	user_layer_->set_size( get_width(), get_height() );
-	if (!add( user_layer_ ))
-	{
-		JUTIL::BaseAllocator::destroy( user_layer_ );
-        stack->log( "Failed to add user layer to application." );
-		return false;
-	}
-
-	// Create popup layer on top.
-	if (!JUTIL::BaseAllocator::allocate( &popups_ )) {
-        stack->log( "Failed to allocate popup layer." );
-		return false;
-	}
-	new (popups_) PopupDisplay();
-	if (!add( popups_ )) {
-		JUTIL::BaseAllocator::destroy( popups_ );
-        stack->log( "Failed to add popup layer to application." );
-		return false;
-	}
-	popups_->set_size( get_width(), get_height() );
-	popups_->set_popup_listener( this );
-	return true;
 }
 
 /*
@@ -537,6 +351,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         stack->log( "Failed to add initialized excluded view to layout." );
 		return false;
 	}
+	book->set_listener( excluded_view_ );
 
 	// Pack top-most layout.
 	layout->pack( LAYOUT_SPACING, JUI::ALIGN_LEFT );
@@ -567,6 +382,243 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 }
 
 /*
+ * Clean up item manager view objects.
+ * This should be called before font factory destroyed.
+ */
+void ItemManagerView::clean_up( void )
+{
+    // Remove font resources.
+    if (title_font_ != nullptr) {
+        JUI::FontFactory::destroy_font( title_font_ );
+    }
+    if (page_font_ != nullptr) {
+        JUI::FontFactory::destroy_font( page_font_ );
+    }
+}
+
+/*
+ * Create generic alert to display.
+ * There should be at most one alert at a time.
+ */
+bool ItemManagerView::create_alert( const JUTIL::String* message )
+{
+    Alert* alert = popups_->create_alert( message );
+    if (alert == nullptr) {
+        return false;
+    }
+    alert_ = alert;
+    return true;
+}
+
+/*
+ * Create and display an error popup to the user.
+ */
+bool ItemManagerView::create_error( const JUTIL::String* message )
+{
+    Alert* error = popups_->create_alert( message );
+    if (error == nullptr) {
+        return false;
+    }
+    error_ = error;
+    return true;
+}
+
+/*
+ * Set message to be displayed in the loading popup notice.
+ */
+bool ItemManagerView::set_loading_notice( const JUTIL::String* message )
+{
+    // Create loading notice if none exists.
+    if (load_progress_ == nullptr) {
+        load_progress_ = popups_->create_notice( message );
+        if (load_progress_ == nullptr) {
+            return false;
+        }
+    }
+    else {
+        load_progress_->set_message( message );
+		load_progress_->pack();
+		load_progress_->center_to( popups_ );
+    }
+    return true;
+}
+
+/*
+ * Destroy the loading notice from the user on load complete/error.
+ */
+void ItemManagerView::destroy_loading_notice( void )
+{
+    assert( load_progress_ != nullptr );
+    popups_->delete_popup( load_progress_ );
+}
+
+/*
+ * Get a handle to the notification queue.
+ */
+NotificationQueue* ItemManagerView::get_notification_queue( void )
+{
+    return notifications_;
+}
+
+/*
+ * Update page display with the current displayed page number.
+ */
+bool ItemManagerView::update_page_display( void )
+{
+    // Update page display to show current page.
+    unsigned int active_page = inventory_view_->get_active_page() + 1;
+    unsigned int total_pages = inventory_view_->get_page_count();
+    JUTIL::DynamicString string;
+    if (!string.write( "%u/%u", active_page, total_pages )) {
+        return false;
+    }
+    page_display_->set_text( &string );
+    return true;
+}
+
+/*
+ * Handle mouse movement event.
+ */
+JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
+{
+    // Pass to popup handler.
+    JUI::IOResult result = popups_->on_mouse_moved( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+
+	// Pass to button manager.
+	result = button_manager_.on_mouse_moved( mouse );
+	if (result != JUI::IO_RESULT_UNHANDLED) {
+		return result;
+	}
+    return result;
+}
+
+/*
+ * Handle mouse click event.
+ */
+JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
+{
+    // Pass to popup handler.
+    JUI::IOResult result = popups_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+
+	// Pass to button manager.
+	result = button_manager_.on_mouse_clicked( mouse );
+	if (result != JUI::IO_RESULT_UNHANDLED) {
+		return result;
+	}
+    return JUI::IO_RESULT_UNHANDLED;
+}
+
+/*
+ * Handle mouse release event.
+ */
+JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
+{
+    // Pass to popup handler.
+    JUI::IOResult result = popups_->on_mouse_released( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+
+	// Pass to button manager.
+	result = button_manager_.on_mouse_released( mouse );
+	if (result != JUI::IO_RESULT_UNHANDLED) {
+		return result;
+	}
+    return JUI::IO_RESULT_UNHANDLED;
+}
+
+/*
+ * Handle button press events.
+ */
+bool ItemManagerView::on_button_pressed( Button* button )
+{
+    return true;
+}
+
+/*
+ * Handle button release events.
+ */
+bool ItemManagerView::on_button_released( Button* button )
+{
+	// Page view variables.
+	unsigned int active;
+	unsigned int new_active;
+    if (button == craft_button_) {
+    }
+    else if (button == sort_button_) {
+    }
+    else if (button == delete_button_) {
+    }
+	// Handle page navigation events.
+    else if (button == prev_button_) {
+		active = inventory_view_->get_active_page();
+		if (active != 0) {
+			new_active = active - 1;
+			inventory_view_->set_active_page( new_active );
+		}
+		if (!update_page_display()) {
+			return false;
+		}
+    }
+    else if (button == next_button_) {
+		active = inventory_view_->get_active_page();
+		new_active = active + 1;
+		if (new_active < inventory_view_->get_page_count()) {
+			inventory_view_->set_active_page( new_active );
+		}
+		if (!update_page_display()) {
+			return false;
+		}
+    }
+    return true;
+}
+
+/*
+ * Create the user and popup layer and add them to the interface.
+ */
+bool ItemManagerView::create_layers( void )
+{
+    // Error stack for logging.
+    JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Create the user layer.
+	if (!JUTIL::BaseAllocator::allocate( &user_layer_ ))
+	{
+        stack->log( "Failed to allocate user layer." );
+		return false;
+	}
+	user_layer_ = new (user_layer_) Container();
+	user_layer_->set_size( get_width(), get_height() );
+	if (!add( user_layer_ ))
+	{
+		JUTIL::BaseAllocator::destroy( user_layer_ );
+        stack->log( "Failed to add user layer to application." );
+		return false;
+	}
+
+	// Create popup layer on top.
+	if (!JUTIL::BaseAllocator::allocate( &popups_ )) {
+        stack->log( "Failed to allocate popup layer." );
+		return false;
+	}
+	new (popups_) PopupDisplay();
+	if (!add( popups_ )) {
+		JUTIL::BaseAllocator::destroy( popups_ );
+        stack->log( "Failed to add popup layer to application." );
+		return false;
+	}
+	popups_->set_size( get_width(), get_height() );
+	popups_->set_popup_listener( this );
+	return true;
+}
+
+/*
  * Handle UI popup events for confirmations and alerts.
  */
 bool ItemManagerView::on_popup_killed( Popup* popup )
@@ -585,21 +637,5 @@ bool ItemManagerView::on_popup_killed( Popup* popup )
  */
 bool ItemManagerView::update_item_display( void )
 {
-    return true;
-}
-
-/*
- * Update page display with the current displayed page number.
- */
-bool ItemManagerView::update_page_display( void )
-{
-    // Update page display to show current page.
-    unsigned int active_page = inventory_view_->get_active_page() + 1;
-    unsigned int total_pages = inventory_view_->get_page_count();
-    JUTIL::DynamicString string;
-    if (!string.write( "%u/%u", active_page, total_pages )) {
-        return false;
-    }
-    page_display_->set_text( &string );
     return true;
 }

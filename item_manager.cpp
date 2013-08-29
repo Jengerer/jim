@@ -133,7 +133,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
     }
 
     // Initialize the view.
-    if (!view_->initialize( &graphics_ )) {
+    if (!view_->initialize()) {
         return PrecacheResourcesFailure;
     }
 
@@ -279,6 +279,11 @@ bool ItemManager::loading_schema( void )
 		{
 			// Remove threaded loader.
 			JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
+
+			// Create UI now.
+			if (!view_->create_layout( &graphics_ )) {
+				return false;
+			}
 
             // Finished loading!
             view_->destroy_loading_notice();

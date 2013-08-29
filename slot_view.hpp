@@ -26,9 +26,7 @@ public:
 	// Initialization and construction.
 	SlotView( void );
     bool initialize( void );
-
-	// Item render updating.
-	void set_item_texture( const JUI::Texture* texture );
+	bool update( const Slot* slot );
 
 	// Precaching class-wide resources.
 	static bool precache( JUI::Graphics2D* graphics );

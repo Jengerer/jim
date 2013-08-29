@@ -59,6 +59,7 @@ bool SlotView::initialize( void )
 		JUTIL::BaseAllocator::destroy( slot_rectangle_ );
 		return false;
 	}
+	slot_rectangle_->set_stroke_type( STROKE_TYPE_INNER );
 
 	// Add image for item.
 	if (!JUTIL::BaseAllocator::allocate( &image_ )) {
@@ -77,9 +78,26 @@ bool SlotView::initialize( void )
 /*
  * Set the texture of the item being shown here.
  */
-void SlotView::set_item_texture( const JUI::Texture* texture )
+bool SlotView::update( const Slot* slot )
 {
+	Item* item = slot->get_item();
+	const JUI::Texture* texture;
+	const JUI::Colour* stroke_colour;
+	unsigned int stroke_width;
+	// Draw empty slot if beyond last item.
+	if (item != nullptr) {
+		texture = item->get_texture();
+		stroke_colour = item->get_quality_colour();
+		stroke_width = SLOT_STROKE_WIDTH;
+	}
+	else {
+		texture = nullptr;
+		stroke_colour = &JUI::COLOUR_BLANK;
+		stroke_width = 0;
+	}
     image_->set_texture( texture );
+	slot_rectangle_->set_stroke( stroke_width, stroke_colour );
+	return true;
 }
 
 /*

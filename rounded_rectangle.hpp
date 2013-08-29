@@ -26,7 +26,6 @@ public:
 	// Stroke property setters.
 	void set_stroke( int size, const JUI::Colour* colour );
 	void set_stroke_type( EStrokeType stroke_type );
-	void set_stroke( int radius );
 
 	// JUI::Colour setter/getter.
 	const JUI::Colour* get_colour( void ) const;

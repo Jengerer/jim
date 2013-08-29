@@ -19,8 +19,9 @@ SlotBookView::~SlotBookView( void )
  */
 bool SlotBookView::set_active_page( unsigned int page )
 {
+	active_page_ = page;
 	unsigned int page_size = get_grid_size();
-	unsigned int active_page_start = get_active_page() * page_size;
+	unsigned int active_page_start = page * page_size;
 	unsigned int total_slots = slot_array_->get_size();
 	for (unsigned int i = active_page_start; i < active_page_start + page_size; ++i) {
 		const Slot* slot;
