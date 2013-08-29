@@ -72,6 +72,7 @@ private:
 
     // User interface handle.
     ItemManagerView* view_;
+    JUTIL::DynamicString title_;
 
 	// Running think function.
 	bool (ItemManager::*think_function_)( void );

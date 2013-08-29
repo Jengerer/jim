@@ -25,6 +25,9 @@
 #define EQUIP_NOT_IMPLEMENTED
 #define SORT_NOT_IMPLEMENTED
 
+// Application attributes.
+const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.8.1";
 const int APPLICATION_WIDTH	= 900;
 const int APPLICATION_HEIGHT = 540;
 
@@ -56,7 +59,6 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 
 	// Set window parameters.
 	JUI::Window* window = get_window();
-	window->set_title( APPLICATION_TITLE );
 	window->set_border( true );
 	window->set_fullscreen( false );
 	window->set_icon( IDI_ICON1 );
@@ -91,6 +93,11 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
 	// Start up graphics and window.
+    if (!title_.write( "%s (%s)", APPLICATION_TITLE.get_string(), APPLICATION_VERSION.get_string() )) {
+        stack->log( "Failed to allocation application title." );
+        return PrecacheResourcesFailure;
+    }
+    window_.set_title( &title_ );
 	JUI::Application::ReturnStatus status = Application::initialize();
     if (status != Success) {
         return status;
