@@ -33,6 +33,8 @@ const unsigned int PAGE_LABEL_WIDTH = 50;
 
 // Item display attributes.
 const unsigned int ITEM_DISPLAY_SPACING	= 10;
+const unsigned int ITEM_DISPLAY_ACTIVE_ALPHA = 220;
+const unsigned int ITEM_DISPLAY_ALPHA_STEP = 20;
 
 // Button layout.
 const unsigned int BUTTON_SPACING = 5;
@@ -467,6 +469,17 @@ NotificationQueue* ItemManagerView::get_notification_queue( void )
 }
 
 /*
+ * Handle per-frame events.
+ */
+bool ItemManagerView::on_enter_frame( void )
+{
+	if (!update_item_display()) {
+		return false;
+	}
+	return true;
+}
+
+/*
  * Update page display with the current displayed page number.
  */
 bool ItemManagerView::update_page_display( void )
@@ -499,6 +512,7 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
         if (result != JUI::IO_RESULT_UNHANDLED) {
             return result;
         }
+		item_display_->set_item( nullptr );
     }
     
 	// Pass to button manager.
@@ -523,7 +537,7 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
     // Handle item containers.
     if (inventory_view_ != nullptr) {
         result = inventory_view_->on_mouse_clicked( mouse );
-        if (result != JUI::IO_RESULT_HANDLED) {
+        if (result != JUI::IO_RESULT_UNHANDLED) {
             return result;
         }
     }
@@ -629,7 +643,19 @@ bool ItemManagerView::on_slot_hovered( SlotArrayInterface* slot_array, unsigned 
     else if (slot_array == inventory_->get_excluded_slots()) {
         view = excluded_view_->get_slot_view( index );
     }
-    item_display_->set_item( slot->get_item() );
+    if (!item_display_->set_item( slot->get_item() )) {
+		return false;
+	}
+
+	// Check if we can place the display below slot view.
+	unsigned int x = view->get_x() + (view->get_width() - item_display_->get_width()) / 2;
+	unsigned int y = view->get_y() + view->get_height() + ITEM_DISPLAY_SPACING;
+	unsigned int bottom = y + item_display_->get_height();
+	if (bottom > get_height() - ITEM_DISPLAY_SPACING) {
+		y = view->get_y() - item_display_->get_height() - ITEM_DISPLAY_SPACING;
+	}
+	item_display_->set_position( x, y );
+	clamp_child( item_display_, ITEM_DISPLAY_SPACING );
     return true;
 }
 
@@ -711,9 +737,20 @@ bool ItemManagerView::create_layers( void )
 }
 
 /*
- * Update the item display with the current item we're hovering over.
+ * Update the visual effect of the item display.
  */
 bool ItemManagerView::update_item_display( void )
 {
+	unsigned int alpha = static_cast<unsigned int>(item_display_->get_alpha());
+	if (item_display_->is_active()) {
+		if (alpha < ITEM_DISPLAY_ACTIVE_ALPHA) {
+			alpha += ITEM_DISPLAY_ALPHA_STEP;
+		}
+	}
+	else if (alpha != 0) {
+		alpha -= ITEM_DISPLAY_ALPHA_STEP;
+	}
+	// Move by halves to target alpha.
+	item_display_->set_alpha( alpha );
     return true;
 }

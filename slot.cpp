@@ -6,6 +6,8 @@
 Slot::Slot( void )
 {
 	set_item( nullptr );
+	set_enabled( true );
+	set_selected( false );
 }
 
 /*
