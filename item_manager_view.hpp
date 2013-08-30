@@ -47,7 +47,7 @@ public:
     NotificationQueue* get_notification_queue( void );
 
     // Frame updating.
-    bool on_enter_frame( void ); // TODO: delete?
+    bool on_enter_frame( void );
 	bool update_page_display( void );
 
     // Mouse handling functions.

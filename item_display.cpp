@@ -126,7 +126,7 @@ bool ItemDisplay::update_display( void )
 		}
 	}
 
-	if(!item_name.write( "%s", item_->get_name()->get_string()) ){
+	if (!item_name.write( "%s", item_->get_name()->get_string()) ) {
 		return false;
 	}
 
@@ -145,7 +145,7 @@ bool ItemDisplay::update_display( void )
         return false;
     }
 
-	// load strange kills
+	// Load strange kills.
 	for( uint32 i = 0; i < 5; ++i){
 		uint32 item_strange_kills = item_->get_strange_number(i);
 		if (item_strange_kills != FL_ITEM_NOT_STRANGE) {
@@ -158,7 +158,7 @@ bool ItemDisplay::update_display( void )
 		}
 	}
 
-	// Add crate number
+	// Add crate series display.
 	uint32 item_value = item_->get_crate_number();
 	if (item_value != FL_ITEM_NOT_CRATE) {
 		if (!information.write( "\nCrate Series %u", item_value )) {
@@ -166,90 +166,30 @@ bool ItemDisplay::update_display( void )
 		}
 	}
 
+	// Write uses for expendable tools.
 	item_value = item_->get_tool_type();
-	if(item_value == TOOL_DUEL_MINIGAME || item_value == TOOL_NOISE_MAKER) {
+	if (item_value == TOOL_DUEL_MINIGAME || item_value == TOOL_NOISE_MAKER) {
 		item_value = item_->get_count();
-		if(item_value == FL_ITEM_UNLIMITED_COUNT){
+		if (item_value == FL_ITEM_UNLIMITED_COUNT) {
 			if (!information.write( "\nUses: Unlimited" )) {
 				return false;
 			}
-		}else{
+		} else {
 			if (!information.write( "\nUses: %u", item_value )) {
 				return false;
 			}
 		}
 	}
 
+#if defined( _DEBUG )
+
+	// Write origin type.
 	const JUTIL::DynamicString* origin_name = schema_->get_origin_name( item_->get_origin() );
 	if (origin_name != nullptr) {
 		if (!information.write( "\nOrigin: %s", origin_name->get_string() )) {
 		    return false;
 		}
 	}
-
-#if defined( _DEBUG )
-
-	// Add paint number
-	for(int i = 0; i < 2; ++i){
-		item_value = item_->get_paint_value(i);
-		if (item_value != FL_ITEM_NOT_PAINTED) {
-			if (!information.write( "\nPaint: 0x%X", item_value )) {
-				return false;
-			}
-		}
-	}
-
-	// Write attributes.
-    size_t i;
-    size_t length = item_->get_attribute_count();
-	for (i = 0; i < length; ++i) {
-		const Attribute* attribute = item_->get_attribute( i );
-		if (!information.write( "\n[%u]", attribute->get_index() ))
-        {
-            return false;
-        }
-		const JUTIL::String* description = attribute->get_name();
-		if (!information.write( " %s", description->get_string() ))
-        {
-            return false;
-        }
-
-		if (!information.write( " U:%u F:%f", attribute->get_value().as_uint32, attribute->get_value().as_float ))
-        {
-            return false;
-        }
-
-	}
-
-#if 1
-	if (!information.write( "\nMOAR!!" ))
-    {
-        return false;
-    }
-
-	const ItemDefinition* definition = item_->get_definition();
-
-	// Write definition attributes.
-    length = definition->get_attribute_count();
-	for (i = 0; i < length; ++i) {
-		const Attribute* attribute = definition->get_attribute( i );
-		if (!information.write( "\n[%u]", attribute->get_index() ))
-        {
-            return false;
-        }
-		const JUTIL::String* description = attribute->get_name();
-		if (!information.write( " %s", description->get_string() ))
-        {
-            return false;
-        }
-
-		if (!information.write( " U:%u F:%f", attribute->get_value().as_uint32, attribute->get_value().as_float ))
-        {
-            return false;
-        }
-
-	}
-#endif
 
 	// Add debugging information.
     if (!information.write( "\nFlags: %x", item_->get_inventory_flags() )) {

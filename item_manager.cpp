@@ -327,6 +327,9 @@ bool ItemManager::running( void )
 	if (!steam_items_.handle_callbacks()){
 		return false;
 	}
+	if (!view_->on_enter_frame()) {
+		return false;
+	}
     return true;
 }
 
