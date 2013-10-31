@@ -44,9 +44,11 @@ public:
     void displace_item( Item* item );
     void delete_items( void );
 
-    // Item selection handling.
+	// Item slot state management.
+	void begin_dragging( void );
+	void end_dragging( void );
     bool set_selected( const Slot* slot, bool is_selected );
-    bool clear_selection( void );
+    void clear_selection( void );
 
 	// Excluded handling.
 	bool resolve_excluded( void );

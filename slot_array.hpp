@@ -40,10 +40,6 @@ public:
     bool set_enabled( unsigned int index, bool is_enabled );
     bool remove_item( Item* item );
     void empty_slots( void );
-
-private:
-
-	// Slot management functions.
 	void destroy_slots( void );
 
 protected:

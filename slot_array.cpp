@@ -136,6 +136,11 @@ bool SlotArray::set_item( unsigned int index, Item* item )
 {
 	Slot* slot = slots_.at( index );
 	slot->set_item( item );
+	
+	// Reset select state on removal.
+	if (item == nullptr) {
+		slot->set_selected( false );
+	}
 	if (!listener_->on_slot_updated( index, slot )) {
 		return false;
 	}
@@ -214,5 +219,11 @@ void SlotArray::empty_slots( void )
 void SlotArray::destroy_slots( void )
 {
 	// Destroy slots.
-    set_size( 0 );
+    unsigned int i;
+	unsigned int end = get_size();
+    for (i = 0; i < end; ++i) {
+        Slot* slot = slots_.at( i );
+        JUTIL::BaseAllocator::destroy( slot );
+    }
+	slots_.clear();
 }

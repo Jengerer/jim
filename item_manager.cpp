@@ -389,8 +389,11 @@ JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
  */
 JUI::IOResult ItemManager::on_key_pressed( int key )
 {
-	JUI::IOResult result = JUI::IO_RESULT_HANDLED;
-	return result;
+	JUI::IOResult result = view_->on_key_pressed( key );
+	if (result != JUI::IO_RESULT_HANDLED) {
+		return result;
+	}
+	return JUI::IO_RESULT_UNHANDLED;
 }
 
 /*
@@ -398,8 +401,11 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
  */
 JUI::IOResult ItemManager::on_key_released( int key )
 {
-    JUI::IOResult result = JUI::IO_RESULT_HANDLED;
-	return result;
+	JUI::IOResult result = view_->on_key_released( key );
+	if (result != JUI::IO_RESULT_UNHANDLED) {
+		return result;
+	}
+	return JUI::IO_RESULT_UNHANDLED;
 }
 
 bool ItemManager::start_definition_load( void )
