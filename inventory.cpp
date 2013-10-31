@@ -155,6 +155,40 @@ void Inventory::delete_items( void )
 }
 
 /*
+ * Toggle slot disables to allow valid movements.
+ */
+void Inventory::begin_dragging( void )
+{
+	// We disable full inventory slots if we carried an exclusive; keep track.
+	bool first_excluded = false;
+	Item* first_selected = selected_slots_.get_item( 0 );
+
+	// Always disable excluded slots; mark whether first item is excluded.
+	unsigned int i;
+	unsigned int end = excluded_slots_.get_size();
+	for (i = 0; i < end; ++i) {
+		excluded_slots_.set_enabled( i, false );
+		if (first_selected == excluded_slots_.get_item( i )) {
+			first_excluded = true;
+		}
+	}
+
+	// Disable full inventory slots if we're carrying excluded or
+	// multiple items.
+	end = inventory_slots_.get_size();
+	unsigned int selected_count = selected_slots_.get_size();
+	if (first_excluded || (selected_count != 1)) {
+		for (i = 0; i < end; ++i) {
+			const Slot* slot = inventory_slots_.get_slot( i );
+			bool enabled = !slot->has_item() || slot->is_selected();
+			if (!inventory_slots_.is_slot_empty( i )) {
+				inventory_slots_.set_enabled( i, enabled );
+			}
+		}
+	}
+}
+
+/*
  * Toggle selection of a specific slot.
  */
 bool Inventory::set_selected( const Slot* slot, bool is_selected )
@@ -169,6 +203,28 @@ bool Inventory::set_selected( const Slot* slot, bool is_selected )
     else {
         selected_slots_.remove_item( item );
     }
+	return true;
+}
+
+/*
+ * Remove all items from selection.
+ */
+void Inventory::clear_selection( void )
+{
+	unsigned int i;
+	for (i = 0; i < selected_slots_.get_size(); ++i) {
+		Item* item = selected_slots_.get_item( i );
+
+		// Unset selected state from inventory/excluded.
+		unsigned int j;
+		if (inventory_slots_.contains_item( item, &j )) {
+			inventory_slots_.set_selected( j, false );
+		}
+		if (excluded_slots_.contains_item( item, &j )) {
+			excluded_slots_.set_selected( j, false );
+		}
+	}
+	selected_slots_.destroy_slots();
 }
 
 /*

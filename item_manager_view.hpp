@@ -7,6 +7,7 @@
 #include "item_display.hpp"
 #include "item_manager_view_listener.hpp"
 #include <jui/io/mouse_handler_interface.hpp>
+#include <jui/io/keyboard_handler_interface.hpp>
 #include "notification_queue.hpp"
 #include "popup_display.hpp"
 #include "popup_listener.hpp"
@@ -14,12 +15,20 @@
 #include "slot_book_view.hpp"
 #include "slot_stack_view.hpp"
 
+// Inventory selection mode.
+enum InventorySelectionMode
+{
+	SELECT_MODE_NORMAL,
+	SELECT_MODE_MULTIPLE
+};
+
 /*
  * Class for managing the item manager UI.
  */
 class ItemManagerView:
     public JUI::Container,
     public JUI::MouseHandlerInterface,
+	public JUI::KeyboardHandlerInterface,
     public ButtonListener,
     public PopupListener,
     public SlotArrayViewListener
@@ -55,6 +64,10 @@ public:
     virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
     virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
 
+	// Keyboard handling functions.
+	virtual JUI::IOResult on_key_pressed( int key );
+	virtual JUI::IOResult on_key_released( int key );
+
     // Button handling functions.
     virtual bool on_button_pressed( Button* button );
     virtual bool on_button_released( Button* button );
@@ -64,7 +77,9 @@ public:
 
     // Slot array view listener handling.
     virtual bool on_slot_hovered( SlotArrayInterface* slot_array, unsigned int index );
-    virtual bool on_slot_clicked( SlotArrayInterface* slot_array, unsigned int index );
+    virtual bool on_slot_clicked( JUI::Mouse* mouse,
+		SlotArrayInterface* slot_array,
+		unsigned int index );
     virtual bool on_slot_released( SlotArrayInterface* slot_array, unsigned int index );
 
 private:
@@ -120,6 +135,10 @@ private:
 
     // Item manager event handling interface.
     ItemManagerViewListener* listener_;
+
+	// Keyboard state members.
+	bool multidrag_pressed_;
+	bool multiselect_pressed_;
 
 };
 

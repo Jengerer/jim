@@ -11,6 +11,7 @@ const unsigned int SLOT_STROKE_WIDTH = 3;
 // Slot colour attributes.
 const JUI::Colour SLOT_NORMAL_COLOUR( 60, 53, 46 );
 const JUI::Colour SLOT_SELECTED_COLOUR( 90, 80, 72 ); 
+const JUI::Colour SLOT_DISABLED_COLOUR( 20, 20, 20 ); 
 const double BACKGROUND_VALUE_RATIO = 2.8;
 
 // Class-wide font/text resources.
@@ -84,6 +85,7 @@ bool SlotView::update( const Slot* slot )
 	const JUI::Texture* texture;
 	const JUI::Colour* stroke_colour;
 	unsigned int stroke_width;
+
 	// Draw empty slot if beyond last item.
 	if (item != nullptr) {
 		texture = item->get_texture();
@@ -94,6 +96,17 @@ bool SlotView::update( const Slot* slot )
 		texture = nullptr;
 		stroke_colour = &JUI::COLOUR_BLANK;
 		stroke_width = 0;
+	}
+
+	// Handle selection state.
+	if (!slot->is_enabled()) {
+		slot_rectangle_->set_colour( &SLOT_DISABLED_COLOUR );
+	}
+	else if (slot->is_selected()) {
+		slot_rectangle_->set_colour( &SLOT_SELECTED_COLOUR );
+	}
+	else {
+		slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
 	}
     image_->set_texture( texture );
 	slot_rectangle_->set_stroke( stroke_width, stroke_colour );

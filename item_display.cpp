@@ -234,7 +234,6 @@ void ItemDisplay::update_alpha( void )
 		if (alpha > ITEM_DISPLAY_ALPHA_MAX) {
 			alpha = ITEM_DISPLAY_ALPHA_MAX;
 		}
-
 		set_alpha( alpha );
 	}
 	else {
@@ -266,7 +265,7 @@ const Item* ItemDisplay::get_item( void ) const
  */
 bool ItemDisplay::set_item( const Item *item )
 {
-	if (item_ != item) {
+	if ((item_ != item) || !is_active()) {
 		item_ = item;
 		if (item != nullptr) {
 			set_active( true );

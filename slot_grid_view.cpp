@@ -129,7 +129,7 @@ JUI::IOResult SlotGridView::on_mouse_clicked( JUI::Mouse* mouse )
     // Check if clicking on a slot.
     unsigned int index;
     if (get_touching_index( mouse, &index )) {
-        if (!listener_->on_slot_clicked( slot_array_, index )) {
+        if (!listener_->on_slot_clicked( mouse, slot_array_, index )) {
             return JUI::IO_RESULT_ERROR;
         }
         return JUI::IO_RESULT_HANDLED;
