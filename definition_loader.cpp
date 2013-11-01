@@ -292,11 +292,6 @@ bool DefinitionLoader::load()
 	// Get definition file.
     JUTIL::DynamicString definition;
     if (!downloader->read_cached( &SCHEMA_FILE_LOCATION, &SCHEMA_URL, &definition )) {
-		if (!notifications_->add_notification( &SCHEMA_CACHED_LOAD_FAIL_MESSAGE, nullptr )){
-			stack->log( "Failed to allocate schema response notification." );
-			return false;
-		}
-
 		// Skip the cache in case of a fail.
 		if (!downloader->read( &SCHEMA_URL, &definition )) {
 			stack->log( "Failed to read schema from Steam web API.");

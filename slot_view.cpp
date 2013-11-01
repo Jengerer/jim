@@ -14,6 +14,10 @@ const JUI::Colour SLOT_SELECTED_COLOUR( 90, 80, 72 );
 const JUI::Colour SLOT_DISABLED_COLOUR( 20, 20, 20 ); 
 const double BACKGROUND_VALUE_RATIO = 2.8;
 
+// Slot alpha attributes.
+const unsigned int SLOT_VISIBLE_ALPHA = 255;
+const unsigned int SLOT_DISABLED_ALPHA = 50;
+
 // Class-wide font/text resources.
 JUI::FontInterface* SlotView::equipped_font_	= nullptr;
 JUI::FontInterface* SlotView::crate_font_		= nullptr;
@@ -100,9 +104,12 @@ bool SlotView::update( const Slot* slot )
 
 	// Handle selection state.
 	if (!slot->is_enabled()) {
-		slot_rectangle_->set_colour( &SLOT_DISABLED_COLOUR );
+		set_alpha( SLOT_DISABLED_ALPHA );
 	}
-	else if (slot->is_selected()) {
+	else {
+		set_alpha( SLOT_VISIBLE_ALPHA );
+	}
+	if (slot->is_selected()) {
 		slot_rectangle_->set_colour( &SLOT_SELECTED_COLOUR );
 	}
 	else {

@@ -41,11 +41,26 @@ bool SlotArray::set_size( unsigned int size )
 	// Delete slots if shrinking.
     Slot* slot;
     if (size < old_size) {
+		// Empty slots and update before deleting.
+		for (i = size; i < old_size; ++i) {
+			if (!set_item( i, nullptr )) {
+				return false;
+			}
+		}
+
+		// Now destroy.
         for (i = size; i < old_size; ++i) {
             slot = slots_.at( i );
             JUTIL::BaseAllocator::destroy( slot );
         }
-	    slots_.resize( size );
+
+		// Change array size.
+		if (size == 0) {
+			slots_.clear();
+		}
+		else {
+			slots_.resize( size );
+		}
     }
     else {
         // Reserve space for new slots.
@@ -140,6 +155,7 @@ bool SlotArray::set_item( unsigned int index, Item* item )
 	// Reset select state on removal.
 	if (item == nullptr) {
 		slot->set_selected( false );
+		slot->set_enabled( true );
 	}
 	if (!listener_->on_slot_updated( index, slot )) {
 		return false;
@@ -157,6 +173,21 @@ bool SlotArray::set_enabled( unsigned int index, bool is_enabled )
     if (!listener_->on_slot_updated( index, slot )) {
         return false;
     }
+    return true;
+}
+
+/*
+ * Set all slots' enabled status.
+ */
+bool SlotArray::set_enabled( bool is_enabled )
+{
+	unsigned int i;
+	unsigned int end = get_size();
+	for (i = 0; i < end; ++i) {
+		if (!set_enabled( i, is_enabled )) {
+			return false;
+		}
+	}
     return true;
 }
 
@@ -218,12 +249,5 @@ void SlotArray::empty_slots( void )
  */
 void SlotArray::destroy_slots( void )
 {
-	// Destroy slots.
-    unsigned int i;
-	unsigned int end = get_size();
-    for (i = 0; i < end; ++i) {
-        Slot* slot = slots_.at( i );
-        JUTIL::BaseAllocator::destroy( slot );
-    }
-	slots_.clear();
+	set_size( 0 );
 }

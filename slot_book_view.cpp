@@ -100,8 +100,13 @@ bool SlotBookView::get_touching_index( const JUI::Mouse* mouse, unsigned int* in
     if (SlotGridView::get_touching_index( mouse, &local_index )) {
         unsigned int page_size = get_grid_size();
 	    unsigned int active_page_start = get_active_page() * page_size;
-        *index = active_page_start + local_index;
-        return true;
+		unsigned int global_index = active_page_start + local_index;
+
+		// Ignore ghost slots.
+		if (global_index < slot_array_->get_size()) {
+			*index = global_index;
+			return true;
+		}
     }
     return false;
 }

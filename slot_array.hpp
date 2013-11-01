@@ -38,6 +38,7 @@ public:
 	bool set_item( unsigned int index, Item* item );
     bool set_selected( unsigned int index, bool is_selected );
     bool set_enabled( unsigned int index, bool is_enabled );
+	bool set_enabled( bool is_enabled );
     bool remove_item( Item* item );
     void empty_slots( void );
 	void destroy_slots( void );

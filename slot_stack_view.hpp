@@ -27,6 +27,7 @@ public:
 	void set_drag_offset( int x, int y );
 	void set_enabled( bool is_enabled );
 	bool is_enabled( void ) const;
+	void update_alpha( void );
 
 	// Mouse movement handling.
 	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );

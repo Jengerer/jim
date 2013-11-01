@@ -9,6 +9,14 @@
 #include "slot.hpp"
 #include "steam_inventory_listener.hpp"
 
+// Enum for slot mode for selection/dragging.
+enum InventorySlotMode
+{
+	SLOT_MODE_ENABLE_ALL,
+	SLOT_MODE_FREE_DRAG, // Only excluded disabled; inventory to inventory drag.
+	SLOT_MODE_RESTRICTED_DRAG // Multiple item or excluded.
+};
+
 /*
  * Class that manages an inventory book and fallback slots.
  *
@@ -45,8 +53,7 @@ public:
     void delete_items( void );
 
 	// Item slot state management.
-	void begin_dragging( void );
-	void end_dragging( void );
+	void set_slot_mode( InventorySlotMode slot_mode );
     bool set_selected( const Slot* slot, bool is_selected );
     void clear_selection( void );
 
