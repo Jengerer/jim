@@ -519,12 +519,18 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
 	}
 
     // Handle item containers.
+	item_display_->set_item( nullptr );
     if (inventory_view_ != nullptr) {
         result = inventory_view_->on_mouse_moved( mouse );
         if (result != JUI::IO_RESULT_UNHANDLED) {
             return result;
         }
-		item_display_->set_item( nullptr );
+    }
+	if (excluded_view_ != nullptr) {
+        result = excluded_view_->on_mouse_moved( mouse );
+        if (result != JUI::IO_RESULT_UNHANDLED) {
+            return result;
+        }
     }
     
 	// Pass to button manager.
@@ -553,11 +559,22 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
             return result;
         }
     }
+	if (excluded_view_ != nullptr) {
+		result = excluded_view_->on_mouse_clicked( mouse );
+        if (result != JUI::IO_RESULT_UNHANDLED) {
+            return result;
+        }
+	}
 
 	// Pass to button manager.
 	result = button_manager_.on_mouse_clicked( mouse );
 	if (result != JUI::IO_RESULT_UNHANDLED) {
 		return result;
+	}
+
+	// No items or buttons clicked, deselect all if not in multi-mode.
+	if (!multiselect_pressed_) {
+		inventory_->clear_selection();
 	}
     return JUI::IO_RESULT_UNHANDLED;
 }
@@ -580,6 +597,7 @@ JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
 		// Handle inventory release only if we're dragging something.
 		if (inventory_view_ != nullptr) {
 			result = inventory_view_->on_mouse_released( mouse );
+			inventory_->set_slot_mode( SLOT_MODE_ENABLE_ALL );
 			if (result != JUI::IO_RESULT_UNHANDLED) {
 				return result;
 			}
@@ -725,13 +743,12 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 	SlotArrayInterface* slot_array,
 	unsigned int index )
 {
-    const SlotView* view;
-    const Slot* slot = slot_array->get_slot( index );
-
-	// Don't consider empty slots.
+	// Ignore empty slots.
+	const Slot* slot = slot_array->get_slot( index );
 	if (!slot->has_item()) {
 		return true;
 	}
+	const SlotView* view;
     SlotArray* container;
     SlotArray* inventory = inventory_->get_inventory_slots();
     SlotArray* excluded = inventory_->get_excluded_slots();
@@ -756,7 +773,7 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 
 		// Disable item display and full slots.
 		item_display_->set_active( false );
-		inventory_->begin_dragging();
+		inventory_->set_slot_mode( SLOT_MODE_RESTRICTED_DRAG );
 	}
 	else if (multiselect_pressed_) {
 		bool new_selected = !slot->is_selected();
@@ -776,6 +793,16 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 		if (!inventory_->set_selected( slot, true )) {
 			return false;
 		}
+
+		// Disable full slots if excluded.
+		InventorySlotMode slot_mode;
+		if (container == excluded) {
+			slot_mode = SLOT_MODE_RESTRICTED_DRAG;
+		}
+		else {
+			slot_mode = SLOT_MODE_FREE_DRAG;
+		}
+		inventory_->set_slot_mode( slot_mode );
 
 		// Start dragging.
 		int offset_x = view->get_x() - mouse->get_x();
@@ -811,6 +838,7 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 		Item* replaced_item = slot->get_item();
 		Item* dragged_item = dragged_slot->get_item();
 		inventory->contains_item( dragged_item, &dragged_index );
+		inventory_->clear_selection();
 		inventory->set_item( index, dragged_item );
 		inventory->set_item( dragged_index, replaced_item );
 	}
@@ -819,17 +847,15 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 		unsigned int j;
 		unsigned int page_size = inventory_view_->get_grid_size();
 		unsigned int last_checked = index;
-		unsigned int active_end = last_checked + page_size;
+		unsigned int end = inventory->get_size();
 		unsigned int selected_end = selected->get_size();
 
 		// Fit all selected on this page.
 		for (j = 0; j < selected_end; ++j) {
 			Item* current = selected->get_item( j );
-			for (i = last_checked; i < active_end; ++i) {
+			for (i = last_checked; i < end; ++i) {
 				const Slot* slot = inventory->get_slot( i );
-
-				// We can replace this slot if it's selected or empty.
-				if (!slot->has_item() || slot->is_selected()) {
+				if (slot->is_selected() || !slot->has_item()) {
 					inventory_->displace_item( current );
 					inventory->set_item( i, current );
 					inventory->set_selected( i, true );

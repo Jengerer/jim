@@ -2,7 +2,7 @@
 
 // Item selection parameters.
 const unsigned int STACK_DISABLE_ALPHA = 0;
-const unsigned int STACK_ENABLE_ALPHA = 255;
+const unsigned int STACK_ENABLE_ALPHA = 200;
 
 SlotStackView::SlotStackView( SlotArrayInterface* slot_array )
     : slot_array_( slot_array )
@@ -24,6 +24,9 @@ bool SlotStackView::on_slot_updated( unsigned int index, const Slot* slot )
         if (!update( slot )) {
             return false;
         }
+
+		// Update alpha.
+		update_alpha();
     }
     return true;
 }
@@ -43,12 +46,7 @@ void SlotStackView::set_drag_offset( int x, int y )
 void SlotStackView::set_enabled( bool is_enabled )
 {
 	is_enabled_ = is_enabled;
-	if (is_enabled_) {
-		set_alpha( STACK_ENABLE_ALPHA );
-	}
-	else {
-		set_alpha( STACK_DISABLE_ALPHA );
-	}
+	update_alpha();
 }
 
 /*
@@ -57,6 +55,19 @@ void SlotStackView::set_enabled( bool is_enabled )
 bool SlotStackView::is_enabled( void ) const
 {
 	return is_enabled_;
+}
+
+/*
+ * Update slot alpha based on activity.
+ */
+void SlotStackView::update_alpha( void )
+{
+	if (is_enabled_) {
+		set_alpha( STACK_ENABLE_ALPHA );
+	}
+	else {
+		set_alpha( STACK_DISABLE_ALPHA );
+	}
 }
 
 /*

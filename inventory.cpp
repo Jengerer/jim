@@ -139,9 +139,12 @@ bool Inventory::place_item( Item* item )
 void Inventory::displace_item( Item* item )
 {
 	// Remove item from slot.
-    if (!inventory_slots_.remove_item( item )) {
-        excluded_slots_.remove_item( item );
-    }
+    if (inventory_slots_.remove_item( item )) {
+		return;
+	}
+	if (excluded_slots_.remove_item( item )) {
+		excluded_slots_.compress_slots();
+	}
 }
 
 /*
@@ -157,33 +160,33 @@ void Inventory::delete_items( void )
 /*
  * Toggle slot disables to allow valid movements.
  */
-void Inventory::begin_dragging( void )
+void Inventory::set_slot_mode( InventorySlotMode slot_mode )
 {
-	// We disable full inventory slots if we carried an exclusive; keep track.
-	bool first_excluded = false;
-	Item* first_selected = selected_slots_.get_item( 0 );
-
-	// Always disable excluded slots; mark whether first item is excluded.
-	unsigned int i;
-	unsigned int end = excluded_slots_.get_size();
-	for (i = 0; i < end; ++i) {
-		excluded_slots_.set_enabled( i, false );
-		if (first_selected == excluded_slots_.get_item( i )) {
-			first_excluded = true;
-		}
+	if (slot_mode == SLOT_MODE_ENABLE_ALL) {
+		inventory_slots_.set_enabled( true );
+		excluded_slots_.set_enabled( true );
 	}
-
-	// Disable full inventory slots if we're carrying excluded or
-	// multiple items.
-	end = inventory_slots_.get_size();
-	unsigned int selected_count = selected_slots_.get_size();
-	if (first_excluded || (selected_count != 1)) {
-		for (i = 0; i < end; ++i) {
-			const Slot* slot = inventory_slots_.get_slot( i );
-			bool enabled = !slot->has_item() || slot->is_selected();
-			if (!inventory_slots_.is_slot_empty( i )) {
-				inventory_slots_.set_enabled( i, enabled );
+	else {
+		excluded_slots_.set_enabled( false );
+		if (slot_mode == SLOT_MODE_RESTRICTED_DRAG) {
+			unsigned int i;
+			unsigned int end = inventory_slots_.get_size();;
+			unsigned int selected_count = selected_slots_.get_size();
+			unsigned int valid_count = 0;
+			// Only enable inventory slots that we can start a fit from.
+			for (i = 0; i < end; ++i) {
+				unsigned int back_index = end - (i + 1);
+				const Slot* slot = inventory_slots_.get_slot( back_index );
+				bool enabled = !slot->has_item() || slot->is_selected();
+				if (enabled) {
+					++valid_count;
+					enabled = (valid_count >= selected_count);
+				}
+				inventory_slots_.set_enabled( back_index, enabled );
 			}
+		}
+		else {
+			inventory_slots_.set_enabled( true );
 		}
 	}
 }
@@ -202,7 +205,9 @@ bool Inventory::set_selected( const Slot* slot, bool is_selected )
     }
     else {
         selected_slots_.remove_item( item );
+		selected_slots_.compress_slots();
     }
+
 	return true;
 }
 

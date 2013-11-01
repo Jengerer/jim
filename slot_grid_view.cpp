@@ -129,10 +129,18 @@ JUI::IOResult SlotGridView::on_mouse_clicked( JUI::Mouse* mouse )
     // Check if clicking on a slot.
     unsigned int index;
     if (get_touching_index( mouse, &index )) {
-        if (!listener_->on_slot_clicked( mouse, slot_array_, index )) {
-            return JUI::IO_RESULT_ERROR;
-        }
-        return JUI::IO_RESULT_HANDLED;
+		// Ignore ghost slot views.
+		if (index < slot_array_->get_size()) {
+			const Slot* slot = slot_array_->get_slot( index );
+
+			// Don't register click for empty slots.
+			if (slot->has_item()) {
+				if (!listener_->on_slot_clicked( mouse, slot_array_, index )) {
+					return JUI::IO_RESULT_ERROR;
+				}
+				return JUI::IO_RESULT_HANDLED;
+			}
+		}
     }
     return JUI::IO_RESULT_UNHANDLED;
 }
