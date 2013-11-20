@@ -1,13 +1,13 @@
 #include "slot_stack_view.hpp"
 
 // Item selection parameters.
-const unsigned int STACK_DISABLE_ALPHA = 0;
-const unsigned int STACK_ENABLE_ALPHA = 200;
+const unsigned int STACK_DRAGGING_ALPHA = 150;
+const unsigned int STACK_NORMAL_ALPHA = 255;
 
 SlotStackView::SlotStackView( SlotArrayInterface* slot_array )
-    : slot_array_( slot_array )
+    : slot_array_( slot_array ),
+	  is_dragging_( false )
 {
-	set_enabled( false );
 }
 
 SlotStackView::~SlotStackView( void )
@@ -24,9 +24,6 @@ bool SlotStackView::on_slot_updated( unsigned int index, const Slot* slot )
         if (!update( slot )) {
             return false;
         }
-
-		// Update alpha.
-		update_alpha();
     }
     return true;
 }
@@ -41,33 +38,31 @@ void SlotStackView::set_drag_offset( int x, int y )
 }
 
 /*
- * Toggle enable/disable of slot drag view.
+ * Begin dragging the slot view.
  */
-void SlotStackView::set_enabled( bool is_enabled )
+void SlotStackView::begin_dragging( void )
 {
-	is_enabled_ = is_enabled;
-	update_alpha();
+	is_dragging_ = true;
+	save_position();
+	set_alpha( STACK_DRAGGING_ALPHA );
+}
+
+/*
+ * End dragging the slot view.
+ */
+void SlotStackView::end_dragging( void )
+{
+	is_dragging_ = false;
+	restore_position();
+	set_alpha( STACK_NORMAL_ALPHA );
 }
 
 /*
  * Return whether stack is enabled.
  */
-bool SlotStackView::is_enabled( void ) const
+bool SlotStackView::is_dragging( void ) const
 {
-	return is_enabled_;
-}
-
-/*
- * Update slot alpha based on activity.
- */
-void SlotStackView::update_alpha( void )
-{
-	if (is_enabled_) {
-		set_alpha( STACK_ENABLE_ALPHA );
-	}
-	else {
-		set_alpha( STACK_DISABLE_ALPHA );
-	}
+	return is_dragging_;
 }
 
 /*
@@ -76,7 +71,7 @@ void SlotStackView::update_alpha( void )
 JUI::IOResult SlotStackView::on_mouse_moved( JUI::Mouse* mouse )
 {
 	// Only update if we're dragging.
-	if (is_enabled_) {
+	if (is_dragging_) {
 		int x = mouse->get_x() + offset_x_;
 		int y = mouse->get_y() + offset_y_;
 		set_position( x, y );
@@ -90,6 +85,14 @@ JUI::IOResult SlotStackView::on_mouse_moved( JUI::Mouse* mouse )
  */
 JUI::IOResult SlotStackView::on_mouse_clicked( JUI::Mouse* mouse )
 {
+	// Handle drag start.
+	if (mouse->is_touching( this )) {
+		offset_x_ = get_x() - mouse->get_x();
+		offset_y_ = get_y() - mouse->get_y();
+		set_drag_offset( offset_x_, offset_y_ );
+		begin_dragging();
+		return JUI::IO_RESULT_HANDLED;
+	}
 	return JUI::IO_RESULT_UNHANDLED;
 }
 
@@ -98,5 +101,26 @@ JUI::IOResult SlotStackView::on_mouse_clicked( JUI::Mouse* mouse )
  */
 JUI::IOResult SlotStackView::on_mouse_released( JUI::Mouse* mouse )
 {
+	if (is_dragging_) {
+		end_dragging();
+		return JUI::IO_RESULT_HANDLED;
+	}
 	return JUI::IO_RESULT_UNHANDLED;
+}
+
+/*
+ * Save position to return to after drag.
+ */
+void SlotStackView::save_position( void )
+{
+	return_x_ = get_x();
+	return_y_ = get_y();
+}
+
+/*
+ * Return stack view to pre-drag position.
+ */
+void SlotStackView::restore_position( void )
+{
+	set_position( return_x_, return_y_ );
 }

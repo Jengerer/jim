@@ -130,14 +130,13 @@ private:
     Button* next_button_;
 
     // Top-level fonts.
-	JUI::FontInterface* title_font_;
+	JUI::FontInterface* heading_font_;
 	JUI::FontInterface* page_font_;
 
     // Item manager event handling interface.
     ItemManagerViewListener* listener_;
 
 	// Keyboard state members.
-	bool multidrag_pressed_;
 	bool multiselect_pressed_;
 
 };

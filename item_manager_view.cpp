@@ -19,10 +19,12 @@ const JUTIL::ConstantString DELETE_ICON_TEXTURE = "img/manager/delete.png";
 const JUTIL::ConstantString UNKNOWN_ITEM_ICON_TEXTURE = "img/backpack/unknown_item.png";
 
 // Title display.
-const JUTIL::String* TITLE_FONT_FACE = &TF2_BUILD_FONT;
-const unsigned int TITLE_FONT_SIZE = 14;
-const bool TITLE_FONT_BOLDED = false;
-const JUI::Colour TITLE_COLOUR( 241, 239, 237 );
+const JUTIL::ConstantString EXCLUDED_HEADING_TEXT = "New/Excluded Items";
+const JUTIL::ConstantString SELECTED_HEADING_TEXT = "Selected Items";
+const JUTIL::String* HEADING_FONT_FACE = &TF2_BUILD_FONT;
+const unsigned int HEADING_FONT_SIZE = 12;
+const bool HEADING_FONT_BOLDED = false;
+const JUI::Colour HEADING_COLOUR( 241, 239, 237 );
 
 // Page display.
 const JUTIL::String* PAGE_FONT_FACE = &TF2_SECONDARY_FONT;
@@ -63,9 +65,8 @@ ItemManagerView::ItemManagerView( Inventory* inventory )
 	  delete_button_( nullptr ),
 	  prev_button_( nullptr ),
 	  next_button_( nullptr ),
-      title_font_( nullptr ),
+      heading_font_( nullptr ),
       page_font_( nullptr ),
-	  multidrag_pressed_( false ),
 	  multiselect_pressed_( false )
 {
     button_manager_.set_event_listener( this );
@@ -121,8 +122,8 @@ bool ItemManagerView::download_resources( ResourceLoaderInterface* loader )
 bool ItemManagerView::initialize( void )
 {
     // Load title font.
-	title_font_ = JUI::FontFactory::create_font( TITLE_FONT_FACE, TITLE_FONT_SIZE );
-    if (title_font_ == nullptr) {
+	heading_font_ = JUI::FontFactory::create_font( HEADING_FONT_FACE, HEADING_FONT_SIZE );
+    if (heading_font_ == nullptr) {
         return false;
     }
 
@@ -334,44 +335,100 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	page_display_layout->pack( BUTTON_SPACING, JUI::ALIGN_MIDDLE );
 	button_layout->pack();
 
-	// Create excluded view.
+	// Create split layout for headings and excluded/selected slots.
+	JUI::HorizontalSplitLayout* heading_split;
+	JUI::HorizontalSplitLayout* slot_split;
+	if (!JUTIL::BaseAllocator::allocate( &heading_split )) {
+		stack->log( "Failed to allocate heading split layout." );
+		return false;
+	}
+	if (!layout->add( heading_split )) {
+		JUTIL::BaseAllocator::release( heading_split );
+		stack->log( "Failed to add heading split layout. ");
+		return false;
+	}
+	new (heading_split) JUI::HorizontalSplitLayout( inventory_width );
+	if (!JUTIL::BaseAllocator::allocate( &slot_split )) {
+		stack->log( "Failed to allocate slot split layout." );
+		return false;
+	}
+	if (!layout->add( slot_split )) {
+		JUTIL::BaseAllocator::release( slot_split );
+		stack->log( "Failed to add slot split layout." );
+		return false;
+	}
+	new (slot_split) JUI::HorizontalSplitLayout( inventory_width );
+		
+	// Create excluded and multi-drag title.
+	JUI::Text* excluded_heading;
+	JUI::Text* selected_heading;
+	if (!JUTIL::BaseAllocator::allocate( &excluded_heading )) {
+		stack->log( "Failed to allocate excluded heading text." );
+		return false;
+	}
+	if (!heading_split->set_left( excluded_heading )) {
+		JUTIL::BaseAllocator::release( excluded_heading );
+		stack->log( "Failed to add excluded heading to layout." );
+		return false;
+	}
+	new (excluded_heading) JUI::Text( heading_font_ );
+	if (!JUTIL::BaseAllocator::allocate( &selected_heading )) {
+		stack->log( "Failed to allocate selected heading text." );
+		return false;
+	}
+	if (!heading_split->set_right( selected_heading )) {
+		JUTIL::BaseAllocator::release( selected_heading );
+		stack->log( "Failed to add selected heading to layout." );
+		return false;
+	}
+	new (selected_heading) JUI::Text( heading_font_ );
+	excluded_heading->set_text( &EXCLUDED_HEADING_TEXT );
+	selected_heading->set_text( &SELECTED_HEADING_TEXT );
+	heading_split->pack();
+
+	// Create selected item view.
+    book = inventory_->get_selected_slots();
+    if (!JUTIL::BaseAllocator::allocate( &selected_view_ )) {
+        stack->log( "Failed to allocate selected item view." );
+        return false;
+    }
+    if (!slot_split->set_right( selected_view_ )) {
+        JUTIL::BaseAllocator::release( &selected_view_ );
+        stack->log( "Failed to add selected item view to user layer." );
+        return false;
+    }
+	new (selected_view_) SlotStackView( book );
+    if (!selected_view_->initialize()) {
+        stack->log( "Failed to initialize selected item view." );
+        return false;
+    }
+    book->set_listener( selected_view_ );
+	
+	// Create excluded and selected view.
     book = inventory_->get_excluded_slots();
 	if (!JUTIL::BaseAllocator::allocate( &excluded_view_ )) {
         stack->log( "Failed to allocate excluded slot view." );
 		return false;
 	}
-	excluded_view_ = new (excluded_view_) SlotBookView( book, EXCLUDED_PAGE_WIDTH, EXCLUDED_PAGE_HEIGHT );
-	if (!excluded_view_->initialize() || !layout->add( excluded_view_ )) {
-		JUTIL::BaseAllocator::destroy( excluded_view_ );
+	if (!slot_split->set_left( excluded_view_ )) {
+		JUTIL::BaseAllocator::release( excluded_view_ );
         stack->log( "Failed to add initialized excluded view to layout." );
+		return false;
+	}
+	new (excluded_view_) SlotBookView( book, EXCLUDED_PAGE_WIDTH, EXCLUDED_PAGE_HEIGHT );
+	if (!excluded_view_->initialize()) {
+		stack->log( "Failed to initialize excluded slot view." );
 		return false;
 	}
     excluded_view_->set_listener( this );
 	book->set_listener( excluded_view_ );
+	slot_split->pack();
 
 	// Pack top-most layout.
 	layout->pack( LAYOUT_SPACING, JUI::ALIGN_LEFT );
 	int center_x = (get_width() - layout->get_width()) / 2;
 	int center_y = (get_height() - layout->get_height()) / 2;
 	layout->set_position( center_x, center_y );
-
-    // Create selected item view.
-    book = inventory_->get_selected_slots();
-    if (!JUTIL::BaseAllocator::allocate( &selected_view_ )) {
-        stack->log( "Failed to allocate selected item view." );
-        return false;
-    }
-    new (selected_view_) SlotStackView( book );
-    if (!user_layer_->add( selected_view_ )) {
-        JUTIL::BaseAllocator::destroy( &selected_view_ );
-        stack->log( "Failed to add selected item view to user layer." );
-        return false;
-    }
-    if (!selected_view_->initialize()) {
-        stack->log( "Failed to initialize selected item view." );
-        return false;
-    }
-    book->set_listener( selected_view_ );
 
 	// Create item display.
     ItemSchema* schema = inventory_->get_schema();
@@ -402,8 +459,8 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 void ItemManagerView::clean_up( void )
 {
     // Remove font resources.
-    if (title_font_ != nullptr) {
-        JUI::FontFactory::destroy_font( title_font_ );
+    if (heading_font_ != nullptr) {
+        JUI::FontFactory::destroy_font( heading_font_ );
     }
     if (page_font_ != nullptr) {
         JUI::FontFactory::destroy_font( page_font_ );
@@ -553,17 +610,17 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
     }
 
     // Handle item containers.
-    if (inventory_view_ != nullptr) {
-        result = inventory_view_->on_mouse_clicked( mouse );
-        if (result != JUI::IO_RESULT_UNHANDLED) {
-            return result;
-        }
+    result = inventory_view_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
     }
-	if (excluded_view_ != nullptr) {
-		result = excluded_view_->on_mouse_clicked( mouse );
-        if (result != JUI::IO_RESULT_UNHANDLED) {
-            return result;
-        }
+	result = excluded_view_->on_mouse_clicked( mouse );
+    if (result != JUI::IO_RESULT_UNHANDLED) {
+        return result;
+    }
+	result = selected_view_->on_mouse_clicked( mouse );
+	if (result != JUI::IO_RESULT_UNHANDLED) {
+		return result;
 	}
 
 	// Pass to button manager.
@@ -591,17 +648,15 @@ JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
     }
 
 	// Release item if holding any.
-	if (selected_view_->is_enabled()) {
-		selected_view_->set_enabled( false );
-
+	result = selected_view_->on_mouse_released( mouse );
+	if (result == JUI::IO_RESULT_HANDLED) {
 		// Handle inventory release only if we're dragging something.
-		if (inventory_view_ != nullptr) {
-			result = inventory_view_->on_mouse_released( mouse );
-			inventory_->set_slot_mode( SLOT_MODE_ENABLE_ALL );
-			if (result != JUI::IO_RESULT_UNHANDLED) {
-				return result;
-			}
+		result = inventory_view_->on_mouse_released( mouse );
+		inventory_->set_slot_mode( SLOT_MODE_ENABLE_ALL );
+		if (result != JUI::IO_RESULT_UNHANDLED) {
+			return result;
 		}
+		return JUI::IO_RESULT_HANDLED;
 	}
 
 	// Pass to button manager.
@@ -617,10 +672,7 @@ JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
  */
 JUI::IOResult ItemManagerView::on_key_pressed( int key )
 {
-	if (key == MULTIDRAG_KEY_CODE) {
-		multidrag_pressed_ = true;
-	}
-	else if (key == MULTISELECT_KEY_CODE) {
+	if (key == MULTISELECT_KEY_CODE) {
 		multiselect_pressed_ = true;
 	}
 	else {
@@ -634,10 +686,7 @@ JUI::IOResult ItemManagerView::on_key_pressed( int key )
  */
 JUI::IOResult ItemManagerView::on_key_released( int key )
 {
-	if (key == MULTIDRAG_KEY_CODE) {
-		multidrag_pressed_ = false;
-	}
-	else if (key == MULTISELECT_KEY_CODE) {
+	if (key == MULTISELECT_KEY_CODE) {
 		multiselect_pressed_ = false;
 	}
 	else {
@@ -764,18 +813,7 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
     }
 
 	// Handle single item selection if no modifier key.
-	if (multidrag_pressed_) {
-		// Start dragging.
-		int offset_x = view->get_x() - mouse->get_x();
-		int offset_y = view->get_y() - mouse->get_y();
-		selected_view_->set_drag_offset( offset_x, offset_y );		
-		selected_view_->set_enabled( true );
-
-		// Disable item display and full slots.
-		item_display_->set_active( false );
-		inventory_->set_slot_mode( SLOT_MODE_RESTRICTED_DRAG );
-	}
-	else if (multiselect_pressed_) {
+	if (multiselect_pressed_) {
 		bool new_selected = !slot->is_selected();
 		if (!container->set_selected( index, new_selected )) {
 			return false;
@@ -808,7 +846,7 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 		int offset_x = view->get_x() - mouse->get_x();
 		int offset_y = view->get_y() - mouse->get_y();
 		selected_view_->set_drag_offset( offset_x, offset_y );		
-		selected_view_->set_enabled( true );
+		selected_view_->begin_dragging();
 
 		// Disable item display and full slots.
 		item_display_->set_active( false );
