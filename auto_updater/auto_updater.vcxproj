@@ -40,7 +40,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SDK_LIB_DIR)\boost\;$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include</IncludePath>
+    <IncludePath>$(SDK_LIB_DIR)\boost\include;$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include</IncludePath>
     <LibraryPath>$(SDK_LIB_DIR)\boost\lib\;$(SDK_LIB_DIR)\jutil\lib;$(SDK_LIB_DIR)\jui\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

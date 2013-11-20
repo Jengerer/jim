@@ -45,7 +45,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration) Output\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(SDK_LIB_DIR)\protobuf\src;$(SDK_LIB_DIR)\jsoncpp\include;$(SDK_LIB_DIR)\boost\;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(SDK_LIB_DIR)\protobuf\src;$(SDK_LIB_DIR)\jsoncpp\include;$(SDK_LIB_DIR)\boost\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(SDK_LIB_DIR)\protobuf\src;$(SDK_LIB_DIR)\jsoncpp\include;$(SDK_LIB_DIR)\boost\;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SDK_LIB_DIR)\jui\lib;$(SDK_LIB_DIR)\jutil\lib;$(SDK_LIB_DIR)\protobuf\vsprojects\Release;$(SDK_LIB_DIR)\jsoncpp\libs\Release\;$(SDK_LIB_DIR)\boost\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SDK_LIB_DIR)\jui\lib;$(SDK_LIB_DIR)\jutil\lib;$(SDK_LIB_DIR)\protobuf\vsprojects\Debug;$(SDK_LIB_DIR)\jsoncpp\libs\Debug\;$(SDK_LIB_DIR)\boost\lib;$(LibraryPath)</LibraryPath>

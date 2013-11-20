@@ -146,13 +146,21 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 
     // Base resources successful; load extra resources.
     if (!create_resources()) {
-        // Check for error to display.
         const JUTIL::String* top = stack->get_top_error();
         if (!view_->create_error( top )) {
             return PrecacheResourcesFailure;
         }
 		set_think( &ItemManager::exiting );
     }
+
+	// Generate non-base layout.
+	if (!view_->create_layout( &graphics_ )) {
+		const JUTIL::String* top = stack->get_top_error();
+		if (!view_->create_error( top )) {
+			return PrecacheResourcesFailure;
+		}
+		set_think( &ItemManager::exiting );
+	}
 
     // All base resources loaded successfully.
     return Success;
@@ -166,7 +174,7 @@ bool ItemManager::create_resources( void )
     // TASK: verify no other steam API application is running.
 
     // Enough resources loaded to show styled messages.
-    if (!ItemDisplay::precache()) {
+	if (!ItemDisplay::precache()) {
         return false;
     }
 	else if (!Notification::precache()) {
@@ -286,11 +294,6 @@ bool ItemManager::loading_schema( void )
 		{
 			// Remove threaded loader.
 			JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
-
-			// Create UI now.
-			if (!view_->create_layout( &graphics_ )) {
-				return false;
-			}
 
             // Finished loading!
             view_->destroy_loading_notice();

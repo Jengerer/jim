@@ -25,9 +25,9 @@ public:
 
 	// Item dragging handling.
 	void set_drag_offset( int x, int y );
-	void set_enabled( bool is_enabled );
-	bool is_enabled( void ) const;
-	void update_alpha( void );
+	void begin_dragging( void );
+	void end_dragging( void );
+	bool is_dragging( void ) const;
 
 	// Mouse movement handling.
 	virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
@@ -36,12 +36,22 @@ public:
 
 private:
 
+	// Dragging position restoring.
+	void save_position( void );
+	void restore_position( void );
+
+private:
+
     SlotArrayInterface* slot_array_;
 
 	// Dragging members.
-	bool is_enabled_;
+	bool is_dragging_;
 	int offset_x_;
 	int offset_y_;
+
+	// Position to return to after dragging done.
+	int return_x_;
+	int return_y_;
 
 };
 
