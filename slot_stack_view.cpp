@@ -15,6 +15,14 @@ SlotStackView::~SlotStackView( void )
 }
 
 /*
+ * Set the listener interface for array view.
+ */
+void SlotStackView::set_listener( SlotArrayViewListener* listener )
+{
+	listener_ = listener;
+}
+
+/*
  * Handle slot container update event.
  */
 bool SlotStackView::on_slot_updated( unsigned int index, const Slot* slot )
@@ -77,6 +85,16 @@ JUI::IOResult SlotStackView::on_mouse_moved( JUI::Mouse* mouse )
 		set_position( x, y );
 		return JUI::IO_RESULT_HANDLED;
 	}
+	else if (mouse->is_touching( this )) {
+		// Send event to listener to show item data.
+		if (slot_array_->get_size() != 0) {
+			if (!listener_->on_slot_hovered( slot_array_, 0 )) {
+				return JUI::IO_RESULT_ERROR;
+			}
+
+			return JUI::IO_RESULT_HANDLED;
+		}
+	}
 	return JUI::IO_RESULT_UNHANDLED;
 }
 
@@ -85,14 +103,23 @@ JUI::IOResult SlotStackView::on_mouse_moved( JUI::Mouse* mouse )
  */
 JUI::IOResult SlotStackView::on_mouse_clicked( JUI::Mouse* mouse )
 {
-	// Handle drag start.
-	if (mouse->is_touching( this )) {
-		offset_x_ = get_x() - mouse->get_x();
-		offset_y_ = get_y() - mouse->get_y();
-		set_drag_offset( offset_x_, offset_y_ );
-		begin_dragging();
-		return JUI::IO_RESULT_HANDLED;
+	// Handle drag start if non-empty.
+	if (slot_array_->get_size() != 0) {
+		if (mouse->is_touching( this )) {
+			// Set offset and begin dragging.
+			offset_x_ = get_x() - mouse->get_x();
+			offset_y_ = get_y() - mouse->get_y();
+			set_drag_offset( offset_x_, offset_y_ );
+			begin_dragging();
+			
+			// Notify listener we've been clicked.
+			if (!listener_->on_slot_clicked( mouse, slot_array_, 0 )) {
+				return JUI::IO_RESULT_ERROR;
+			}
+			return JUI::IO_RESULT_HANDLED;
+		}
 	}
+
 	return JUI::IO_RESULT_UNHANDLED;
 }
 
