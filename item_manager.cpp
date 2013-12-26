@@ -359,7 +359,14 @@ bool ItemManager::on_error_acknowledged( void )
 bool ItemManager::on_inventory_loaded( void )
 {
 	// Create thread to load item definitions.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 	if (!start_definition_load()) {
+		return false;
+	}
+
+	// Update page display.
+	if (!view_->update_page_display()) {
+		stack->log( "Failed to update page display." );
 		return false;
 	}
 	set_think( &ItemManager::loading_schema );

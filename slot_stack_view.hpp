@@ -5,6 +5,7 @@
 #include "slot_view.hpp"
 #include "slot_array_interface.hpp"
 #include "slot_array_listener.hpp"
+#include "slot_array_view_listener.hpp"
 
 /*
  * Single slot view for dragging multiple items in a selection stack.
@@ -20,7 +21,8 @@ public:
     SlotStackView( SlotArrayInterface* slot_array );
     virtual ~SlotStackView( void );
 
-    // Array listener interface.
+    // Listener functions/interfaces.
+	void set_listener( SlotArrayViewListener* listener );
     virtual bool on_slot_updated( unsigned int index, const Slot* slot );
 
 	// Item dragging handling.
@@ -43,6 +45,7 @@ private:
 private:
 
     SlotArrayInterface* slot_array_;
+	SlotArrayViewListener* listener_;
 
 	// Dragging members.
 	bool is_dragging_;

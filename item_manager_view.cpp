@@ -386,13 +386,30 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	selected_heading->set_text( &SELECTED_HEADING_TEXT );
 	heading_split->pack();
 
-	// Create selected item view.
+	// Create dummy selected items view.
+	SlotView* dummy_view;
+	if (!JUTIL::BaseAllocator::allocate( &dummy_view )) {
+		stack->log( "Failed to allocate dummy selected slot." );
+		return false;
+	}
+	if (!slot_split->set_right( dummy_view )) {
+		JUTIL::BaseAllocator::release( &dummy_view );
+		stack->log( "Failed to add dummy selected slot to layout." );
+		return false;
+	}
+	new (dummy_view) SlotView();
+	if (!dummy_view->initialize()) {
+		stack->log( "Failed to initialize dummy slot view." );
+		return false;
+	}
+
+	// Now put actual selected slot view on top of dummy.
     book = inventory_->get_selected_slots();
     if (!JUTIL::BaseAllocator::allocate( &selected_view_ )) {
         stack->log( "Failed to allocate selected item view." );
         return false;
     }
-    if (!slot_split->set_right( selected_view_ )) {
+    if (!add( selected_view_ )) {
         JUTIL::BaseAllocator::release( &selected_view_ );
         stack->log( "Failed to add selected item view to user layer." );
         return false;
@@ -403,6 +420,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         return false;
     }
     book->set_listener( selected_view_ );
+	selected_view_->set_listener( this );
 	
 	// Create excluded and selected view.
     book = inventory_->get_excluded_slots();
@@ -429,6 +447,11 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	int center_x = (get_width() - layout->get_width()) / 2;
 	int center_y = (get_height() - layout->get_height()) / 2;
 	layout->set_position( center_x, center_y );
+
+	// Move dragged slot view over dummy.
+	int dummy_x = dummy_view->get_x();
+	int dummy_y = dummy_view->get_y();
+	selected_view_->set_position( dummy_x, dummy_y );
 
 	// Create item display.
     ItemSchema* schema = inventory_->get_schema();
@@ -763,12 +786,18 @@ bool ItemManagerView::on_slot_hovered( SlotArrayInterface* slot_array, unsigned 
     // Check which container is triggering this.
     const SlotView* view;
     const Slot* slot = slot_array->get_slot( index );
-    if (slot_array == inventory_->get_inventory_slots()) {
+	const SlotArray* inventory = inventory_->get_inventory_slots();
+	const SlotArray* excluded = inventory_->get_excluded_slots();
+	const SlotArray* selected = inventory_->get_selected_slots();
+    if (slot_array == inventory) {
         view = inventory_view_->get_slot_view( index );
     }
-    else if (slot_array == inventory_->get_excluded_slots()) {
+    else if (slot_array == excluded) {
         view = excluded_view_->get_slot_view( index );
     }
+	else if (slot_array == selected) {
+		view = selected_view_;
+	}
     if (!item_display_->set_item( slot->get_item() )) {
 		return false;
 	}
@@ -801,55 +830,72 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
     SlotArray* container;
     SlotArray* inventory = inventory_->get_inventory_slots();
     SlotArray* excluded = inventory_->get_excluded_slots();
+	SlotArray* selected = inventory_->get_selected_slots();
+
+	// Disable item display and full slots.
+	item_display_->set_active( false );
 
     // Check which container we're clicking from.
-    if (slot_array == inventory) {
-        container = inventory;
-        view = inventory_view_->get_slot_view( index );
-    }
-    else if (slot_array == excluded) {
-        container = excluded;
-        view = excluded_view_->get_slot_view( index );
-    }
-
-	// Handle single item selection if no modifier key.
-	if (multiselect_pressed_) {
-		bool new_selected = !slot->is_selected();
-		if (!container->set_selected( index, new_selected )) {
-			return false;
-		}
-		if (!inventory_->set_selected( slot, new_selected )) {
-			return false;
-		}
+	bool disable_item_display = false;
+	bool restrict_drag = false;
+	if (slot_array == selected) {
+		container = selected;
+		view = selected_view_;
+		restrict_drag = true;
+		disable_item_display = true;
 	}
-	else {
-		// Set this as the new selected item.
-		inventory_->clear_selection();
-		if (!container->set_selected( index, true )) {
-			return false;
+    else {
+		if (slot_array == inventory) {
+			container = inventory;
+			view = inventory_view_->get_slot_view( index );
 		}
-		if (!inventory_->set_selected( slot, true )) {
-			return false;
+		else if (slot_array == excluded) {
+			container = excluded;
+			view = excluded_view_->get_slot_view( index );
 		}
 
-		// Disable full slots if excluded.
-		InventorySlotMode slot_mode;
-		if (container == excluded) {
-			slot_mode = SLOT_MODE_RESTRICTED_DRAG;
+		// Handle single item selection if no modifier key.
+		if (multiselect_pressed_) {
+			bool new_selected = !slot->is_selected();
+			if (!container->set_selected( index, new_selected )) {
+				return false;
+			}
+			if (!inventory_->set_selected( slot, new_selected )) {
+				return false;
+			}
 		}
 		else {
-			slot_mode = SLOT_MODE_FREE_DRAG;
+			// Hide item display.
+			disable_item_display = true;
+
+			// Set this as the new selected item.
+			inventory_->clear_selection();
+			if (!container->set_selected( index, true )) {
+				return false;
+			}
+			if (!inventory_->set_selected( slot, true )) {
+				return false;
+			}
+
+			// Disable full slots if excluded.
+			restrict_drag = (container == excluded);
+
+			// Start dragging.
+			int offset_x = view->get_x() - mouse->get_x();
+			int offset_y = view->get_y() - mouse->get_y();
+			selected_view_->set_drag_offset( offset_x, offset_y );		
+			selected_view_->begin_dragging();
 		}
-		inventory_->set_slot_mode( slot_mode );
+	}
 
-		// Start dragging.
-		int offset_x = view->get_x() - mouse->get_x();
-		int offset_y = view->get_y() - mouse->get_y();
-		selected_view_->set_drag_offset( offset_x, offset_y );		
-		selected_view_->begin_dragging();
-
-		// Disable item display and full slots.
+	// Hide item display if indicated.
+	if (disable_item_display) {
 		item_display_->set_active( false );
+	}
+
+	// Set slot mode to restricted if indicated.
+	if (restrict_drag) {
+		inventory_->set_slot_mode( SLOT_MODE_RESTRICTED_DRAG );
 	}
     return true;
 }
