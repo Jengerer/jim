@@ -747,11 +747,14 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         stack->log( "Failed to create fallback item definition.");
         return false;
     }
+	JUTIL::DynamicString temp;
+	temp.write("%s", FALLBACK_ITEM_TEXTURE);
 	fallback = new (fallback) ItemDefinition(
 		unknown_name,
-		unknown_item,
+		&temp,
 		FALLBACK_ITEM_CLASS_FLAGS,
 		FALLBACK_ITEM_SLOT );
+	fallback->load_texture( graphics_, unknown_item );
     schema_->set_fallback_definition( fallback );
 
 	// Prefetch paint textures so only 1 fail message appears
@@ -913,18 +916,11 @@ bool DefinitionLoader::load_item( Json::Value* item,
         }
     }
 
-	// Check that texture exists.
-	const JUI::Texture* texture = nullptr;
-
     // Load texture; fall back to default if failed.
-    JUI::FileTexture* item_texture = nullptr;
     JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
-    if (downloader->check_and_get( image, image_url )) {
-        JUI::Graphics2D::ReturnStatus status = graphics_->get_texture( image, &item_texture );
-        if (status == JUI::Graphics2D::Success) {
-            texture = static_cast<JUI::Texture*>(item_texture);
-        }
-    }
+
+	// Best effort to download the file; use fallback if failed.
+    downloader->check_and_get( image, image_url );
     
 	// Generate information object.
     ItemDefinition* information;
@@ -932,7 +928,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
         stack->log( "Failed to create item information object.");
         return false;
     }
-    information = new (information) ItemDefinition( name, texture, classes, slot );
+    information = new (information) ItemDefinition( name, image, classes, slot );
 
 	// Load tool info and alternate textures
 	Json::Value* tool;

@@ -47,6 +47,7 @@ public:
 
 	// Inventory listener functions.
 	virtual bool on_inventory_loaded( void );
+	virtual bool on_item_moved( Item* item );
 
 	// Input handling.
 	bool handle_keyboard( void );
