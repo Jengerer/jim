@@ -61,7 +61,7 @@ ItemSchema* Inventory::get_schema( void )
 /*
  * Handle schema load completed event.
  */
-bool Inventory::on_schema_loaded( void )
+bool Inventory::on_schema_loaded( JUI::Graphics2D *graphics )
 {
     // Resolve and place all items.
     unsigned int i;
@@ -70,7 +70,7 @@ bool Inventory::on_schema_loaded( void )
         Item* item = items_.get_item( i );
 
         // Find definition for item.
-        if (!schema_.resolve( item )) {
+        if (!schema_.resolve( item, graphics )) {
             return false;
         }
 
@@ -131,6 +131,26 @@ bool Inventory::place_item( Item* item )
 	}
 
     return true;
+}
+
+/*
+ * Move an item to an inventory slot and notify the listener.
+ * This function should only be used if we want listeners to hear
+ * about movement; not when filling/initializing the inventory.
+ * The item's previous slot, if empty, should be cleaned externally
+ * and is not handled here.
+ */
+bool Inventory::move_item( Item* item, unsigned int index )
+{
+	// Position in inventory and update flags.
+	inventory_slots_.set_item( index, item );
+	item->set_position( index );
+
+	// Notify listener.
+	if (!listener_->on_item_moved( item )) {
+		return false;
+	}
+	return true;
 }
 
 /*
@@ -263,7 +283,7 @@ bool Inventory::on_item_created( Item* item )
 	// Attempt to place item if schema is loaded.
     if (schema_.is_loaded()) {
         // Resolve definition.
-        if (!schema_.resolve( item )) {
+        if (!schema_.resolve( item, nullptr )) {
             return false;
         }
 

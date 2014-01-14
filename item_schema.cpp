@@ -163,13 +163,14 @@ void ItemSchema::clear_definitions( void )
  * Get item definition for item index.
  * Returns current fallback if none found.
  */
-const ItemDefinition* ItemSchema::get_item_definition( uint16 item_index ) const
+ItemDefinition* ItemSchema::get_item_definition( uint16 item_index ) const
 {
     // Find item definition.
     ItemDefinition* definition;
     if (!item_definitions_.get( item_index, &definition )) {
         definition = fallback_;
     }
+
     return definition;
 }
 
@@ -234,11 +235,15 @@ const KillEaterRank* ItemSchema::get_kill_eater_rank( const JUTIL::String* name 
 /*
  * Resolve an item to its definition.
  */
-bool ItemSchema::resolve( Item* item ) const
+bool ItemSchema::resolve( Item* item, JUI::Graphics2D *graphics ) const
 {
     // Get definition for item.
     uint16 index = item->get_type_index();
-    const ItemDefinition* definition = get_item_definition( index );
+    ItemDefinition* definition = get_item_definition( index );
+
+	// Load texture if necessary.
+	const JUI::Texture* fallback = fallback_->get_texture();
+	definition->load_texture( graphics, fallback );
     item->set_definition( definition );
 
 	// Resolve all item attributes.

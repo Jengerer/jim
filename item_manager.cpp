@@ -297,7 +297,7 @@ bool ItemManager::loading_schema( void )
 
             // Finished loading!
             view_->destroy_loading_notice();
-			if (!inventory_.on_schema_loaded()) {
+			if (!inventory_.on_schema_loaded( &graphics_ )) {
 				stack->log( "Failed to run post-schema load inventory event." );
 				return false;
 			}
@@ -370,6 +370,18 @@ bool ItemManager::on_inventory_loaded( void )
 		return false;
 	}
 	set_think( &ItemManager::loading_schema );
+	return true;
+}
+
+/*
+ * Handle item update event and trigger Steam message.
+ */
+bool ItemManager::on_item_moved( Item* item )
+{
+	// Just delegate to Steam to update backend.
+	if (!steam_items_.update_item( item )) {
+		return false;
+	}
 	return true;
 }
 

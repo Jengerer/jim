@@ -5,15 +5,20 @@
  */
 ItemDefinition::ItemDefinition(
 	JUTIL::String* name,
-	const JUI::Texture* texture,
+	JUTIL::DynamicString* image,
 	uint32 class_flags,
 	EItemSlot slot ) :
-    texture_( texture )
+    texture_( nullptr )
 {
 	set_name( name );
 	set_class_flags( class_flags );
 	set_slot( slot );
 	set_tool_type( TOOL_NOT_A_TOOL );
+	
+	// Take hold of image file string.
+	size_t len = image->get_length();
+	char* image_str = image->release();
+	image_.set_string( image_str, len );
 }
 
 /*
@@ -120,13 +125,29 @@ const Attribute* ItemDefinition::find_attribute( const JUTIL::String* name ) con
 }
 
 /*
+ * Attempt to load the texture; use fallback if can't.
+ */
+void ItemDefinition::load_texture( JUI::Graphics2D* graphics, const JUI::Texture* fallback )
+{
+	if (texture_ == nullptr) {
+		JUI::FileTexture* tex;
+		JUI::Graphics2D::ReturnStatus status = graphics->get_texture( &image_, &tex );
+		if (status == JUI::Graphics2D::Success) {
+			texture_ = tex;
+		}
+		else {
+			texture_ = fallback;
+		}
+	}
+}
+
+/*
  * Get a texture by index.
  */
 const JUI::Texture* ItemDefinition::get_texture( void ) const
 {
 	return texture_;
 }
-
 
 void ItemDefinition::set_name( JUTIL::String* name )
 {

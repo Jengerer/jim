@@ -41,7 +41,7 @@ public:
 
     // Item schema handling.
     ItemSchema* get_schema( void );
-	bool on_schema_loaded( void );
+	bool on_schema_loaded( JUI::Graphics2D *graphics );
 
 	// Item query functions.
 	Item* find_item( uint64 unique_id );
@@ -49,6 +49,7 @@ public:
     // Item addition/removal.
     bool can_place( const Item* item ) const;
 	bool place_item( Item* item );
+	bool move_item( Item* item, unsigned int index );
     void displace_item( Item* item );
     void delete_items( void );
 

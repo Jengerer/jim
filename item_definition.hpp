@@ -8,6 +8,7 @@
 #include <string/string.hpp>
 #include <containers/vector.hpp>
 #include <jui/gfx/texture.hpp>
+#include <jui/gfx/graphics_2d.hpp>
 
 /*
  * Item definition storage class.
@@ -19,7 +20,7 @@ public:
 
 	ItemDefinition(
 		JUTIL::String* name,
-		const JUI::Texture *texture,
+		JUTIL::DynamicString* image,
 		uint32 class_flags,
 		EItemSlot slot );
 	~ItemDefinition( void );
@@ -39,6 +40,7 @@ public:
 	const Attribute* find_attribute( const JUTIL::String* name ) const;
 
     // Get the texture for this item.
+	void load_texture( JUI::Graphics2D* graphics, const JUI::Texture* fallback );
 	const JUI::Texture* get_texture( void ) const;
 
 private:
@@ -53,6 +55,7 @@ private:
     // Private item information attributes.
 	JUTIL::String* name_;
 	const JUI::Texture* texture_;
+	JUTIL::DynamicString image_;
 	uint32 class_flags_;
 	uint8 class_count_;
 	EItemSlot slot_;

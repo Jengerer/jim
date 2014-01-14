@@ -409,7 +409,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         stack->log( "Failed to allocate selected item view." );
         return false;
     }
-    if (!add( selected_view_ )) {
+    if (!user_layer_->add( selected_view_ )) {
         JUTIL::BaseAllocator::release( &selected_view_ );
         stack->log( "Failed to add selected item view to user layer." );
         return false;
@@ -902,6 +902,10 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 
 /*
  * Handle slot release event.
+ * TASK: Better design may be closer to MVC; don't handle slot release here, trigger a controller
+ * to handle abstraction externally, since otherwise we depend on SlotArray implementation in here. If this is
+ * open sourced and you are reading this, I was programming with my fists at this point and just wanted
+ * a working implementation. I'm sorry.
  */
 bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned int index )
 {
@@ -923,8 +927,14 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 		Item* dragged_item = dragged_slot->get_item();
 		inventory->contains_item( dragged_item, &dragged_index );
 		inventory_->clear_selection();
-		inventory->set_item( index, dragged_item );
-		inventory->set_item( dragged_index, replaced_item );
+
+		// Move and trigger updates.
+		if (!inventory_->move_item( dragged_item, index )) {
+			return false;
+		}
+		if (!inventory_->move_item( replaced_item, dragged_index )) {
+			return false;
+		}
 	}
 	else {
 		unsigned int i;
@@ -941,7 +951,10 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 				const Slot* slot = inventory->get_slot( i );
 				if (slot->is_selected() || !slot->has_item()) {
 					inventory_->displace_item( current );
-					inventory->set_item( i, current );
+
+					if (!inventory_->move_item( current, i )) {
+						return false;
+					}
 					inventory->set_selected( i, true );
 					last_checked = i + 1;
 					break;

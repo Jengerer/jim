@@ -46,7 +46,7 @@ public:
     void clear_definitions( void );
 
     // Definition getters.
-    const ItemDefinition* get_item_definition( uint16 item_index ) const;
+    ItemDefinition* get_item_definition( uint16 item_index ) const;
     const AttributeDefinition* get_attribute_definition( uint16 attribute_index ) const;
 	const JUTIL::DynamicString* get_quality_name( uint32 quality_index ) const;
 	const JUTIL::DynamicString* get_origin_name( uint32 origin_index ) const;
@@ -54,7 +54,7 @@ public:
 	const KillEaterRank* get_kill_eater_rank( const JUTIL::String* name ) const;
 
     // Definition resolving after resources loaded.
-    bool resolve( Item* item ) const;
+    bool resolve( Item* item, JUI::Graphics2D* graphics ) const;
     bool resolve( Attribute* attribute ) const;
 
 private:
