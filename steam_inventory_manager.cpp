@@ -508,7 +508,8 @@ Item* SteamInventoryManager::create_item_from_message( CSOEconItem* econ_item )
 
 		// Create attribute.
 		AttributeValue value;
-		value.as_uint32 = attribute.value();
+		const char* value_bytes = attribute.value_bytes().c_str();
+		value.as_uint32 = *reinterpret_cast<const uint32*>(value_bytes);
 		Attribute* new_attribute;
 		if (!JUTIL::BaseAllocator::allocate( &new_attribute )) {
 			JUTIL::BaseAllocator::destroy( item );

@@ -568,11 +568,11 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		Json::Value* kill_eater_rank_name;
 		Json::Value* kill_eater_levels;
 
-		if(!get_member( &kill_eater_rank, &NAME_NAME, &kill_eater_rank_name )) {
+		if (!get_member( &kill_eater_rank, &NAME_NAME, &kill_eater_rank_name )) {
 			stack->log( "Failed to find strange index in definitions." );
 			return false;
 		}
-		if(!get_member( &kill_eater_rank, &KILL_EATER_LEVELS_NAME, &kill_eater_levels )) {
+		if (!get_member( &kill_eater_rank, &KILL_EATER_LEVELS_NAME, &kill_eater_levels )) {
 			stack->log( "Failed to find strange index in definitions." );
 			return false;
 		}
@@ -758,15 +758,14 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
     schema_->set_fallback_definition( fallback );
 
 	// Prefetch paint textures so only 1 fail message appears
-	if (
-		   !downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL )
-		|| !downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL )
-		|| !downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL )
-		|| !downloader->check_and_get( &PAINT_SPLAT_SINGLE_TEXTURE, &PAINT_SPLAT_SINGLE_TEXTURE_URL )
-		|| !downloader->check_and_get( &PAINT_SPLAT_RED_TEXTURE, &PAINT_SPLAT_RED_TEXTURE_URL )
-		|| !downloader->check_and_get( &PAINT_SPLAT_BLU_TEXTURE, &PAINT_SPLAT_BLU_TEXTURE_URL )
-		) {
-			if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, unknown_item)){
+	if (!(downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL ) &&
+		downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL ) &&
+		downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL ) &&
+		downloader->check_and_get( &PAINT_SPLAT_SINGLE_TEXTURE, &PAINT_SPLAT_SINGLE_TEXTURE_URL ) &&
+		downloader->check_and_get( &PAINT_SPLAT_RED_TEXTURE, &PAINT_SPLAT_RED_TEXTURE_URL ) &&
+		downloader->check_and_get( &PAINT_SPLAT_BLU_TEXTURE, &PAINT_SPLAT_BLU_TEXTURE_URL )))
+	{
+		if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, unknown_item)) {
 			stack->log( "Failed to allocate spill response notification." );
 			return false;
 		}

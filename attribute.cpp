@@ -4,10 +4,9 @@
 /*
  * Constructor by index and value.
  */
-Attribute::Attribute( uint32 index, AttributeValue value )
+Attribute::Attribute( uint32 index )
 {
 	index_ = index;
-	value_ = value;
 
 	// To be resolved.
 	definition_ = nullptr;
@@ -99,7 +98,7 @@ const JUTIL::String* Attribute::get_name( void ) const
 /*
  * Set new value for attribute.
  */
-void Attribute::set_value( AttributeValue value )
+void Attribute::set_value( const char* buffer, unsigned int length )
 {
 	value_ = value;
 }
