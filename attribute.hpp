@@ -3,13 +3,10 @@
 
 #include "attribute_definition.hpp"
 
-// Union for attribute values, which can be either float or int.
-union AttributeValue
-{
-	uint32 as_uint32;
-	float as_float;
-};
-
+/*
+ * Generic attribute class; contains an index for attribute definition
+ * and raw bytes of attribute value.
+ */
 class Attribute
 {
 
@@ -31,16 +28,17 @@ public:
 	const JUTIL::String* get_name( void ) const;
 
 	// Value function.
-	void set_value( AttributeValue value );
-	AttributeValue get_value( void ) const;
+	bool set_value( const char* buffer, unsigned int length );
+	const char* get_value( void ) const;
+	size_t get_value_length( void ) const;
 	
 	// Information related functions.
 	bool is_hidden( void ) const;
 
 private:
 
-    // Type can be either float or uint32.
-    AttributeValue value_;
+    // Value type is arbitrary, so stored raw; handled by caller by assuming/probing type.
+	JUTIL::ArrayBuilder<char> value_;
 
 	// Attribute index and information structure.
 	uint32 index_;
