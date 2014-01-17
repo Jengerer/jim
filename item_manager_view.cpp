@@ -24,13 +24,13 @@ const JUTIL::ConstantString SELECTED_HEADING_TEXT = "Selected Items";
 const JUTIL::String* HEADING_FONT_FACE = &TF2_BUILD_FONT;
 const unsigned int HEADING_FONT_SIZE = 12;
 const bool HEADING_FONT_BOLDED = false;
-const JUI::Colour HEADING_COLOUR( 241, 239, 237 );
+const JUI::Colour HEADING_COLOUR( 0xF1EFED );
 
 // Page display.
 const JUTIL::String* PAGE_FONT_FACE = &TF2_SECONDARY_FONT;
 const unsigned int PAGE_FONT_SIZE = 16;
 const bool PAGE_FONT_BOLDED = false;
-const JUI::Colour PAGE_LABEL_COLOUR( 201, 79, 57 );
+const JUI::Colour PAGE_LABEL_COLOUR( 0xC94F39 );
 const unsigned int PAGE_LABEL_WIDTH = 50;
 
 // Item display attributes.
@@ -50,11 +50,16 @@ const unsigned int EXCLUDED_PAGE_HEIGHT = 1;
 // Keys for handling UI.
 const int MULTIDRAG_KEY_CODE = VK_SHIFT;
 const int MULTISELECT_KEY_CODE = VK_CONTROL;
+const float DRAG_THRESHOLD = 10.0f;
 
-ItemManagerView::ItemManagerView( Inventory* inventory )
+ItemManagerView::ItemManagerView( Inventory* inventory, InventoryActionInterface* action_interface )
     : inventory_( inventory ),
+	  action_interface_( action_interface ),
       inventory_view_( nullptr ),
       excluded_view_( nullptr ),
+	  selected_view_( nullptr ),
+	  clicked_view_( nullptr ),
+	  notifications_( nullptr ),
 	  load_progress_( nullptr ),
 	  alert_( nullptr ),
 	  error_( nullptr ),
@@ -67,7 +72,8 @@ ItemManagerView::ItemManagerView( Inventory* inventory )
 	  next_button_( nullptr ),
       heading_font_( nullptr ),
       page_font_( nullptr ),
-	  multiselect_pressed_( false )
+	  is_mouse_down_( false ),
+	  is_multiselect_pressed_( false )
 {
     button_manager_.set_event_listener( this );
 }
@@ -334,74 +340,20 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	inventory_buttons->pack( BUTTON_SPACING, JUI::ALIGN_TOP );
 	page_display_layout->pack( BUTTON_SPACING, JUI::ALIGN_MIDDLE );
 	button_layout->pack();
-
-	// Create split layout for headings and excluded/selected slots.
-	JUI::HorizontalSplitLayout* heading_split;
-	JUI::HorizontalSplitLayout* slot_split;
-	if (!JUTIL::BaseAllocator::allocate( &heading_split )) {
-		stack->log( "Failed to allocate heading split layout." );
-		return false;
-	}
-	if (!layout->add( heading_split )) {
-		JUTIL::BaseAllocator::release( heading_split );
-		stack->log( "Failed to add heading split layout. ");
-		return false;
-	}
-	new (heading_split) JUI::HorizontalSplitLayout( inventory_width );
-	if (!JUTIL::BaseAllocator::allocate( &slot_split )) {
-		stack->log( "Failed to allocate slot split layout." );
-		return false;
-	}
-	if (!layout->add( slot_split )) {
-		JUTIL::BaseAllocator::release( slot_split );
-		stack->log( "Failed to add slot split layout." );
-		return false;
-	}
-	new (slot_split) JUI::HorizontalSplitLayout( inventory_width );
 		
 	// Create excluded and multi-drag title.
 	JUI::Text* excluded_heading;
-	JUI::Text* selected_heading;
 	if (!JUTIL::BaseAllocator::allocate( &excluded_heading )) {
 		stack->log( "Failed to allocate excluded heading text." );
 		return false;
 	}
-	if (!heading_split->set_left( excluded_heading )) {
+	if (!layout->add( excluded_heading )) {
 		JUTIL::BaseAllocator::release( excluded_heading );
 		stack->log( "Failed to add excluded heading to layout." );
 		return false;
 	}
 	new (excluded_heading) JUI::Text( heading_font_ );
-	if (!JUTIL::BaseAllocator::allocate( &selected_heading )) {
-		stack->log( "Failed to allocate selected heading text." );
-		return false;
-	}
-	if (!heading_split->set_right( selected_heading )) {
-		JUTIL::BaseAllocator::release( selected_heading );
-		stack->log( "Failed to add selected heading to layout." );
-		return false;
-	}
-	new (selected_heading) JUI::Text( heading_font_ );
 	excluded_heading->set_text( &EXCLUDED_HEADING_TEXT );
-	selected_heading->set_text( &SELECTED_HEADING_TEXT );
-	heading_split->pack();
-
-	// Create dummy selected items view.
-	SlotView* dummy_view;
-	if (!JUTIL::BaseAllocator::allocate( &dummy_view )) {
-		stack->log( "Failed to allocate dummy selected slot." );
-		return false;
-	}
-	if (!slot_split->set_right( dummy_view )) {
-		JUTIL::BaseAllocator::release( &dummy_view );
-		stack->log( "Failed to add dummy selected slot to layout." );
-		return false;
-	}
-	new (dummy_view) SlotView();
-	if (!dummy_view->initialize()) {
-		stack->log( "Failed to initialize dummy slot view." );
-		return false;
-	}
 
 	// Now put actual selected slot view on top of dummy.
     book = inventory_->get_selected_slots();
@@ -428,7 +380,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         stack->log( "Failed to allocate excluded slot view." );
 		return false;
 	}
-	if (!slot_split->set_left( excluded_view_ )) {
+	if (!layout->add( excluded_view_ )) {
 		JUTIL::BaseAllocator::release( excluded_view_ );
         stack->log( "Failed to add initialized excluded view to layout." );
 		return false;
@@ -440,18 +392,12 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	}
     excluded_view_->set_listener( this );
 	book->set_listener( excluded_view_ );
-	slot_split->pack();
 
 	// Pack top-most layout.
 	layout->pack( LAYOUT_SPACING, JUI::ALIGN_LEFT );
 	int center_x = (get_width() - layout->get_width()) / 2;
 	int center_y = (get_height() - layout->get_height()) / 2;
 	layout->set_position( center_x, center_y );
-
-	// Move dragged slot view over dummy.
-	int dummy_x = dummy_view->get_x();
-	int dummy_y = dummy_view->get_y();
-	selected_view_->set_position( dummy_x, dummy_y );
 
 	// Create item display.
     ItemSchema* schema = inventory_->get_schema();
@@ -470,6 +416,19 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         stack->log( "Failed to add item display to user layer." );
 		return false;
 	}
+
+	// Create notification queue.
+	if (!JUTIL::BaseAllocator::allocate( &notifications_ )) {
+		stack->log( "Failed to allocate notification queue." );
+		return false;
+	}
+	if (!user_layer_->add( notifications_ )) {
+		JUTIL::BaseAllocator::release( notifications_ );
+		stack->log( "Failed to add notification queue to layout." );
+		return false;
+	}
+	new (notifications_) NotificationQueue();
+	notifications_->set_position( get_width() - PADDING, get_height() - PADDING );
 
 	// All created successfully.
 	return true;
@@ -562,6 +521,9 @@ bool ItemManagerView::on_enter_frame( void )
 	if (!update_item_display()) {
 		return false;
 	}
+	
+	// Update notifications.
+	notifications_->update_notifications();
 	return true;
 }
 
@@ -592,7 +554,22 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
         return result;
     }
 
-	// Item dragging.
+	// if ((selected count > 1) || is_clicked_excluded) { set restricted }
+	if (is_mouse_down_ && (clicked_view_ != nullptr)) {
+		int dist_x = mouse->get_x() - clicked_x_;
+		int dist_y = mouse->get_y() - clicked_y_;
+		float dist_squared = static_cast<float>((dist_x * dist_x) + (dist_y * dist_y));
+		if (sqrt(dist_squared) > DRAG_THRESHOLD) {
+			// Enable selected view.
+			int drag_offset_x = clicked_view_->get_x() - clicked_x_;
+			int drag_offset_y = clicked_view_->get_y() - clicked_y_;
+			selected_view_->set_drag_offset( drag_offset_x, drag_offset_y );
+			selected_view_->begin_dragging();
+			clicked_view_ = nullptr;
+		}
+	}
+
+	// Updated selected view position if it's active.
 	result = selected_view_->on_mouse_moved( mouse );
 	if (result != JUI::IO_RESULT_UNHANDLED) {
 		return result;
@@ -626,6 +603,10 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
  */
 JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
 {
+	// Set input state and reset dragging parameters.
+	is_mouse_down_ = true;
+	clicked_view_ = nullptr;
+
     // Pass to popup handler.
     JUI::IOResult result = popups_->on_mouse_clicked( mouse );
     if (result != JUI::IO_RESULT_UNHANDLED) {
@@ -641,10 +622,6 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
     if (result != JUI::IO_RESULT_UNHANDLED) {
         return result;
     }
-	result = selected_view_->on_mouse_clicked( mouse );
-	if (result != JUI::IO_RESULT_UNHANDLED) {
-		return result;
-	}
 
 	// Pass to button manager.
 	result = button_manager_.on_mouse_clicked( mouse );
@@ -653,7 +630,7 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
 	}
 
 	// No items or buttons clicked, deselect all if not in multi-mode.
-	if (!multiselect_pressed_) {
+	if (!is_multiselect_pressed_) {
 		inventory_->clear_selection();
 	}
     return JUI::IO_RESULT_UNHANDLED;
@@ -664,22 +641,29 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
  */
 JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
 {
+	// Update I/O state.
+	is_mouse_down_ = false;
+
     // Pass to popup handler.
 	JUI::IOResult result = popups_->on_mouse_released( mouse );
     if (result != JUI::IO_RESULT_UNHANDLED) {
         return result;
     }
 
-	// Release item if holding any.
+	// Release dragged if holding anything.
 	result = selected_view_->on_mouse_released( mouse );
 	if (result == JUI::IO_RESULT_HANDLED) {
-		// Handle inventory release only if we're dragging something.
-		result = inventory_view_->on_mouse_released( mouse );
 		inventory_->set_slot_mode( SLOT_MODE_ENABLE_ALL );
-		if (result != JUI::IO_RESULT_UNHANDLED) {
-			return result;
-		}
-		return JUI::IO_RESULT_HANDLED;
+	}
+
+	// Handle release on slot views.
+	result = inventory_view_->on_mouse_released( mouse );
+	if (result != JUI::IO_RESULT_UNHANDLED) {
+		return result;
+	}
+	result = excluded_view_->on_mouse_released( mouse );
+	if (result != JUI::IO_RESULT_UNHANDLED) {
+		return result;
 	}
 
 	// Pass to button manager.
@@ -696,7 +680,7 @@ JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
 JUI::IOResult ItemManagerView::on_key_pressed( int key )
 {
 	if (key == MULTISELECT_KEY_CODE) {
-		multiselect_pressed_ = true;
+		is_multiselect_pressed_ = true;
 	}
 	else {
 		return JUI::IO_RESULT_UNHANDLED;
@@ -710,7 +694,7 @@ JUI::IOResult ItemManagerView::on_key_pressed( int key )
 JUI::IOResult ItemManagerView::on_key_released( int key )
 {
 	if (key == MULTISELECT_KEY_CODE) {
-		multiselect_pressed_ = false;
+		is_multiselect_pressed_ = false;
 	}
 	else {
 		return JUI::IO_RESULT_UNHANDLED;
@@ -830,7 +814,6 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
     SlotArray* container;
     SlotArray* inventory = inventory_->get_inventory_slots();
     SlotArray* excluded = inventory_->get_excluded_slots();
-	SlotArray* selected = inventory_->get_selected_slots();
 
 	// Disable item display and full slots.
 	item_display_->set_active( false );
@@ -838,64 +821,32 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
     // Check which container we're clicking from.
 	bool disable_item_display = false;
 	bool restrict_drag = false;
-	if (slot_array == selected) {
-		container = selected;
-		view = selected_view_;
-		restrict_drag = true;
-		disable_item_display = true;
+	if (slot_array == inventory) {
+		container = inventory;
+		view = inventory_view_->get_slot_view( index );
+		is_clicked_excluded_ = true;
 	}
-    else {
-		if (slot_array == inventory) {
-			container = inventory;
-			view = inventory_view_->get_slot_view( index );
-		}
-		else if (slot_array == excluded) {
-			container = excluded;
-			view = excluded_view_->get_slot_view( index );
-		}
-
-		// Handle single item selection if no modifier key.
-		if (multiselect_pressed_) {
-			bool new_selected = !slot->is_selected();
-			if (!container->set_selected( index, new_selected )) {
-				return false;
-			}
-			if (!inventory_->set_selected( slot, new_selected )) {
-				return false;
-			}
-		}
-		else {
-			// Hide item display.
-			disable_item_display = true;
-
-			// Set this as the new selected item.
-			inventory_->clear_selection();
-			if (!container->set_selected( index, true )) {
-				return false;
-			}
-			if (!inventory_->set_selected( slot, true )) {
-				return false;
-			}
-
-			// Disable full slots if excluded.
-			restrict_drag = (container == excluded);
-
-			// Start dragging.
-			int offset_x = view->get_x() - mouse->get_x();
-			int offset_y = view->get_y() - mouse->get_y();
-			selected_view_->set_drag_offset( offset_x, offset_y );		
-			selected_view_->begin_dragging();
-		}
+	else if (slot_array == excluded) {
+		container = excluded;
+		view = excluded_view_->get_slot_view( index );
+		is_clicked_excluded_ = false;
 	}
 
-	// Hide item display if indicated.
-	if (disable_item_display) {
-		item_display_->set_active( false );
-	}
+	// Set flag to say we may be dragging.
+	clicked_view_ = view;
+	clicked_x_ = mouse->get_x();
+	clicked_y_ = mouse->get_y();
 
-	// Set slot mode to restricted if indicated.
-	if (restrict_drag) {
-		inventory_->set_slot_mode( SLOT_MODE_RESTRICTED_DRAG );
+	// A clicked slot is always selected if not already.
+	if (!is_multiselect_pressed_) {
+		inventory_->clear_selection();
+	}
+	was_clicked_selected_ = slot->is_selected();
+	if (!was_clicked_selected_) {
+		container->set_selected( index, true );
+		if (!inventory_->set_selected( slot, true )) {
+			return false;
+		}
 	}
     return true;
 }
@@ -910,54 +861,79 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned int index )
 {
     const Slot* slot = slot_array->get_slot( index );
+	SlotArray* container;
+	const SlotView* view;
     SlotArray* inventory = inventory_->get_inventory_slots();
     SlotArray* excluded = inventory_->get_excluded_slots();
 	SlotArray* selected = inventory_->get_selected_slots();
+	if (slot_array == inventory) {
+		container = inventory;
+		view = inventory_view_->get_slot_view( index );
+	}
+	else if (slot_array == excluded) {
+		container = excluded;
+		view = excluded_view_->get_slot_view( index );
+	}
 
-	// Don't allow dropping on disabled.
+	// Don't allow actions on disabled slots.
 	if (!slot->is_enabled()) {
 		return false;
 	}
 
-	// If we're dropping onto a full slot, this must be one item, inventory to inventory.
-	if (slot->has_item() && !slot->is_selected()) {
-		unsigned int dragged_index;
-		const Slot* dragged_slot = selected->get_slot( 0 );
-		Item* replaced_item = slot->get_item();
-		Item* dragged_item = dragged_slot->get_item();
-		inventory->contains_item( dragged_item, &dragged_index );
-		inventory_->clear_selection();
-
-		// Move and trigger updates.
-		if (!inventory_->move_item( dragged_item, index )) {
-			return false;
-		}
-		if (!inventory_->move_item( replaced_item, dragged_index )) {
-			return false;
+	// We want to deselect only if we release on undragged, clicked, and previously selected slot.
+	bool is_selected = slot->is_selected();
+	if (view == clicked_view_) {
+		if (was_clicked_selected_) {
+			bool new_selected = !slot->is_selected();
+			container->set_selected( index, new_selected );
+			if (!inventory_->set_selected( slot, new_selected )) {
+				return false;
+			}
 		}
 	}
-	else {
-		unsigned int i;
-		unsigned int j;
-		unsigned int page_size = inventory_view_->get_grid_size();
-		unsigned int last_checked = index;
-		unsigned int end = inventory->get_size();
-		unsigned int selected_end = selected->get_size();
+	else if ((container == inventory) && (selected->get_size() != 0)) {
+		// Can only release dragged onto inventory.
+		// If we're dropping onto a full slot, this must be one item, inventory to inventory.
+		if (slot->has_item() && !slot->is_selected()) {
+			unsigned int dragged_index;
+			const Slot* dragged_slot = selected->get_slot( 0 );
+			Item* replaced_item = slot->get_item();
+			Item* dragged_item = dragged_slot->get_item();
+			inventory->contains_item( dragged_item, &dragged_index );
+			inventory_->clear_selection();
 
-		// Fit all selected on this page.
-		for (j = 0; j < selected_end; ++j) {
-			Item* current = selected->get_item( j );
-			for (i = last_checked; i < end; ++i) {
-				const Slot* slot = inventory->get_slot( i );
-				if (slot->is_selected() || !slot->has_item()) {
-					inventory_->displace_item( current );
+			// Move and trigger updates.
+			// TODO: Disable these item slots until move succeeds/fails.
+			if (!action_interface_->move_item( dragged_item, index )) {
+				return false;
+			}
+			if (!action_interface_->move_item( replaced_item, dragged_index )) {
+				return false;
+			}
+		}
+		else {
+			unsigned int i;
+			unsigned int j;
+			unsigned int page_size = inventory_view_->get_grid_size();
+			unsigned int last_checked = index;
+			unsigned int end = inventory->get_size();
+			unsigned int selected_end = selected->get_size();
 
-					if (!inventory_->move_item( current, i )) {
-						return false;
+			// Fit all selected on this page.
+			for (j = 0; j < selected_end; ++j) {
+				Item* current = selected->get_item( j );
+				for (i = last_checked; i < end; ++i) {
+					const Slot* slot = inventory->get_slot( i );
+					if (slot->is_selected() || !slot->has_item()) {
+						JUTIL::DynamicString message;
+						message.write( "Moving %s to %u.\n", current->get_name()->get_string(), i );
+						notifications_->add_notification( &message, current->get_texture() );
+						if (!action_interface_->move_item( current, i )) {
+							return false;
+						}
+						last_checked = i + 1;
+						break;
 					}
-					inventory->set_selected( i, true );
-					last_checked = i + 1;
-					break;
 				}
 			}
 		}

@@ -23,7 +23,7 @@ public:
 
     // Listener functions/interfaces.
 	void set_listener( SlotArrayViewListener* listener );
-    virtual bool on_slot_updated( unsigned int index, const Slot* slot );
+    virtual void on_slot_updated( unsigned int index, const Slot* slot );
 
 	// Item dragging handling.
 	void set_drag_offset( int x, int y );

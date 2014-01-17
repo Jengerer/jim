@@ -12,7 +12,7 @@ const unsigned int NOTICE_FONT_SIZE = 12;
 const bool NOTICE_FONT_BOLDED = false;
 
 // Notice specifications.
-const unsigned int NOTICE_TEXT_WIDTH	= 300;
+const unsigned int NOTICE_TEXT_WIDTH = 300;
 
 /*
  * Notice constructor.

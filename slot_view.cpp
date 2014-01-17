@@ -9,14 +9,14 @@ const unsigned int ITEM_SIZE	= 60;
 const unsigned int SLOT_STROKE_WIDTH = 3;
 
 // Slot colour attributes.
-const JUI::Colour SLOT_NORMAL_COLOUR( 60, 53, 46 );
-const JUI::Colour SLOT_SELECTED_COLOUR( 90, 80, 72 ); 
-const JUI::Colour SLOT_DISABLED_COLOUR( 20, 20, 20 ); 
+const JUI::Colour SLOT_NORMAL_COLOUR( 0x3C352E );
+const JUI::Colour SLOT_SELECTED_COLOUR( 0x5A5048 ); 
+const JUI::Colour SLOT_DISABLED_COLOUR( 0x141414 ); 
 const double BACKGROUND_VALUE_RATIO = 2.8;
 
 // Slot alpha attributes.
-const unsigned int SLOT_VISIBLE_ALPHA = 255;
-const unsigned int SLOT_DISABLED_ALPHA = 50;
+const float SLOT_VISIBLE_ALPHA = 1.0f;
+const float SLOT_DISABLED_ALPHA = 0.2f;
 
 // Class-wide font/text resources.
 JUI::FontInterface* SlotView::equipped_font_	= nullptr;
@@ -83,7 +83,30 @@ bool SlotView::initialize( void )
 /*
  * Set the texture of the item being shown here.
  */
-bool SlotView::update( const Slot* slot )
+void SlotView::update( const Slot* slot )
+{
+	// Update item-dependent slot parameters.
+	update_item( slot );
+
+	// Handle selection state.
+	if (!slot->is_enabled()) {
+		set_alpha( SLOT_DISABLED_ALPHA );
+	}
+	else {
+		set_alpha( SLOT_VISIBLE_ALPHA );
+	}
+	if (slot->is_selected()) {
+		slot_rectangle_->set_colour( &SLOT_SELECTED_COLOUR );
+	}
+	else {
+		slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
+	}
+}
+
+/*
+ * Update item specific slot decoration.
+ */
+void SlotView::update_item( const Slot* slot )
 {
 	Item* item = slot->get_item();
 	const JUI::Texture* texture;
@@ -101,23 +124,8 @@ bool SlotView::update( const Slot* slot )
 		stroke_colour = &JUI::COLOUR_BLANK;
 		stroke_width = 0;
 	}
-
-	// Handle selection state.
-	if (!slot->is_enabled()) {
-		set_alpha( SLOT_DISABLED_ALPHA );
-	}
-	else {
-		set_alpha( SLOT_VISIBLE_ALPHA );
-	}
-	if (slot->is_selected()) {
-		slot_rectangle_->set_colour( &SLOT_SELECTED_COLOUR );
-	}
-	else {
-		slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
-	}
-    image_->set_texture( texture );
+	image_->set_texture( texture );
 	slot_rectangle_->set_stroke( stroke_width, stroke_colour );
-	return true;
 }
 
 /*

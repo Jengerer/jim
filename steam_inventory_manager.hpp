@@ -3,12 +3,12 @@
 
 #include "item_schema.hpp"
 #include "steam.hpp"
-#include "steam_inventory_interface.hpp"
+#include "inventory_action_interface.hpp"
 #include "steam_inventory_listener.hpp"
 
 class SteamInventoryManager
     : public Steam,
-      public SteamInventoryInterface
+      public InventoryActionInterface
 {
 
 public:
@@ -23,6 +23,7 @@ public:
     bool handle_callbacks( void );
 
 	// Single item change functions.
+	virtual bool move_item( const Item* item, unsigned int index ) const;
 	virtual bool update_item( const Item* item ) const;
 	virtual bool delete_item( const Item* item ) const;
 

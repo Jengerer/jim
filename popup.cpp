@@ -5,7 +5,7 @@ const unsigned int POPUP_PADDING = 20;
 const unsigned int POPUP_CORNER_RADIUS = 5;
 const unsigned int POPUP_STROKE_WIDTH = 5;
 const unsigned int POPUP_CONTENT_SPACING = 10;
-const JUI::Colour POPUP_STROKE_COLOUR( 255, 255, 255, 100 );
+const JUI::Colour POPUP_STROKE_COLOUR( 0xFFFFFF, 0.4f );
 const JUI::Colour* POPUP_COLOUR = &JUI::COLOUR_BLACK;
 
 /*

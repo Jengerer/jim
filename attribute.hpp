@@ -13,7 +13,7 @@ class Attribute
 public:
 
 	// Constructors by index or information.
-	Attribute( uint32 index, AttributeValue value );
+	Attribute( uint32 index );
 
 	// Setting resolved attribute definition.
 	void set_definition( const AttributeDefinition* definition );

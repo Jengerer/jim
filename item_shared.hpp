@@ -88,15 +88,15 @@ enum EItemToolTypes {
 	TOOL_SPELL
 };
 
-const JUI::Colour QUALITY_NORMAL_COLOUR		= JUI::Colour( 0xB2, 0xB2, 0xB2 );
-const JUI::Colour QUALITY_COMMON_COLOUR		= JUI::Colour( 0xFF, 0xD7, 0x00 );
-const JUI::Colour QUALITY_VINTAGE_COLOUR	= JUI::Colour( 0x47, 0x62, 0x91 );
-const JUI::Colour QUALITY_GENUINE_COLOUR	= JUI::Colour( 0x4D, 0x74, 0x55 );
-const JUI::Colour QUALITY_STRANGE_COLOUR	= JUI::Colour( 0xCF, 0x6A, 0x32 );
-const JUI::Colour QUALITY_UNUSUAL_COLOUR	= JUI::Colour( 0x86, 0x50, 0xAC );
-const JUI::Colour QUALITY_HAUNTED_COLOUR	= JUI::Colour( 0x38, 0xF3, 0xAB );
-const JUI::Colour QUALITY_COMMUNITY_COLOUR	= JUI::Colour( 0x70, 0xB0, 0x4A );
-const JUI::Colour QUALITY_VALVE_COLOUR		= JUI::Colour( 0xA5, 0x0F, 0x79 );
+const JUI::Colour QUALITY_NORMAL_COLOUR		= JUI::Colour( 0xB2B2B2 );
+const JUI::Colour QUALITY_COMMON_COLOUR		= JUI::Colour( 0xFFD700 );
+const JUI::Colour QUALITY_VINTAGE_COLOUR	= JUI::Colour( 0x476291 );
+const JUI::Colour QUALITY_GENUINE_COLOUR	= JUI::Colour( 0x4D7455 );
+const JUI::Colour QUALITY_STRANGE_COLOUR	= JUI::Colour( 0xCF6A32 );
+const JUI::Colour QUALITY_UNUSUAL_COLOUR	= JUI::Colour( 0x8650AC );
+const JUI::Colour QUALITY_HAUNTED_COLOUR	= JUI::Colour( 0x38F3AB );
+const JUI::Colour QUALITY_COMMUNITY_COLOUR	= JUI::Colour( 0x70B04A );
+const JUI::Colour QUALITY_VALVE_COLOUR		= JUI::Colour( 0xA50F79 );
 
 // Inventory flags.
 #define FL_ITEM_ALL			0xFFFFFFFF

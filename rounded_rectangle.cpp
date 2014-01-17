@@ -48,9 +48,9 @@ void RoundedRectangle::draw( JUI::Graphics2D* graphics )
 	if (get_stroke_size() != 0) {
 		// Get average of colour.
         JUI::Colour colour( stroke_colour_ );
-		float stroke_alpha = static_cast<float>(get_alpha()) * static_cast<float>(stroke_colour_.get_alpha()) / (255.0f);
-        colour.set_alpha( static_cast<GLubyte>(stroke_alpha) );
-		graphics->set_colour( colour );
+		float stroke_alpha = get_alpha() * stroke_colour_.get_alpha();
+        colour.set_alpha( stroke_alpha );
+		graphics->set_colour( &colour );
 		graphics->draw_rounded_rectangle_border(
 			x, y,
 			width, height,
@@ -65,9 +65,9 @@ void RoundedRectangle::draw( JUI::Graphics2D* graphics )
 
 	// Draw inner.
     JUI::Colour colour = colour_;
-	float fill_alpha = static_cast<float>(get_alpha()) * static_cast<float>(colour_.get_alpha()) / (255.0f);
-    colour.set_alpha( static_cast<GLubyte>(fill_alpha) );
-	graphics->set_colour( colour );
+	float fill_alpha = get_alpha() * colour_.get_alpha();
+    colour.set_alpha( fill_alpha );
+	graphics->set_colour( &colour );
 	graphics->draw_rounded_rectangle(
 		x, y,
 		width, height,

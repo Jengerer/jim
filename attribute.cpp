@@ -44,13 +44,16 @@ bool Attribute::generate_description( void )
         }
 
         // Write value instead of token.
+		const char* attribute_value = value_.get_array();
 		if (definition_->is_integer()) {
-			if (!description_.write( "%u", value_.as_uint32 )) {
+			const uint32* int_value = reinterpret_cast<const uint32*>(attribute_value);
+			if (!description_.write( "%u", *int_value )) {
                 return false;
             }
 		}
 		else {
-			if (!description_.write( "%f", value_.as_float )) {
+			const float* float_value = reinterpret_cast<const float*>(attribute_value);
+			if (!description_.write( "%f", *float_value )) {
                 return false;
             }
 		}
@@ -98,17 +101,30 @@ const JUTIL::String* Attribute::get_name( void ) const
 /*
  * Set new value for attribute.
  */
-void Attribute::set_value( const char* buffer, unsigned int length )
+bool Attribute::set_value( const char* buffer, unsigned int length )
 {
-	value_ = value;
+	// Copy to local.
+	if (!value_.set_size( length )) {
+		return false;
+	}
+	memcpy( value_.get_array(), buffer, length );
+	return true;
 }
 
 /*
  * Get value of attribute as an unsigned integer.
  */
-AttributeValue Attribute::get_value( void ) const
+const char* Attribute::get_value( void ) const
 {
-    return value_;
+    return value_.get_array();
+}
+
+/*
+ * Get the length of the value.
+ */
+size_t Attribute::get_value_length( void ) const
+{
+	return value_.get_size();
 }
 
 /*

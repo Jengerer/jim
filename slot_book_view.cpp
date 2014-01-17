@@ -16,7 +16,7 @@ SlotBookView::~SlotBookView( void )
  * in [0, page_size) and will update them as such to represent the
  * active page.
  */
-bool SlotBookView::set_active_page( unsigned int page )
+void SlotBookView::set_active_page( unsigned int page )
 {
 	active_page_ = page;
 	unsigned int page_size = get_grid_size();
@@ -30,11 +30,8 @@ bool SlotBookView::set_active_page( unsigned int page )
 		else {
 			slot = nullptr;
 		}
-		if (!on_slot_updated( i, slot )) {
-			return false;
-		}
+		on_slot_updated( i, slot );
 	}
-    return true;
 }
 
 /*
@@ -75,7 +72,7 @@ const SlotView* SlotBookView::get_slot_view( unsigned int index ) const
 /*
  * Handle slot updated event for page view.
  */
-bool SlotBookView::on_slot_updated( unsigned int index, const Slot* slot)
+void SlotBookView::on_slot_updated( unsigned int index, const Slot* slot)
 {
 	// Only update if index is on current page.
 	unsigned int page_size = get_grid_size();
@@ -83,11 +80,8 @@ bool SlotBookView::on_slot_updated( unsigned int index, const Slot* slot)
 	unsigned int active_page_end = active_page_start + page_size;
 	if ((index >= active_page_start) && (index < active_page_end)) {
 		unsigned int grid_index = index - active_page_start;
-		if (!SlotGridView::on_slot_updated( grid_index, slot )) {
-			return false;
-		}
+		SlotGridView::on_slot_updated( grid_index, slot );
 	}
-	return true;
 }
 
 /*

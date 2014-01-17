@@ -14,6 +14,7 @@
 #include "resource_loader_interface.hpp"
 #include "slot_book_view.hpp"
 #include "slot_stack_view.hpp"
+#include "inventory_action_interface.hpp"
 
 // Inventory selection mode.
 enum InventorySelectionMode
@@ -36,7 +37,7 @@ class ItemManagerView:
 
 public:
 
-    ItemManagerView( Inventory* inventory );
+    ItemManagerView( Inventory* inventory, InventoryActionInterface* action_interface );
     virtual ~ItemManagerView( void );
 
     // Listener pointer setting.
@@ -94,6 +95,7 @@ private:
 
     // Inventory to create view for.
     Inventory* inventory_;
+	InventoryActionInterface* action_interface_;
 
     // Text elements.
     JUI::WrappedText* page_display_;
@@ -120,7 +122,14 @@ private:
     ButtonManager button_manager_;
 	SlotBookView* inventory_view_;
 	SlotBookView* excluded_view_;
+
+	// Item dragging members.
     SlotStackView* selected_view_;
+	const SlotView* clicked_view_;
+	bool was_clicked_selected_;
+	bool is_clicked_excluded_;
+	int clicked_x_;
+	int clicked_y_;
 
     // UI buttons.
 	Button* craft_button_;
@@ -137,7 +146,8 @@ private:
     ItemManagerViewListener* listener_;
 
 	// Keyboard state members.
-	bool multiselect_pressed_;
+	bool is_mouse_down_;
+	bool is_multiselect_pressed_;
 
 };
 

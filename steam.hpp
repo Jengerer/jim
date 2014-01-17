@@ -31,7 +31,7 @@ public:
 	void release_callback( void ) const;
 	bool has_message( uint32* size ) const;
 	bool get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* real_size ) const;
-	bool send_message( unsigned int id, void* buffer, uint32 size ) const;
+	bool send_message( unsigned int id, const void* buffer, uint32 size ) const;
 
 	// SO version handling.
 	void set_version( uint64 version );

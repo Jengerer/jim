@@ -155,6 +155,7 @@
     <ClInclude Include="button_notice.hpp" />
     <ClInclude Include="dynamic_slot_array.hpp" />
     <ClInclude Include="equip_status.hpp" />
+    <ClInclude Include="inventory_action_interface.hpp" />
     <ClInclude Include="inventory_listener.hpp" />
     <ClInclude Include="item_definition.hpp" />
     <ClInclude Include="item_manager_view.hpp" />
@@ -204,7 +205,6 @@
     <ClInclude Include="serialized_buffer.hpp" />
     <ClInclude Include="slot_view.hpp" />
     <ClInclude Include="steam.hpp" />
-    <ClInclude Include="steam_inventory_interface.hpp" />
     <ClInclude Include="string_hasher.hpp" />
   </ItemGroup>
   <ItemGroup>

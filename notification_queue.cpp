@@ -1,6 +1,6 @@
 #include "notification_queue.hpp"
 
-#define NOTIFICATION_ALPHA_SPEED	20
+#define NOTIFICATION_ALPHA_SPEED	0.1f
 #define NOTIFICATION_QUEUE_DELAY	1500
 
 /*

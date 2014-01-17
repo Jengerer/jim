@@ -286,14 +286,6 @@ bool ItemSchema::resolve( Attribute* attribute ) const
     }
     attribute->set_definition( definition );
 
-    // Reload value if floating point.
-	if (!definition->is_integer()) {
-		AttributeValue value = attribute->get_value();
-		float* float_value = reinterpret_cast<float*>(&value.as_uint32);
-		value.as_float = *float_value;
-		attribute->set_value( value );
-	}
-
 	// Generate description.
 	if (!attribute->generate_description()) {
 		stack->log( "Failed to generate description for attribute." );

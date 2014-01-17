@@ -35,10 +35,10 @@ public:
     Item* get_item( unsigned int index ) const;
 
     // Slot state functions.
-	bool set_item( unsigned int index, Item* item );
-    bool set_selected( unsigned int index, bool is_selected );
-    bool set_enabled( unsigned int index, bool is_enabled );
-	bool set_enabled( bool is_enabled );
+	void set_item( unsigned int index, Item* item );
+    void set_selected( unsigned int index, bool is_selected );
+    void set_enabled( unsigned int index, bool is_enabled );
+	void set_enabled( bool is_enabled );
     bool remove_item( Item* item );
     void empty_slots( void );
 	void destroy_slots( void );
