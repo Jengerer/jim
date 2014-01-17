@@ -23,8 +23,8 @@ const unsigned int ITEM_DISPLAY_PADDING = 20;
 const unsigned int ITEM_DISPLAY_SPACING = 5;
 const unsigned int ITEM_DISPLAY_RADIUS = 5;
 const int ITEM_DISPLAY_TEXT_WIDTH = 200;
-const int ITEM_DISPLAY_ALPHA_SPEED = 30;
-const int ITEM_DISPLAY_ALPHA_MAX = 210;
+const float ITEM_DISPLAY_ALPHA_SPEED = 0.1f;
+const float ITEM_DISPLAY_ALPHA_MAX = 0.8f;
 
 /*
  * Item display constructor.
@@ -230,7 +230,7 @@ void ItemDisplay::update_alpha( void )
 {
 	if (is_active()) {
 		// Increase and clamp alpha if active.
-		int alpha = get_alpha() + ITEM_DISPLAY_ALPHA_SPEED;
+		float alpha = get_alpha() + ITEM_DISPLAY_ALPHA_SPEED;
 		if (alpha > ITEM_DISPLAY_ALPHA_MAX) {
 			alpha = ITEM_DISPLAY_ALPHA_MAX;
 		}

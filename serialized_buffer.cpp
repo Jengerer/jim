@@ -11,7 +11,7 @@ void SerializedBuffer::push( unsigned int steps )
 	buffer_ = (char*)buffer_ + steps;
 }
 
-void SerializedBuffer::write( void *data, unsigned int size )
+void SerializedBuffer::write( const void *data, unsigned int size )
 {
 	memcpy( buffer_, data, size );
 	buffer_ = (char*)buffer_ + size;

@@ -43,9 +43,7 @@ bool SlotArray::set_size( unsigned int size )
     if (size < old_size) {
 		// Empty slots and update before deleting.
 		for (i = size; i < old_size; ++i) {
-			if (!set_item( i, nullptr )) {
-				return false;
-			}
+			set_item( i, nullptr );
 		}
 
 		// Now destroy.
@@ -147,7 +145,7 @@ bool SlotArray::contains_item( Item* item, unsigned int* index ) const
 /*
  * Set the item at the given slot.
  */
-bool SlotArray::set_item( unsigned int index, Item* item )
+void SlotArray::set_item( unsigned int index, Item* item )
 {
 	Slot* slot = slots_.at( index );
 	slot->set_item( item );
@@ -157,51 +155,39 @@ bool SlotArray::set_item( unsigned int index, Item* item )
 		slot->set_selected( false );
 		slot->set_enabled( true );
 	}
-	if (!listener_->on_slot_updated( index, slot )) {
-		return false;
-	}
-	return true;
+	listener_->on_slot_updated( index, slot );
 }
 
 /*
  * Set the slot as enabled.
  */
-bool SlotArray::set_enabled( unsigned int index, bool is_enabled )
+void SlotArray::set_enabled( unsigned int index, bool is_enabled )
 {
     Slot* slot = slots_.at( index );
     slot->set_enabled( is_enabled );
-    if (!listener_->on_slot_updated( index, slot )) {
-        return false;
-    }
-    return true;
+    listener_->on_slot_updated( index, slot );
 }
 
 /*
  * Set all slots' enabled status.
  */
-bool SlotArray::set_enabled( bool is_enabled )
+void SlotArray::set_enabled( bool is_enabled )
 {
 	unsigned int i;
 	unsigned int end = get_size();
 	for (i = 0; i < end; ++i) {
-		if (!set_enabled( i, is_enabled )) {
-			return false;
-		}
+		set_enabled( i, is_enabled );
 	}
-    return true;
 }
 
 /*
  * Set the slot as selected.
  */
-bool SlotArray::set_selected( unsigned int index, bool is_selected )
+void SlotArray::set_selected( unsigned int index, bool is_selected )
 {
     Slot* slot = slots_.at( index );
     slot->set_selected( is_selected );
-    if (!listener_->on_slot_updated( index, slot )) {
-        return false;
-    }
-    return true;
+    listener_->on_slot_updated( index, slot );
 }
 
 /*

@@ -218,7 +218,7 @@ bool Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned i
 /*
  * Send a message through coordinator.
  */
-bool Steam::send_message( uint32 id, void* buffer, uint32 size ) const
+bool Steam::send_message( uint32 id, const void* buffer, uint32 size ) const
 {
 	// Check if we need a protobuf header sent.
     EGCResults result;

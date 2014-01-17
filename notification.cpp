@@ -8,13 +8,13 @@
 
 const unsigned int NOTIFICATION_ICON_SIZE	= 48;
 const unsigned int NOTIFICATION_TEXT_WIDTH	= 160;
-const JUI::Colour NOTIFICATION_COLOUR( 25, 25, 25 );
+const JUI::Colour NOTIFICATION_COLOUR( 0x191919 );
 const unsigned int NOTIFICATION_RADIUS		= 5;
 const unsigned int NOTIFICATION_PADDING		= 10;
 const unsigned int NOTIFICATION_SPACING		= 5;
 
 const unsigned int NOTIFICATION_STROKE_SIZE	= 2;
-const JUI::Colour NOTIFICATION_STROKE_COLOUR( 255, 255, 255, 100 );
+const JUI::Colour NOTIFICATION_STROKE_COLOUR( 0xFFFFFF, 0.4f );
 
 const JUTIL::ConstantString NOTIFICATION_FONT_FACE = "fonts/tf2build.ttf";
 const unsigned int NOTIFICATION_FONT_SIZE	= 10;

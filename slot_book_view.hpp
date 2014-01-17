@@ -15,7 +15,7 @@ public:
 	virtual ~SlotBookView( void );
 
 	// Page switching functions.
-	bool set_active_page( unsigned int page );
+	void set_active_page( unsigned int page );
 	unsigned int get_active_page( void ) const;
 	unsigned int get_page_count( void ) const;
 
@@ -23,7 +23,7 @@ public:
     const SlotView* get_slot_view( unsigned int index ) const;
 
 	// Slot update event over-ride.
-	virtual bool on_slot_updated( unsigned int index, const Slot* slot );
+	virtual void on_slot_updated( unsigned int index, const Slot* slot );
 
 protected:
 

@@ -15,7 +15,7 @@ public:
 		return value;
 	}
 
-	void write( void *data, unsigned int size );
+	void write( const void *data, unsigned int size );
 
 	void* start() {
 		return start_;

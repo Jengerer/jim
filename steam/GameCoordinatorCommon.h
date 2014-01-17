@@ -27,28 +27,15 @@
 #define STEAMGAMECOORDINATOR_INTERFACE_VERSION_001 "SteamGameCoordinator001"
 
 
-
-typedef enum EGCMsgResponse
-{
-	k_EGCMsgResponseOK,
-	k_EGCMsgResponseDenied,
-	k_EGCMsgResponseServerError,
-	k_EGCMsgResponseTimeout,
-	k_EGCMsgResponseInvalid,
-	k_EGCMsgResponseNoMatch,
-	k_EGCMsgResponseUnknownError,
-	k_EGCMsgResponseNotLoggedOn,
-} EGCMsgResponse;
-
 // list of possible return values from the ISteamGameCoordinator API
-typedef enum EGCResults
+enum EGCResults
 {
 	k_EGCResultOK = 0,
 	k_EGCResultNoMessage = 1,			// There is no message in the queue
 	k_EGCResultBufferTooSmall = 2,		// The buffer is too small for the requested message
 	k_EGCResultNotLoggedOn = 3,			// The client is not logged onto Steam
 	k_EGCResultInvalidMessage = 4,		// Something was wrong with the message being sent with SendMessage
-} EGCResults;
+};
 
 /**
  * Valve moved a lot of messages to the protobuf format.
@@ -67,6 +54,8 @@ typedef enum EGCMessages
 	k_ESOMsg_CacheSubscribed,
 	k_ESOMsg_CacheUnsubscribed,
 	k_ESOMsg_UpdateMultiple,
+	k_ESOMsg_CacheSubscriptionCheck,
+	k_ESOMsg_CacheSubscriptionRefresh,
 
 	k_EGCMsgAchievementAwarded = 51,
 	k_EGCMsgConCommand,
@@ -109,7 +98,7 @@ typedef enum EGCMessages
 	k_EGCMsgMemCachedSet,
 	k_EGCMsgMemCachedDelete,
 
-	k_EMsgGCset_itemPosition = 1001,
+	k_EMsgGCSetItemPosition = 1001,
 	k_EMsgGCCraft,
 	k_EMsgGCCraftResponse,
 	k_EMsgGCDelete,
@@ -138,8 +127,8 @@ typedef enum EGCMessages
 	k_EMsgGCGiftedItems,
 	k_EMsgGCSpawnItem,
 	k_EMsgGCRespawnPostLoadoutChange,
-	k_EMsgGCremove_itemName,
-	k_EMsgGCremove_itemPaint,
+	k_EMsgGCRemoveItemName,
+	k_EMsgGCRemoveItemPaint,
 	k_EMsgGCGiftWrapItem,
 	k_EMsgGCGiftWrapItemResponse,
 	k_EMsgGCDeliverGift,
@@ -147,7 +136,7 @@ typedef enum EGCMessages
 	k_EMsgGCDeliverGiftResponseReceiver,
 	k_EMsgGCUnwrapGiftRequest,
 	k_EMsgGCUnwrapGiftResponse,
-	k_EMsgGCset_itemStyle,
+	k_EMsgGCSetItemStyle,
 	k_EMsgGCUsedClaimCodeItem,
 	k_EMsgGCSortItems,
 	k_EMsgGC_RevolvingLootList,
@@ -155,16 +144,23 @@ typedef enum EGCMessages
 	k_EMsgGCLookupAccountResponse,
 	k_EMsgGCLookupAccountName,
 	k_EMsgGCLookupAccountNameResponse,
-	k_EMsgGCStartupCheck,
-	k_EMsgGCStartupCheckResponse,
-	k_EMsgGCUpdateItemSchema,
+	k_EMsgGCUpdateItemSchema = 1049,
 	k_EMsgGCRequestInventoryRefresh,
+	k_EMsgGCRemoveCustomTexture,
+	k_EMsgGCRemoveCustomTextureResponse,
+	k_EMsgGCRemoveMakersMark,
+	k_EMsgGCRemoveMakersMarkResponse,
+	k_EMsgGCRemoveUniqueCraftIndex,
+	k_EMsgGCRemoveUniqueCraftIndexResponse,
+	k_EMsgGCSaxxyBroadcast,
+	k_EMsgGCBackpackSortFinished,
+	k_EMsgGCRequestItemSchemaData = 1060,
 
 	k_EMsgGCTrading_InitiateTradeRequest = 1501,
 	k_EMsgGCTrading_InitiateTradeResponse,
 	k_EMsgGCTrading_StartSession,
-	k_EMsgGCTrading_set_item,
-	k_EMsgGCTrading_remove_item,
+	k_EMsgGCTrading_SetItem,
+	k_EMsgGCTrading_RemoveItem,
 	k_EMsgGCTrading_UpdateTradeInfo,
 	k_EMsgGCTrading_SetReadiness,
 	k_EMsgGCTrading_ReadinessResponse,
@@ -191,10 +187,11 @@ typedef enum EGCMessages
 	k_EMsgGCStorePurchaseQueryTxn,
 	k_EMsgGCStorePurchaseQueryTxnResponse,
 
-	k_EMsgGCSystemMessage = 3001,
+	k_EMsgGCSystemMessage = 4001,
+	k_EMsgGCReplicateConVars,
+	k_EMsgGCConVarUpdated,
 
 	k_EMsgGCReportWarKill = 5001,
-
 	k_EMsgGCVoteKickBanPlayer = 5018,
 	k_EMsgGCVoteKickBanPlayerResult,
 	k_EMsgGCKickPlayer,
@@ -228,7 +225,6 @@ typedef enum EGCMessages
 
 	k_EMsgGC_Halloween_ReservedItem = 5600,
 	k_EMsgGC_Halloween_GrantItem,
-
 	k_EMsgGC_Halloween_GrantItemResponse = 5604,
 	k_EMsgGC_Halloween_Cheat_QueryResponse,
 	k_EMsgGC_Halloween_ItemClaimed,
@@ -411,7 +407,7 @@ struct SOMsgDeleted_t
 */
 struct GCSetItemPosition_t
 {
-	enum { k_iMessage = k_EMsgGCset_itemPosition };
+	enum { k_iMessage = k_EMsgGCSetItemPosition };
 	GCMsgHeader_t header;
 	
 	uint64 itemID;
@@ -620,9 +616,9 @@ struct GCTrading_StartSession_t
 	// char player2Name[];
 };
 
-struct GCTrading_set_item_t
+struct GCTrading_SetItem_t
 {
-	enum { k_iMessage = k_EMsgGCTrading_set_item };
+	enum { k_iMessage = k_EMsgGCTrading_SetItem };
 	GCMsgHeader_t header;
 	
 	uint8 showcase;
@@ -630,9 +626,9 @@ struct GCTrading_set_item_t
 	uint8 slot; // Trade 'slot' it goes in, see below.
 };
 
-struct GCTrading_remove_item_t
+struct GCTrading_RemoveItem_t
 {
-	enum { k_iMessage = k_EMsgGCTrading_remove_item };
+	enum { k_iMessage = k_EMsgGCTrading_RemoveItem };
 	GCMsgHeader_t header;
 	
 	uint64 itemID;

@@ -313,9 +313,6 @@
     <ClInclude Include="steam_inventory_manager.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
-    <ClInclude Include="steam_inventory_interface.hpp">
-      <Filter>headers\items</Filter>
-    </ClInclude>
     <ClInclude Include="steam_inventory_listener.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
@@ -338,6 +335,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="slot_stack_view.hpp">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="inventory_action_interface.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>

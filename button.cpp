@@ -14,7 +14,7 @@ const unsigned int BUTTON_ICON_SIZE = 20;
 // Button default font size.
 const JUTIL::ConstantString BUTTON_DEFAULT_FONT_FACE = "fonts/tf2build.ttf";
 const unsigned int BUTTON_DEFAULT_FONT_SIZE	= 14;
-const JUI::Colour BUTTON_FONT_COLOUR( 42, 39, 37 );
+const JUI::Colour BUTTON_FONT_COLOUR( 0x2A2725 );
 
 // Rounded container parameters.
 const unsigned int BUTTON_RADIUS		= 5;
@@ -22,9 +22,9 @@ const unsigned int BUTTON_SPACING		= 5;
 const unsigned int BUTTON_PADDING		= 15;
 
 // Button colours.
-const JUI::Colour BUTTON_COLOUR( 247, 231, 198 );
-const JUI::Colour BUTTON_COLOUR_HOVER( 180, 81, 14 );
-const JUI::Colour BUTTON_COLOUR_DISABLED( 247, 231, 198, 100 );
+const JUI::Colour BUTTON_COLOUR( 0xF7E7C6 );
+const JUI::Colour BUTTON_COLOUR_HOVER( 0xB4510E );
+const JUI::Colour BUTTON_COLOUR_DISABLED( 0xF7E7C6, 0.4f );
 
 /*
  * Button default constructor.

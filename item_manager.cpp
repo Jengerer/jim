@@ -120,7 +120,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
         stack->log( "Failed to allocate item manager view object." );
         return PrecacheResourcesFailure;
     }
-    new (view_) ItemManagerView( &inventory_ );
+    new (view_) ItemManagerView( &inventory_, &steam_items_ );
 	view_->set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
     view_->set_listener( this );
     if (!add( view_ )) {

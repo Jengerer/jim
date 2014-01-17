@@ -41,7 +41,7 @@ public:
     virtual JUI::IOResult on_mouse_released( JUI::Mouse* mouse );
 
 	// Array listener interface.
-	virtual bool on_slot_updated( unsigned int index, const Slot* slot );
+	virtual void on_slot_updated( unsigned int index, const Slot* slot );
 
 protected:
 

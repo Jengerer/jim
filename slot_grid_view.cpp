@@ -164,12 +164,9 @@ JUI::IOResult SlotGridView::on_mouse_released( JUI::Mouse* mouse )
 /*
  * Updates the slot view at the given index.
  */
-bool SlotGridView::on_slot_updated( unsigned int index, const Slot* slot )
+void SlotGridView::on_slot_updated( unsigned int index, const Slot* slot )
 {
 	// TODO: Use item decorator classes to draw different item types.
 	SlotView* view = slot_views_.at( index );
-	if (!view->update( slot )) {
-		return false;
-	}
-    return true;
+	view->update( slot );
 }

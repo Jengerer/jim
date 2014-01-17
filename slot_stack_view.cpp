@@ -1,13 +1,14 @@
 #include "slot_stack_view.hpp"
 
 // Item selection parameters.
-const unsigned int STACK_DRAGGING_ALPHA = 150;
-const unsigned int STACK_NORMAL_ALPHA = 255;
+const float STACK_DRAGGING_ALPHA = 0.2f;
+const float STACK_NORMAL_ALPHA = 0.0f;
 
 SlotStackView::SlotStackView( SlotArrayInterface* slot_array )
     : slot_array_( slot_array ),
 	  is_dragging_( false )
 {
+	set_alpha( STACK_NORMAL_ALPHA );
 }
 
 SlotStackView::~SlotStackView( void )
@@ -25,15 +26,12 @@ void SlotStackView::set_listener( SlotArrayViewListener* listener )
 /*
  * Handle slot container update event.
  */
-bool SlotStackView::on_slot_updated( unsigned int index, const Slot* slot )
+void SlotStackView::on_slot_updated( unsigned int index, const Slot* slot )
 {
     // Only update top slot.
     if (index == 0) {
-        if (!update( slot )) {
-            return false;
-        }
+        update_item( slot );
     }
-    return true;
 }
 
 /*
@@ -47,11 +45,11 @@ void SlotStackView::set_drag_offset( int x, int y )
 
 /*
  * Begin dragging the slot view.
+ * Should be called after offset is set.
  */
 void SlotStackView::begin_dragging( void )
 {
 	is_dragging_ = true;
-	save_position();
 	set_alpha( STACK_DRAGGING_ALPHA );
 }
 
@@ -61,7 +59,6 @@ void SlotStackView::begin_dragging( void )
 void SlotStackView::end_dragging( void )
 {
 	is_dragging_ = false;
-	restore_position();
 	set_alpha( STACK_NORMAL_ALPHA );
 }
 
@@ -84,16 +81,6 @@ JUI::IOResult SlotStackView::on_mouse_moved( JUI::Mouse* mouse )
 		int y = mouse->get_y() + offset_y_;
 		set_position( x, y );
 		return JUI::IO_RESULT_HANDLED;
-	}
-	else if (mouse->is_touching( this )) {
-		// Send event to listener to show item data.
-		if (slot_array_->get_size() != 0) {
-			if (!listener_->on_slot_hovered( slot_array_, 0 )) {
-				return JUI::IO_RESULT_ERROR;
-			}
-
-			return JUI::IO_RESULT_HANDLED;
-		}
 	}
 	return JUI::IO_RESULT_UNHANDLED;
 }
@@ -133,21 +120,4 @@ JUI::IOResult SlotStackView::on_mouse_released( JUI::Mouse* mouse )
 		return JUI::IO_RESULT_HANDLED;
 	}
 	return JUI::IO_RESULT_UNHANDLED;
-}
-
-/*
- * Save position to return to after drag.
- */
-void SlotStackView::save_position( void )
-{
-	return_x_ = get_x();
-	return_y_ = get_y();
-}
-
-/*
- * Return stack view to pre-drag position.
- */
-void SlotStackView::restore_position( void )
-{
-	set_position( return_x_, return_y_ );
 }

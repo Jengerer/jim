@@ -1,17 +1,18 @@
-#ifndef STEAM_INVENTORY_INTERFACE_HPP
-#define STEAM_INVENTORY_INTERFACE_HPP
+#ifndef INVENTORY_ACTION_INTERFACE_HPP
+#define INVENTORY_ACTION_INTERFACE_HPP
 
 #include "item.hpp"
 
 /*
- * Interface for pushing item changes to Steam.
+ * Interface for pushing item changes to backend.
  */
-class SteamInventoryInterface
+class InventoryActionInterface
 {
 
 public:
 
 	// Single item change functions.
+	virtual bool move_item( const Item* item, unsigned int index ) const = 0;
 	virtual bool update_item( const Item* item ) const = 0;
 	virtual bool delete_item( const Item* item ) const = 0;
 	
@@ -22,4 +23,4 @@ public:
 
 };
 
-#endif // STEAM_INVENTORY_INTERFACE_HPP
+#endif // INVENTORY_ACTION_INTERFACE_HPP

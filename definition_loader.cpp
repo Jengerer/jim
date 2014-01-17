@@ -993,9 +993,8 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemDefiniti
         stack->log( "Failed to get value from attribute definition.");
         return false;
     }
-    const JUTIL::ConstantString name = attribute_name->asCString();
-	AttributeValue value;
-	value.as_float = attribute_value->asFloat();
+    const JUTIL::ConstantString name( attribute_name->asCString() );
+	float value = attribute_value->asFloat();
 
 	// Get information.
 	uint16 attribute_index;
@@ -1010,12 +1009,16 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemDefiniti
         stack->log( "Failed to create attribute.");
         return false;
     }
-    new_attribute = new (new_attribute) Attribute( attribute_index, value );
+    new_attribute = new (new_attribute) Attribute( attribute_index );
     if (!information->add_attribute( new_attribute )) {
 		JUTIL::BaseAllocator::destroy( &new_attribute );
         stack->log( "Failed to add attribute to item definition.");
         return false;
     }
+	if (!new_attribute->set_value( reinterpret_cast<const char*>(&value), sizeof(float) )) {
+		stack->log( "Failed to copy value of attribute." );
+		return false;
+	}
 
 	// Resolve attribute from schema.
 	if (!schema_->resolve( new_attribute )) {

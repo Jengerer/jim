@@ -143,7 +143,7 @@ bool Inventory::place_item( Item* item )
 bool Inventory::move_item( Item* item, unsigned int index )
 {
 	// Position in inventory and update flags.
-	inventory_slots_.set_item( index, item );
+	// inventory_slots_.set_item( index, item );
 	item->set_position( index );
 
 	// Notify listener.

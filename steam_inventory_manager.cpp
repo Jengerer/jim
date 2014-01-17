@@ -48,6 +48,25 @@ bool SteamInventoryManager::handle_callbacks( void )
 }
 
 /*
+ * Send new position to backend.
+ */
+bool SteamInventoryManager::move_item( const Item* item, unsigned int index ) const
+{
+	// Generate new flags.
+	uint32 flags = item->has_valid_inventory_flags() ? item->get_inventory_flags() : FL_ITEM_VALID;
+	flags = (flags & FL_ITEM_NONPOSITION) | ((index + 1) & FL_ITEM_POSITION);
+	
+	// Create message and send.
+	GCSetItemPosition_t message;
+	message.itemID = item->get_unique_id();
+	message.position = flags;
+	return send_message( 
+		static_cast<uint32>(GCSetItemPosition_t::k_iMessage), 
+		static_cast<void*>(&message),
+		sizeof(message) );
+} 
+
+/*
  * Update a single item.
  */
 bool SteamInventoryManager::update_item( const Item* item ) const
@@ -507,27 +526,36 @@ Item* SteamInventoryManager::create_item_from_message( CSOEconItem* econ_item )
 		uint32 attrib_index = attribute.def_index();
 
 		// Create attribute.
-		AttributeValue value;
-		const char* value_bytes = attribute.value_bytes().c_str();
-		value.as_uint32 = *reinterpret_cast<const uint32*>(value_bytes);
+		const std::string& value_bytes = attribute.value_bytes();
+		const char* value_buffer = value_bytes.c_str();
+		size_t value_length = value_bytes.length();
 		Attribute* new_attribute;
 		if (!JUTIL::BaseAllocator::allocate( &new_attribute )) {
 			JUTIL::BaseAllocator::destroy( item );
 			stack->log( "Failed to allocate attribute for item." );
 			return false;
 		}
-		new_attribute = new (new_attribute) Attribute( attrib_index, value );
+		new_attribute = new (new_attribute) Attribute( attrib_index );
 
-		// Add to item.
+		// Add to item and update value.
 		if (!item->add_attribute( new_attribute )) {
 			JUTIL::BaseAllocator::destroy( new_attribute );
 			JUTIL::BaseAllocator::destroy( item );
 			stack->log( "Failed to add attribute to item." );
 			return false;
 		}
+		if (!new_attribute->set_value( value_buffer, value_length )) {
+			JUTIL::BaseAllocator::destroy( item );
+			stack->log( "Failed to set attribute value." );
+			return false;
+		}
 	}
 
 	// Generate name.
+	// TODO: Custom name is now an attribute; have to do this when schema is resolved.
+	// TODO: In case you forgot, you wanted to made some kind of interface for when an
+	// item is loaded, so we can load texture and name using the same function for schema
+	// load and post-schema-load item add.
 	if (econ_item->has_custom_name()) {
 		const JUTIL::ConstantString name = econ_item->custom_name().c_str();
 		if (!item->set_custom_name( &name )) {

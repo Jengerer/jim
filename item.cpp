@@ -129,7 +129,8 @@ void Item::update_attributes( void )
 	const Attribute* quality_attrib = find_attribute( &ELEVATED_QUALITY_NAME );
 	if (quality_attrib != nullptr) {
 		// First get quality number.
-		uint32 quality_num = static_cast<uint32>(quality_attrib->get_value().as_float);
+		const float* value = reinterpret_cast<const float*>(quality_attrib->get_value());
+		uint32 quality_num = static_cast<uint32>(*value);
 		set_quality( static_cast<EItemQuality>(quality_num) );
 	}
 }
@@ -335,11 +336,12 @@ uint8 Item::get_inventory_class_count( void ) const
  */
 uint32 Item::get_crate_number( void ) const
 {
-	const Attribute* attribute = find_attribute(&CRATE_ATTRIBUTE_NAME);
-	if(attribute == nullptr){
+	const Attribute* attribute = find_attribute( &CRATE_ATTRIBUTE_NAME );
+	if (attribute == nullptr){
 		return FL_ITEM_NOT_CRATE;
 	}
-	return (uint32) attribute->get_value().as_float;
+	const float* as_float = reinterpret_cast<const float*>(attribute->get_value());
+	return static_cast<uint32>(*as_float);
 }
 
 /*
@@ -350,26 +352,31 @@ uint32 Item::get_paint_value( uint32 index ) const
 	const Attribute* attribute;
 	switch (index) {
 	case 0:
-		attribute = find_attribute(&PAINT_ATTRIBUTE_NAME_0);
+		attribute = find_attribute( &PAINT_ATTRIBUTE_NAME_0 );
 		break;
 
 	case 1:
-		attribute = find_attribute(&PAINT_ATTRIBUTE_NAME_1);
+		attribute = find_attribute( &PAINT_ATTRIBUTE_NAME_1 );
 		break;
 
 	default:
 		//should probably be some sort of INVALID_INDEX flag somewhere
 		return FL_ITEM_NOT_PAINTED;
 	}
-	if(attribute == nullptr){
+	if (attribute == nullptr) {
 		return FL_ITEM_NOT_PAINTED;
 	}
-	if(index == 1){
-		if((uint32) attribute->get_value().as_float == get_paint_value(0)){
+
+	// If second colour is the same as first, it's one colour.
+	// TODO: When is this the case? May not need this check.
+	const float* as_float = reinterpret_cast<const float*>(attribute->get_value());
+	uint32 as_uint32 = static_cast<uint32>(*as_float);
+	if (index == 1) {
+		if (as_uint32 == get_paint_value( 0 )) {
 			return FL_ITEM_NOT_PAINTED;
 		}
 	}
-	return (uint32) attribute->get_value().as_float;
+	return as_uint32;
 }
 
 /*
@@ -378,10 +385,11 @@ uint32 Item::get_paint_value( uint32 index ) const
 uint32 Item::get_craft_number( void ) const
 {
 	const Attribute* attribute = find_attribute(&CRAFT_ATTRIBUTE_NAME);
-	if(attribute == nullptr){
+	if (attribute == nullptr) {
 		return 0;
 	}
-	return attribute->get_value().as_uint32;
+	const uint32* as_uint32 = reinterpret_cast<const uint32*>(attribute->get_value());
+	return *as_uint32;
 }
 
 /*
@@ -419,10 +427,11 @@ uint32 Item::get_strange_number( uint32 index ) const
 		//should probably be some sort of INVALID_INDEX flag somewhere
 		return FL_ITEM_NOT_STRANGE;
 	}
-	if(attribute == nullptr){
+	if (attribute == nullptr) {
 		return FL_ITEM_NOT_STRANGE;
 	}
-	return attribute->get_value().as_uint32;
+	const uint32* as_uint32 = reinterpret_cast<const uint32*>(attribute->get_value());
+	return *as_uint32;
 }
 
 /*
@@ -460,10 +469,12 @@ uint32 Item::get_strange_type( uint32 index ) const
 		//should probably be some sort of INVALID_INDEX flag somewhere
 		return 0;
 	}
-	if(attribute == nullptr){
+	if (attribute == nullptr) {
 		return 0;
 	}
-	return (uint32) attribute->get_value().as_float;
+	const float* as_float = reinterpret_cast<const float*>(attribute->get_value());
+	uint32 as_uint32 = static_cast<uint32>(*as_float);
+	return as_uint32;
 }
 
 /*
