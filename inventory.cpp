@@ -332,14 +332,17 @@ bool Inventory::on_item_updated( uint64 unique_id, uint32 flags )
     }
 	updated->set_inventory_flags( flags );
 
-	// If this is an inventory item, swap with replaced, if exists.
-	unsigned int index;
+	// If this is an inventory item, swap/empty new slot with old.
+	unsigned int old_index;
 	unsigned int destination = updated->get_position();
-	if (inventory_slots_.contains_item( updated, &index )) {
+	if (inventory_slots_.contains_item( updated, &old_index )) {
 		Item* replaced = inventory_slots_.get_item( destination );
-		inventory_slots_.set_item( index, replaced );
+		inventory_slots_.set_item( old_index, replaced );
 	}
+
+	// Get new position and move into it.
 	inventory_slots_.set_item( destination, updated );
+	inventory_slots_.set_selected( destination, true );
     return true;
 }
 

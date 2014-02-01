@@ -127,7 +127,7 @@ private:
     SlotStackView* selected_view_;
 	const SlotView* clicked_view_;
 	bool was_clicked_selected_;
-	bool is_clicked_excluded_;
+	bool was_dragging_;
 	int clicked_x_;
 	int clicked_y_;
 

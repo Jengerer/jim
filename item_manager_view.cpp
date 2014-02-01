@@ -73,7 +73,9 @@ ItemManagerView::ItemManagerView( Inventory* inventory, InventoryActionInterface
       heading_font_( nullptr ),
       page_font_( nullptr ),
 	  is_mouse_down_( false ),
-	  is_multiselect_pressed_( false )
+	  is_multiselect_pressed_( false ),
+	  was_clicked_selected_( false ),
+	  was_dragging_( false )
 {
     button_manager_.set_event_listener( this );
 }
@@ -554,7 +556,7 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
         return result;
     }
 
-	// if ((selected count > 1) || is_clicked_excluded) { set restricted }
+	// TODO: if ((selected count > 1) || is_clicked_excluded) { set restricted }
 	if (is_mouse_down_ && (clicked_view_ != nullptr)) {
 		int dist_x = mouse->get_x() - clicked_x_;
 		int dist_y = mouse->get_y() - clicked_y_;
@@ -566,6 +568,13 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
 			selected_view_->set_drag_offset( drag_offset_x, drag_offset_y );
 			selected_view_->begin_dragging();
 			clicked_view_ = nullptr;
+
+			// Set restricted inventory if multiple selected or single excluded.
+			const SlotArray* selected = inventory_->get_selected_slots();
+			const Item* first = selected->get_item( 0 );
+			if ((selected->get_size() > 1) || !first->has_valid_inventory_flags()) {
+				inventory_->set_slot_mode( SLOT_MODE_RESTRICTED_DRAG );
+			}
 		}
 	}
 
@@ -653,11 +662,14 @@ JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
 	// Release dragged if holding anything.
 	result = selected_view_->on_mouse_released( mouse );
 	if (result == JUI::IO_RESULT_HANDLED) {
-		inventory_->set_slot_mode( SLOT_MODE_ENABLE_ALL );
+		was_dragging_ = true;
 	}
 
 	// Handle release on slot views.
 	result = inventory_view_->on_mouse_released( mouse );
+
+	// Re-enable slots.
+	inventory_->set_slot_mode( SLOT_MODE_ENABLE_ALL );
 	if (result != JUI::IO_RESULT_UNHANDLED) {
 		return result;
 	}
@@ -824,12 +836,10 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 	if (slot_array == inventory) {
 		container = inventory;
 		view = inventory_view_->get_slot_view( index );
-		is_clicked_excluded_ = true;
 	}
 	else if (slot_array == excluded) {
 		container = excluded;
 		view = excluded_view_->get_slot_view( index );
-		is_clicked_excluded_ = false;
 	}
 
 	// Set flag to say we may be dragging.
@@ -882,6 +892,7 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 
 	// We want to deselect only if we release on undragged, clicked, and previously selected slot.
 	bool is_selected = slot->is_selected();
+
 	if (view == clicked_view_) {
 		if (was_clicked_selected_) {
 			bool new_selected = !slot->is_selected();
@@ -891,7 +902,10 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 			}
 		}
 	}
-	else if ((container == inventory) && (selected->get_size() != 0)) {
+	else if (was_dragging_) {
+		// Reset the flag for next time.
+		was_dragging_ = false;
+
 		// Can only release dragged onto inventory.
 		// If we're dropping onto a full slot, this must be one item, inventory to inventory.
 		if (slot->has_item() && !slot->is_selected()) {
