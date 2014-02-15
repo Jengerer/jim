@@ -95,12 +95,6 @@ void SlotView::update( const Slot* slot )
 	else {
 		set_alpha( SLOT_VISIBLE_ALPHA );
 	}
-	if (slot->is_selected()) {
-		slot_rectangle_->set_colour( &SLOT_SELECTED_COLOUR );
-	}
-	else {
-		slot_rectangle_->set_colour( &SLOT_NORMAL_COLOUR );
-	}
 }
 
 /*
@@ -111,6 +105,7 @@ void SlotView::update_item( const Slot* slot )
 	Item* item = slot->get_item();
 	const JUI::Texture* texture;
 	const JUI::Colour* stroke_colour;
+	const JUI::Colour* slot_colour;
 	unsigned int stroke_width;
 
 	// Draw empty slot if beyond last item.
@@ -118,13 +113,23 @@ void SlotView::update_item( const Slot* slot )
 		texture = item->get_texture();
 		stroke_colour = item->get_quality_colour();
 		stroke_width = SLOT_STROKE_WIDTH;
+
+		// Slot colour based on item selection.
+		if (item->is_selected()) {
+			slot_colour = &SLOT_SELECTED_COLOUR;
+		}
+		else {
+			slot_colour = &SLOT_NORMAL_COLOUR;
+		}
 	}
 	else {
 		texture = nullptr;
+		slot_colour = &SLOT_NORMAL_COLOUR;
 		stroke_colour = &JUI::COLOUR_BLANK;
 		stroke_width = 0;
 	}
 	image_->set_texture( texture );
+	slot_rectangle_->set_colour( slot_colour );
 	slot_rectangle_->set_stroke( stroke_width, stroke_colour );
 }
 

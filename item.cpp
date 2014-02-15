@@ -48,6 +48,7 @@ Item::Item(
 	set_inventory_flags( inventory_flags );
 	set_origin( origin );
 	set_renamed( false );
+	set_selected( false );
 }
 
 /*
@@ -551,6 +552,22 @@ const Attribute* Item::find_attribute( const JUTIL::String* name ) const
 
 	// Not found in local attributes, check definition.
 	return definition_->find_attribute( name );
+}
+
+/*
+ * Set whether this item is selected.
+ */
+void Item::set_selected( bool selected )
+{
+	is_selected_ = selected;
+}
+
+/*
+ * Return whether this item is selected.
+ */
+bool Item::is_selected( void ) const
+{
+	return is_selected_;
 }
 
 bool Item::add_equipped_data( EquippedStatus* datum )

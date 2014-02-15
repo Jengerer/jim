@@ -28,6 +28,7 @@ public:
 	// Starting up.
 	virtual JUI::Application::ReturnStatus initialize( void );
 	virtual void close_interfaces( void );
+	virtual void exit_application( void );
     bool create_resources( void );
 
 	// Inventory and definition loading.
@@ -40,6 +41,7 @@ public:
 	bool waiting_for_items( void );
 	bool loading_schema( void );
 	bool running( void );
+	bool updating_items( void );
 	bool exiting( void );
 
     // View listener functions.

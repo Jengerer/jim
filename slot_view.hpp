@@ -12,15 +12,17 @@
 #include "rounded_rectangle.hpp"
 #include "slot.hpp"
 
+// Slot view constants.
+static const float ENABLED_ALPHA  = 1.0f;
+static const float DISABLED_ALPHA = 0.2f;
+static const float DRAG_ALPHA     = 0.8f;
+
 class SlotView: public JUI::ConstrainedContainer
 {
 
 public:
 
 	// Slot display attributes.
-	static const unsigned int ENABLED_ALPHA  = 255;
-	static const unsigned int DISABLED_ALPHA = 50;
-	static const unsigned int DRAG_ALPHA     = 200;
 	static const unsigned int SLOT_RADIUS    = 7;
 
 	// Initialization and construction.
