@@ -143,8 +143,8 @@ bool Inventory::place_item( Item* item )
 bool Inventory::move_item( Item* item, unsigned int index )
 {
 	// Position in inventory and update flags.
-	// inventory_slots_.set_item( index, item );
 	item->set_position( index );
+	inventory_slots_.set_item( index, item );
 
 	// Notify listener.
 	if (!listener_->on_item_moved( item )) {
@@ -197,7 +197,8 @@ void Inventory::set_slot_mode( InventorySlotMode slot_mode )
 			for (i = 0; i < end; ++i) {
 				unsigned int back_index = end - (i + 1);
 				const Slot* slot = inventory_slots_.get_slot( back_index );
-				bool enabled = !slot->has_item() || slot->is_selected();
+				Item* item = slot->get_item();
+				bool enabled = !slot->has_item() || item->is_selected();
 				if (enabled) {
 					++valid_count;
 					enabled = (valid_count >= selected_count);
@@ -212,12 +213,11 @@ void Inventory::set_slot_mode( InventorySlotMode slot_mode )
 }
 
 /*
- * Toggle selection of a specific slot.
+ * Toggle selection of a specific item.
  */
-bool Inventory::set_selected( const Slot* slot, bool is_selected )
+bool Inventory::set_selected( Item* item, bool is_selected )
 {
     // Toggle selection state in container.
-    Item* item = slot->get_item();
     if (is_selected) {
         if (!selected_slots_.push_item( item )) {
             return false;
@@ -239,14 +239,15 @@ void Inventory::clear_selection( void )
 	unsigned int i;
 	for (i = 0; i < selected_slots_.get_size(); ++i) {
 		Item* item = selected_slots_.get_item( i );
+		item->set_selected( false );
 
 		// Unset selected state from inventory/excluded.
 		unsigned int j;
 		if (inventory_slots_.contains_item( item, &j )) {
-			inventory_slots_.set_selected( j, false );
+			inventory_slots_.update_slot( j );
 		}
 		if (excluded_slots_.contains_item( item, &j )) {
-			excluded_slots_.set_selected( j, false );
+			excluded_slots_.update_slot( j );
 		}
 	}
 	selected_slots_.destroy_slots();
@@ -342,7 +343,6 @@ bool Inventory::on_item_updated( uint64 unique_id, uint32 flags )
 
 	// Get new position and move into it.
 	inventory_slots_.set_item( destination, updated );
-	inventory_slots_.set_selected( destination, true );
     return true;
 }
 

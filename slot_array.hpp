@@ -30,16 +30,15 @@ public:
 	// Item and slot query functions.
     bool is_slot_empty( unsigned int index ) const;
     bool is_slot_enabled( unsigned int index ) const;
-    bool is_slot_selected( unsigned int index ) const;
     bool contains_item( Item* item, unsigned int* index = nullptr ) const;
     Item* get_item( unsigned int index ) const;
 
     // Slot state functions.
 	void set_item( unsigned int index, Item* item );
-    void set_selected( unsigned int index, bool is_selected );
     void set_enabled( unsigned int index, bool is_enabled );
 	void set_enabled( bool is_enabled );
     bool remove_item( Item* item );
+	void update_slot( unsigned int index );
     void empty_slots( void );
 	void destroy_slots( void );
 

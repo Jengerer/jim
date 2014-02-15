@@ -48,6 +48,44 @@ bool SteamInventoryManager::handle_callbacks( void )
 }
 
 /*
+ * Queue an item to be updated if not already.
+ */
+bool SteamInventoryManager::queue_item_update( const Item* item )
+{
+	// Add to set if not already there.
+	uint64 id = item->get_unique_id();
+	if (!updated_.contains( id )) {
+		if (!updated_.insert( id, item )) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/*
+ * Push all pending item updates to Steam backend.
+ */
+bool SteamInventoryManager::submit_item_updates( void ) const
+{
+	JUTIL::Map<uint64, const Item*>::Iterator i;
+	for (i = updated_.begin(); i.has_next(); i.next()) {
+		const Item* item = i.get_value();
+		if (!update_item( item )) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/*
+ * Get number of pending item updates.
+ */
+unsigned int SteamInventoryManager::get_pending_updates( void ) const
+{
+	return updated_.get_length();
+}
+
+/*
  * Send new position to backend.
  */
 bool SteamInventoryManager::move_item( const Item* item, unsigned int index ) const
@@ -362,6 +400,16 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
                     return false;
                 }
 
+				// Check if this is a response to a pending update.
+				uint64 id = updated_item.id();
+				uint32 flags = updated_item.inventory();
+				const Item* item;
+				if (updated_.get( id, &item )) {
+					if (item->get_inventory_flags() == flags) {
+						updated_.remove( id );
+					}
+				}
+
                 // Pass item ID and flags to listener.
                 if (!listener_->on_item_updated( updated_item.id(), updated_item.inventory() )) {
                     stack->log( "Failed to update item." );
@@ -389,6 +437,16 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
                         stack->log( "Failed to parse multiple item message from Steam." );
                         return false;
                     }
+
+					// Check if this is a response to a pending update.
+					uint64 id = updated_item.id();
+					uint32 flags = updated_item.inventory();
+					const Item* item;
+					if (updated_.get( id, &item )) {
+						if (item->get_inventory_flags() == flags) {
+							updated_.remove( id );
+						}
+					}
 
                     // Pass item ID and flags to listener.
                     if (!listener_->on_item_updated( updated_item.id(), updated_item.inventory() )) {

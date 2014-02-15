@@ -508,6 +508,7 @@ void ItemManagerView::destroy_loading_notice( void )
 {
     assert( load_progress_ != nullptr );
     popups_->delete_popup( load_progress_ );
+	load_progress_ = nullptr;
 }
 
 /*
@@ -902,10 +903,12 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 	if (!is_multiselect_pressed_) {
 		inventory_->clear_selection();
 	}
-	was_clicked_selected_ = slot->is_selected();
+	Item* item = slot->get_item();
+	was_clicked_selected_ = item->is_selected();
 	if (!was_clicked_selected_) {
-		container->set_selected( index, true );
-		if (!inventory_->set_selected( slot, true )) {
+		item->set_selected( true );
+		container->update_slot( index );
+		if (!inventory_->set_selected( item, true )) {
 			return false;
 		}
 	}
@@ -942,13 +945,13 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 	}
 
 	// We want to deselect only if we release on undragged, clicked, and previously selected slot.
-	bool is_selected = slot->is_selected();
-
 	if (view == clicked_view_) {
 		if (was_clicked_selected_) {
-			bool new_selected = !slot->is_selected();
-			container->set_selected( index, new_selected );
-			if (!inventory_->set_selected( slot, new_selected )) {
+			Item* item = slot->get_item();
+			bool new_selected = !item->is_selected();
+			item->set_selected( new_selected );
+			container->update_slot( index );
+			if (!inventory_->set_selected( item, new_selected )) {
 				return false;
 			}
 		}
@@ -959,7 +962,8 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 
 		// Can only release dragged onto inventory.
 		// If we're dropping onto a full slot, this must be one item, inventory to inventory.
-		if (slot->has_item() && !slot->is_selected()) {
+		Item* item = slot->get_item();
+		if (slot->has_item() && !item->is_selected()) {
 			unsigned int dragged_index;
 			const Slot* dragged_slot = selected->get_slot( 0 );
 			Item* replaced_item = slot->get_item();
@@ -967,12 +971,11 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 			inventory->contains_item( dragged_item, &dragged_index );
 			inventory_->clear_selection();
 
-			// Move and trigger updates.
-			// TODO: Disable these item slots until move succeeds/fails.
-			if (!action_interface_->move_item( dragged_item, index )) {
+			// Move items and add them to update list.
+			if (!inventory_->move_item( dragged_item, index )) {
 				return false;
 			}
-			if (!action_interface_->move_item( replaced_item, dragged_index )) {
+			if (!inventory_->move_item( replaced_item, dragged_index )) {
 				return false;
 			}
 		}
@@ -984,16 +987,24 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 			unsigned int end = inventory->get_size();
 			unsigned int selected_end = selected->get_size();
 
+			// Displace selected items.
+			for (j = 0; j < selected_end; ++j) {
+				Item* current = selected->get_item( j );
+				inventory_->displace_item( current );
+			}
+
 			// Fit all selected on this page.
 			for (j = 0; j < selected_end; ++j) {
 				Item* current = selected->get_item( j );
+
+				// Find a new spot.
 				for (i = last_checked; i < end; ++i) {
 					const Slot* slot = inventory->get_slot( i );
-					if (slot->is_selected() || !slot->has_item()) {
+					if (!slot->has_item()) {
 						JUTIL::DynamicString message;
 						message.write( "Moving %s to %u.\n", current->get_name()->get_string(), i );
 						notifications_->add_notification( &message, current->get_texture() );
-						if (!action_interface_->move_item( current, i )) {
+						if (!inventory_->move_item( current, i )) {
 							return false;
 						}
 						last_checked = i + 1;

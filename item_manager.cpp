@@ -49,9 +49,12 @@ const DWORD FRAME_SPEED = 1000 / 60;
 /*
  * Item manager constructor.
  */
-ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
+ItemManager::ItemManager( HINSTANCE instance )
+	: Application( instance ),
+	definition_loader_( nullptr ),
+	site_loader_( nullptr )
 {
-    JUTIL::AllocationManager* manager =JUTIL::AllocationManager::get_instance();
+    JUTIL::AllocationManager* manager = JUTIL::AllocationManager::get_instance();
     // manager->set_debug_break( 3733 );
 
 	// Set application size.
@@ -62,12 +65,6 @@ ItemManager::ItemManager( HINSTANCE instance ) : Application( instance )
 	window->set_border( true );
 	window->set_fullscreen( false );
 	window->set_icon( IDI_ICON1 );
-
-	// Threaded loader.
-	definition_loader_ = nullptr;
-
-    // Web interface.
-    site_loader_ = nullptr;
 
 	// Set inventory event handler.
     inventory_.set_listener( this );
@@ -164,6 +161,28 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 
     // All base resources loaded successfully.
     return Success;
+}
+
+/*
+ * Submit pending updated items and wait for response.
+ */
+void ItemManager::exit_application( void )
+{
+	// Don't run exit code if already exiting.
+	if (think_function_ == &ItemManager::running) {
+		if (steam_items_.get_pending_updates() != 0) {
+			// We don't care about failures here; we'll keep trying anyway.
+			const JUTIL::ConstantString SAVING_ITEM( "Pushing item position updates to Steam..." );
+			view_->set_loading_notice( &SAVING_ITEM );
+			steam_items_.submit_item_updates();
+			set_think( &ItemManager::updating_items );
+			return;
+		}
+	}
+	
+	// Either no pending item updates or user got impatient.
+	Application::exit_application();
+	set_think( &ItemManager::exiting );
 }
 
 bool ItemManager::create_resources( void )
@@ -336,9 +355,24 @@ bool ItemManager::running( void )
     return true;
 }
 
+/*
+ * Wait for item updates to finish pending.
+ */
+bool ItemManager::updating_items( void )
+{
+	// Wait for all item updates to get acknowledged.
+	if (!steam_items_.handle_callbacks()){
+		return false;
+	}
+	if (steam_items_.get_pending_updates() == 0) {
+		Application::exit_application();
+		set_think( &ItemManager::exiting );
+	}
+	return true;
+}
+
 bool ItemManager::exiting( void )
 {
-	// Just wait for exit.
     return true;
 }
 
@@ -378,8 +412,7 @@ bool ItemManager::on_inventory_loaded( void )
  */
 bool ItemManager::on_item_moved( Item* item )
 {
-	// Just delegate to Steam to update backend.
-	if (!steam_items_.update_item( item )) {
+	if (!steam_items_.queue_item_update( item )) {
 		return false;
 	}
 	return true;

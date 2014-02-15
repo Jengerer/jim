@@ -55,7 +55,7 @@ public:
 
 	// Item slot state management.
 	void set_slot_mode( InventorySlotMode slot_mode );
-    bool set_selected( const Slot* slot, bool is_selected );
+    bool set_selected( Item* item, bool is_selected );
     void clear_selection( void );
 
 	// Excluded handling.

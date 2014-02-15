@@ -113,15 +113,6 @@ bool SlotArray::is_slot_enabled( unsigned int index ) const
 }
 
 /*
- * Return whether a slot is selected.
- */
-bool SlotArray::is_slot_selected( unsigned int index ) const
-{
-    const Slot* slot = get_slot( index );
-    return slot->is_selected();
-}
-
-/*
  * Returns whether the slot array contains an item, and optionally fills out
  * the index it's contained at.
  */
@@ -152,7 +143,6 @@ void SlotArray::set_item( unsigned int index, Item* item )
 	
 	// Reset select state on removal.
 	if (item == nullptr) {
-		slot->set_selected( false );
 		slot->set_enabled( true );
 	}
 	listener_->on_slot_updated( index, slot );
@@ -181,16 +171,6 @@ void SlotArray::set_enabled( bool is_enabled )
 }
 
 /*
- * Set the slot as selected.
- */
-void SlotArray::set_selected( unsigned int index, bool is_selected )
-{
-    Slot* slot = slots_.at( index );
-    slot->set_selected( is_selected );
-    listener_->on_slot_updated( index, slot );
-}
-
-/*
  * Get the item at the given slot.
  */
 Item* SlotArray::get_item( unsigned int index ) const
@@ -216,6 +196,15 @@ bool SlotArray::remove_item( Item* item )
     }
 
     return false;
+}
+
+/*
+ * Push item update about a slot.
+ */
+void SlotArray::update_slot( unsigned int index )
+{
+	const Slot* slot = get_slot( index );
+	listener_->on_slot_updated( index, slot );
 }
 
 /*
