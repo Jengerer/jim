@@ -58,6 +58,10 @@ public:
 
     // Frame updating.
     bool on_enter_frame( void );
+
+	// Page management.
+	bool next_page( void );
+	bool previous_page( void );
 	bool update_page_display( void );
 
     // Mouse handling functions.
@@ -130,6 +134,7 @@ private:
 	bool was_dragging_;
 	int clicked_x_;
 	int clicked_y_;
+	long switch_page_time_;
 
     // UI buttons.
 	Button* craft_button_;

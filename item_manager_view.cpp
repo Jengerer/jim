@@ -48,9 +48,12 @@ const unsigned int EXCLUDED_PAGE_WIDTH = 5;
 const unsigned int EXCLUDED_PAGE_HEIGHT = 1;
 
 // Keys for handling UI.
+const int NEXT_PAGE_KEY_CODE = VK_RIGHT;
+const int PREVIOUS_PAGE_KEY_CODE = VK_LEFT;
 const int MULTIDRAG_KEY_CODE = VK_SHIFT;
 const int MULTISELECT_KEY_CODE = VK_CONTROL;
-const float DRAG_THRESHOLD = 10.0f;
+const float DRAG_THRESHOLD = 25.0f;
+const long SWITCH_PAGE_DELAY = 500;
 
 ItemManagerView::ItemManagerView( Inventory* inventory, InventoryActionInterface* action_interface )
     : inventory_( inventory ),
@@ -546,6 +549,38 @@ bool ItemManagerView::update_page_display( void )
 }
 
 /*
+ * Attempt to go to next page.
+ */
+bool ItemManagerView::next_page( void )
+{
+	unsigned int active = inventory_view_->get_active_page();
+	unsigned int new_active = active + 1;
+	if (new_active != inventory_view_->get_page_count()) {
+		inventory_view_->set_active_page( new_active );
+		if (!update_page_display()) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/*
+ * Attempt to go to previous page.
+ */ 
+bool ItemManagerView::previous_page( void )
+{
+	unsigned int active = inventory_view_->get_active_page();
+	if (active != 0) {
+		unsigned int new_active = active - 1;
+		inventory_view_->set_active_page( new_active );
+		if (!update_page_display()) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/*
  * Handle mouse movement event.
  */
 JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
@@ -581,6 +616,25 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
 	// Updated selected view position if it's active.
 	result = selected_view_->on_mouse_moved( mouse );
 	if (result != JUI::IO_RESULT_UNHANDLED) {
+		clamp_child( selected_view_ );
+
+		// If we move out of bounds, switch pages.
+		long time = GetTickCount();
+		if (time > switch_page_time_) {
+			if (mouse->get_x() <= 0) {
+				if (!previous_page()) {
+					return JUI::IO_RESULT_ERROR;
+				}
+			}
+			else if (mouse->get_x() >= get_width()) {
+				if (!next_page()) {
+					return JUI::IO_RESULT_ERROR;
+				}
+			}
+
+			// Update timer.
+			switch_page_time_ = time + SWITCH_PAGE_DELAY;
+		}
 		return result;
 	}
 
@@ -694,6 +748,16 @@ JUI::IOResult ItemManagerView::on_key_pressed( int key )
 	if (key == MULTISELECT_KEY_CODE) {
 		is_multiselect_pressed_ = true;
 	}
+	else if (key == NEXT_PAGE_KEY_CODE) {
+		if (!next_page()) {
+			return JUI::IO_RESULT_ERROR;
+		}
+	}
+	else if (key == PREVIOUS_PAGE_KEY_CODE) {
+		if (!previous_page()) {
+			return JUI::IO_RESULT_ERROR;
+		}
+	}
 	else {
 		return JUI::IO_RESULT_UNHANDLED;
 	}
@@ -728,8 +792,7 @@ bool ItemManagerView::on_button_pressed( Button* button )
 bool ItemManagerView::on_button_released( Button* button )
 {
 	// Page view variables.
-	unsigned int active;
-	unsigned int new_active;
+	bool result;
     if (button == craft_button_) {
     }
     else if (button == sort_button_) {
@@ -738,24 +801,12 @@ bool ItemManagerView::on_button_released( Button* button )
     }
 	// Handle page navigation events.
     else if (button == prev_button_) {
-		active = inventory_view_->get_active_page();
-		if (active != 0) {
-			new_active = active - 1;
-			inventory_view_->set_active_page( new_active );
-		}
-		if (!update_page_display()) {
-			return false;
-		}
+		result = previous_page();
+		return result;
     }
     else if (button == next_button_) {
-		active = inventory_view_->get_active_page();
-		new_active = active + 1;
-		if (new_active < inventory_view_->get_page_count()) {
-			inventory_view_->set_active_page( new_active );
-		}
-		if (!update_page_display()) {
-			return false;
-		}
+		result = next_page();
+		return result;
     }
     return true;
 }
