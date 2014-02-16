@@ -17,7 +17,8 @@
 class ItemManager
     : public JUI::Application,
       public ItemManagerViewListener,
-      public InventoryListener
+      public InventoryListener,
+	  public SteamInventoryListener
 {
 
 public:
@@ -33,6 +34,7 @@ public:
 
 	// Inventory and definition loading.
 	bool start_definition_load( void );
+	bool on_schema_loaded( void );
 
 	// Application running functions.
     JUI::Application::ReturnStatus run( void );
@@ -46,10 +48,21 @@ public:
 
     // View listener functions.
     virtual bool on_error_acknowledged( void );
+	virtual bool on_craft_items( void );
+	virtual bool on_delete_item( void );
 
 	// Inventory listener functions.
-	virtual bool on_inventory_loaded( void );
 	virtual bool on_item_moved( Item* item );
+	virtual void on_selection_changed( void );
+
+	// Steam inventory listener functions.
+    virtual bool on_item_created( Item* item );
+    virtual void on_item_deleted( uint64 unique_id );
+    virtual bool on_item_updated( uint64 unique_id, uint32 flags );
+    virtual void on_craft_failed( void );
+    virtual void on_inventory_reset( void );
+    virtual bool on_inventory_resize( bool is_trial_account, uint32 extra_slots );
+    virtual bool on_inventory_loaded( void );
 
 	// Input handling.
 	bool handle_keyboard( void );
@@ -70,8 +83,10 @@ private:
     DefinitionLoader* definition_loader_;
 
     // Inventory and item members.
+	ItemSchema schema_;
 	Inventory inventory_;
     SteamInventoryManager steam_items_;
+	bool pending_deletes_;
 
     // User interface handle.
     ItemManagerView* view_;

@@ -39,6 +39,8 @@ const unsigned int EXIT_BUTTON_PADDING	= 10;
 const DWORD PAGE_DELAY_INTERVAL = 500;
 const unsigned int DEFAULT_PAGE_COUNT = 6;
 const unsigned int TRIAL_PAGE_COUNT = 1;
+const unsigned int TRIAL_SLOT_COUNT = 50;
+const unsigned int PREMIUM_SLOT_COUNT = 300;
 
 // Item manager resource loading URL.
 const JUTIL::ConstantString MANAGER_ROOT_URL = "http://www.jengerer.com/item_manager";
@@ -52,7 +54,8 @@ const DWORD FRAME_SPEED = 1000 / 60;
 ItemManager::ItemManager( HINSTANCE instance )
 	: Application( instance ),
 	definition_loader_( nullptr ),
-	site_loader_( nullptr )
+	site_loader_( nullptr ),
+	pending_deletes_( false )
 {
     JUTIL::AllocationManager* manager = JUTIL::AllocationManager::get_instance();
     // manager->set_debug_break( 3733 );
@@ -117,7 +120,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
         stack->log( "Failed to allocate item manager view object." );
         return PrecacheResourcesFailure;
     }
-    new (view_) ItemManagerView( &inventory_, &steam_items_ );
+    new (view_) ItemManagerView( &inventory_, &schema_ );
 	view_->set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
     view_->set_listener( this );
     if (!add( view_ )) {
@@ -207,7 +210,7 @@ bool ItemManager::create_resources( void )
 	if (!steam_items_.load_interfaces()) {
 		return false;
 	}
-	steam_items_.set_listener( &inventory_ );
+	steam_items_.set_listener( this );
 
 	// Show progress notice.
     const JUTIL::ConstantString PREPARING_MESSAGE = "Waiting for inventory message from Steam...";
@@ -247,6 +250,52 @@ void ItemManager::close_interfaces( void )
 
 	// Close downloader.
 	JUI::FileDownloader::shut_down();
+}
+
+/*
+ * Start loading definitions for schema.
+ */
+bool ItemManager::start_definition_load( void )
+{
+	// Set the message and redraw.
+    const JUTIL::ConstantString LOADING_DEFINITION_MESSAGE = "Loading item definitions...";
+    view_->set_loading_notice( &LOADING_DEFINITION_MESSAGE );
+
+	// Set up loader.
+    // TODO: Don't need to allocate this; can use the "done" flag in loader instead of checking pointer null.
+    if (!JUTIL::BaseAllocator::allocate( &definition_loader_ )) {
+        return false;
+    }
+    NotificationQueue* notifications = view_->get_notification_queue();
+    definition_loader_ = new (definition_loader_) DefinitionLoader( &graphics_, &schema_, notifications );
+    if (!definition_loader_->begin()) {
+        return false;
+    }
+    return true;
+}
+
+/*
+ * Resolve item and attribute definitions from loaded schema
+ * and place them into the inventory.
+ */
+bool ItemManager::on_schema_loaded( void )
+{
+	// Resolve each inventory item's definition.
+	unsigned int i;
+	unsigned int end = inventory_.get_item_count();
+	for (i = 0; i < end; ++i) {
+		Item* item = inventory_.get_item( i );
+		if (!schema_.resolve( item, &graphics_ )) {
+			return false;
+		}
+
+		// Place item into inventory.
+		if (!inventory_.place_item( item )) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 JUI::Application::ReturnStatus ItemManager::run( void )
@@ -316,8 +365,8 @@ bool ItemManager::loading_schema( void )
 
             // Finished loading!
             view_->destroy_loading_notice();
-			if (!inventory_.on_schema_loaded( &graphics_ )) {
-				stack->log( "Failed to run post-schema load inventory event." );
+			if (!on_schema_loaded()) {
+				stack->log( "Failed to run post-schema load event." );
 				return false;
 			}
             set_think( &ItemManager::running );
@@ -388,6 +437,218 @@ bool ItemManager::on_error_acknowledged( void )
 }
 
 /*
+ * Handle item crafting.
+ */
+bool ItemManager::on_craft_items( void )
+{
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	const JUTIL::ConstantString CRAFT_ERROR( "Failed to send craft message." );
+	DynamicSlotArray* selected = inventory_.get_selected_slots();
+	unsigned int count = selected->get_size();
+	unsigned int i;
+	if (steam_items_.set_craft_size( count )) {
+		for (i = 0; i < count; ++i) {
+			Item* item = selected->get_item( i );
+			steam_items_.set_craft_item( i, item );
+		}
+		if (steam_items_.craft_items()) {
+			// Block access to inventory until we get a response.
+			const JUTIL::ConstantString CRAFT_PENDING( "Waiting for crafting response..." );
+			if (!view_->set_loading_notice( &CRAFT_PENDING )) {
+				stack->log( "Failed to create craft pending notice." );
+				return false;
+			}
+			pending_deletes_ = true;
+			return true;
+		}
+	}
+
+	// Create an alert here.
+	if (!view_->create_alert( &CRAFT_ERROR )) {
+		stack->log( "Failed to write craft error message." );
+		return false;
+	}
+	return true;
+}
+
+/*
+ * Handle item deletion.
+ */
+bool ItemManager::on_delete_item( void )
+{
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	const JUTIL::ConstantString DELETE_ERROR( "Failed to send delete message." );
+	DynamicSlotArray* selected = inventory_.get_selected_slots();
+	unsigned int count = selected->get_size();
+	if (count != 1) {
+		stack->log( "Attempting to delete more than one item." );
+		return false;
+	}
+	Item* item = selected->get_item( 0 );
+	if (!steam_items_.delete_item( item )) {
+		stack->log( "Failed to send item delete message." );
+		return false;
+	}
+
+	// Create pending message.
+	const JUTIL::ConstantString DELETE_PENDING( "Waiting for deletion response..." );
+	if (!view_->set_loading_notice( &DELETE_PENDING )) {
+		stack->log( "Failed to create delete pending notice." );
+		return false;
+	}
+	pending_deletes_ = true;
+	return true;
+}
+
+/*
+ * Handle item update event and trigger Steam message.
+ */
+bool ItemManager::on_item_moved( Item* item )
+{
+	if (!steam_items_.queue_item_update( item )) {
+		return false;
+	}
+	return true;
+}
+
+/*
+ * Handle selection set change.
+ */
+void ItemManager::on_selection_changed( void )
+{
+	view_->update_buttons_state();
+}
+
+/*
+ * Handle item creation event.
+ */
+bool ItemManager::on_item_created( Item* item )
+{
+	// Add item to inventory first.
+	if (!inventory_.add_item( item )) {
+		return false;
+	}
+
+	if (schema_.is_loaded()) {
+		// Resolve item definition.
+		if (!schema_.resolve( item, &graphics_ )) {
+			return false;
+		}
+
+		// Place into slot.
+		if (!inventory_.place_item( item )) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/*
+ * Handle item deletion event.
+ */
+void ItemManager::on_item_deleted( uint64 id )
+{
+	// Find item in inventory.
+	Item* item = inventory_.find_item( id );
+	if (item != nullptr) {
+		inventory_.delete_item( item );
+		steam_items_.remove_item_update( item );
+
+		// If selected items get emptied, re-enable inventory.
+		if (pending_deletes_) {
+			DynamicSlotArray* selected = inventory_.get_selected_slots();
+			if (selected->get_size() == 0) {
+				view_->destroy_loading_notice();
+				pending_deletes_ = false;
+			}
+		}
+	}
+}
+
+/*
+ * Handle item update event.
+ */
+bool ItemManager::on_item_updated( uint64 id, uint32 flags )
+{
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Find item in inventory.
+	Item* item = inventory_.find_item( id );
+	if (item == nullptr) {
+		stack->log( "Failed to find item to update." );
+		return false;
+	}
+	item->set_inventory_flags( flags );
+
+	// Displace and move to new spot.
+	inventory_.displace_item( item );
+	if (!inventory_.place_item( item )) {
+		stack->log( "Failed to place updated item." );
+		return false;
+	}
+	return true;
+}
+
+/*
+ * Handle craft failure event.
+ */
+void ItemManager::on_craft_failed( void )
+{
+	// Get rid of the pending craft notice.
+	if (pending_deletes_) {
+		view_->destroy_loading_notice();
+		pending_deletes_ = false;
+	}
+
+	// Post alert.
+	const JUTIL::ConstantString CRAFT_ERROR( "Ze item combination. It does nothing! Craft failed!" );
+	view_->create_alert( &CRAFT_ERROR );
+}
+
+/*
+ * Handle inventory size change event.
+ */
+bool ItemManager::on_inventory_resize( bool is_trial_account, uint32 extra_slots )
+{
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+    // Calculate number of slots to resize to.
+    unsigned int total_slots;
+    if (is_trial_account) {
+        // Should be no extra slots for trial accounts.
+        total_slots = TRIAL_SLOT_COUNT;
+    }
+    else {
+        total_slots = PREMIUM_SLOT_COUNT + extra_slots;
+    }
+	SlotArray* inventory = inventory_.get_inventory_slots();
+    if (total_slots < inventory->get_size()) {
+		stack->log( "New backpack is smaller than the old one." );
+        return false;
+    }
+
+    // Attempt to set inventory book size.
+    if (!inventory->set_size( total_slots )) {
+        return false;
+    }
+    return true;
+}
+
+/*
+ * Handle inventory reset.
+ */
+void ItemManager::on_inventory_reset( void )
+{
+	// TODO: tell view to drop selection from here.
+	inventory_.delete_items();
+}
+
+/*
  * Handle inventory load completion event.
  */
 bool ItemManager::on_inventory_loaded( void )
@@ -404,17 +665,6 @@ bool ItemManager::on_inventory_loaded( void )
 		return false;
 	}
 	set_think( &ItemManager::loading_schema );
-	return true;
-}
-
-/*
- * Handle item update event and trigger Steam message.
- */
-bool ItemManager::on_item_moved( Item* item )
-{
-	if (!steam_items_.queue_item_update( item )) {
-		return false;
-	}
 	return true;
 }
 
@@ -461,24 +711,4 @@ JUI::IOResult ItemManager::on_key_released( int key )
 		return result;
 	}
 	return JUI::IO_RESULT_UNHANDLED;
-}
-
-bool ItemManager::start_definition_load( void )
-{
-	// Set the message and redraw.
-    const JUTIL::ConstantString LOADING_DEFINITION_MESSAGE = "Loading item definitions...";
-    view_->set_loading_notice( &LOADING_DEFINITION_MESSAGE );
-
-	// Set up loader.
-    // TODO: Don't need to allocate this; can use the "done" flag in loader instead of checking pointer null.
-    if (!JUTIL::BaseAllocator::allocate( &definition_loader_ )) {
-        return false;
-    }
-    ItemSchema* schema = inventory_.get_schema();
-    NotificationQueue* notifications = view_->get_notification_queue();
-    definition_loader_ = new (definition_loader_) DefinitionLoader( &graphics_, schema, notifications );
-    if (!definition_loader_->begin()) {
-        return false;
-    }
-    return true;
 }

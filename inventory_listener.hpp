@@ -11,11 +11,9 @@ class InventoryListener
 	
 public:
 
-	// One time trigger for inventory load event.
-	virtual bool on_inventory_loaded( void ) = 0;
-
 	// Handle item position update.
 	virtual bool on_item_moved( Item* item ) = 0;
+	virtual void on_selection_changed( void ) = 0;
 
 };
 

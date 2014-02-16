@@ -24,6 +24,7 @@ public:
 
 	// Pending item update functions.
 	bool queue_item_update( const Item* item );
+	void remove_item_update( const Item* item );
 	bool submit_item_updates( void ) const;
 	unsigned int get_pending_updates( void ) const;
 

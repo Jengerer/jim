@@ -37,7 +37,7 @@ class ItemManagerView:
 
 public:
 
-    ItemManagerView( Inventory* inventory, InventoryActionInterface* action_interface );
+    ItemManagerView( Inventory* inventory, ItemSchema* schema );
     virtual ~ItemManagerView( void );
 
     // Listener pointer setting.
@@ -74,6 +74,7 @@ public:
 	virtual JUI::IOResult on_key_released( int key );
 
     // Button handling functions.
+	void update_buttons_state( void );
     virtual bool on_button_pressed( Button* button );
     virtual bool on_button_released( Button* button );
 
@@ -98,6 +99,7 @@ private:
 private:
 
     // Inventory to create view for.
+	ItemSchema* schema_; // TODO: Make schema singleton so we don't have to pass around.
     Inventory* inventory_;
 	InventoryActionInterface* action_interface_;
 
