@@ -51,71 +51,73 @@ const unsigned int FALLBACK_ITEM_CLASS_FLAGS = 0;
 const EItemSlot FALLBACK_ITEM_SLOT = ITEM_SLOT_NONE;
 
 // JSON parsing object names.
-const JUTIL::ConstantString RESULT_NAME = "result";
-const JUTIL::ConstantString ATTRIBUTES_NAME = "attributes";
-const JUTIL::ConstantString ITEMS_NAME = "items";
-const JUTIL::ConstantString QUALITIES_NAME = "qualities";
-const JUTIL::ConstantString QUALITYNAMES_NAME = "qualityNames";
-const JUTIL::ConstantString ORIGINNAMES_NAME = "originNames";
-const JUTIL::ConstantString ORIGIN_NAME = "origin";
-const JUTIL::ConstantString NAME_NAME = "name";
+const JUTIL::ConstantString RESULT_KEY = "result";
+const JUTIL::ConstantString ATTRIBUTES_KEY = "attributes";
+const JUTIL::ConstantString ITEMS_KEY = "items";
+const JUTIL::ConstantString QUALITIES_KEY = "qualities";
+const JUTIL::ConstantString QUALITY_NAMES_KEY = "qualityNames";
+const JUTIL::ConstantString ORIGIN_NAMES_KEY = "originNames";
+const JUTIL::ConstantString ORIGIN_INDEX_KEY = "origin";
+const JUTIL::ConstantString ORIGIN_NAME_KEY = "name";
+const JUTIL::ConstantString KILL_EATER_CLASS_KEY = "name";
 const JUTIL::ConstantString TYPE_NAME = "type";
-const JUTIL::ConstantString KILL_EATER_TYPE_NAME = "kill_eater_score_types";
-const JUTIL::ConstantString KILL_EATER_TYPE_DESCRIPTION_NAME = "type_name";
-const JUTIL::ConstantString KILL_EATER_TYPE_LEVEL_DATA_NAME = "level_data";
-const JUTIL::ConstantString KILL_EATER_RANKS_NAME = "item_levels";
-const JUTIL::ConstantString KILL_EATER_LEVELS_NAME = "levels";
-const JUTIL::ConstantString KILL_EATER_LEVEL_NAME = "level";
-const JUTIL::ConstantString KILL_EATER_SCORE_NAME = "required_score";
+const JUTIL::ConstantString KILL_EATER_TYPE_KEY = "kill_eater_score_types";
+const JUTIL::ConstantString KILL_EATER_TYPE_INDEX_KEY = "type";
+const JUTIL::ConstantString KILL_EATER_TYPE_NAME_KEY = "type_name";
+const JUTIL::ConstantString KILL_EATER_TYPE_LEVEL_DATA_KEY = "level_data";
+const JUTIL::ConstantString KILL_EATER_RANKS_KEY = "item_levels";
+const JUTIL::ConstantString KILL_EATER_LEVELS_KEY = "levels";
+const JUTIL::ConstantString KILL_EATER_LEVEL_KEY = "level";
+const JUTIL::ConstantString KILL_EATER_NAME_KEY = "name";
+const JUTIL::ConstantString KILL_EATER_SCORE_KEY = "required_score";
 
 // Attribute JSON members.
-const JUTIL::ConstantString ATTRIBUTE_NAME = "name";
-const JUTIL::ConstantString ATTRIBUTE_INDEX = "defindex";
-const JUTIL::ConstantString ATTRIBUTE_CLASS = "attribute_class";
-const JUTIL::ConstantString ATTRIBUTE_VALUE = "value";
-const JUTIL::ConstantString ATTRIBUTE_MIN_VALUE = "min_value";
-const JUTIL::ConstantString ATTRIBUTE_MAX_VALUE = "max_value";
-const JUTIL::ConstantString ATTRIBUTE_EFFECT_TYPE = "effect_type";
-const JUTIL::ConstantString ATTRIBUTE_IS_HIDDEN = "hidden";
-const JUTIL::ConstantString ATTRIBUTE_IS_INTEGER = "stored_as_integer";
-const JUTIL::ConstantString ATTRIBUTE_DESCRIPTION = "description_string";
-const JUTIL::ConstantString ATTRIBUTE_DESCRIPTION_FORMAT = "description_format";
+const JUTIL::ConstantString ATTRIBUTE_NAME_KEY = "name";
+const JUTIL::ConstantString ATTRIBUTE_INDEX_KEY = "defindex";
+const JUTIL::ConstantString ATTRIBUTE_CLASS_KEY = "attribute_class";
+const JUTIL::ConstantString ATTRIBUTE_VALUE_KEY = "value";
+const JUTIL::ConstantString ATTRIBUTE_MIN_VALUE_KEY = "min_value";
+const JUTIL::ConstantString ATTRIBUTE_MAX_VALUE_KEY = "max_value";
+const JUTIL::ConstantString ATTRIBUTE_EFFECT_TYPE_KEY = "effect_type";
+const JUTIL::ConstantString ATTRIBUTE_IS_HIDDEN_KEY = "hidden";
+const JUTIL::ConstantString ATTRIBUTE_IS_INTEGER_KEY = "stored_as_integer";
+const JUTIL::ConstantString ATTRIBUTE_DESCRIPTION_KEY = "description_string";
+const JUTIL::ConstantString ATTRIBUTE_DESCRIPTION_FORMAT_KEY = "description_format";
 
 // Item JSON members.
-const JUTIL::ConstantString ITEM_INDEX = "defindex";
-const JUTIL::ConstantString ITEM_NAME = "item_name";
-const JUTIL::ConstantString ITEM_IMAGE = "image_inventory";
-const JUTIL::ConstantString ITEM_IMAGE_OVERLAY = "image_inventory_overlay";
-const JUTIL::ConstantString ITEM_IMAGE_URL = "image_url";
-const JUTIL::ConstantString ITEM_SLOT = "item_slot";
-const JUTIL::ConstantString ITEM_CLASSES = "used_by_classes";
-const JUTIL::ConstantString ITEM_ATTRIBUTES = "attributes";
+const JUTIL::ConstantString ITEM_INDEX_KEY = "defindex";
+const JUTIL::ConstantString ITEM_NAME_KEY = "item_name";
+const JUTIL::ConstantString ITEM_IMAGE_KEY = "image_inventory";
+const JUTIL::ConstantString ITEM_IMAGE_OVERLAY_KEY = "image_inventory_overlay";
+const JUTIL::ConstantString ITEM_IMAGE_URL_KEY = "image_url";
+const JUTIL::ConstantString ITEM_SLOT_KEY = "item_slot";
+const JUTIL::ConstantString ITEM_CLASSES_KEY = "used_by_classes";
+const JUTIL::ConstantString ITEM_ATTRIBUTES_KEY = "attributes";
 
 // Tool JSON members
-const JUTIL::ConstantString ITEM_TOOL = "tool";
-const JUTIL::ConstantString ITEM_TOOL_TYPE = "type";
-const JUTIL::ConstantString ITEM_TOOL_USAGE_CAPABILITIES = "usage_capabilities";
-const JUTIL::ConstantString ITEM_TOOL_PAINTABLE = "paintable";
-const JUTIL::ConstantString ITEM_TOOL_PAINTABLE_TEAM_COLORS = "paintable_team_colors";	
-
-const JUTIL::ConstantString TOOL_TYPE_GIFT_NAME = "gift";
-const JUTIL::ConstantString TOOL_TYPE_DUEL_MINIGAME_NAME = "duel_minigame";
-const JUTIL::ConstantString TOOL_TYPE_NOISE_MAKER_NAME = "noise_maker";
-const JUTIL::ConstantString TOOL_TYPE_NAME_TAG_NAME = "name";
-const JUTIL::ConstantString TOOL_TYPE_KEY_NAME = "decoder_ring";
-const JUTIL::ConstantString TOOL_TYPE_CRATE_NAME = "";
-const JUTIL::ConstantString TOOL_TYPE_PAINT_CAN_NAME = "paint_can";
-const JUTIL::ConstantString TOOL_TYPE_DECAL_NAME = "customize_texture_item";
-const JUTIL::ConstantString TOOL_TYPE_GIFT_WRAP_NAME = "gift_wrap";
-const JUTIL::ConstantString TOOL_TYPE_WRAPPED_GIFT_NAME = "wrapped_gift";
-const JUTIL::ConstantString TOOL_TYPE_DESCRIPTION_TAG_NAME = "desc";
-const JUTIL::ConstantString TOOL_TYPE_BACKPACK_EXPANDER_NAME = "backpack_expander";
-const JUTIL::ConstantString TOOL_TYPE_WEDDING_RING_NAME = "wedding_ring";
-const JUTIL::ConstantString TOOL_TYPE_ACCOUNT_UPGRADE_NAME = "account_upgrade_to_premium";
-const JUTIL::ConstantString TOOL_TYPE_CLAIMCODE_NAME = "claimcode";
-const JUTIL::ConstantString TOOL_TYPE_STRANGE_PART_NAME = "strange_part";
-const JUTIL::ConstantString TOOL_TYPE_STRANGE_PART_RESTRICTION_NAME = "strange_part_restriction";
-const JUTIL::ConstantString TOOL_TYPE_SPELL_NAME = "apply_custom_attrib";
+const JUTIL::ConstantString ITEM_TOOL_KEY = "tool";
+const JUTIL::ConstantString ITEM_TOOL_TYPE_KEY = "type";
+const JUTIL::ConstantString ITEM_TOOL_USAGE_CAPABILITIES_KEY = "usage_capabilities";
+const JUTIL::ConstantString ITEM_TOOL_PAINTABLE_VALUE = "paintable";
+const JUTIL::ConstantString ITEM_TOOL_PAINTABLE_TEAM_COLORS_VALUE = "paintable_team_colors";	
+const JUTIL::ConstantString TOOL_TYPE_GIFT_VALUE = "gift";
+const JUTIL::ConstantString TOOL_TYPE_DUEL_MINIGAME_VALUE = "duel_minigame";
+const JUTIL::ConstantString TOOL_TYPE_NOISE_MAKER_VALUE = "noise_maker";
+const JUTIL::ConstantString TOOL_TYPE_NAME_TAG_VALUE = "name";
+const JUTIL::ConstantString TOOL_TYPE_KEY_VALUE = "decoder_ring";
+const JUTIL::ConstantString TOOL_TYPE_CRATE_VALUE = "";
+const JUTIL::ConstantString TOOL_TYPE_PAINT_CAN_VALUE = "paint_can";
+const JUTIL::ConstantString TOOL_TYPE_DECAL_VALUE = "customize_texture_item";
+const JUTIL::ConstantString TOOL_TYPE_GIFT_WRAP_VALUE = "gift_wrap";
+const JUTIL::ConstantString TOOL_TYPE_WRAPPED_GIFT_VALUE = "wrapped_gift";
+const JUTIL::ConstantString TOOL_TYPE_DESCRIPTION_TAG_VALUE = "desc";
+const JUTIL::ConstantString TOOL_TYPE_BACKPACK_EXPANDER_VALUE = "backpack_expander";
+const JUTIL::ConstantString TOOL_TYPE_WEDDING_RING_VALUE = "wedding_ring";
+const JUTIL::ConstantString TOOL_TYPE_ACCOUNT_UPGRADE_VALUE = "account_upgrade_to_premium";
+const JUTIL::ConstantString TOOL_TYPE_CLAIMCODE_VALUE = "claimcode";
+const JUTIL::ConstantString TOOL_TYPE_STRANGE_PART_VALUE = "strange_part";
+const JUTIL::ConstantString TOOL_TYPE_STRANGE_PART_RESTRICTION_VALUE = "strange_part_restriction";
+const JUTIL::ConstantString TOOL_TYPE_SPELL_VALUE = "apply_custom_attrib";
 
 /*
  * Get the member from a node if it exists.
@@ -239,24 +241,24 @@ bool DefinitionLoader::load()
     }
 
 	// Create tool map.
-	success = tools_.insert( &TOOL_TYPE_GIFT_NAME, TOOL_GIFT ) &&
-		tools_.insert( &TOOL_TYPE_DUEL_MINIGAME_NAME, TOOL_DUEL_MINIGAME ) &&
-		tools_.insert( &TOOL_TYPE_NOISE_MAKER_NAME, TOOL_NOISE_MAKER ) &&
-		tools_.insert( &TOOL_TYPE_NAME_TAG_NAME, TOOL_NAME_TAG ) &&
-		tools_.insert( &TOOL_TYPE_KEY_NAME, TOOL_KEY ) &&
-		tools_.insert( &TOOL_TYPE_CRATE_NAME, TOOL_CRATE ) &&
-		tools_.insert( &TOOL_TYPE_PAINT_CAN_NAME, TOOL_PAINT_CAN ) &&
-		tools_.insert( &TOOL_TYPE_DECAL_NAME, TOOL_DECAL ) &&
-		tools_.insert( &TOOL_TYPE_GIFT_WRAP_NAME, TOOL_GIFT_WRAP ) &&
-		tools_.insert( &TOOL_TYPE_WRAPPED_GIFT_NAME, TOOL_WRAPPED_GIFT ) &&
-		tools_.insert( &TOOL_TYPE_DESCRIPTION_TAG_NAME, TOOL_DESCRIPTION_TAG ) &&
-		tools_.insert( &TOOL_TYPE_BACKPACK_EXPANDER_NAME, TOOL_BACKPACK_EXPANDER ) &&
-		tools_.insert( &TOOL_TYPE_WEDDING_RING_NAME, TOOL_WEDDING_RING ) &&
-		tools_.insert( &TOOL_TYPE_ACCOUNT_UPGRADE_NAME, TOOL_ACCOUNT_UPGRADE ) &&
-		tools_.insert( &TOOL_TYPE_CLAIMCODE_NAME, TOOL_CLAIMCODE ) &&
-		tools_.insert( &TOOL_TYPE_STRANGE_PART_NAME, TOOL_STRANGE_PART ) &&
-		tools_.insert( &TOOL_TYPE_STRANGE_PART_RESTRICTION_NAME, TOOL_STRANGE_PART ) &&
-		tools_.insert( &TOOL_TYPE_SPELL_NAME, TOOL_SPELL );
+	success = tools_.insert( &TOOL_TYPE_GIFT_VALUE, TOOL_GIFT ) &&
+		tools_.insert( &TOOL_TYPE_DUEL_MINIGAME_VALUE, TOOL_DUEL_MINIGAME ) &&
+		tools_.insert( &TOOL_TYPE_NOISE_MAKER_VALUE, TOOL_NOISE_MAKER ) &&
+		tools_.insert( &TOOL_TYPE_NAME_TAG_VALUE, TOOL_NAME_TAG ) &&
+		tools_.insert( &TOOL_TYPE_KEY_VALUE, TOOL_KEY ) &&
+		tools_.insert( &TOOL_TYPE_CRATE_VALUE, TOOL_CRATE ) &&
+		tools_.insert( &TOOL_TYPE_PAINT_CAN_VALUE, TOOL_PAINT_CAN ) &&
+		tools_.insert( &TOOL_TYPE_DECAL_VALUE, TOOL_DECAL ) &&
+		tools_.insert( &TOOL_TYPE_GIFT_WRAP_VALUE, TOOL_GIFT_WRAP ) &&
+		tools_.insert( &TOOL_TYPE_WRAPPED_GIFT_VALUE, TOOL_WRAPPED_GIFT ) &&
+		tools_.insert( &TOOL_TYPE_DESCRIPTION_TAG_VALUE, TOOL_DESCRIPTION_TAG ) &&
+		tools_.insert( &TOOL_TYPE_BACKPACK_EXPANDER_VALUE, TOOL_BACKPACK_EXPANDER ) &&
+		tools_.insert( &TOOL_TYPE_WEDDING_RING_VALUE, TOOL_WEDDING_RING ) &&
+		tools_.insert( &TOOL_TYPE_ACCOUNT_UPGRADE_VALUE, TOOL_ACCOUNT_UPGRADE ) &&
+		tools_.insert( &TOOL_TYPE_CLAIMCODE_VALUE, TOOL_CLAIMCODE ) &&
+		tools_.insert( &TOOL_TYPE_STRANGE_PART_VALUE, TOOL_STRANGE_PART ) &&
+		tools_.insert( &TOOL_TYPE_STRANGE_PART_RESTRICTION_VALUE, TOOL_STRANGE_PART ) &&
+		tools_.insert( &TOOL_TYPE_SPELL_VALUE, TOOL_SPELL );
 
 	set_state( LOADING_STATE_DOWNLOAD_DEFINITIONS );
 
@@ -308,13 +310,105 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 
     // Get result.
     Json::Value* result;
-    Json::Value* attributes;
-    if (!get_member( &root_, &RESULT_NAME, &result ) || !get_member( result, &ATTRIBUTES_NAME, &attributes )) {
-        stack->log( "Failed to get result/attributes from definitions." );
+    if (!get_member( &root_, &RESULT_KEY, &result )) {
+        stack->log( "Failed to get result from definitions." );
         return false;
     }
 		
 	// Start loading attributes.
+	if (!load_attributes( result )) {
+		return false;
+	}
+
+	// Load quality names.
+	if (!load_qualities( result )) {
+		return false;
+	}
+
+	// Load origin names.
+	if (!load_origins( result )) {
+		return false;
+	}
+
+	// Load kill eater ranks.
+	if (!load_kill_eater_ranks( result )) {
+		return false;
+	}
+
+	// Load kill eater types.
+	if (!load_kill_eater_types( result )) {
+		return false;
+	}
+
+	// Load item definitions.
+	if (!load_items( result )) {
+		return false;
+	}
+
+    // Get fallback texture.
+    JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
+    if (!downloader->check_and_get( &FALLBACK_ITEM_TEXTURE, &FALLBACK_ITEM_TEXTURE_URL )) {
+        stack->log( "Failed to download fallback item texture!" );
+        return false;
+    }
+
+	// Create fallback definition.
+    JUI::FileTexture* unknown_item;
+    JUI::Graphics2D::ReturnStatus status;
+    status = graphics_->get_texture( &FALLBACK_ITEM_TEXTURE, &unknown_item );
+    if (status != JUI::Graphics2D::Success) {
+        stack->log( "Failed to load texture for fallback/unknown item.");
+	    return false;
+    }
+
+    // Create definition.
+    JUTIL::ConstantString* unknown_name;
+    if (!JUTIL::BaseAllocator::allocate( &unknown_name )) {
+        stack->log( "Failed to create fallback item definition.");
+        return false;
+    }
+    unknown_name = new (unknown_name) JUTIL::ConstantString( &FALLBACK_ITEM_NAME );
+    ItemDefinition* fallback;
+    if (!JUTIL::BaseAllocator::allocate( &fallback )) {
+        JUTIL::BaseAllocator::destroy( unknown_name );
+        stack->log( "Failed to create fallback item definition.");
+        return false;
+    }
+
+	// Make a copy of the fallback texture path to give this definition.
+	JUTIL::DynamicString fallback_image;
+	if (!fallback_image.copy( &FALLBACK_ITEM_TEXTURE )) {
+		JUTIL::BaseAllocator::allocate( &fallback );
+		stack->log( "Failed to make a copy of fallback image path.");
+		return false;
+	}
+	fallback = new (fallback) ItemDefinition(
+		unknown_name,
+		&fallback_image,
+		FALLBACK_ITEM_CLASS_FLAGS,
+		FALLBACK_ITEM_SLOT );
+    schema_->set_fallback_definition( fallback );
+
+    // Make sure item loading succeeded.
+	schema_->set_loaded( true );
+    return true;
+}
+
+/*
+ * Load the attribute definitions into the schema.
+ */
+bool DefinitionLoader::load_attributes( Json::Value* result )
+{
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get the attributes member.
+	Json::Value* attributes;
+	if (!get_member( result, &ATTRIBUTES_KEY, &attributes )) {
+		stack->log( "Failed to get attributes from definition." );
+		return false;
+	}
+
+	// Begin loading attributes.
 	size_t loaded_attribs = 0;
 	size_t num_attribs = attributes->size();
 	set_state( LOADING_STATE_LOADING_ATTRIBUTES );
@@ -335,19 +429,20 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         Json::Value* attribute_effect_type;
         Json::Value* attribute_is_hidden;
         Json::Value* attribute_is_integer;
-        bool success = get_member( &attribute, &ATTRIBUTE_NAME, &attribute_name ) &&
-            get_member( &attribute, &ATTRIBUTE_INDEX, &attribute_index ) &&
-            get_member( &attribute, &ATTRIBUTE_CLASS, &attribute_class ) &&
-            get_member( &attribute, &ATTRIBUTE_EFFECT_TYPE, &attribute_effect_type ) &&
-            get_member( &attribute, &ATTRIBUTE_IS_HIDDEN, &attribute_is_hidden ) &&
-            get_member( &attribute, &ATTRIBUTE_IS_INTEGER, &attribute_is_integer );
+        bool success = get_member( &attribute, &ATTRIBUTE_NAME_KEY, &attribute_name ) &&
+            get_member( &attribute, &ATTRIBUTE_INDEX_KEY, &attribute_index ) &&
+            get_member( &attribute, &ATTRIBUTE_CLASS_KEY, &attribute_class ) &&
+            get_member( &attribute, &ATTRIBUTE_EFFECT_TYPE_KEY, &attribute_effect_type ) &&
+            get_member( &attribute, &ATTRIBUTE_IS_HIDDEN_KEY, &attribute_is_hidden ) &&
+            get_member( &attribute, &ATTRIBUTE_IS_INTEGER_KEY, &attribute_is_integer );
         if (!success) {
             stack->log( "Unexpected attribute format found." );
             return false;
         }
 
-		get_member( &attribute, &ATTRIBUTE_MIN_VALUE, &attribute_min_value );
-        get_member( &attribute, &ATTRIBUTE_MAX_VALUE, &attribute_max_value );
+		// TODO: These don't seem required anymore, maybe default to 0.0f.
+		get_member( &attribute, &ATTRIBUTE_MIN_VALUE_KEY, &attribute_min_value );
+        get_member( &attribute, &ATTRIBUTE_MAX_VALUE_KEY, &attribute_max_value );
 
 		// Get effect type, third char is different for each time.
         const JUTIL::ConstantString effect_string = attribute_effect_type->asCString();
@@ -395,8 +490,10 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 
         // Get rest of parameters and create information object.
         unsigned int index = attribute_index->asUInt();
-        float min_value = 0;//attribute_min_value->asFloat();
-        float max_value = 0;//attribute_max_value->asFloat();
+
+		// Min/max values removed since was inconsistent in schema.
+        float min_value = 0; // attribute_min_value->asFloat();
+        float max_value = 0;// attribute_max_value->asFloat();
         bool is_hidden = attribute_is_hidden->asBool();
         bool is_integer = attribute_is_integer->asBool();
 
@@ -419,8 +516,8 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		// Check for optional members.
         Json::Value* attribute_description;
         Json::Value* attribute_format;
-        bool has_description = get_member( &attribute, &ATTRIBUTE_DESCRIPTION, &attribute_description ) &&
-            get_member( &attribute, &ATTRIBUTE_DESCRIPTION_FORMAT, &attribute_format );
+        bool has_description = get_member( &attribute, &ATTRIBUTE_DESCRIPTION_KEY, &attribute_description ) &&
+            get_member( &attribute, &ATTRIBUTE_DESCRIPTION_FORMAT_KEY, &attribute_format );
         if (has_description) {
             JUTIL::DynamicString* description;
             JUTIL::DynamicString* format;
@@ -439,7 +536,6 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 
             // Set description and update.
             attrib_info->set_description( description, format );
-
             bool success = description->write( "%s", attribute_description->asCString() ) &&
                 format->write( "%s", attribute_format->asCString() );
             if (!success) {
@@ -463,281 +559,313 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		loaded_attribs++;
 		set_progress( loaded_attribs, num_attribs );
 	}
-	
-	//load quality names
+
+	return true;
+}
+
+/*
+ * Load the quality names/indices into the schema.
+ */
+bool DefinitionLoader::load_qualities( Json::Value* result )
+{
+	// Error stack for reporting.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get qualities from result.
 	Json::Value* qualities;
 	Json::Value* quality_names;
-	if (!get_member( result, &QUALITIES_NAME, &qualities )) {
+	if (!get_member( result, &QUALITIES_KEY, &qualities )) {
 		stack->log( "Failed to find qualities in definitions." );
 		return false;
 	}
-	if (!get_member( result, &QUALITYNAMES_NAME, &quality_names )) {
+	if (!get_member( result, &QUALITY_NAMES_KEY, &quality_names )) {
 		stack->log( "Failed to find quality names in definitions." );
 		return false;
 	}
-	for (Json::ValueIterator q_index = qualities->begin(); q_index != qualities->end(); ++q_index) {
-		const JUTIL::ConstantString quality_index_desc = q_index.memberName();
-		for(Json::ValueIterator q_name = quality_names->begin(); q_name != quality_names->end(); ++q_name) {
-			const JUTIL::ConstantString quality_name_desc = q_name.memberName();
-			if(quality_index_desc.is_equal( &quality_name_desc )) {
-				// Allocate new name string.
-				JUTIL::DynamicString* quality_name_string;
-				if (!JUTIL::BaseAllocator::allocate( &quality_name_string )) {
-					return false;
-				}
-				quality_name_string = new (quality_name_string) JUTIL::DynamicString();
-				if (!quality_name_string->write( "%s", (*q_name).asCString() )) {
-					JUTIL::BaseAllocator::destroy( quality_name_string );
-					return false;
-				}
-				if (!schema_->add_quality_name( (*q_index).asUInt(), quality_name_string )) {
-					JUTIL::BaseAllocator::destroy( quality_name_string );
-					stack->log( "Failed to add quality to schema.");
-					return false;
-				}
-			}
+
+	// Go through each quality and map the index to its full name.
+	for (Json::ValueIterator i = qualities->begin(); i != qualities->end(); ++i) {
+		// Get the token for the quality index entry.
+		const JUTIL::ConstantString quality_token = i.memberName();
+		unsigned int index = (*i).asUInt();
+
+		// Find the matching quality string.
+		Json::Value* quality_name;
+		if (!get_member( quality_names, &quality_token, &quality_name )) {
+			stack->log( "Failed to find matching quality name for index." );
+			return false;
+		}
+
+		// Insert mapping for index to name.
+		JUTIL::DynamicString* name;
+		if (!JUTIL::BaseAllocator::allocate( &name )) {
+			stack->log( "Failed to allocate string to store quality name." );
+			return false;
+		}
+		new (name) JUTIL::DynamicString();
+		if (!name->write( "%s", quality_name->asCString() )) {
+			JUTIL::BaseAllocator::destroy( name );
+			stack->log( "Failed to write quality name to string." );
+			return false;
+		}
+		if (!schema_->add_quality_name( index, name )) {
+			JUTIL::BaseAllocator::destroy( name );
+			stack->log( "Failed to add quality to schema.");
+			return false;
 		}
 	}
+	return true;
+}
 
-	// Load origins.
+/*
+ * Load the origin names into the schema.
+ */
+bool DefinitionLoader::load_origins( Json::Value* result )
+{
+	// Stack for reporting errors.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get the origins member.
 	Json::Value* origins;
-	if(!get_member( result, &ORIGINNAMES_NAME, &origins )) {
+	if (!get_member( result, &ORIGIN_NAMES_KEY, &origins )) {
 		stack->log( "Failed to find origins in definitions." );
 		return false;
 	}
+
+	// Go through each origin and add to schema.
 	for (Json::ValueIterator o = origins->begin(); o != origins->end(); ++o) {
 		Json::Value& origin = *o;
 		Json::Value* origin_index;
 		Json::Value* origin_name;
 
-		if (!get_member( &origin, &ORIGIN_NAME, &origin_index )) {
+		// Get index and name.
+		if (!get_member( &origin, &ORIGIN_INDEX_KEY, &origin_index )) {
 			stack->log( "Failed to find origin index in definitions." );
 			return false;
 		}
-		if (!get_member( &origin, &NAME_NAME, &origin_name )) {
+		if (!get_member( &origin, &ORIGIN_NAME_KEY, &origin_name )) {
 			stack->log( "Failed to find origin index in definitions." );
 			return false;
 		}
+		unsigned int index = (*origin_index).asUInt();
 
 		// Allocate new name string.
         JUTIL::DynamicString* origin_name_string;
         if (!JUTIL::BaseAllocator::allocate( &origin_name_string )) {
+			stack->log( "Failed to allocate origin name string." );
             return false;
         }
         origin_name_string = new (origin_name_string) JUTIL::DynamicString();
 		if (!origin_name_string->write( "%s", origin_name->asCString() )) {
 			JUTIL::BaseAllocator::destroy( origin_name_string );
+			stack->log( "Failed to write copy of origin name." );
 			return false;
 		}
-		if (!schema_->add_origin_name( origin_index->asUInt(), origin_name_string )) {
+		if (!schema_->add_origin_name( index, origin_name_string )) {
             JUTIL::BaseAllocator::destroy( origin_name_string );
             stack->log( "Failed to add origin to schema.");
             return false;
         }
 	}
 
-	// Load strange text.
-	Json::Value* kill_eater_ranks;
-	if(!get_member( result, &KILL_EATER_RANKS_NAME, &kill_eater_ranks )) {
+	return true;
+}
+
+/*
+ * Load the kill eater ranks into the schema.
+ */
+bool DefinitionLoader::load_kill_eater_ranks( Json::Value* result )
+{
+	// Stack for reporting errors.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get the item levels element.
+	Json::Value* ranks;
+	if(!get_member( result, &KILL_EATER_RANKS_KEY, &ranks )) {
 		stack->log( "Failed to find strange index in definitions." );
 		return false;
 	}
-	for (Json::ValueIterator k = kill_eater_ranks->begin(); k != kill_eater_ranks->end(); ++k) {
-		Json::Value& kill_eater_rank = *k;
-		Json::Value* kill_eater_rank_name;
-		Json::Value* kill_eater_levels;
 
-		if (!get_member( &kill_eater_rank, &NAME_NAME, &kill_eater_rank_name )) {
+	// Go through each kill eater class.
+	for (Json::ValueIterator k = ranks->begin(); k != ranks->end(); ++k) {
+		Json::Value& rank = *k;
+		Json::Value* class_name;
+		Json::Value* levels;
+
+		// Get the class name and get its levels.
+		if (!get_member( &rank, &KILL_EATER_CLASS_KEY, &class_name )) {
 			stack->log( "Failed to find strange index in definitions." );
 			return false;
 		}
-		if (!get_member( &kill_eater_rank, &KILL_EATER_LEVELS_NAME, &kill_eater_levels )) {
+		if (!get_member( &rank, &KILL_EATER_LEVELS_KEY, &levels )) {
 			stack->log( "Failed to find strange index in definitions." );
 			return false;
 		}
 
-		JUTIL::DynamicString kill_eater_rank_name_string;
-		if (!kill_eater_rank_name_string.write( "%s", kill_eater_rank_name->asCString() )) {
-			return false;
-		}
+		// Get the rank name.
+		JUTIL::ConstantString rank_name = class_name->asCString();
 
 		// Allocate information object.
-		KillEaterRank* kill_eater_rank_info;
-        if (!JUTIL::BaseAllocator::allocate( &kill_eater_rank_info )) {
+		KillEaterRanks* rank_info;
+        if (!JUTIL::BaseAllocator::allocate( &rank_info )) {
+			stack->log( "Failed to allocate kill eater rank object." );
             return false;
         }
-		kill_eater_rank_info = new (kill_eater_rank_info) KillEaterRank();
+		new (rank_info) KillEaterRanks();
 
-		for (Json::ValueIterator l = kill_eater_levels->begin(); l != kill_eater_levels->end(); ++l) {
+		// Go through each level and add to this class.
+		for (Json::ValueIterator l = levels->begin(); l != levels->end(); ++l) {
 			Json::Value& kill_eater_level = *l;
-			Json::Value* kill_eater_level_level;
-			Json::Value* kill_eater_level_score;
-			Json::Value* kill_eater_level_prefix;
+			Json::Value* level_index;
+			Json::Value* level_score;
+			Json::Value* level_prefix;
 
-			if(!get_member( &kill_eater_level, &KILL_EATER_LEVEL_NAME, &kill_eater_level_level )) {
-				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+			// Get the level, minimum score, and name.
+			bool success = get_member( &kill_eater_level, &KILL_EATER_LEVEL_KEY, &level_index ) &&
+				get_member( &kill_eater_level, &KILL_EATER_SCORE_KEY, &level_score ) &&
+				get_member( &kill_eater_level, &KILL_EATER_NAME_KEY, &level_prefix );
+			if (!success) {
+				stack->log( "Failed to get kill eater level members." );
+				JUTIL::BaseAllocator::destroy( rank_info );
 				return false;
 			}
 
-			if(!get_member( &kill_eater_level, &KILL_EATER_SCORE_NAME, &kill_eater_level_score )) {
-				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
-				return false;
-			}
-
-			if(!get_member( &kill_eater_level, &NAME_NAME, &kill_eater_level_prefix )) {
-				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
-				return false;
-			}
-
-			
 			// Allocate new prefix string.
-			JUTIL::DynamicString* kill_eater_level_prefix_string;
-			if (!JUTIL::BaseAllocator::allocate( &kill_eater_level_prefix_string )) {
-				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+			JUTIL::DynamicString* prefix;
+			if (!JUTIL::BaseAllocator::allocate( &prefix )) {
+				JUTIL::BaseAllocator::destroy( rank_info );
+				stack->log( "Failed to allocate level prefix string." );
 				return false;
 			}
-			kill_eater_level_prefix_string = new (kill_eater_level_prefix_string) JUTIL::DynamicString();
-			if (!kill_eater_level_prefix_string->write( "%s", kill_eater_level_prefix->asCString() )) {
-				JUTIL::BaseAllocator::destroy( kill_eater_level_prefix_string );
-				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+			new (prefix) JUTIL::DynamicString();
+			if (!prefix->write( "%s", level_prefix->asCString() )) {
+				JUTIL::BaseAllocator::destroy( prefix );
+				JUTIL::BaseAllocator::destroy( rank_info );
+				stack->log( "Failed to write level prefix." );
 				return false;
 			}
 
-			KillEaterLevel* kill_eater_level_info;
-			if (!JUTIL::BaseAllocator::allocate( &kill_eater_level_info )) {
-				JUTIL::BaseAllocator::destroy( kill_eater_level_prefix_string );
-				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+			// Create an object for this level.
+			unsigned int score = level_score->asUInt();
+			KillEaterLevel* level_info;
+			if (!JUTIL::BaseAllocator::allocate( &level_info )) {
+				JUTIL::BaseAllocator::destroy( prefix  );
+				JUTIL::BaseAllocator::destroy( rank_info );
+				stack->log( "Failed to allocate kill eater level object." );
 				return false;
 			}
-			kill_eater_level_info = new (kill_eater_level_info) KillEaterLevel(
-				kill_eater_level_score->asUInt(), kill_eater_level_prefix_string );
-
-			if(!kill_eater_rank_info->add_level( kill_eater_level_info )) {
-				JUTIL::BaseAllocator::destroy( kill_eater_level_info );
-				JUTIL::BaseAllocator::destroy( kill_eater_level_prefix_string );
-				JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
+			new (level_info) KillEaterLevel( score, prefix );
+			if (!rank_info->add_level( level_info )) {
+				JUTIL::BaseAllocator::destroy( level_info );
+				JUTIL::BaseAllocator::destroy( rank_info );
+				stack->log( "Failed to add kill eater level object to rank." );
+				return false;
 			}
 		}
 
-		if (!schema_->add_kill_eater_rank( &kill_eater_rank_name_string, kill_eater_rank_info )) {
-            JUTIL::BaseAllocator::destroy( kill_eater_rank_info );
-            stack->log( "Failed to add strange text to schema.");
+		// Add this rank to the schema.
+		if (!schema_->add_kill_eater_ranks( &rank_name, rank_info )) {
+            JUTIL::BaseAllocator::destroy( rank_info );
+            stack->log( "Failed to add strange rank class to schema.");
             return false;
         }
 	}
 
-	Json::Value* kill_eater_types;
-	if(!get_member( result, &KILL_EATER_TYPE_NAME, &kill_eater_types )) {
+	return true;
+}
+
+/*
+ * Load the kill eater types into the schema.
+ */
+bool DefinitionLoader::load_kill_eater_types( Json::Value* result )
+{
+	// Stack for reporting errors.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get the types from the schema.
+	Json::Value* types;
+	if(!get_member( result, &KILL_EATER_TYPE_KEY, &types )) {
 		stack->log( "Failed to find strange index in definitions." );
 		return false;
 	}
-	for (Json::ValueIterator t = kill_eater_types->begin(); t != kill_eater_types->end(); ++t) {
-		Json::Value& kill_eater_type = *t;
-		Json::Value* kill_eater_type_value;
-		Json::Value* kill_eater_type_description;
-		Json::Value* kill_eater_type_level_data;
+	for (Json::ValueIterator t = types->begin(); t != types->end(); ++t) {
+		Json::Value& type = *t;
+		Json::Value* type_index;
+		Json::Value* type_name;
+		Json::Value* type_level_class;
 
-		if(!get_member( &kill_eater_type, &TYPE_NAME, &kill_eater_type_value )) {
+		// Get the type name, description, and level type.
+		if (!get_member( &type, &KILL_EATER_TYPE_INDEX_KEY, &type_index )) {
 			stack->log( "Failed to find strange index in definitions." );
 			return false;
 		}
-		if(!get_member( &kill_eater_type, &KILL_EATER_TYPE_DESCRIPTION_NAME, &kill_eater_type_description )) {
+		if (!get_member( &type, &KILL_EATER_TYPE_NAME_KEY, &type_name )) {
 			stack->log( "Failed to find strange index in definitions." );
 			return false;
 		}
-		if(!get_member( &kill_eater_type, &KILL_EATER_TYPE_LEVEL_DATA_NAME, &kill_eater_type_level_data )) {
+		if (!get_member( &type, &KILL_EATER_TYPE_LEVEL_DATA_KEY, &type_level_class )) {
 			stack->log( "Failed to find strange index in definitions." );
 			return false;
 		}
 
-		JUTIL::DynamicString kill_eater_type_level_data_string;
-		if (!kill_eater_type_level_data_string.write( "%s", kill_eater_type_level_data->asCString() )) {
-			return false;
-		}
-
-		const KillEaterRank* kill_eater_rank_match = schema_->get_kill_eater_rank( &kill_eater_type_level_data_string );
-		if(kill_eater_rank_match == nullptr){
+		// Write the level data to a string.
+		const JUTIL::ConstantString level_class = type_level_class->asCString();
+		
+		// Find the rank by name.
+		const KillEaterRanks* ranks = schema_->get_kill_eater_ranks( &level_class );
+		if (ranks == nullptr) {
 			stack->log( "Failed to match strange text in definitions." );
 			return false;
 		}
 
 		// Allocate new description string.
-		JUTIL::DynamicString* kill_eater_type_description_string;
-		if (!JUTIL::BaseAllocator::allocate( &kill_eater_type_description_string )) {
+		JUTIL::DynamicString* name;
+		if (!JUTIL::BaseAllocator::allocate( &name )) {
+			stack->log( "Failed to allocate kill eater type name string." );
 			return false;
 		}
-		kill_eater_type_description_string = new (kill_eater_type_description_string) JUTIL::DynamicString();
-		if (!kill_eater_type_description_string->write( "%s", kill_eater_type_description->asCString() )) {
-			JUTIL::BaseAllocator::destroy( kill_eater_type_description_string );
+		new (name) JUTIL::DynamicString();
+		if (!name->write( "%s", type_name->asCString() )) {
+			JUTIL::BaseAllocator::destroy( name );
+			stack->log( "Failed to write kill eater type name to string." );
 			return false;
 		}
 
 		// Allocate information object.
-		KillEaterType* kill_eater_type_info;
-        if (!JUTIL::BaseAllocator::allocate( &kill_eater_type_info )) {
-			JUTIL::BaseAllocator::destroy( kill_eater_type_description_string );
+		KillEaterType* kill_eater_type;
+        if (!JUTIL::BaseAllocator::allocate( &kill_eater_type )) {
+			JUTIL::BaseAllocator::destroy( name );
+			stack->log( "Failed to create kill eater type object." );
             return false;
         }
-		kill_eater_type_info = new (kill_eater_type_info) KillEaterType( kill_eater_type_description_string, kill_eater_rank_match );
+		new (kill_eater_type) KillEaterType( name, ranks );
 
-		if (!schema_->add_kill_eater_type( kill_eater_type_value->asUInt(), kill_eater_type_info )) {
-            JUTIL::BaseAllocator::destroy( kill_eater_type_info );
-			JUTIL::BaseAllocator::destroy( kill_eater_type_description_string );
-            stack->log( "Failed to add strange text to schema.");
+		// Add to the schema.
+		unsigned int index = type_index->asUInt();
+		if (!schema_->add_kill_eater_type( index, kill_eater_type )) {
+            JUTIL::BaseAllocator::destroy( kill_eater_type );
+            stack->log( "Failed to add kill eater type to schema.");
             return false;
         }
-
-		
 	}
+
+	return true;
+}
+
+/*
+ * Load item definitions into the schema.
+ */
+bool DefinitionLoader::load_items( Json::Value* result )
+{
+	// Stack for reporting errors.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
 	// Get item member.
     Json::Value* items;
-    if (!get_member( result, &ITEMS_NAME, &items )) {
+    if (!get_member( result, &ITEMS_KEY, &items )) {
         stack->log( "Failed to find item object in definitions.");
         return false;
     }
-
-    // Get fallback texture.
-    JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
-    if (!downloader->check_and_get( &FALLBACK_ITEM_TEXTURE, &FALLBACK_ITEM_TEXTURE_URL )) {
-        stack->log( "Failed to download fallback item texture!" );
-        return false;
-    }
-
-	// Create fallback definition.
-    JUI::FileTexture* unknown_item;
-    JUI::Graphics2D::ReturnStatus status;
-    status = graphics_->get_texture( &FALLBACK_ITEM_TEXTURE, &unknown_item );
-    if (status != JUI::Graphics2D::Success) {
-        stack->log( "Failed to load texture for fallback/unknown item.");
-	    return false;
-    }
-
-    // Create definition.
-    JUTIL::ConstantString* unknown_name;
-    if (!JUTIL::BaseAllocator::allocate( &unknown_name )) {
-        stack->log( "Failed to create fallback item definition.");
-        return false;
-    }
-    unknown_name = new (unknown_name) JUTIL::ConstantString( &FALLBACK_ITEM_NAME );
-    ItemDefinition* fallback;
-    if (!JUTIL::BaseAllocator::allocate( &fallback )) {
-        JUTIL::BaseAllocator::destroy( unknown_name );
-        stack->log( "Failed to create fallback item definition.");
-        return false;
-    }
-	JUTIL::DynamicString temp;
-	temp.write("%s", FALLBACK_ITEM_TEXTURE);
-	fallback = new (fallback) ItemDefinition(
-		unknown_name,
-		&temp,
-		FALLBACK_ITEM_CLASS_FLAGS,
-		FALLBACK_ITEM_SLOT );
-	fallback->load_texture( graphics_, unknown_item );
-    schema_->set_fallback_definition( fallback );
-
-    // Strings for parsing.
-    JUTIL::DynamicString* name = nullptr;
 
 	// Start loading items.
 	bool success = true;
@@ -747,17 +875,16 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 	for (Json::ValueIterator i = items->begin(); i != items->end(); ++i) {
 		// Return if we're exiting.
 		if (should_stop_) {
-			success = false;
-            break;
+			return false;
 		}
 
         // Allocate strings for parsing.
+		JUTIL::DynamicString* name;
         if (!JUTIL::BaseAllocator::allocate( &name )) {
             stack->log( "Failed to allocate string for item name." );
-            success = false;
-            break;
+			return false;
         }
-        name = new (name) JUTIL::DynamicString();
+        new (name) JUTIL::DynamicString();
 
         // Image and URL strings.
         JUTIL::DynamicString image;
@@ -766,9 +893,8 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
         // Load item.
 		Json::Value* item = &(*i);
         if (!load_item( item, name, &image, &image_url )) {
-            success = false;
             JUTIL::BaseAllocator::destroy( name );
-            break;
+			return false;
         }
 
 		// Update progress.
@@ -776,12 +902,7 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		set_progress( loaded_items, num_items );
 	}
 
-    // Make sure item loading succeeded.
-    if (!success) {
-        return false;
-    }
-	schema_->set_loaded( true );
-    return true;
+	return true;
 }
 
 /*
@@ -804,7 +925,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
     // Get all necessary attributes.
     Json::Value* item_index;
     Json::Value* item_name;
-    if (!get_member( item, &ITEM_INDEX, &item_index ) || !get_member( item, &ITEM_NAME, &item_name )) {
+    if (!get_member( item, &ITEM_INDEX_KEY, &item_index ) || !get_member( item, &ITEM_NAME_KEY, &item_name )) {
         stack->log( "Improper format for item in definitions.");
         return false;
     }
@@ -820,7 +941,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
     bool use_fallback = true;
     Json::Value* item_image;
     Json::Value* item_image_url;
-    if (get_member( item, &ITEM_IMAGE, &item_image ) && get_member( item, &ITEM_IMAGE_URL, &item_image_url)) {
+    if (get_member( item, &ITEM_IMAGE_KEY, &item_image ) && get_member( item, &ITEM_IMAGE_URL_KEY, &item_image_url)) {
         // Write image file.
         const JUTIL::ConstantString IMAGE = item_image->asCString();
         const JUTIL::ConstantString IMAGE_URL = item_image_url->asCString();
@@ -829,7 +950,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
 		        stack->log( "Failed to write image path for item definition." );
 		        return false;
 	        }
-	        else if (!image_url->write( IMAGE_URL.get_string() )) {
+	        else if (!image_url->copy( &IMAGE_URL )) {
                 stack->log( "Failed to create image or URL string for item definition." );
                 return false;
             }
@@ -853,7 +974,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
     // Load item slots.
     Json::Value* item_slot;
     EItemSlot slot = ITEM_SLOT_NONE;
-    if (get_member( item, &ITEM_SLOT, &item_slot )) {
+    if (get_member( item, &ITEM_SLOT_KEY, &item_slot )) {
         const JUTIL::ConstantString slot_name = item_slot->asCString();
         if (!slots_.get( &slot_name, &slot )) {
             stack->log( "Unknown slot type found in definitions.");
@@ -864,7 +985,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
 	// Get classes, if they exist.
     Json::Value* item_classes;
 	unsigned int classes = INVENTORY_CLASS_ALL;
-    if (get_member( item, &ITEM_CLASSES, &item_classes )) {
+    if (get_member( item, &ITEM_CLASSES_KEY, &item_classes )) {
         size_t i;
         size_t length = item_classes->size();
         for (i = 0; i < length; ++i) {
@@ -898,8 +1019,8 @@ bool DefinitionLoader::load_item( Json::Value* item,
 	// Load tool info and alternate textures
 	Json::Value* tool;
 	Json::Value* tool_type;
-	if (get_member( item, &ITEM_TOOL, &tool )) {
-		if (get_member( tool, &ITEM_TOOL_TYPE, &tool_type )) {
+	if (get_member( item, &ITEM_TOOL_KEY, &tool )) {
+		if (get_member( tool, &ITEM_TOOL_TYPE_KEY, &tool_type )) {
 			JUTIL::ConstantString tool_type_name = tool_type->asCString();
 			EItemToolType tool_type_value;
 			if (tools_.get( &tool_type_name, &tool_type_value )) {
@@ -910,7 +1031,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
 
 	// Now add attributes, if they exist.
     Json::Value* item_attributes;
-    if (get_member( item, &ITEM_ATTRIBUTES, &item_attributes )) {
+    if (get_member( item, &ITEM_ATTRIBUTES_KEY, &item_attributes )) {
         // Iterate through all attributes.
 		for (Json::ValueIterator j = item_attributes->begin(); j != item_attributes->end(); ++j) {
 			Json::Value* attribute = &(*j);
@@ -949,11 +1070,11 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemDefiniti
     // Get attribute name.
     Json::Value* attribute_name;
     Json::Value* attribute_value;
-    if (!get_member( attribute, &ATTRIBUTE_NAME, &attribute_name )) {
+    if (!get_member( attribute, &ATTRIBUTE_NAME_KEY, &attribute_name )) {
         stack->log( "Failed to get name from attribute definition.");
         return false;
     }
-    else if (!get_member( attribute, &ATTRIBUTE_VALUE, &attribute_value )) {
+    else if (!get_member( attribute, &ATTRIBUTE_VALUE_KEY, &attribute_value )) {
         stack->log( "Failed to get value from attribute definition.");
         return false;
     }

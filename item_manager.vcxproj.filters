@@ -158,9 +158,6 @@
     <ClCompile Include="kill_eater_level.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
-    <ClCompile Include="kill_eater_rank.cpp">
-      <Filter>source\items</Filter>
-    </ClCompile>
     <ClCompile Include="dynamic_slot_array.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
@@ -169,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="item_decorator.cpp">
       <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="kill_eater_ranks.cpp">
+      <Filter>source\items</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -277,9 +277,6 @@
     <ClInclude Include="kill_eater_level.hpp">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="kill_eater_rank.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="kill_eater_type.hpp">
       <Filter>headers</Filter>
     </ClInclude>
@@ -344,6 +341,9 @@
       <Filter>headers\items</Filter>
     </ClInclude>
     <ClInclude Include="item_decorator.hpp">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="kill_eater_ranks.hpp">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

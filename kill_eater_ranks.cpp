@@ -1,17 +1,17 @@
-#include "kill_eater_rank.hpp"
+#include "kill_eater_ranks.hpp"
 #include "steam/SteamTypes.h"
 
 /*
  * Constructor for storing item information by item parameters.
  */
-KillEaterRank::KillEaterRank( void )
+KillEaterRanks::KillEaterRanks( void )
 {
 }
 
 /*
  * Item information destructor.
  */
-KillEaterRank::~KillEaterRank( void )
+KillEaterRanks::~KillEaterRanks( void )
 {
 	size_t i;
     size_t length = levels_.get_length();
@@ -22,28 +22,41 @@ KillEaterRank::~KillEaterRank( void )
     levels_.clear();
 }
 
-bool KillEaterRank::add_level( KillEaterLevel* level )
+/*
+ * Add a level to this rank type.
+ */
+bool KillEaterRanks::add_level( KillEaterLevel* level )
 {
 	return levels_.push( level );
 }
 
-size_t KillEaterRank::get_level_count( void ) const
+/*
+ * Get number of levels in this rank type.
+ */
+size_t KillEaterRanks::get_level_count( void ) const
 {
 	return levels_.get_length();
 }
 
-const KillEaterLevel* KillEaterRank::get_level( size_t index ) const
+/*
+ * Get level by index.
+ */
+const KillEaterLevel* KillEaterRanks::get_level( size_t index ) const
 {
 	return levels_.at( index );
 }
 
-const KillEaterLevel* KillEaterRank::find_level( uint32 score ) const
+/*
+ * Find a level by a given score.
+ */
+const KillEaterLevel* KillEaterRanks::find_level( uint32 score ) const
 {
     size_t i;
     size_t length = get_level_count();
     for (i = 0; i < length; ++i) {
         const KillEaterLevel* level = get_level( i );
-		if(score < level->get_score()){
+		// TODO: is this right? Seems like we're getting the next level.
+		if (score < level->get_score()){
 			return level;
 		}
 	}
