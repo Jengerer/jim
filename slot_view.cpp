@@ -84,12 +84,20 @@ bool SlotView::initialize( void )
  */
 void SlotView::update( const Slot* slot )
 {
-	// Update item-dependent slot parameters.
-	Item* item = slot->get_item();
+	// Can be a null slot in dynamic case; just show an empty normal slot.
+	Item* item;
+	if (slot == nullptr) {
+		item = nullptr;
+		update_item( item );
+	}
+	else {
+		// Update item-dependent slot parameters.
+		item = slot->get_item();
+	}
 	update_item( item );
 
 	// Handle selection state.
-	if (!slot->is_enabled()) {
+	if ((slot == nullptr) || !slot->is_enabled()) {
 		set_alpha( SLOT_DISABLED_ALPHA );
 	}
 	else {
