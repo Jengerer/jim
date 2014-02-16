@@ -372,7 +372,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 			break;
 		}
 
-	case 27:
+	case k_ESOMsg_CacheSubscriptionCheck:
 		{
 			CMsgSOCacheSubscriptionCheck check;
 			if (!check.ParseFromArray( message, size )) {
@@ -389,10 +389,16 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 				CMsgSOCacheSubscriptionRefresh refresh;
 				refresh.set_owner( get_steam_id() );
 
-                // TODO: How do we serialize without string?
-                // TODO: Magic numbers YOLO.
-				std::string refreshString = refresh.SerializeAsString();
-				if (!send_message( 0x80000000 | 28, (void*)refreshString.c_str(), refreshString.size() )) {
+                // Serialize and send.
+				int size = refresh.ByteSize();
+				unsigned int id = PROTOBUF_MESSAGE_FLAG | static_cast<unsigned int>(k_ESOMsg_CacheSubscriptionRefresh);
+				JUTIL::ArrayBuilder<char> buffer;
+				if (!buffer.set_size( size )) {
+					stack->log( "Failed to size message buffer." );
+					return false;
+				}
+				refresh.SerializeToArray( buffer.get_array(), size );
+				if (!send_message( id, buffer.get_array(), size )) {
                     stack->log( "Failed to send inventory subscription refresh to Steam." );
                     return false;
                 }

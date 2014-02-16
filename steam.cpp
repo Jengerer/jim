@@ -220,29 +220,39 @@ bool Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned i
  */
 bool Steam::send_message( uint32 id, const void* buffer, uint32 size ) const
 {
+	// Stack for reporting errors.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	// Check if we need a protobuf header sent.
     EGCResults result;
-	if ((id & 0x80000000) != 0) {
+	if ((id & PROTOBUF_MESSAGE_FLAG) == PROTOBUF_MESSAGE_FLAG) {
 		// Create header for response.
-		CMsgProtoBufHeader responseHeader;
-		generate_protobuf_header( &responseHeader );
-		std::string headerData;
-		responseHeader.SerializeToString( &headerData );
+		CMsgProtoBufHeader response_header;
+		generate_protobuf_header( &response_header );
+
+		// Serialize header.
+		int header_size = response_header.ByteSize();
+		JUTIL::ArrayBuilder<char> header_buffer;
+		if (!header_buffer.set_size( header_size )) {
+			stack->log( "Failed to size buffer for protobuf header." );
+			return false;
+		}
+		response_header.SerializeToArray( header_buffer.get_array(), header_size );
 
 		// Fill in struct.
 		GCProtobufHeader_t structHeader;
-		structHeader.m_cubProtobufHeader = headerData.length();
+		structHeader.m_cubProtobufHeader = header_size;
 		structHeader.m_EMsg = id;
 
 		// Append messages.
-		uint32 response_size = sizeof( GCProtobufHeader_t ) + headerData.length() + size;
+		uint32 response_size = sizeof( GCProtobufHeader_t ) + header_size + size;
         JUTIL::ArrayBuilder<char> response;
         if (!response.set_size( response_size )) {
             return false;
         }
 		SerializedBuffer response_buffer( response.get_array() );
 		response_buffer.write( &structHeader, sizeof( GCProtobufHeader_t ) );
-		response_buffer.write( (void*)headerData.c_str(), headerData.length() );
+		response_buffer.write( header_buffer.get_array(), header_size );
 		response_buffer.write( buffer, size );
 		result = game_coordinator_->SendMessage( id, response_buffer.start(), response_size );
 	}

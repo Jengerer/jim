@@ -58,9 +58,6 @@ public:
     bool set_selected( Item* item, bool is_selected );
     void clear_selection( void );
 
-	// Excluded handling.
-	bool resolve_excluded( void );
-
 private:
 
     // Item set and schema.
