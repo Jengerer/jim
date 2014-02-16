@@ -75,7 +75,7 @@ bool ItemSchema::add_quality_name( uint32 index, JUTIL::DynamicString* quality_n
  */
 bool ItemSchema::add_origin_name( uint32 index, JUTIL::DynamicString* origin_name )
 {
-	if(!origin_names_.insert( index, origin_name )) {
+	if (!origin_names_.insert( index, origin_name )) {
 		return false;
 	}
 	return true;
@@ -83,15 +83,15 @@ bool ItemSchema::add_origin_name( uint32 index, JUTIL::DynamicString* origin_nam
 
 bool ItemSchema::add_kill_eater_type( uint32 index, KillEaterType* kill_eater_type )
 {
-	if(!kill_eater_types_.insert( index, kill_eater_type )) {
+	if (!kill_eater_types_.insert( index, kill_eater_type )) {
 		return false;
 	}
 	return true;
 }
 
-bool ItemSchema::add_kill_eater_rank( const JUTIL::String* name, KillEaterRank* kill_eater_rank )
+bool ItemSchema::add_kill_eater_ranks( const JUTIL::String* name, KillEaterRanks* kill_eater_rank )
 {
-	if(!kill_eater_ranks_.insert( name, kill_eater_rank )) {
+	if (!kill_eater_ranks_.insert( name, kill_eater_rank )) {
 		return false;
 	}
 	return true;
@@ -153,7 +153,7 @@ void ItemSchema::clear_definitions( void )
 	// Remove strange ranks.
 	KillEaterRankMap::Iterator n;
     for (n = kill_eater_ranks_.begin(); n.has_next(); n.next()) {
-		KillEaterRank* rank = n.get_value();
+		KillEaterRanks* rank = n.get_value();
         JUTIL::BaseAllocator::destroy( rank );
     }
 	kill_eater_ranks_.clear();
@@ -223,10 +223,10 @@ const KillEaterType* ItemSchema::get_kill_eater_type( uint32 type_index ) const
 	return type;
 }
 
-const KillEaterRank* ItemSchema::get_kill_eater_rank( const JUTIL::String* name ) const
+const KillEaterRanks* ItemSchema::get_kill_eater_ranks( const JUTIL::String* name ) const
 {
-	KillEaterRank* rank;
-	if(!kill_eater_ranks_.get( name, &rank )){
+	KillEaterRanks* rank;
+	if (!kill_eater_ranks_.get( name, &rank )){
 		rank = nullptr;
 	}
 	return rank;

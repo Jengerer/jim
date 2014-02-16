@@ -53,6 +53,12 @@ private:
 
 	bool load( void );
     bool load_definitions( Json::Value* root );
+	bool load_attributes( Json::Value* result );
+	bool load_qualities( Json::Value* result );
+	bool load_origins( Json::Value* result );
+	bool load_kill_eater_ranks( Json::Value* result );
+	bool load_kill_eater_types( Json::Value* result );
+	bool load_items( Json::Value* result );
     bool load_item( Json::Value* item,
         JUTIL::DynamicString* name,
         JUTIL::DynamicString* image,

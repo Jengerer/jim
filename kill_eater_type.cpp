@@ -3,9 +3,7 @@
 /*
  * Constructor for storing strange types.
  */
-KillEaterType::KillEaterType(
-		JUTIL::String* description,
-		const KillEaterRank* levels )
+KillEaterType::KillEaterType( JUTIL::String* description, const KillEaterRanks* levels )
 {
 	set_description( description );
 	set_levels( levels );
@@ -31,8 +29,7 @@ const JUTIL::String* KillEaterType::get_description( void ) const
 /*
  * Get pointer to strange levels
  */
-
-const KillEaterRank* KillEaterType::get_levels( void ) const
+const KillEaterRanks* KillEaterType::get_levels( void ) const
 {
 	return levels_;
 }
@@ -42,7 +39,7 @@ void KillEaterType::set_description( JUTIL::String* description )
 	description_ = description;
 }
 
-void KillEaterType::set_levels( const KillEaterRank* levels )
+void KillEaterType::set_levels( const KillEaterRanks* levels )
 {
 	levels_ = levels;
 }

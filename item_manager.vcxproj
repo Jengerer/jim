@@ -112,7 +112,7 @@
     <ClCompile Include="item_manager_view.cpp" />
     <ClCompile Include="item_schema.cpp" />
     <ClCompile Include="kill_eater_level.cpp" />
-    <ClCompile Include="kill_eater_rank.cpp" />
+    <ClCompile Include="kill_eater_ranks.cpp" />
     <ClCompile Include="kill_eater_type.cpp" />
     <ClCompile Include="slot_array.cpp" />
     <ClCompile Include="attribute.cpp" />
@@ -165,7 +165,7 @@
     <ClInclude Include="item_schema.hpp" />
     <ClInclude Include="item_set.hpp" />
     <ClInclude Include="kill_eater_level.hpp" />
-    <ClInclude Include="kill_eater_rank.hpp" />
+    <ClInclude Include="kill_eater_ranks.hpp" />
     <ClInclude Include="kill_eater_type.hpp" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource_loader_interface.hpp" />
