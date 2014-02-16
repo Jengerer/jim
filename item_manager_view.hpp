@@ -47,7 +47,6 @@ public:
     bool download_resources( ResourceLoaderInterface* loader );
     bool initialize( void );
 	bool create_layout( JUI::Graphics2D* graphics );
-    void clean_up( void );
 
     // Top-down UI management functions.
     bool create_alert( const JUTIL::String* message );

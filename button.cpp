@@ -213,11 +213,3 @@ bool Button::precache( JUI::Graphics2D* graphics )
     }
     return true;
 }
-
-/*
- * Release button-generic resources.
- */
-void Button::release( void )
-{
-    JUI::FontFactory::destroy_font( default_font_ );
-}

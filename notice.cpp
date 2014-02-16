@@ -77,11 +77,3 @@ bool Notice::precache( JUI::Graphics2D* graphics )
 
     return true;
 }
-
-/*
- * Free notice-generic resource.
- */
-void Notice::release( void )
-{
-    JUI::FontFactory::destroy_font( font_ );
-}

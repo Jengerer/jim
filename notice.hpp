@@ -24,7 +24,6 @@ public:
 
 	// Loading class-wide resources.
 	static bool precache( JUI::Graphics2D* graphics );
-	static void release( void );    
 
 protected:
 

@@ -326,18 +326,8 @@ bool ItemDisplay::precache( void )
 	// Font for item description and miscellaneous information.
 	info_font_ = JUI::FontFactory::create_font( &ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
 	if (info_font_ == nullptr) {
-		JUI::FontFactory::destroy_font( name_font_ );
 		return false;
 	}
 
     return true;
-}
-
-/*
- * Release all item display resources.
- */
-void ItemDisplay::release( void )
-{
-	JUI::FontFactory::destroy_font( name_font_ );
-	JUI::FontFactory::destroy_font( info_font_ );
 }

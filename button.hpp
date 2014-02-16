@@ -7,7 +7,6 @@
 #include <jui/io/mouse_handler_interface.hpp>
 #include <jui/io/mouse.hpp>
 #include <jui/layout/horizontal_layout.hpp>
-
 #include "rounded_rectangle_container.hpp"
 
 class Button: public RoundedRectangleContainer, public JUI::MouseHandlerInterface
@@ -37,7 +36,6 @@ public:
 
     // Resource loading.
 	static bool precache( JUI::Graphics2D* graphics );
-	static void release( void );
 
 private:
 

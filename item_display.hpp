@@ -45,7 +45,6 @@ public:
 
 	// Load and release display resources.
 	static bool precache( void );
-	static void release( void );
 
 private:
 
