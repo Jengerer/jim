@@ -8,8 +8,8 @@ const JUTIL::ConstantString ITEM_DISPLAY_TITLE_FONT_FACE = "fonts/tf2build.ttf";
 const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 13;
 
 // Information style attributes.
-const JUTIL::ConstantString ITEM_DISPLAY_INFO_FONT_FACE = "fonts/tf2secondary.ttf";
-const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE = 11;
+const JUTIL::ConstantString* ITEM_DISPLAY_INFO_FONT_FACE = &ITEM_DISPLAY_TITLE_FONT_FACE;
+const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE = 9;
 
 // Display colour.
 const JUI::Colour& ITEM_DISPLAY_COLOUR = JUI::COLOUR_BLACK;
@@ -167,10 +167,10 @@ bool ItemDisplay::update_display( void )
 	}
 
 	// Write uses for expendable tools.
-	item_value = item_->get_tool_type();
-	if (item_value == TOOL_DUEL_MINIGAME || item_value == TOOL_NOISE_MAKER) {
-		item_value = item_->get_count();
-		if (item_value == FL_ITEM_UNLIMITED_COUNT) {
+	EItemToolType tool_type = item_->get_tool_type();
+	if (tool_type == TOOL_DUEL_MINIGAME || tool_type == TOOL_NOISE_MAKER) {
+		uint32 count = item_->get_count();
+		if (count == FL_ITEM_UNLIMITED_COUNT) {
 			if (!information.write( "\nUses: Unlimited" )) {
 				return false;
 			}
@@ -192,7 +192,7 @@ bool ItemDisplay::update_display( void )
 	}
 
 	// Add debugging information.
-    if (!information.write( "\nFlags: %x", item_->get_inventory_flags() )) {
+    if (!information.write( "\nFlags: 0x%x", item_->get_inventory_flags() )) {
         return false;
     }
 
@@ -324,7 +324,7 @@ bool ItemDisplay::precache( void )
 	}
 
 	// Font for item description and miscellaneous information.
-	info_font_ = JUI::FontFactory::create_font( &ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
+	info_font_ = JUI::FontFactory::create_font( ITEM_DISPLAY_INFO_FONT_FACE, ITEM_DISPLAY_INFO_FONT_SIZE );
 	if (info_font_ == nullptr) {
 		return false;
 	}

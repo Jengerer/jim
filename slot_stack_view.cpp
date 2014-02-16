@@ -2,7 +2,7 @@
 #include <jui/application/error_stack.hpp>
 
 // Item selection parameters.
-const float STACK_DRAGGING_ALPHA = 0.6f;
+const float STACK_DRAGGING_ALPHA = 0.8f;
 const float STACK_NORMAL_ALPHA = 0.0f;
 
 // Selection count parameters.
@@ -11,7 +11,7 @@ const unsigned int SELECTION_COUNT_PADDING = 5;
 const unsigned int SELECTION_COUNT_OFFSET = 5;
 const JUI::Colour SELECTION_COUNT_COLOUR = JUI::COLOUR_BLACK;
 const JUTIL::ConstantString SELECTION_COUNT_TEXT_FONT( "fonts/tf2build.ttf" );
-const unsigned int SELECTION_COUNT_TEXT_SIZE = 10;
+const unsigned int SELECTION_COUNT_TEXT_SIZE = 14;
 const JUI::Colour SELECTION_COUNT_TEXT_COLOUR = JUI::COLOUR_WHITE;
 
 SlotStackView::SlotStackView( SlotArrayInterface* slot_array )

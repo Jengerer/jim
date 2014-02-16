@@ -12,7 +12,6 @@ const unsigned int LAYOUT_SPACING = 10;
 
 // Resources for item manager.
 const JUTIL::ConstantString TF2_BUILD_FONT = "fonts/tf2build.ttf";
-const JUTIL::ConstantString TF2_SECONDARY_FONT = "fonts/tf2secondary.ttf";
 const JUTIL::ConstantString CRAFT_ICON_TEXTURE = "img/manager/gear.png";
 const JUTIL::ConstantString SORT_ICON_TEXTURE = "img/manager/sort.png";
 const JUTIL::ConstantString DELETE_ICON_TEXTURE = "img/manager/delete.png";
@@ -22,13 +21,13 @@ const JUTIL::ConstantString UNKNOWN_ITEM_ICON_TEXTURE = "img/backpack/unknown_it
 const JUTIL::ConstantString EXCLUDED_HEADING_TEXT = "New/Excluded Items";
 const JUTIL::ConstantString SELECTED_HEADING_TEXT = "Selected Items";
 const JUTIL::String* HEADING_FONT_FACE = &TF2_BUILD_FONT;
-const unsigned int HEADING_FONT_SIZE = 12;
+const unsigned int HEADING_FONT_SIZE = 14;
 const bool HEADING_FONT_BOLDED = false;
 const JUI::Colour HEADING_COLOUR( 0xF1EFED );
 
 // Page display.
-const JUTIL::String* PAGE_FONT_FACE = &TF2_SECONDARY_FONT;
-const unsigned int PAGE_FONT_SIZE = 16;
+const JUTIL::String* PAGE_FONT_FACE = &TF2_BUILD_FONT;
+const unsigned int PAGE_FONT_SIZE = 12;
 const bool PAGE_FONT_BOLDED = false;
 const JUI::Colour PAGE_LABEL_COLOUR( 0xC94F39 );
 const unsigned int PAGE_LABEL_WIDTH = 50;
@@ -103,9 +102,6 @@ bool ItemManagerView::download_resources( ResourceLoaderInterface* loader )
 {
     // Download font files.
     if (!loader->get_resource( &TF2_BUILD_FONT, &TF2_BUILD_FONT )) {
-        return false;
-    }
-    else if (!loader->get_resource( &TF2_SECONDARY_FONT, &TF2_SECONDARY_FONT )) {
         return false;
     }
 
