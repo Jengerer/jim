@@ -66,8 +66,8 @@ enum EItemOrigins {
 	ORIGIN_ACHIEVEMENT = 1
 };
 
-enum EItemToolTypes {
-	TOOL_NOT_A_TOOL,
+enum EItemToolType {
+	TOOL_INVALID,
 	TOOL_GIFT,
 	TOOL_DUEL_MINIGAME,
 	TOOL_NOISE_MAKER,

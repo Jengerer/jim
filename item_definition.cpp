@@ -13,7 +13,7 @@ ItemDefinition::ItemDefinition(
 	set_name( name );
 	set_class_flags( class_flags );
 	set_slot( slot );
-	set_tool_type( TOOL_NOT_A_TOOL );
+	set_tool_type( TOOL_INVALID );
 	
 	// Take hold of image file string.
 	size_t len = image->get_length();
@@ -74,7 +74,7 @@ EItemSlot ItemDefinition::get_slot( void ) const
 /*
  * Get item tool type.
  */
-uint32 ItemDefinition::get_tool_type( void ) const
+EItemToolType ItemDefinition::get_tool_type( void ) const
 {
 	return tool_type_;
 }
@@ -174,7 +174,7 @@ void ItemDefinition::set_slot( EItemSlot slot )
 	slot_ = slot;
 }
 
-void ItemDefinition::set_tool_type( uint32 tool_type )
+void ItemDefinition::set_tool_type( EItemToolType tool_type )
 {
 	tool_type_ = tool_type;
 }

@@ -181,6 +181,7 @@ void Inventory::delete_items( void )
 	items_.clear();
     inventory_slots_.empty_slots();
     excluded_slots_.empty_slots();
+	selected_slots_.empty_slots();
 }
 
 /*

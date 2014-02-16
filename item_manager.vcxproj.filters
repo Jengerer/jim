@@ -167,6 +167,9 @@
     <ClCompile Include="definition_loader.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
+    <ClCompile Include="item_decorator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protobuf\base_gcmessages.pb.h">
@@ -339,6 +342,9 @@
     </ClInclude>
     <ClInclude Include="inventory_action_interface.hpp">
       <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="item_decorator.hpp">
+      <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
