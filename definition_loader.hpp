@@ -86,6 +86,7 @@ private:
 	Json::Value root_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EItemSlot, JUTIL::StringHasher> slots_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EInventoryClass, JUTIL::StringHasher> classes_;
+	JUTIL::HashMap<unsigned int, const JUTIL::String*, EItemToolType, JUTIL::StringHasher> tools_;
     JUTIL::HashMap<unsigned int, const JUTIL::String*, uint16, JUTIL::StringHasher> name_map_;
 
 	// State members.

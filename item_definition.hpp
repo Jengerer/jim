@@ -30,8 +30,8 @@ public:
 	uint32 get_class_flags( void ) const;
 	uint8 get_class_count( void ) const;
 	EItemSlot get_slot( void ) const;
-	uint32 get_tool_type( void ) const;
-	void set_tool_type( uint32 tool_type );
+	EItemToolType get_tool_type( void ) const;
+	void set_tool_type( EItemToolType tool_type );
 
 	// Attribute functions.
 	bool add_attribute( Attribute* attribute );
@@ -59,7 +59,7 @@ private:
 	uint32 class_flags_;
 	uint8 class_count_;
 	EItemSlot slot_;
-	uint32 tool_type_;
+	EItemToolType tool_type_;
 	JUTIL::Vector<Attribute*> attributes_;
 
 };

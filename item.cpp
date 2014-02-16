@@ -199,7 +199,7 @@ uint32 Item::get_origin( void ) const
 /*
  * Get item tool type.
  */
-uint32 Item::get_tool_type( void ) const
+EItemToolType Item::get_tool_type( void ) const
 {
 	return definition_->get_tool_type();
 }

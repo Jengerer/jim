@@ -107,6 +107,7 @@
     <ClCompile Include="dynamic_slot_array.cpp" />
     <ClCompile Include="equip_status.cpp" />
     <ClCompile Include="http_resource_loader.cpp" />
+    <ClCompile Include="item_decorator.cpp" />
     <ClCompile Include="item_set.cpp" />
     <ClCompile Include="item_manager_view.cpp" />
     <ClCompile Include="item_schema.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="equip_status.hpp" />
     <ClInclude Include="inventory_action_interface.hpp" />
     <ClInclude Include="inventory_listener.hpp" />
+    <ClInclude Include="item_decorator.hpp" />
     <ClInclude Include="item_definition.hpp" />
     <ClInclude Include="item_manager_view.hpp" />
     <ClInclude Include="item_manager_view_listener.hpp" />

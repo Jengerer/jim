@@ -45,7 +45,7 @@ public:
 	uint32			get_origin( void ) const;
 	bool			is_renamed( void ) const;
 	void			set_renamed( bool renamed );
-	uint32			get_tool_type( void ) const;
+	EItemToolType	get_tool_type( void ) const;
 
 	// Secondary attributes.
 	const JUTIL::String* get_name( void ) const;

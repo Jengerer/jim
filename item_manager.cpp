@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <stdlib.h>
 #include <crtdbg.h>
 #include <fstream>
@@ -6,16 +5,14 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <json/json.h>
-
 #include <jui/gfx/font_factory.hpp>
 #include <jui/application/error_stack.hpp>
-
 #include "serialized_buffer.hpp"
 #include "slot_view.hpp"
-
 #include "http_resource_loader.hpp"
 #include "resource.h"
 #include "item_manager.hpp"
+#include "item_decorator.hpp"
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
@@ -195,7 +192,15 @@ bool ItemManager::create_resources( void )
 
     // TASK: verify no other steam API application is running.
 
+	// Download resources for inventory display.
+	if (!ItemDecorator::download_resources( site_loader_ )) {
+		return false;
+	}
+
     // Enough resources loaded to show styled messages.
+	if (!ItemDecorator::precache( &graphics_ )) {
+		return false;
+	}
 	if (!ItemDisplay::precache()) {
         return false;
     }

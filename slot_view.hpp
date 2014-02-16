@@ -7,8 +7,7 @@
 #include <jui/gfx/image.hpp>
 #include <jui/gfx/cropped_image.hpp>
 #include <jui/gfx/text.hpp>
-
-#include "item.hpp"
+#include "item_decorator.hpp"
 #include "rounded_rectangle.hpp"
 #include "slot.hpp"
 
@@ -29,7 +28,7 @@ public:
 	SlotView( void );
     bool initialize( void );
 	void update( const Slot* slot );
-	void update_item( const Slot* slot );
+	void update_item( const Item* item );
 
 	// Precaching class-wide resources.
 	static bool precache( JUI::Graphics2D* graphics );
@@ -40,14 +39,13 @@ private:
 	// Font and text for indicating equipped.
 	static JUI::FontInterface* equipped_font_;
 	static JUI::Text* equipped_text_;
-
 	static JUI::FontInterface* crate_font_;
 	static JUI::Text* crate_text_;
 
 private:
 
 	RoundedRectangle* slot_rectangle_;
-	JUI::Image* image_;
+	ItemDecorator* item_;
 
 };
 

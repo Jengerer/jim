@@ -116,47 +116,24 @@ const JUTIL::ConstantString ITEM_TOOL_USAGE_CAPABILITIES = "usage_capabilities";
 const JUTIL::ConstantString ITEM_TOOL_PAINTABLE = "paintable";
 const JUTIL::ConstantString ITEM_TOOL_PAINTABLE_TEAM_COLORS = "paintable_team_colors";	
 
-const JUTIL::ConstantString ITEM_TOOL_TYPE_GIFT = "gift";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_DUEL_MINIGAME = "duel_minigame";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_NOISE_MAKER = "noise_maker";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_NAME_TAG = "name";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_KEY = "decoder_ring";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_CRATE = "";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_PAINT_CAN = "paint_can";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_DECAL = "customize_texture_item";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_GIFT_WRAP = "gift_wrap";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_WRAPPED_GIFT = "wrapped_gift";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_DESCRIPTION_TAG = "desc";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_BACKPACK_EXPANDER = "backpack_expander";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_WEDDING_RING = "wedding_ring";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_ACCOUNT_UPGRADE = "account_upgrade_to_premium";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_CLAIMCODE = "claimcode";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_STRANGE_PART = "strange_part";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_STRANGE_PART_RESTRICTION = "strange_part_restriction";
-const JUTIL::ConstantString ITEM_TOOL_TYPE_SPELL = "apply_custom_attrib";
-
-const JUTIL::ConstantString* ITEM_TOOL_TYPES [] = 
-{
-	&ITEM_TOOL_TYPE_GIFT,
-	&ITEM_TOOL_TYPE_DUEL_MINIGAME,
-	&ITEM_TOOL_TYPE_NOISE_MAKER,
-	&ITEM_TOOL_TYPE_NAME_TAG,
-	&ITEM_TOOL_TYPE_KEY,
-	&ITEM_TOOL_TYPE_CRATE,
-	&ITEM_TOOL_TYPE_PAINT_CAN,
-	&ITEM_TOOL_TYPE_DECAL,
-	&ITEM_TOOL_TYPE_GIFT_WRAP,
-	&ITEM_TOOL_TYPE_WRAPPED_GIFT,
-	&ITEM_TOOL_TYPE_DESCRIPTION_TAG,
-	&ITEM_TOOL_TYPE_BACKPACK_EXPANDER,
-	&ITEM_TOOL_TYPE_WEDDING_RING,
-	&ITEM_TOOL_TYPE_ACCOUNT_UPGRADE,
-	&ITEM_TOOL_TYPE_CLAIMCODE,
-	&ITEM_TOOL_TYPE_STRANGE_PART,
-	&ITEM_TOOL_TYPE_STRANGE_PART_RESTRICTION,
-	&ITEM_TOOL_TYPE_SPELL,
-	nullptr
-};
+const JUTIL::ConstantString TOOL_TYPE_GIFT_NAME = "gift";
+const JUTIL::ConstantString TOOL_TYPE_DUEL_MINIGAME_NAME = "duel_minigame";
+const JUTIL::ConstantString TOOL_TYPE_NOISE_MAKER_NAME = "noise_maker";
+const JUTIL::ConstantString TOOL_TYPE_NAME_TAG_NAME = "name";
+const JUTIL::ConstantString TOOL_TYPE_KEY_NAME = "decoder_ring";
+const JUTIL::ConstantString TOOL_TYPE_CRATE_NAME = "";
+const JUTIL::ConstantString TOOL_TYPE_PAINT_CAN_NAME = "paint_can";
+const JUTIL::ConstantString TOOL_TYPE_DECAL_NAME = "customize_texture_item";
+const JUTIL::ConstantString TOOL_TYPE_GIFT_WRAP_NAME = "gift_wrap";
+const JUTIL::ConstantString TOOL_TYPE_WRAPPED_GIFT_NAME = "wrapped_gift";
+const JUTIL::ConstantString TOOL_TYPE_DESCRIPTION_TAG_NAME = "desc";
+const JUTIL::ConstantString TOOL_TYPE_BACKPACK_EXPANDER_NAME = "backpack_expander";
+const JUTIL::ConstantString TOOL_TYPE_WEDDING_RING_NAME = "wedding_ring";
+const JUTIL::ConstantString TOOL_TYPE_ACCOUNT_UPGRADE_NAME = "account_upgrade_to_premium";
+const JUTIL::ConstantString TOOL_TYPE_CLAIMCODE_NAME = "claimcode";
+const JUTIL::ConstantString TOOL_TYPE_STRANGE_PART_NAME = "strange_part";
+const JUTIL::ConstantString TOOL_TYPE_STRANGE_PART_RESTRICTION_NAME = "strange_part_restriction";
+const JUTIL::ConstantString TOOL_TYPE_SPELL_NAME = "apply_custom_attrib";
 
 /*
  * Get the member from a node if it exists.
@@ -278,6 +255,26 @@ bool DefinitionLoader::load()
         stack->log( "Failed to create class map.");
         return false;
     }
+
+	// Create tool map.
+	success = tools_.insert( &TOOL_TYPE_GIFT_NAME, TOOL_GIFT ) &&
+		tools_.insert( &TOOL_TYPE_DUEL_MINIGAME_NAME, TOOL_DUEL_MINIGAME ) &&
+		tools_.insert( &TOOL_TYPE_NOISE_MAKER_NAME, TOOL_NOISE_MAKER ) &&
+		tools_.insert( &TOOL_TYPE_NAME_TAG_NAME, TOOL_NAME_TAG ) &&
+		tools_.insert( &TOOL_TYPE_KEY_NAME, TOOL_KEY ) &&
+		tools_.insert( &TOOL_TYPE_CRATE_NAME, TOOL_CRATE ) &&
+		tools_.insert( &TOOL_TYPE_PAINT_CAN_NAME, TOOL_PAINT_CAN ) &&
+		tools_.insert( &TOOL_TYPE_DECAL_NAME, TOOL_DECAL ) &&
+		tools_.insert( &TOOL_TYPE_GIFT_WRAP_NAME, TOOL_GIFT_WRAP ) &&
+		tools_.insert( &TOOL_TYPE_WRAPPED_GIFT_NAME, TOOL_WRAPPED_GIFT ) &&
+		tools_.insert( &TOOL_TYPE_DESCRIPTION_TAG_NAME, TOOL_DESCRIPTION_TAG ) &&
+		tools_.insert( &TOOL_TYPE_BACKPACK_EXPANDER_NAME, TOOL_BACKPACK_EXPANDER ) &&
+		tools_.insert( &TOOL_TYPE_WEDDING_RING_NAME, TOOL_WEDDING_RING ) &&
+		tools_.insert( &TOOL_TYPE_ACCOUNT_UPGRADE_NAME, TOOL_ACCOUNT_UPGRADE ) &&
+		tools_.insert( &TOOL_TYPE_CLAIMCODE_NAME, TOOL_CLAIMCODE ) &&
+		tools_.insert( &TOOL_TYPE_STRANGE_PART_NAME, TOOL_STRANGE_PART ) &&
+		tools_.insert( &TOOL_TYPE_STRANGE_PART_RESTRICTION_NAME, TOOL_STRANGE_PART ) &&
+		tools_.insert( &TOOL_TYPE_SPELL_NAME, TOOL_SPELL );
 
 	set_state( LOADING_STATE_DOWNLOAD_DEFINITIONS );
 
@@ -936,11 +933,9 @@ bool DefinitionLoader::load_item( Json::Value* item,
 	if (get_member( item, &ITEM_TOOL, &tool )) {
 		if (get_member( tool, &ITEM_TOOL_TYPE, &tool_type )) {
 			JUTIL::ConstantString tool_type_name = tool_type->asCString();
-			for (int i = 0; ITEM_TOOL_TYPES[i] != nullptr; ++i) {
-				if (tool_type_name.is_equal(ITEM_TOOL_TYPES[i])){
-					information->set_tool_type(i + 1);
-					break;
-				}
+			EItemToolType tool_type_value;
+			if (tools_.get( &tool_type_name, &tool_type_value )) {
+				information->set_tool_type( tool_type_value );
 			}
 		}
     }

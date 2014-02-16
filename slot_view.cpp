@@ -1,9 +1,8 @@
 #include "slot_view.hpp"
 
 // Slot layout attributes.
-const unsigned int SLOT_WIDTH	= 80;
-const unsigned int SLOT_HEIGHT	= 60;
-const unsigned int ITEM_SIZE	= 60;
+const int SLOT_WIDTH = 80;
+const int SLOT_HEIGHT = 60;
 
 // Slot stroke attributes.
 const unsigned int SLOT_STROKE_WIDTH = 3;
@@ -44,7 +43,7 @@ SlotView::SlotView( void )
 {
 	// Set default rectangle.
     slot_rectangle_ = nullptr;
-	image_ = nullptr;
+	item_ = nullptr;
 
 	// Set slot size.
 	set_size( SLOT_WIDTH, SLOT_HEIGHT );
@@ -67,16 +66,16 @@ bool SlotView::initialize( void )
 	slot_rectangle_->set_stroke_type( STROKE_TYPE_INNER );
 
 	// Add image for item.
-	if (!JUTIL::BaseAllocator::allocate( &image_ )) {
+	if (!JUTIL::BaseAllocator::allocate( &item_ )) {
 		return false;
 	}
-	image_ = new (image_) JUI::Image( nullptr );
-	if (!add( image_ )) {
-		JUTIL::BaseAllocator::destroy( image_ );
+	if (!add( item_ )) {
+		JUTIL::BaseAllocator::release( item_ );
 		return false;
 	}
-	image_->set_size( ITEM_SIZE, ITEM_SIZE );
-	set_constraint( image_, (SLOT_WIDTH - ITEM_SIZE) / 2, 0 );
+	new (item_) ItemDecorator();
+	int width = item_->get_width();
+	set_constraint( item_, (SLOT_WIDTH - width) / 2, 0 );
 	return true;
 }
 
@@ -86,7 +85,8 @@ bool SlotView::initialize( void )
 void SlotView::update( const Slot* slot )
 {
 	// Update item-dependent slot parameters.
-	update_item( slot );
+	Item* item = slot->get_item();
+	update_item( item );
 
 	// Handle selection state.
 	if (!slot->is_enabled()) {
@@ -100,9 +100,8 @@ void SlotView::update( const Slot* slot )
 /*
  * Update item specific slot decoration.
  */
-void SlotView::update_item( const Slot* slot )
+void SlotView::update_item( const Item* item )
 {
-	Item* item = slot->get_item();
 	const JUI::Texture* texture;
 	const JUI::Colour* stroke_colour;
 	const JUI::Colour* slot_colour;
@@ -128,7 +127,7 @@ void SlotView::update_item( const Slot* slot )
 		stroke_colour = &JUI::COLOUR_BLANK;
 		stroke_width = 0;
 	}
-	image_->set_texture( texture );
+	item_->set_item( item );
 	slot_rectangle_->set_colour( slot_colour );
 	slot_rectangle_->set_stroke( stroke_width, stroke_colour );
 }

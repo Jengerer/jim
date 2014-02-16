@@ -30,7 +30,8 @@ void SlotStackView::on_slot_updated( unsigned int index, const Slot* slot )
 {
     // Only update top slot.
     if (index == 0) {
-        update_item( slot );
+		const Item* item = slot->get_item();
+        update_item( item );
     }
 }
 
