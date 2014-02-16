@@ -27,7 +27,6 @@ public:
 
     // Resource loading.
 	static bool precache( void );
-	static void release( void );
 
 protected:
 

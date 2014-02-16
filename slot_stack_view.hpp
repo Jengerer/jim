@@ -2,6 +2,7 @@
 #define SLOT_STACK_VIEW_HPP
 
 #include <jui/io/mouse_handler_interface.hpp>
+#include "rounded_rectangle_container.hpp"
 #include "slot_view.hpp"
 #include "slot_array_interface.hpp"
 #include "slot_array_listener.hpp"
@@ -20,6 +21,9 @@ public:
 
     SlotStackView( SlotArrayInterface* slot_array );
     virtual ~SlotStackView( void );
+
+	// Layout functions.
+	bool initialize( void );
 
     // Listener functions/interfaces.
 	void set_listener( SlotArrayViewListener* listener );
@@ -46,6 +50,11 @@ private:
 
     SlotArrayInterface* slot_array_;
 	SlotArrayViewListener* listener_;
+
+	// Layout members.
+	JUI::FontInterface* count_font_;
+	RoundedRectangleContainer* count_container_;
+	JUI::Text* count_text_;
 
 	// Dragging members.
 	bool is_dragging_;

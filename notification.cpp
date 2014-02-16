@@ -126,11 +126,3 @@ bool Notification::precache( void )
 
     return true;
 }
-
-/*
- * Release notification resources.
- */
-void Notification::release( void )
-{
-    JUI::FontFactory::destroy_font( font_ );
-}

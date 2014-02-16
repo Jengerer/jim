@@ -360,7 +360,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	new (excluded_heading) JUI::Text( heading_font_ );
 	excluded_heading->set_text( &EXCLUDED_HEADING_TEXT );
 
-	// Now put actual selected slot view on top of dummy.
+	// Create selection stack.
     book = inventory_->get_selected_slots();
     if (!JUTIL::BaseAllocator::allocate( &selected_view_ )) {
         stack->log( "Failed to allocate selected item view." );
@@ -471,21 +471,6 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 
 	// All created successfully.
 	return true;
-}
-
-/*
- * Clean up item manager view objects.
- * This should be called before font factory destroyed.
- */
-void ItemManagerView::clean_up( void )
-{
-    // Remove font resources.
-    if (heading_font_ != nullptr) {
-        JUI::FontFactory::destroy_font( heading_font_ );
-    }
-    if (page_font_ != nullptr) {
-        JUI::FontFactory::destroy_font( page_font_ );
-    }
 }
 
 /*

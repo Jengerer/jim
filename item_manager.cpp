@@ -229,11 +229,6 @@ bool ItemManager::create_resources( void )
 
 void ItemManager::close_interfaces( void )
 {
-    // Clean up view resources.
-    if (view_ != nullptr) {
-        view_->clean_up();
-    }
-
     // Delete definition resources.
     JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
 
@@ -241,10 +236,6 @@ void ItemManager::close_interfaces( void )
     JUTIL::BaseAllocator::safe_destroy( &site_loader_ );
 
 	// Free cached resources.
-	ItemDisplay::release();
-	Button::release();
-	Notice::release();
-	Notification::release();
 	SlotView::release();
 
 	// Close font library.

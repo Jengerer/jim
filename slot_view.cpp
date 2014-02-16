@@ -178,8 +178,6 @@ bool SlotView::precache( JUI::Graphics2D* graphics )
  */
 void SlotView::release( void )
 {
-    JUI::FontFactory::destroy_font( equipped_font_ );
-	JUI::FontFactory::destroy_font( crate_font_ );
     JUTIL::BaseAllocator::safe_destroy( &equipped_text_ );
     JUTIL::BaseAllocator::safe_destroy( &crate_text_ );
 }
