@@ -1,9 +1,5 @@
 #include "slot_view.hpp"
 
-// Slot layout attributes.
-const int SLOT_WIDTH = 80;
-const int SLOT_HEIGHT = 60;
-
 // Slot stroke attributes.
 const unsigned int SLOT_STROKE_WIDTH = 3;
 
@@ -44,9 +40,6 @@ SlotView::SlotView( void )
 	// Set default rectangle.
     slot_rectangle_ = nullptr;
 	item_ = nullptr;
-
-	// Set slot size.
-	set_size( SLOT_WIDTH, SLOT_HEIGHT );
 }
 
 /*
@@ -54,28 +47,30 @@ SlotView::SlotView( void )
  */
 bool SlotView::initialize( void )
 {
+	// Add image for item.
+	if (!JUTIL::BaseAllocator::allocate( &item_ )) {
+		return false;
+	}
+	new (item_) ItemDecorator();
+	int width = item_->get_width();
+	int height = item_->get_height();
+	set_size( width, height );
+	set_constraint( item_, 0, 0 );
+
 	// Add rounded rectangle for slot.
 	if (!JUTIL::BaseAllocator::allocate( &slot_rectangle_ )) {
 		return false;
 	}
-	slot_rectangle_ = new (slot_rectangle_) RoundedRectangle( SLOT_WIDTH, SLOT_HEIGHT, SLOT_RADIUS, &SLOT_NORMAL_COLOUR );
+	slot_rectangle_ = new (slot_rectangle_) RoundedRectangle( width, height, SLOT_RADIUS, &SLOT_NORMAL_COLOUR );
 	if (!add( slot_rectangle_ )) {
 		JUTIL::BaseAllocator::destroy( slot_rectangle_ );
 		return false;
 	}
 	slot_rectangle_->set_stroke_type( STROKE_TYPE_INNER );
-
-	// Add image for item.
-	if (!JUTIL::BaseAllocator::allocate( &item_ )) {
-		return false;
-	}
 	if (!add( item_ )) {
 		JUTIL::BaseAllocator::release( item_ );
 		return false;
 	}
-	new (item_) ItemDecorator();
-	int width = item_->get_width();
-	set_constraint( item_, (SLOT_WIDTH - width) / 2, 0 );
 	return true;
 }
 

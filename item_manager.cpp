@@ -236,6 +236,7 @@ void ItemManager::close_interfaces( void )
     JUTIL::BaseAllocator::safe_destroy( &site_loader_ );
 
 	// Free cached resources.
+	ItemDecorator::release();
 	SlotView::release();
 
 	// Close font library.

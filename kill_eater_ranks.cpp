@@ -53,14 +53,14 @@ const KillEaterLevel* KillEaterRanks::find_level( uint32 score ) const
 {
     size_t i;
     size_t length = get_level_count();
+	const KillEaterLevel* level;
     for (i = 0; i < length; ++i) {
-        const KillEaterLevel* level = get_level( i );
-		// TODO: is this right? Seems like we're getting the next level.
+        level = get_level( i );
 		if (score < level->get_score()){
 			return level;
 		}
 	}
 
 	// Not found, return the highest level
-	return get_level( length - 1 );
+	return level;
 }

@@ -11,7 +11,7 @@ const unsigned int SELECTION_COUNT_PADDING = 5;
 const unsigned int SELECTION_COUNT_OFFSET = 5;
 const JUI::Colour SELECTION_COUNT_COLOUR = JUI::COLOUR_BLACK;
 const JUTIL::ConstantString SELECTION_COUNT_TEXT_FONT( "fonts/tf2build.ttf" );
-const unsigned int SELECTION_COUNT_TEXT_SIZE = 14;
+const unsigned int SELECTION_COUNT_TEXT_SIZE = 12;
 const JUI::Colour SELECTION_COUNT_TEXT_COLOUR = JUI::COLOUR_WHITE;
 
 SlotStackView::SlotStackView( SlotArrayInterface* slot_array )
