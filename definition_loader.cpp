@@ -50,23 +50,6 @@ const JUTIL::ConstantString FALLBACK_ITEM_NAME = "Unknown Item";
 const unsigned int FALLBACK_ITEM_CLASS_FLAGS = 0;
 const EItemSlot FALLBACK_ITEM_SLOT = ITEM_SLOT_NONE;
 
-// Paint definitions.
-const JUTIL::ConstantString PAINT_SPILL_SINGLE_TEXTURE = "img/backpack/player/items/crafting/paintcan_paintcolor.png";
-const JUTIL::ConstantString PAINT_SPILL_SINGLE_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/paintcan_paintcolor.png";
-const JUTIL::ConstantString PAINT_SPILL_RED_TEXTURE = "img/backpack/player/items/crafting/teampaint_red_mask.png";
-const JUTIL::ConstantString PAINT_SPILL_RED_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/teampaint_red_mask.png";
-const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE = "img/backpack/player/items/crafting/teampaint_blu_mask.png";
-const JUTIL::ConstantString PAINT_SPILL_BLU_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/teampaint_blu_mask.png";
-
-const JUTIL::ConstantString PAINT_SPLAT_SINGLE_TEXTURE = "img/backpack/player/items/crafting/backpack_jewel_paint_splatter.png";
-const JUTIL::ConstantString PAINT_SPLAT_SINGLE_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/backpack_jewel_paint_splatter.png";
-const JUTIL::ConstantString PAINT_SPLAT_RED_TEXTURE = "img/backpack/player/items/crafting/backpack_jewel_paint_splatter_red.png";
-const JUTIL::ConstantString PAINT_SPLAT_RED_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/backpack_jewel_paint_splatter_red.png";
-const JUTIL::ConstantString PAINT_SPLAT_BLU_TEXTURE = "img/backpack/player/items/crafting/backpack_jewel_paint_splatter_blu.png";
-const JUTIL::ConstantString PAINT_SPLAT_BLU_TEXTURE_URL = "http://www.jengerer.com/item_manager/img/backpack/player/items/crafting/backpack_jewel_paint_splatter_blu.png";
-
-const JUTIL::ConstantString PAINT_SPILL_LOAD_FAIL_MESSAGE = "Failed to download paint item texture";
-
 // JSON parsing object names.
 const JUTIL::ConstantString RESULT_NAME = "result";
 const JUTIL::ConstantString ATTRIBUTES_NAME = "attributes";
@@ -84,7 +67,6 @@ const JUTIL::ConstantString KILL_EATER_RANKS_NAME = "item_levels";
 const JUTIL::ConstantString KILL_EATER_LEVELS_NAME = "levels";
 const JUTIL::ConstantString KILL_EATER_LEVEL_NAME = "level";
 const JUTIL::ConstantString KILL_EATER_SCORE_NAME = "required_score";
-
 
 // Attribute JSON members.
 const JUTIL::ConstantString ATTRIBUTE_NAME = "name";
@@ -753,20 +735,6 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 		FALLBACK_ITEM_SLOT );
 	fallback->load_texture( graphics_, unknown_item );
     schema_->set_fallback_definition( fallback );
-
-	// Prefetch paint textures so only 1 fail message appears
-	if (!(downloader->check_and_get( &PAINT_SPILL_SINGLE_TEXTURE, &PAINT_SPILL_SINGLE_TEXTURE_URL ) &&
-		downloader->check_and_get( &PAINT_SPILL_RED_TEXTURE, &PAINT_SPILL_RED_TEXTURE_URL ) &&
-		downloader->check_and_get( &PAINT_SPILL_BLU_TEXTURE, &PAINT_SPILL_BLU_TEXTURE_URL ) &&
-		downloader->check_and_get( &PAINT_SPLAT_SINGLE_TEXTURE, &PAINT_SPLAT_SINGLE_TEXTURE_URL ) &&
-		downloader->check_and_get( &PAINT_SPLAT_RED_TEXTURE, &PAINT_SPLAT_RED_TEXTURE_URL ) &&
-		downloader->check_and_get( &PAINT_SPLAT_BLU_TEXTURE, &PAINT_SPLAT_BLU_TEXTURE_URL )))
-	{
-		if (!notifications_->add_notification(&PAINT_SPILL_LOAD_FAIL_MESSAGE, unknown_item)) {
-			stack->log( "Failed to allocate spill response notification." );
-			return false;
-		}
-	}
 
     // Strings for parsing.
     JUTIL::DynamicString* name = nullptr;
