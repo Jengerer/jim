@@ -15,7 +15,7 @@ const double BACKGROUND_VALUE_RATIO = 2.8;
 
 // Slot alpha attributes.
 const float SLOT_VISIBLE_ALPHA = 1.0f;
-const float SLOT_DISABLED_ALPHA = 0.2f;
+const float SLOT_DISABLED_ALPHA = 0.6f;
 
 // Class-wide font/text resources.
 JUI::FontInterface* SlotView::equipped_font_	= nullptr;
