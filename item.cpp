@@ -68,11 +68,10 @@ Item::~Item( void )
 	// Remove all equipped data.
     length = equipped_data_.get_length();
     for (i = 0; i < length; ++i) {
-		EquippedStatus* datum = equipped_data_.at( i );
+		EquippedStatus* datum = &equipped_data_.at( i );
         JUTIL::BaseAllocator::destroy( datum );
     }
     equipped_data_.clear();
-
 }
 
 /*
@@ -570,24 +569,29 @@ bool Item::is_selected( void ) const
 	return is_selected_;
 }
 
-bool Item::add_equipped_data( EquippedStatus* datum )
+/*
+ * Check if this status should replace existing and add it if so.
+ */
+bool Item::add_equipped_data( EEquipClass equip_class, EEquipSlot slot )
 {
 	// Check if we should replace the data.
     size_t i;
     size_t length = equipped_data_.get_length();
     for (i = 0; i < length; ++i) {
-		EquippedStatus* current = equipped_data_.at( i );
+		EquippedStatus& current = equipped_data_.at( i );
 
 		// Check if we should replace.
-		if (datum->get_equip_class() == current->get_equip_class()) {
-			equipped_data_.at( i ) = datum;
-            JUTIL::BaseAllocator::destroy( current );
-			return true;
+		if (equip_class == current.get_equip_class()) {
+			current.set_equip_slot( slot );
 		}
 	}
 
 	// Not overlapping, just append.
-	return equipped_data_.push( datum );
+	EquippedStatus new_status( equip_class, slot );
+	if (!equipped_data_.push( new_status )) {
+		return false;
+	}
+	return true;
 }
 
 bool Item::remove_equipped_data( EEquipClass equip_class )
@@ -595,12 +599,11 @@ bool Item::remove_equipped_data( EEquipClass equip_class )
     size_t i;
     size_t length = equipped_data_.get_length();
     for (i = 0; i < length; ++i) {
-		EquippedStatus* current = equipped_data_.at( i );
+		EquippedStatus& current = equipped_data_.at( i );
 
 		// Check if we should remove.
-		if (current->get_equip_class() == equip_class) {
-			equipped_data_.remove( current );
-            JUTIL::BaseAllocator::destroy( current );
+		if (equip_class == current.get_equip_class()) {
+			equipped_data_.erase( i );
 			return true;
 		}
 	}
@@ -616,7 +619,7 @@ size_t Item::get_equipped_count( void ) const
 
 const EquippedStatus* Item::get_equipped_status( size_t index ) const
 {
-	return equipped_data_.at( index );
+	return &equipped_data_.at( index );
 }
 
 const EquippedStatus* Item::find_equipped_status( EEquipClass equip_class ) const
@@ -624,7 +627,7 @@ const EquippedStatus* Item::find_equipped_status( EEquipClass equip_class ) cons
     size_t i;
     size_t length = equipped_data_.get_length();
     for (i = 0; i < length; ++i) {
-		EquippedStatus* current = equipped_data_.at( i );
+		const EquippedStatus* current = &equipped_data_.at( i );
 
 		// Check if we should remove.
 		if (current->get_equip_class() == equip_class) {

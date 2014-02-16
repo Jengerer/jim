@@ -571,19 +571,12 @@ Item* SteamInventoryManager::create_item_from_message( CSOEconItem* econ_item )
 	if (econ_item->contains_equipped_state()) {
 		for (j = 0; j < econ_item->equipped_state_size(); ++j) {
 			const CSOEconItemEquipped& equipped = econ_item->equipped_state( j );
-			EEquipClass equip_class = (EEquipClass) equipped.new_class();
-			EEquipSlot equip_slot = (EEquipSlot) equipped.new_slot();
-			if( equip_class != EQUIP_CLASS_SCOUT_UNUSED && equip_slot != EQUIP_SLOT_PREVIOUS ){
-				EquippedStatus* equipped_stat;
-				if(!JUTIL::BaseAllocator::allocate( &equipped_stat )) {
-					return nullptr;
-				}
-				equipped_stat = new (equipped_stat) EquippedStatus(
-					(EEquipClass) equipped.new_class(),
-					(EEquipSlot) equipped.new_slot()
-					);
-				if(!item->add_equipped_data( equipped_stat )) {
-					JUTIL::BaseAllocator::destroy( equipped_stat );
+			EEquipClass equip_class = static_cast<EEquipClass>(equipped.new_class());
+			EEquipSlot equip_slot = static_cast<EEquipSlot>(equipped.new_slot());
+			if (equip_class != EQUIP_CLASS_SCOUT_UNUSED && equip_slot != EQUIP_SLOT_PREVIOUS) {
+				if (!item->add_equipped_data( equip_class, equip_slot )) {
+					JUTIL::BaseAllocator::destroy( item );
+					stack->log( "Failed to add equipped status to item." );
 					return nullptr;
 				}
 			}

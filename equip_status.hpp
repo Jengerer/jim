@@ -19,15 +19,17 @@ public:
 	// Constructor.
 	EquippedStatus( EEquipClass equip_class,
 		EEquipSlot equip_slot );
-	virtual ~EquippedStatus( void );
+	~EquippedStatus( void );
 
+	// Equip setters and getters.
+	void set_equip_slot( EEquipSlot equip_slot );
 	EEquipClass get_equip_class( void ) const;
 	EEquipSlot get_equip_slot( void ) const;
 
 private:
 
+	// Should add a new attribute for a new class, don't override.
 	void set_equip_class( EEquipClass equip_class );
-	void set_equip_slot( EEquipSlot equip_slot );
 
 private:
 
