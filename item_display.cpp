@@ -146,7 +146,7 @@ bool ItemDisplay::update_display( void )
     }
 
 	// Load strange kills.
-	for( uint32 i = 0; i < 5; ++i){
+	for (uint32 i = 0; i < 5; ++i) {
 		uint32 item_strange_kills = item_->get_strange_number(i);
 		if (item_strange_kills != FL_ITEM_NOT_STRANGE) {
 			const KillEaterType* type = schema_->get_kill_eater_type( item_->get_strange_type(i) );
@@ -161,7 +161,7 @@ bool ItemDisplay::update_display( void )
 	// Add crate series display.
 	uint32 item_value = item_->get_crate_number();
 	if (item_value != FL_ITEM_NOT_CRATE) {
-		if (!information.write( "\nCrate Series %u", item_value )) {
+		if (!information.write( "\nCrate Series #%u", item_value )) {
 			return false;
 		}
 	}
@@ -191,14 +191,19 @@ bool ItemDisplay::update_display( void )
 		}
 	}
 
-	// Add debugging information.
+	// Write position flags.
     if (!information.write( "\nFlags: 0x%x", item_->get_inventory_flags() )) {
         return false;
     }
 
+	// Write tool type.
 	if (!information.write( "\nTool: %u", item_->get_tool_type() )) {
         return false;
     }
+
+	// Output attribute names/values.
+	unsigned int i;
+
 
 #endif
 

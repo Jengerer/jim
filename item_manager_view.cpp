@@ -809,6 +809,12 @@ JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
  */
 JUI::IOResult ItemManagerView::on_key_pressed( int key )
 {
+	// Ignore key presses if we have a popup.
+	if (popups_->has_popup()) {
+		return JUI::IO_RESULT_HANDLED;
+	}
+
+	// Now handle actual key press event.
 	if (key == MULTISELECT_KEY_CODE) {
 		is_multiselect_pressed_ = true;
 	}
