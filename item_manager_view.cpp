@@ -1120,9 +1120,6 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 				for (i = last_checked; i < end; ++i) {
 					const Slot* slot = inventory->get_slot( i );
 					if (!slot->has_item()) {
-						JUTIL::DynamicString message;
-						message.write( "Moving %s to %u.\n", current->get_name()->get_string(), i );
-						notifications_->add_notification( &message, current->get_texture() );
 						if (!inventory_->move_item( current, i )) {
 							return false;
 						}
