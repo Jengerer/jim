@@ -28,7 +28,7 @@ bool DynamicSlotArray::push_item( Item* item )
  * Compresses the slot book to remove gaps between occupied slots.
  * Returns true if successful, false otherwise.
  */
-bool DynamicSlotArray::compress_slots( void )
+void DynamicSlotArray::compress_slots( void )
 {
     // Find the first empty slot.
     unsigned int i;
@@ -57,8 +57,5 @@ bool DynamicSlotArray::compress_slots( void )
     }
 
     // Resize to minimum.
-    if (!set_size( empty )) {
-        return false;
-    }
-    return true;
+    set_size( empty );
 }
