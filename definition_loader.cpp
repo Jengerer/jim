@@ -440,9 +440,21 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
             return false;
         }
 
-		// TODO: These don't seem required anymore, maybe default to 0.0f.
-		get_member( &attribute, &ATTRIBUTE_MIN_VALUE_KEY, &attribute_min_value );
-        get_member( &attribute, &ATTRIBUTE_MAX_VALUE_KEY, &attribute_max_value );
+		// Min/max value doesn't seem required anymore, so just default to zero.
+		float min_value;
+		float max_value;
+		if (!get_member( &attribute, &ATTRIBUTE_MIN_VALUE_KEY, &attribute_min_value )) {
+			min_value = 0.0f;
+		}
+		else {
+			min_value = attribute_min_value->asFloat();
+		}
+		if (!get_member( &attribute, &ATTRIBUTE_MAX_VALUE_KEY, &attribute_max_value )) {
+			max_value = 0.0f;
+		}
+		else {
+			max_value = attribute_min_value->asFloat();
+		}
 
 		// Get effect type, third char is different for each time.
         const JUTIL::ConstantString effect_string = attribute_effect_type->asCString();
@@ -492,8 +504,6 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
         unsigned int index = attribute_index->asUInt();
 
 		// Min/max values removed since was inconsistent in schema.
-        float min_value = 0; // attribute_min_value->asFloat();
-        float max_value = 0;// attribute_max_value->asFloat();
         bool is_hidden = attribute_is_hidden->asBool();
         bool is_integer = attribute_is_integer->asBool();
 

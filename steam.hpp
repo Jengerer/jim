@@ -14,6 +14,9 @@ struct GCProtobufHeader_t
 };
 #pragma pack(pop)
 
+// Protobuf flag.
+const unsigned int PROTOBUF_MESSAGE_FLAG = 0x80000000;
+
 class Steam
 {
 

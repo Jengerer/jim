@@ -261,21 +261,3 @@ void Inventory::clear_selection( void )
 	selected_slots_.destroy_slots();
 	listener_->on_selection_changed();
 }
-
-/*
- * Attempt to place excluded items into valid inventory slots.
- */
-bool Inventory::resolve_excluded( void )
-{
-	unsigned int i = 0;
-    unsigned int end = excluded_slots_.get_size();
-	for (i = 0; i < end; ++i) {
-		Item* item = excluded_slots_.get_item( i );
-		if ((item != nullptr) && can_place( item )) {
-            place_item( item );
-		}
-	}
-
-    // TODO: compress excluded here? Don't know if we have to do that anymore.
-	return true;
-}
