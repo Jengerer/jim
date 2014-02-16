@@ -90,9 +90,8 @@ public:
 	bool is_selected( void ) const;
 
 	// Equipped data management
-	bool add_equipped_data( EquippedStatus* datum );
+	bool add_equipped_data( EEquipClass equip_class, EEquipSlot slot );
 	bool remove_equipped_data( EEquipClass equip_class );
-
     size_t get_equipped_count( void ) const;
     const EquippedStatus* get_equipped_status( size_t index ) const;
 	const EquippedStatus* find_equipped_status( EEquipClass equip_class ) const;
@@ -126,7 +125,7 @@ private:
 	// Item definition information.
 	const ItemDefinition* definition_;
 	JUTIL::Vector<Attribute*> attributes_;
-	JUTIL::Vector<EquippedStatus*> equipped_data_;
+	JUTIL::Vector<EquippedStatus> equipped_data_;
 
 };
 
