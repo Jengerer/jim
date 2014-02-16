@@ -379,13 +379,25 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
     book->set_listener( selected_view_ );
 	selected_view_->set_listener( this );
 	
-	// Create excluded and selected view.
+	// Create layout for excluded and controls.
+	JUI::HorizontalLayout* excluded_layout;
+	if (!JUTIL::BaseAllocator::allocate( &excluded_layout )) {
+		stack->log( "Failed to allocate excluded slot layout." );
+		return false;
+	}
+	if (!layout->add( excluded_layout )) {
+		stack->log( "Failed to add excluded slot layout to layout." );
+		return false;
+	}
+	new (excluded_layout) JUI::HorizontalLayout();
+
+	// Create excluded view.
     book = inventory_->get_excluded_slots();
 	if (!JUTIL::BaseAllocator::allocate( &excluded_view_ )) {
         stack->log( "Failed to allocate excluded slot view." );
 		return false;
 	}
-	if (!layout->add( excluded_view_ )) {
+	if (!excluded_layout->add( excluded_view_ )) {
 		JUTIL::BaseAllocator::release( excluded_view_ );
         stack->log( "Failed to add initialized excluded view to layout." );
 		return false;
@@ -397,6 +409,29 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	}
     excluded_view_->set_listener( this );
 	book->set_listener( excluded_view_ );
+
+	// Create excluded control buttons.
+	excluded_prev_button_ = button_manager_.create( &PREV_PAGE_LABEL, nullptr );
+	if (excluded_prev_button_ == nullptr) {
+        stack->log( "Failed to create excluded previous page button." );
+		return false;
+	}
+	if (!excluded_layout->add( excluded_prev_button_ )) {
+		JUTIL::BaseAllocator::destroy( excluded_prev_button_ );
+        stack->log( "Failed to add excluded previous button to page display layout." );
+		return false;
+	}
+    excluded_next_button_ = button_manager_.create( &NEXT_PAGE_LABEL, nullptr );
+	if (excluded_next_button_ == nullptr) {
+        stack->log( "Failed to create excluded next page button." );
+		return false;
+	}
+	if (!excluded_layout->add( excluded_next_button_ )) {
+		JUTIL::BaseAllocator::destroy( excluded_next_button_ );
+        stack->log( "Failed to add excluded next button to page display layout." );
+		return false;
+	}
+	excluded_layout->pack( BUTTON_SPACING, JUI::ALIGN_MIDDLE );
 
 	// Pack top-most layout.
 	layout->pack( LAYOUT_SPACING, JUI::ALIGN_LEFT );
@@ -578,6 +613,50 @@ bool ItemManagerView::previous_page( void )
 		}
 	}
 	return true;
+}
+
+/*
+ * Attempt to go to next excluded page.
+ */
+void ItemManagerView::excluded_next_page( void )
+{
+	unsigned int active = excluded_view_->get_active_page();
+	unsigned int new_active = active + 1;
+	if (new_active != excluded_view_->get_page_count()) {
+		excluded_view_->set_active_page( new_active );
+		update_excluded_page_display();
+	}
+}
+
+/*
+ * Attempt to go to previous excluded page.
+ */ 
+void ItemManagerView::excluded_previous_page( void )
+{
+	unsigned int active = excluded_view_->get_active_page();
+	if (active != 0) {
+		unsigned int new_active = active - 1;
+		excluded_view_->set_active_page( new_active );
+		update_excluded_page_display();
+	}
+}
+
+/*
+ * Update excluded page display and button state.
+ */
+void ItemManagerView::update_excluded_page_display( void )
+{
+	// Move left if we exceed maximum page after compression.
+	unsigned int active = excluded_view_->get_active_page();
+	unsigned int maximum = excluded_view_->get_page_count() - 1;
+	if (active > maximum) {
+		active = maximum;
+		excluded_view_->set_active_page( maximum );
+	}
+
+	// Update button state.
+	excluded_prev_button_->set_enabled( active != 0 );
+	excluded_next_button_->set_enabled( active != maximum );
 }
 
 /*
@@ -799,7 +878,21 @@ void ItemManagerView::update_buttons_state( void )
  */
 bool ItemManagerView::on_button_pressed( Button* button )
 {
-    return true;
+	// Handle page navigation events.
+	bool result = true;
+    if (button == prev_button_) {
+		result = previous_page();
+    }
+    else if (button == next_button_) {
+		result = next_page();
+    }
+	else if (button == excluded_prev_button_) {
+		excluded_previous_page();
+	}
+	else if (button == excluded_next_button_) {
+		excluded_next_page();
+	}
+    return result;
 }
 
 /*
@@ -811,7 +904,6 @@ bool ItemManagerView::on_button_released( Button* button )
 	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
 	// Page view variables.
-	bool result;
     if (button == craft_button_) {
 		if (!listener_->on_craft_items()) {
 			return false;
@@ -824,17 +916,9 @@ bool ItemManagerView::on_button_released( Button* button )
 		const JUTIL::ConstantString DELETE_QUESTION( "Are you sure you want to delete this item?" );
 		delete_check_= popups_->create_confirmation( &DELETE_QUESTION );
 		if (delete_check_ == nullptr) {
+			stack->log( "Failed to create craft confirmation popup." );
 			return false;
 		}
-    }
-	// Handle page navigation events.
-    else if (button == prev_button_) {
-		result = previous_page();
-		return result;
-    }
-    else if (button == next_button_) {
-		result = next_page();
-		return result;
     }
     return true;
 }

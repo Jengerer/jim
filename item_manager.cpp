@@ -300,6 +300,8 @@ bool ItemManager::on_schema_loaded( void )
 		}
 	}
 
+	// Update excluded page state.
+	view_->update_excluded_page_display();
 	return true;
 }
 
@@ -512,9 +514,13 @@ bool ItemManager::on_delete_item( void )
  */
 bool ItemManager::on_item_moved( Item* item )
 {
+	// Add item to be updated.
 	if (!steam_items_.queue_item_update( item )) {
 		return false;
 	}
+
+	// Update excluded items in case we moved out.
+	view_->update_excluded_page_display();
 	return true;
 }
 
@@ -546,6 +552,9 @@ bool ItemManager::on_item_created( Item* item )
 		if (!inventory_.place_item( item )) {
 			return false;
 		}
+
+		// Update excluded slot in case we pushed up.
+		view_->update_excluded_page_display();
 	}
 
 	return true;
@@ -570,6 +579,9 @@ void ItemManager::on_item_deleted( uint64 id )
 				pending_deletes_ = false;
 			}
 		}
+
+		// Update excluded in case we popped.
+		view_->update_excluded_page_display();
 	}
 }
 
@@ -595,6 +607,9 @@ bool ItemManager::on_item_updated( uint64 id, uint32 flags )
 		stack->log( "Failed to place updated item." );
 		return false;
 	}
+
+	// Update excluded in case we moved out.
+	view_->update_excluded_page_display();
 	return true;
 }
 

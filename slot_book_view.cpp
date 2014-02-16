@@ -72,7 +72,7 @@ const SlotView* SlotBookView::get_slot_view( unsigned int index ) const
 /*
  * Handle slot updated event for page view.
  */
-void SlotBookView::on_slot_updated( unsigned int index, const Slot* slot)
+void SlotBookView::on_slot_updated( unsigned int index, const Slot* slot )
 {
 	// Only update if index is on current page.
 	unsigned int page_size = get_grid_size();

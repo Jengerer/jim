@@ -62,7 +62,10 @@ public:
 	// Page management.
 	bool next_page( void );
 	bool previous_page( void );
+	void excluded_next_page( void );
+	void excluded_previous_page( void );
 	bool update_page_display( void );
+	void update_excluded_page_display( void );
 
     // Mouse handling functions.
     virtual JUI::IOResult on_mouse_moved( JUI::Mouse* mouse );
@@ -144,6 +147,8 @@ private:
 	Button* delete_button_;
     Button* prev_button_;
     Button* next_button_;
+	Button* excluded_prev_button_;
+	Button* excluded_next_button_;
 
     // Top-level fonts.
 	JUI::FontInterface* heading_font_;
