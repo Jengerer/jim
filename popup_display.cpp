@@ -90,11 +90,15 @@ Confirmation* PopupDisplay::create_confirmation( const JUTIL::String* question )
     confirmation = new (confirmation) Confirmation();
 
     // Initialize notice layout and message.
-    if (!confirmation->initialize( question ) || !add_popup( confirmation )) {
+    if (!confirmation->initialize( question )) {
         JUTIL::BaseAllocator::destroy( confirmation );
         return nullptr;
     }
-    confirmation->pack();
+	confirmation->pack();
+	if (!add_popup( confirmation )) {
+		JUTIL::BaseAllocator::destroy( confirmation );
+		return nullptr;
+	}
 	return confirmation;
 }
 
@@ -143,7 +147,7 @@ JUI::IOResult PopupDisplay::on_mouse_clicked( JUI::Mouse* mouse )
             }
         }
 
-        return result;
+        return JUI::IO_RESULT_HANDLED;
 	}
 
     return JUI::IO_RESULT_UNHANDLED;
@@ -166,7 +170,7 @@ JUI::IOResult PopupDisplay::on_mouse_released( JUI::Mouse* mouse )
             }
         }
 
-        return result;
+        return JUI::IO_RESULT_HANDLED;
 	}
 
     return JUI::IO_RESULT_UNHANDLED;
@@ -181,7 +185,7 @@ JUI::IOResult PopupDisplay::on_mouse_moved( JUI::Mouse* mouse )
 	if (has_popup()) {
 		Popup* top = get_top_popup();
 		JUI::IOResult result = top->on_mouse_moved( mouse );
-        return result;
+        return JUI::IO_RESULT_HANDLED;
 	}
 
 	// Always let other components get movement.

@@ -63,6 +63,18 @@ bool SteamInventoryManager::queue_item_update( const Item* item )
 }
 
 /*
+ * Remove an item to be updated.
+ */
+void SteamInventoryManager::remove_item_update( const Item* item )
+{
+	// Remove if it's in the map.
+	uint64 id = item->get_unique_id();
+	if (updated_.contains( id )) {
+		updated_.remove( id );
+	}
+}
+
+/*
  * Push all pending item updates to Steam backend.
  */
 bool SteamInventoryManager::submit_item_updates( void ) const
@@ -142,6 +154,11 @@ bool SteamInventoryManager::set_craft_size( unsigned int count )
 	if (!craft_buffer_.set_size( message_size )) {
 		return false;
 	}
+
+	// Update blueprint name and item count.
+	GCCraft_t* message = reinterpret_cast<GCCraft_t*>(craft_buffer_.get_array());
+	message->blueprint = 0xFFFF;
+	message->itemcount = count;
 
 	return true;
 }
@@ -244,9 +261,10 @@ bool SteamInventoryManager::handle_message( uint32 id, void* message )
 	switch (id) {
 		case GCCraftResponse_t::k_iMessage:
 		{
-            if (!listener_->on_craft_failed()) {
-                return false;
-            }
+			GCCraftResponse_t* response = reinterpret_cast<GCCraftResponse_t*>(message);
+			if (response->blueprint == 0xFFFF) {
+				listener_->on_craft_failed();
+			}
 			break;
 		}
 	}
@@ -280,9 +298,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 			}
 
 			// Notify that inventory is being reset.
-            if (!listener_->on_inventory_reset()) {
-                return false;
-            }
+            listener_->on_inventory_reset();
 								
 			// Add items.
             const unsigned int INVENTORY_ITEMS_SUBSCRIPTION_ID = 1;
@@ -517,11 +533,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
             }
 
             // Notify listener that this item is deleted.
-            if (!listener_->on_item_deleted( deleted_item.id() )) {
-                stack->log( "Failed to delete item. ");
-                return false;
-            }
-
+            listener_->on_item_deleted( deleted_item.id() );
 			break;
 		}
 

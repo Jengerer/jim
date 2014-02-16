@@ -815,6 +815,7 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
     if (!success) {
         return false;
     }
+	schema_->set_loaded( true );
     return true;
 }
 

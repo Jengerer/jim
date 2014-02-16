@@ -55,9 +55,9 @@ const int MULTISELECT_KEY_CODE = VK_CONTROL;
 const float DRAG_THRESHOLD = 25.0f;
 const long SWITCH_PAGE_DELAY = 500;
 
-ItemManagerView::ItemManagerView( Inventory* inventory, InventoryActionInterface* action_interface )
+ItemManagerView::ItemManagerView( Inventory* inventory, ItemSchema* schema )
     : inventory_( inventory ),
-	  action_interface_( action_interface ),
+	  schema_( schema ),
       inventory_view_( nullptr ),
       excluded_view_( nullptr ),
 	  selected_view_( nullptr ),
@@ -405,12 +405,11 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	layout->set_position( center_x, center_y );
 
 	// Create item display.
-    ItemSchema* schema = inventory_->get_schema();
 	if (!JUTIL::BaseAllocator::allocate( &item_display_ )) {
         stack->log( "Failed to allocate item display." );
 		return false;
 	}
-	item_display_ = new (item_display_) ItemDisplay( schema );
+	item_display_ = new (item_display_) ItemDisplay( schema_ );
 	if (!item_display_->initialize()) {
 		JUTIL::BaseAllocator::destroy( item_display_ );
 		stack->log( "Failed to initialize item display." );
@@ -780,6 +779,18 @@ JUI::IOResult ItemManagerView::on_key_released( int key )
 }
 
 /*
+ * Update button enabled/disabled state.
+ */
+void ItemManagerView::update_buttons_state( void )
+{
+	// Get number of selected items.
+	DynamicSlotArray* selected = inventory_->get_selected_slots();
+	unsigned int count = selected->get_size();
+	craft_button_->set_enabled( count != 0 );
+	delete_button_->set_enabled( count == 1 );
+}
+
+/*
  * Handle button press events.
  */
 bool ItemManagerView::on_button_pressed( Button* button )
@@ -792,13 +803,25 @@ bool ItemManagerView::on_button_pressed( Button* button )
  */
 bool ItemManagerView::on_button_released( Button* button )
 {
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	// Page view variables.
 	bool result;
     if (button == craft_button_) {
+		if (!listener_->on_craft_items()) {
+			return false;
+		}
     }
     else if (button == sort_button_) {
     }
     else if (button == delete_button_) {
+		// Create a prompt to confirm deletion.
+		const JUTIL::ConstantString DELETE_QUESTION( "Are you sure you want to delete this item?" );
+		delete_check_= popups_->create_confirmation( &DELETE_QUESTION );
+		if (delete_check_ == nullptr) {
+			return false;
+		}
     }
 	// Handle page navigation events.
     else if (button == prev_button_) {
@@ -823,6 +846,14 @@ bool ItemManagerView::on_popup_killed( Popup* popup )
             return false;
         }
     }
+	else if (popup == delete_check_) {
+		ConfirmationResponse response = delete_check_->get_response();
+		if (response == RESPONSE_YES) {
+			if (!listener_->on_delete_item()) {
+				return false;
+			}
+		}
+	}
     return true;
 }
 

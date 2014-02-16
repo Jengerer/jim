@@ -1,9 +1,5 @@
 #include "inventory.hpp"
 
-// Inventory attributes.
-const unsigned int TRIAL_SLOT_COUNT = 50;
-const unsigned int PREMIUM_SLOT_COUNT = 300;
-
 /*
  * Inventory constructor.
  */
@@ -35,6 +31,22 @@ SlotArray* Inventory::get_inventory_slots( void )
 }
 
 /*
+ * Get number of items in item set.
+ */
+unsigned int Inventory::get_item_count( void ) const
+{
+	return items_.get_size();
+}
+
+/*
+ * Get indexed item from item set.
+ */
+Item* Inventory::get_item( unsigned int index )
+{
+	return items_.get_item( index );
+}
+
+/*
  * Get the handle to the excluded book.
  */
 DynamicSlotArray* Inventory::get_excluded_slots( void )
@@ -51,46 +63,40 @@ DynamicSlotArray* Inventory::get_selected_slots( void )
 }
 
 /*
- * Get a handle to the schema the inventory has, if any.
- */
-ItemSchema* Inventory::get_schema( void )
-{
-    return &schema_;
-}
-
-/*
- * Handle schema load completed event.
- */
-bool Inventory::on_schema_loaded( JUI::Graphics2D *graphics )
-{
-    // Resolve and place all items.
-    unsigned int i;
-    unsigned int end = items_.get_size();
-    for (i = 0; i < end; ++i) {
-        Item* item = items_.get_item( i );
-
-        // Find definition for item.
-        if (!schema_.resolve( item, graphics )) {
-            return false;
-        }
-
-        // Try to place item.
-        unsigned int position = item->get_position();
-        if (!place_item( item )) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/*
  * Find item by unique ID.
  */
 Item* Inventory::find_item( uint64 unique_id )
 {
     Item* item = items_.find( unique_id );
     return item;
+}
+
+/*
+ * Add an item to the item set.
+ */
+bool Inventory::add_item( Item* item )
+{
+	if (!items_.add( item )) {
+		return false;
+	}
+	return true;
+}
+
+/*
+ * Delete item from the inventory.
+ */
+void Inventory::delete_item( Item* item )
+{
+	// Try to find the item with the matching ID.
+	items_.destroy( item );
+
+    // Clear from slots.
+    if (!inventory_slots_.remove_item( item )) {
+		excluded_slots_.remove_item( item );
+		excluded_slots_.compress_slots();
+	}
+    selected_slots_.remove_item( item );
+	selected_slots_.compress_slots();
 }
 
 /*
@@ -228,6 +234,7 @@ bool Inventory::set_selected( Item* item, bool is_selected )
 		selected_slots_.compress_slots();
     }
 
+	listener_->on_selection_changed();
 	return true;
 }
 
@@ -251,6 +258,7 @@ void Inventory::clear_selection( void )
 		}
 	}
 	selected_slots_.destroy_slots();
+	listener_->on_selection_changed();
 }
 
 /*
@@ -269,132 +277,4 @@ bool Inventory::resolve_excluded( void )
 
     // TODO: compress excluded here? Don't know if we have to do that anymore.
 	return true;
-}
-
-/*
- * Handle item creation event.
- */
-bool Inventory::on_item_created( Item* item )
-{
-    // Add to item set.
-	if (!items_.add( item )) {
-        return false;
-    }
-
-	// Attempt to place item if schema is loaded.
-    if (schema_.is_loaded()) {
-        // Resolve definition.
-        if (!schema_.resolve( item, nullptr )) {
-            return false;
-        }
-
-        // Place item into inventory.
-        if (!place_item( item )) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/*
- * Handle item deletion event.
- */
-bool Inventory::on_item_deleted( uint64 unique_id )
-{
-    // Try to find the item with the matching ID.
-    Item* deleted = items_.find( unique_id );
-    if (deleted == nullptr) {
-        return false;
-    }
-	items_.destroy( deleted );
-
-    // Clear from slots.
-    if (!inventory_slots_.remove_item( deleted )) {
-		excluded_slots_.remove_item( deleted );
-	}
-    // TODO: selected_book_.remove_item( item );
-	return true;
-}
-
-/*
- * Handle an item's flags being updated by backend.
- * Assumes that an excluded item will never be told to replace
- * an inventory item and that an inventory item will never need
- * to move to excluded.
- */
-bool Inventory::on_item_updated( uint64 unique_id, uint32 flags )
-{
-    // Find item with matching ID.
-	Item* updated = items_.find( unique_id );
-	assert( updated != nullptr );
-    if (updated == nullptr) {
-        return false;
-    }
-	updated->set_inventory_flags( flags );
-
-	// If this is an inventory item, swap/empty new slot with old.
-	unsigned int old_index;
-	unsigned int destination = updated->get_position();
-	if (inventory_slots_.contains_item( updated, &old_index )) {
-		Item* replaced = inventory_slots_.get_item( destination );
-		inventory_slots_.set_item( old_index, replaced );
-	}
-
-	// Get new position and move into it.
-	inventory_slots_.set_item( destination, updated );
-    return true;
-}
-
-/*
- * Handle craft failure event.
- */
-bool Inventory::on_craft_failed( void )
-{
-    return true;
-}
-
-/*
- * Handle inventory reset event.
- */
-bool Inventory::on_inventory_reset( void )
-{
-    delete_items();
-    return true;
-}
-
-/*
- * Handle inventory size change event.
- */
-bool Inventory::on_inventory_resize( bool is_trial_account, uint32 extra_slots )
-{
-    // Calculate number of slots to resize to.
-    unsigned int total_slots;
-    if (is_trial_account) {
-        // Should be no extra slots for trial accounts.
-        total_slots = TRIAL_SLOT_COUNT;
-    }
-    else {
-        total_slots = PREMIUM_SLOT_COUNT + extra_slots;
-    }
-    if (total_slots < inventory_slots_.get_size()) {
-        return false;
-    }
-
-    // Attempt to set inventory book size.
-    if (!inventory_slots_.set_size( total_slots )) {
-        return false;
-    }
-    return true;
-}
-
-/*
- * Handle inventory load completion event; notify to start loading schema.
- */
-bool Inventory::on_inventory_loaded( void )
-{
-	if (!listener_->on_inventory_loaded()) {
-		return false;
-	}
-    return true;
 }

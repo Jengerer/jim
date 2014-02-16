@@ -12,6 +12,10 @@ public:
 
     virtual bool on_error_acknowledged( void ) = 0;
 
+	// Handle UI button events.
+	virtual bool on_craft_items( void ) = 0;
+	virtual bool on_delete_item( void ) = 0;
+
 };
 
 #endif // ITEM_MANAGER_VIEW_LISTENER_HPP

@@ -12,6 +12,8 @@ public:
 
 	// Dynamic slot management.
     bool push_item( Item* item );
+
+	// TODO: This should always pass; don't worry about bad downsize.
 	bool compress_slots( void );
 
 };

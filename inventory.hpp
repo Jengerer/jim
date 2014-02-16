@@ -23,7 +23,7 @@ enum InventorySlotMode
  * The main invariant that this class aims to preserve is that
  * item positions must be the same as stored on the Steam backend.
  */
-class Inventory : public SteamInventoryListener
+class Inventory
 {
 
 public:
@@ -39,14 +39,14 @@ public:
     DynamicSlotArray* get_excluded_slots( void );
     DynamicSlotArray* get_selected_slots( void );
 
-    // Item schema handling.
-    ItemSchema* get_schema( void );
-	bool on_schema_loaded( JUI::Graphics2D *graphics );
-
 	// Item query functions.
 	Item* find_item( uint64 unique_id );
+	unsigned int get_item_count( void ) const;
+	Item* get_item( unsigned int index );
 
     // Item addition/removal.
+	bool add_item( Item* item );
+	void delete_item( Item* item );
     bool can_place( const Item* item ) const;
 	bool place_item( Item* item );
 	bool move_item( Item* item, unsigned int index );
@@ -61,20 +61,10 @@ public:
 	// Excluded handling.
 	bool resolve_excluded( void );
 
-    // Steam inventory listener handling functions.
-    virtual bool on_item_created( Item* item );
-    virtual bool on_item_deleted( uint64 unique_id );
-    virtual bool on_item_updated( uint64 unique_id, uint32 flags );
-    virtual bool on_craft_failed( void );
-    virtual bool on_inventory_reset( void );
-    virtual bool on_inventory_resize( bool is_trial_account, uint32 extra_slots );
-    virtual bool on_inventory_loaded( void );
-
 private:
 
     // Item set and schema.
     ItemSet items_;
-    ItemSchema schema_;
 
 	// Slot arrays.
 	SlotArray inventory_slots_;

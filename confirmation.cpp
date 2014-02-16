@@ -61,6 +61,7 @@ bool Confirmation::initialize( const JUTIL::String* question )
         JUTIL::BaseAllocator::destroy( no_button_ );
         return false;
     }
+	buttons->pack( BUTTON_SPACING, JUI::ALIGN_MIDDLE );
 
     return true;
 }
