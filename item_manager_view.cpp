@@ -591,7 +591,7 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
         return result;
     }
 
-	// TODO: if ((selected count > 1) || is_clicked_excluded) { set restricted }
+	// If we drag the clicked mouse far enough away, start dragging.
 	if (is_mouse_down_ && (clicked_view_ != nullptr)) {
 		int dist_x = mouse->get_x() - clicked_x_;
 		int dist_y = mouse->get_y() - clicked_y_;
@@ -669,6 +669,7 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
 	// Set input state and reset dragging parameters.
 	is_mouse_down_ = true;
 	clicked_view_ = nullptr;
+	was_dragging_ = false;
 
     // Pass to popup handler.
     JUI::IOResult result = popups_->on_mouse_clicked( mouse );
@@ -727,9 +728,12 @@ JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
 	if (result != JUI::IO_RESULT_UNHANDLED) {
 		return result;
 	}
-	result = excluded_view_->on_mouse_released( mouse );
-	if (result != JUI::IO_RESULT_UNHANDLED) {
-		return result;
+	// Only release on excluded if we weren't dragging.
+	if (!was_dragging_) {
+		result = excluded_view_->on_mouse_released( mouse );
+		if (result != JUI::IO_RESULT_UNHANDLED) {
+			return result;
+		}
 	}
 
 	// Pass to button manager.
@@ -865,6 +869,9 @@ bool ItemManagerView::on_slot_hovered( SlotArrayInterface* slot_array, unsigned 
     // Check which container is triggering this.
     const SlotView* view;
     const Slot* slot = slot_array->get_slot( index );
+	if (!slot->has_item()) {
+		return true;
+	}
 	const SlotArray* inventory = inventory_->get_inventory_slots();
 	const SlotArray* excluded = inventory_->get_excluded_slots();
 	const SlotArray* selected = inventory_->get_selected_slots();
@@ -988,9 +995,6 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 		}
 	}
 	else if (was_dragging_) {
-		// Reset the flag for next time.
-		was_dragging_ = false;
-
 		// Can only release dragged onto inventory.
 		// If we're dropping onto a full slot, this must be one item, inventory to inventory.
 		Item* item = slot->get_item();
