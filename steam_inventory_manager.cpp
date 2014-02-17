@@ -211,10 +211,9 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
         }
 
         // Check if message is protobuf message.
-        const unsigned int PROTOBUF_FLAG = 0x80000000;
-        if ((message_id & PROTOBUF_FLAG) != 0) {
+        if ((message_id & PROTOBUF_MESSAGE_FLAG) == PROTOBUF_MESSAGE_FLAG) {
             // Clear flag to get real message ID.
-			message_id &= ~PROTOBUF_FLAG;
+			message_id &= ~PROTOBUF_MESSAGE_FLAG;
 
 			// First get the protobuf struct header.
 			SerializedBuffer header_buffer( buffer.get_array() );
@@ -230,7 +229,6 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 			header_buffer.push( header_size );
 
 			// Check if we can set target ID.
-			// TODO: Maybe move all this horseshit into Steam.
 			if (header_msg.has_job_id_source()) {
 				set_target_id( header_msg.job_id_source() );
 			}
@@ -512,7 +510,6 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
             }
 
             // Pass new item to listener.
-            // TODO: This would probably be a good place to resolve schema if it's loaded.
             if (!listener_->on_item_created( item )) {
                 JUTIL::BaseAllocator::destroy( item );
                 stack->log( "Failed to add item to inventory." );
@@ -616,20 +613,6 @@ Item* SteamInventoryManager::create_item_from_message( CSOEconItem* econ_item )
 		if (!new_attribute->set_value( value_buffer, value_length )) {
 			JUTIL::BaseAllocator::destroy( item );
 			stack->log( "Failed to set attribute value." );
-			return false;
-		}
-	}
-
-	// Generate name.
-	// TODO: Custom name is now an attribute; have to do this when schema is resolved.
-	// TODO: In case you forgot, you wanted to made some kind of interface for when an
-	// item is loaded, so we can load texture and name using the same function for schema
-	// load and post-schema-load item add.
-	if (econ_item->has_custom_name()) {
-		const JUTIL::ConstantString name = econ_item->custom_name().c_str();
-		if (!item->set_custom_name( &name )) {
-			JUTIL::BaseAllocator::destroy( item );
-			stack->log( "Failed to set custom name for item." );
 			return false;
 		}
 	}

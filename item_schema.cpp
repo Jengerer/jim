@@ -237,6 +237,9 @@ const KillEaterRanks* ItemSchema::get_kill_eater_ranks( const JUTIL::String* nam
  */
 bool ItemSchema::resolve( Item* item, JUI::Graphics2D *graphics ) const
 {
+	// Stack for reporting errors.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
     // Get definition for item.
     uint16 index = item->get_type_index();
     ItemDefinition* definition = get_item_definition( index );
@@ -252,6 +255,7 @@ bool ItemSchema::resolve( Item* item, JUI::Graphics2D *graphics ) const
 	for (i = 0; i < length; ++i) {
 		Attribute* attribute = item->get_attribute( i );
 		if (!resolve( attribute )) {
+			stack->log( "Failed to resolve attribute with type index %u.\n", attribute->get_index() );
 			return false;
 		}
 	}
@@ -259,10 +263,31 @@ bool ItemSchema::resolve( Item* item, JUI::Graphics2D *graphics ) const
 	// Update item attributes.
 	item->update_attributes();
 
-	// Generate name for item if no custom.
-	const JUTIL::String* name = item->get_name();
-	if (name->get_length() == 0) {
+	// Generate name for item.
+	const JUTIL::ConstantString CUSTOM_NAME_ATTRIBUTE( "custom name attr" );
+	const unsigned int CUSTOM_NAME_SIZE_OFFSET = 1;
+	const unsigned int CUSTOM_NAME_STRING_OFFSET = 2;
+	const Attribute* custom_name = item->find_attribute( &CUSTOM_NAME_ATTRIBUTE );
+	if (custom_name) {
+		// Length is written into second byte.
+		const char* custom_name_value = custom_name->get_value();
+		unsigned int size = static_cast<unsigned int>(custom_name_value[CUSTOM_NAME_SIZE_OFFSET]);
+
+		// Write into dynamic string so we can get a null character.
+		JUTIL::DynamicString name_buffer;
+		if (!name_buffer.copy( custom_name_value + CUSTOM_NAME_STRING_OFFSET, size )) {
+			stack->log( "Failed to write copy of custom name." );
+			return false;
+		}
+		if (!item->set_custom_name( &name_buffer )) {
+			JUTIL::BaseAllocator::destroy( item );
+			stack->log( "Failed to set custom name for item." );
+			return false;
+		}
+	}
+	else {
 		if (!item->generate_name()) {
+			stack->log( "Failed to generate name string for item." );
 			return false;
 		}
 	}
