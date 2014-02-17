@@ -228,7 +228,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 
 	// Create inventory buttons.
 	JUI::FileTexture* craft_texture;
-    JUI::FileTexture* sort_texture;
+    // JUI::FileTexture* sort_texture;
     JUI::FileTexture* delete_texture;
     JUI::Graphics2D::ReturnStatus status;
 
@@ -238,11 +238,11 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         return false;
     }
 
-    // Load sort texture.
+    /*// Load sort texture.
     status = graphics->get_texture( &SORT_ICON_TEXTURE, &sort_texture );
     if (status != JUI::Graphics2D::Success) {
         return false;
-    }
+    }*/
 
     // Load delete texture.
     status = graphics->get_texture( &DELETE_ICON_TEXTURE, &delete_texture );
@@ -252,7 +252,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 
 	// Create buttons.
     const JUTIL::ConstantString CRAFT_BUTTON_LABEL = "craft";
-    const JUTIL::ConstantString SORT_BUTTON_LABEL = "sort";
+    // const JUTIL::ConstantString SORT_BUTTON_LABEL = "sort";
     const JUTIL::ConstantString DELETE_BUTTON_LABEL = "delete";
     craft_button_ = button_manager_.create( &CRAFT_BUTTON_LABEL, craft_texture );
     if (craft_button_ == nullptr) {
@@ -264,7 +264,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 		stack->log( "Failed to add craft button to layout." );
 		return false;
 	}
-    sort_button_ = button_manager_.create( &SORT_BUTTON_LABEL, sort_texture );
+    /* sort_button_ = button_manager_.create( &SORT_BUTTON_LABEL, sort_texture );
     if (sort_button_ == nullptr ) {
         stack->log( "Failed to create sort button." );
         return false;
@@ -273,7 +273,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 		stack->log( "Failed to add sort button to layout." );
 		button_manager_.remove( sort_button_ );
 		return false;
-	}
+	} */
     delete_button_ = button_manager_.create( &DELETE_BUTTON_LABEL, delete_texture );
     if (delete_button_ == nullptr) {
         stack->log( "Failed to create delete button." );
@@ -287,7 +287,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 
 	// Set button states.
 	craft_button_->set_enabled( false );
-	sort_button_->set_enabled( false );
+	// sort_button_->set_enabled( false );
     delete_button_->set_enabled( false );
 
 	// Create previous page button.
