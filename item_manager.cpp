@@ -207,9 +207,6 @@ bool ItemManager::create_resources( void )
 	else if (!Notification::precache()) {
         return false;
     }
-    else if (!SlotView::precache( &graphics_ )) {
-        return false;
-    }
 
     // Initialize steam.
 	if (!steam_items_.load_interfaces()) {
@@ -237,7 +234,6 @@ void ItemManager::close_interfaces( void )
 
 	// Free cached resources.
 	ItemDecorator::release();
-	SlotView::release();
 
 	// Close font library.
 	JUI::FontFactory::shut_down();
@@ -259,7 +255,6 @@ bool ItemManager::start_definition_load( void )
     view_->set_loading_notice( &LOADING_DEFINITION_MESSAGE );
 
 	// Set up loader.
-    // TODO: Don't need to allocate this; can use the "done" flag in loader instead of checking pointer null.
     if (!JUTIL::BaseAllocator::allocate( &definition_loader_ )) {
         return false;
     }

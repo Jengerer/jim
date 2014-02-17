@@ -19,9 +19,8 @@ const JUTIL::ConstantString UNKNOWN_ITEM_ICON_TEXTURE = "img/backpack/unknown_it
 
 // Title display.
 const JUTIL::ConstantString EXCLUDED_HEADING_TEXT = "New/Excluded Items";
-const JUTIL::ConstantString SELECTED_HEADING_TEXT = "Selected Items";
 const JUTIL::String* HEADING_FONT_FACE = &TF2_BUILD_FONT;
-const unsigned int HEADING_FONT_SIZE = 14;
+const unsigned int HEADING_FONT_SIZE = 12;
 const bool HEADING_FONT_BOLDED = false;
 const JUI::Colour HEADING_COLOUR( 0xF1EFED );
 

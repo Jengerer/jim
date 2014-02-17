@@ -1,6 +1,6 @@
+#include <jui/application/error_stack.hpp>
 #include <jui/gfx/font_interface.hpp>
 #include <jui/gfx/font_factory.hpp>
-
 #include "item_display.hpp"
 
 // Title style attributes.
@@ -9,7 +9,7 @@ const unsigned int ITEM_DISPLAY_TITLE_FONT_SIZE	= 13;
 
 // Information style attributes.
 const JUTIL::ConstantString* ITEM_DISPLAY_INFO_FONT_FACE = &ITEM_DISPLAY_TITLE_FONT_FACE;
-const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE = 9;
+const unsigned int ITEM_DISPLAY_INFO_FONT_SIZE = 10;
 
 // Display colour.
 const JUI::Colour& ITEM_DISPLAY_COLOUR = JUI::COLOUR_BLACK;
@@ -108,32 +108,57 @@ bool ItemDisplay::initialize( void )
  */
 bool ItemDisplay::update_display( void )
 {
+	// Stack for error logging.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	// Alter display based on quality.
 	name_text_->set_colour( item_->get_quality_colour() );
 
 	JUTIL::DynamicString item_name;
 	if(item_->get_quality() != k_EItemQuality_Common && !item_->is_renamed()){
-		const JUTIL::String* quality_name;
-		if(item_->get_quality() == k_EItemQuality_Strange){
-			quality_name = schema_->get_kill_eater_type( item_->get_strange_type(0) )->get_levels()->find_level( item_->get_strange_number(0) )->get_prefix();
-		}else{
-			quality_name = schema_->get_quality_name( item_->get_quality() );
+		// Prepend strange level name or quality name.
+		const JUTIL::String* prefix = nullptr;
+		if (item_->get_quality() == k_EItemQuality_Strange){
+			// Get first kill eater value for this item.
+			// TODO: Maybe parse kill eaters on item creation.
+			uint32 strange_value = 0;
+			if (!item_->get_kill_eater_value( 0, &strange_value )) {
+				stack->log( "Found strange item with no strange type at first index." );
+				return false;
+			}
+			uint32 strange_index;
+			if (!item_->get_kill_eater_type( 0, &strange_index )) {
+				strange_index = DEFAULT_STRANGE_TYPE;
+			}
+			const KillEaterType* type = schema_->get_kill_eater_type( strange_index );
+			if (type == nullptr) {
+				stack->log( "Bad strange type index." );
+				return false;
+			}
+			const KillEaterRanks* ranks = type->get_levels();
+			const KillEaterLevel* level = ranks->find_level( strange_value );
+			prefix = level->get_prefix();
 		}
-		if (quality_name != nullptr) {
-			if (!item_name.write( "%s ", quality_name->get_string() )) {
+		else {
+			prefix = schema_->get_quality_name( item_->get_quality() );
+		}
+		if (prefix != nullptr) {
+			if (!item_name.copy( prefix )) {
+				stack->log( "Failed to write prefix before item name." );
 				return false;
 			}
 		}
 	}
 
-	if (!item_name.write( "%s", item_->get_name()->get_string()) ) {
+	// Write the actual item name after.
+	if (!item_name.write( " %s", item_->get_name()->get_string()) ) {
 		return false;
 	}
 
-	// Get item craft number
-	const uint32 item_craft_number= item_->get_craft_number();
-	if(item_craft_number != 0){
-		if (!item_name.write( " #%u", item_craft_number )) {
+	// Get item craft number.
+	uint32 craft_number;
+	if (item_->get_craft_number( &craft_number )) {
+		if (!item_name.write( " #%u", craft_number )) {
 			return false;
 		}
 	}
@@ -146,12 +171,14 @@ bool ItemDisplay::update_display( void )
     }
 
 	// Load strange kills.
-	for (uint32 i = 0; i < 5; ++i) {
-		uint32 item_strange_kills = item_->get_strange_number(i);
-		if (item_strange_kills != FL_ITEM_NOT_STRANGE) {
-			const KillEaterType* type = schema_->get_kill_eater_type( item_->get_strange_type(i) );
-			if (type != nullptr && type->get_description() != nullptr) {
-				if (!information.write( "\n%s: %u", type->get_description()->get_string(), item_strange_kills )) {
+	for (uint32 i = 0; i < STRANGE_TYPE_COUNT; ++i) {
+		uint32 count;
+		uint32 eater_type;
+		if (item_->get_kill_eater_value( i, &count ) && item_->get_kill_eater_type( i, &eater_type )) {
+			const KillEaterType* type = schema_->get_kill_eater_type( eater_type );
+			if (type != nullptr) {
+				if (!information.write( "\n%s: %u", type->get_description()->get_string(), count )) {
+					stack->log( "Failed to write strange kills to information." );
 					return false;
 				}
 			}
@@ -159,9 +186,10 @@ bool ItemDisplay::update_display( void )
 	}
 
 	// Add crate series display.
-	uint32 item_value = item_->get_crate_number();
-	if (item_value != FL_ITEM_NOT_CRATE) {
-		if (!information.write( "\nCrate Series #%u", item_value )) {
+	uint32 crate_number;
+	if (item_->get_crate_number( &crate_number )) {
+		if (!information.write( "\nCrate Series #%u", crate_number )) {
+			stack->log( "Failed to write crate number to information." );
 			return false;
 		}
 	}
@@ -175,7 +203,7 @@ bool ItemDisplay::update_display( void )
 				return false;
 			}
 		} else {
-			if (!information.write( "\nUses: %u", item_value )) {
+			if (!information.write( "\nUses: %u", count )) {
 				return false;
 			}
 		}
@@ -201,9 +229,16 @@ bool ItemDisplay::update_display( void )
         return false;
     }
 
-	// Output attribute names/values.
+	// Write attribute names.
 	unsigned int i;
-
+	unsigned int count = item_->get_attribute_count();
+	for (i = 0; i < count; ++i) {
+		const Attribute* attribute = item_->get_attribute( i );
+		const JUTIL::String* name = attribute->get_name();
+		if (!information.write( "\n%s", name->get_string() )) {
+			return false;
+		}
+	}
 
 #endif
 

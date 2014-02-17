@@ -1,31 +1,31 @@
 #include "item.hpp"
 #include <jui/application/error_stack.hpp>
 
-// TODO: Should change attribute iteration so we don't have to make copies.
-// Just iterate through both local and item attributes, and get from appropriate group.
-
 const JUTIL::ConstantString CANNOT_TRADE_NAME = "cannot trade";
 const JUTIL::ConstantString ALWAYS_TRADE_NAME = "always tradable";
-
-const JUTIL::ConstantString CRAFT_ATTRIBUTE_NAME = "unique craft index";
+const JUTIL::ConstantString CRAFT_NUMBER_ATTRIBUTE_NAME = "unique craft index";
 const JUTIL::ConstantString UNLIMITED_COUNT_ATTRIBUTE_NAME = "unlimited quantity";
-
 const JUTIL::ConstantString CRATE_ATTRIBUTE_NAME = "set supply crate series";
-const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_0 = "set item tint RGB";
-const JUTIL::ConstantString PAINT_ATTRIBUTE_NAME_1 = "set item tint RGB 2";
 
-const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_0 = "kill eater";
-const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_1 = "kill eater 2";
-const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_2 = "kill eater user 1";
-const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_3 = "kill eater user 2";
-const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAME_4 = "kill eater user 3";
+// Names of attributes that give us the value of the kill eater.
+const JUTIL::ConstantString STRANGE_ATTRIBUTE_NAMES[STRANGE_TYPE_COUNT] =
+{
+	JUTIL::ConstantString( "kill eater" ),
+	JUTIL::ConstantString( "kill eater 2" ),
+	JUTIL::ConstantString( "kill eater user 1" ),
+	JUTIL::ConstantString( "kill eater user 2" ),
+	JUTIL::ConstantString( "kill eater user 3" )
+};
 
-const JUTIL::ConstantString STRANGE_TYPE_NAME_0 = "kill eater score type";
-const JUTIL::ConstantString STRANGE_TYPE_NAME_1 = "kill eater score type 2";
-const JUTIL::ConstantString STRANGE_TYPE_NAME_2 = "kill eater user score type 1";
-const JUTIL::ConstantString STRANGE_TYPE_NAME_3 = "kill eater user score type 2";
-const JUTIL::ConstantString STRANGE_TYPE_NAME_4 = "kill eater user score type 3";
-
+// Names of attributes that give us the type of kill eater.
+const JUTIL::ConstantString STRANGE_TYPE_NAMES[STRANGE_TYPE_COUNT] =
+{
+	JUTIL::ConstantString( "kill eater score type" ),
+	JUTIL::ConstantString( "kill eater score type 2" ),
+	JUTIL::ConstantString( "kill eater user score type 1" ),
+	JUTIL::ConstantString( "kill eater user score type 2" ),
+	JUTIL::ConstantString( "kill eater user score type 3" )
+};
 
 /*
  * Item constructor from attributes.
@@ -180,8 +180,9 @@ uint32 Item::get_inventory_flags( void ) const
  */
 uint32 Item::get_count( void ) const
 {
-	const Attribute* attribute = find_attribute(&UNLIMITED_COUNT_ATTRIBUTE_NAME);
-	if(attribute == nullptr){
+	// Check if we have infinite use attribute.
+	const Attribute* attribute = find_attribute( &UNLIMITED_COUNT_ATTRIBUTE_NAME );
+	if (attribute == nullptr) {
 		return count_;
 	}
 	return FL_ITEM_UNLIMITED_COUNT;
@@ -332,149 +333,64 @@ uint8 Item::get_inventory_class_count( void ) const
 }
 
 /*
- * Gets the crate number. Returns FL_ITEM_NOT_CRATE if not a crate
+ * Gets the crate number. Returns false if no crate number, fills into out otherwise.
  */
-uint32 Item::get_crate_number( void ) const
+bool Item::get_crate_number( uint32* out ) const
 {
 	const Attribute* attribute = find_attribute( &CRATE_ATTRIBUTE_NAME );
-	if (attribute == nullptr){
-		return FL_ITEM_NOT_CRATE;
+	if (attribute == nullptr) {
+		return false;
 	}
 	const float* as_float = reinterpret_cast<const float*>(attribute->get_value());
-	return static_cast<uint32>(*as_float);
+	*out = static_cast<uint32>(*as_float);
+	return true;
 }
 
 /*
- * Gets the paint value as 0x00RRGGBB. Returns FL_ITEM_NOT_PAINTED if not painted
+ * Gets the craft number.  Returns false if none available, fills into out if exists.
  */
-uint32 Item::get_paint_value( uint32 index ) const
+bool Item::get_craft_number( uint32* out ) const
 {
-	const Attribute* attribute;
-	switch (index) {
-	case 0:
-		attribute = find_attribute( &PAINT_ATTRIBUTE_NAME_0 );
-		break;
-
-	case 1:
-		attribute = find_attribute( &PAINT_ATTRIBUTE_NAME_1 );
-		break;
-
-	default:
-		//should probably be some sort of INVALID_INDEX flag somewhere
-		return FL_ITEM_NOT_PAINTED;
-	}
+	const Attribute* attribute = find_attribute( &CRAFT_NUMBER_ATTRIBUTE_NAME );
 	if (attribute == nullptr) {
-		return FL_ITEM_NOT_PAINTED;
-	}
-
-	// If second colour is the same as first, it's one colour.
-	// TODO: When is this the case? May not need this check.
-	const float* as_float = reinterpret_cast<const float*>(attribute->get_value());
-	uint32 as_uint32 = static_cast<uint32>(*as_float);
-	if (index == 1) {
-		if (as_uint32 == get_paint_value( 0 )) {
-			return FL_ITEM_NOT_PAINTED;
-		}
-	}
-	return as_uint32;
-}
-
-/*
- * Gets the craft number.  Returns 0 if no craft number is avaliable.
- */
-uint32 Item::get_craft_number( void ) const
-{
-	const Attribute* attribute = find_attribute(&CRAFT_ATTRIBUTE_NAME);
-	if (attribute == nullptr) {
-		return 0;
+		return false;
 	}
 	const uint32* as_uint32 = reinterpret_cast<const uint32*>(attribute->get_value());
-	return *as_uint32;
+	*out = *as_uint32;
+	return true;
 }
 
 /*
- * Gets the strange number.  Returns FL_ITEM_NOT_STRANGE if no strange number is avaliable.
- * 
- * Passing in 0 will fetch the first strange kill count
- * Passing in 1 will fetch the alternate kill count
- * Passing in 2-4 will fetch the strange part kill counts
+ * Gets the value of a given kill eater index and fills it into out.
+ * Returns true if one was found at that index.
  */
-uint32 Item::get_strange_number( uint32 index ) const
+bool Item::get_kill_eater_value( uint32 index, uint32* out ) const
 {
-	const Attribute* attribute;
-	switch (index) {
-	case 0:
-		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_0);
-		break;
-
-	case 1:
-		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_1);
-		break;
-
-	case 2:
-		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_2);
-		break;
-
-	case 3:
-		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_3);
-		break;
-
-	case 4:
-		attribute = find_attribute(&STRANGE_ATTRIBUTE_NAME_4);
-		break;
-
-	default:
-		//should probably be some sort of INVALID_INDEX flag somewhere
-		return FL_ITEM_NOT_STRANGE;
-	}
+	const Attribute* attribute = find_attribute( &STRANGE_ATTRIBUTE_NAMES[index] );
 	if (attribute == nullptr) {
-		return FL_ITEM_NOT_STRANGE;
+		return false;
 	}
 	const uint32* as_uint32 = reinterpret_cast<const uint32*>(attribute->get_value());
-	return *as_uint32;
+	*out = *as_uint32;
+	return true;
 }
 
 /*
- * Gets the type of strange number.  Returns 0 if no strange type data is avaliable.
- * 
- * Passing in 0 will fetch the first strange kill count
- * Passing in 1 will fetch the alternate kill count
- * Passing in 2-4 will fetch the strange part kill counts
+ * Gets the index type of kill eater for a given index.
+ * Returns true if a kill eater type was found at that index and fills out
+ * the type index into out.
  */
-uint32 Item::get_strange_type( uint32 index ) const
+bool Item::get_kill_eater_type( uint32 index, uint32* out ) const
 {
-	const Attribute* attribute;
-	switch (index) {
-	case 0:
-		attribute = find_attribute(&STRANGE_TYPE_NAME_0);
-		break;
-
-	case 1:
-		attribute = find_attribute(&STRANGE_TYPE_NAME_1);
-		break;
-
-	case 2:
-		attribute = find_attribute(&STRANGE_TYPE_NAME_2);
-		break;
-
-	case 3:
-		attribute = find_attribute(&STRANGE_TYPE_NAME_3);
-		break;
-
-	case 4:
-		attribute = find_attribute(&STRANGE_TYPE_NAME_4);
-		break;
-
-	default:
-		//should probably be some sort of INVALID_INDEX flag somewhere
-		return 0;
-	}
+	// Get the attribute by name.
+	const Attribute* attribute = find_attribute( &STRANGE_TYPE_NAMES[index] );
 	if (attribute == nullptr) {
-		return 0;
+		return false;
 	}
 	const float* as_float = reinterpret_cast<const float*>(attribute->get_value());
 	uint32 as_uint32 = static_cast<uint32>(*as_float);
-	return as_uint32;
+	*out = as_uint32;
+	return true;
 }
 
 /*
@@ -509,27 +425,49 @@ bool Item::add_attribute( Attribute* attribute )
 }
 
 /*
- * Get number of local attributes this item has.
+ * Get total number of attributes this item has.
  */
 size_t Item::get_attribute_count( void ) const
 {
-    return attributes_.get_length();
+	size_t count = get_local_attribute_count();
+	if (definition_ != nullptr) {
+		count += definition_->get_attribute_count();
+	}
+    return count;
 }
 
 /*
- * Get local attribute by index in array.
+ * Get number of local attributes this item has.
  */
-Attribute* Item::get_attribute( size_t index )
+size_t Item::get_local_attribute_count( void ) const
 {
-    return attributes_.at( index );
+	size_t count = attributes_.get_length();
+    return count;
 }
 
 /*
- * Get constant local attribute by index in array.
+ * Get attribute from local array.
  */
-const Attribute* Item::get_attribute( size_t index ) const
+Attribute* Item::get_local_attribute( size_t index ) const
 {
-    return attributes_.at( index );
+	return attributes_.at( index );
+}
+
+/*
+ * Get attribute by index in array.
+ */
+const Attribute* Item::get_attribute( size_t index ) const 
+{
+	size_t count = get_local_attribute_count();
+
+	// If index is less than our local attribute length, we're
+	// looking in definition length.
+	if (index < count) {
+		return get_local_attribute( index );
+	}
+	else {
+		return definition_->get_attribute( index - count );
+	}
 }
 
 /*
@@ -549,8 +487,7 @@ const Attribute* Item::find_attribute( const JUTIL::String* name ) const
 		}
 	}
 
-	// Not found in local attributes, check definition.
-	return definition_->find_attribute( name );
+	return nullptr;
 }
 
 /*
