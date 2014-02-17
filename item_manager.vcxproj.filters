@@ -190,9 +190,6 @@
     <ClInclude Include="serialized_buffer.hpp">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="steam.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="alert.hpp">
       <Filter>headers\ui</Filter>
     </ClInclude>
@@ -216,9 +213,6 @@
     </ClInclude>
     <ClInclude Include="rounded_rectangle.hpp">
       <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="definition_loader.hpp">
-      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="protobuf\tf_gcmessages.pb.h">
       <Filter>headers\protobufs</Filter>
@@ -262,12 +256,6 @@
     <ClInclude Include="item_definition.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
-    <ClInclude Include="kill_eater_level.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="kill_eater_type.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="equip_status.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
@@ -307,17 +295,11 @@
     <ClInclude Include="slot_book_view.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
-    <ClInclude Include="dynamic_slot_array.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="slot_stack_view.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
     <ClInclude Include="inventory_action_interface.hpp">
       <Filter>headers\items</Filter>
-    </ClInclude>
-    <ClInclude Include="kill_eater_ranks.hpp">
-      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="updater.hpp">
       <Filter>headers\items</Filter>
@@ -348,6 +330,24 @@
     </ClInclude>
     <ClInclude Include="slot_array_view_listener.hpp">
       <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="steam.hpp">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="dynamic_slot_array.hpp">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="kill_eater_level.hpp">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="kill_eater_ranks.hpp">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="kill_eater_type.hpp">
+      <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="definition_loader.hpp">
+      <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
