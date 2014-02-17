@@ -11,7 +11,6 @@
 #include "resource_loader_interface.hpp"
 #include "item.hpp"
 #include "item_schema.hpp"
-#include "string_hasher.hpp"
 #include "notification_queue.hpp"
 
 enum DefinitionLoaderState

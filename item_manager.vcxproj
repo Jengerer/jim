@@ -208,7 +208,6 @@
     <ClInclude Include="serialized_buffer.hpp" />
     <ClInclude Include="slot_view.hpp" />
     <ClInclude Include="steam.hpp" />
-    <ClInclude Include="string_hasher.hpp" />
     <ClInclude Include="updater.hpp" />
   </ItemGroup>
   <ItemGroup>
