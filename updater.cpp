@@ -205,10 +205,19 @@ bool Updater::update_file( const JUTIL::String* file )
 		status_ = UPDATE_FAILED;
 		return false;
 	}
-	if (!MoveFile( file->get_string(), moved_name.get_string() )) {
-		stack->log( "Failed to move updated file." );
-		status_ = UPDATE_FAILED;
-		return false;
+
+	// Check if current file even exists; user may have renamed EXE, for instance.
+	FILE* moved;
+	errno_t err = fopen_s( &moved, file->get_string(), "r" );
+	if (moved != nullptr) {
+		fclose( moved );
+
+		// File is there, now move it.
+		if (!MoveFile( file->get_string(), moved_name.get_string() )) {
+			stack->log( "Failed to move updated file." );
+			status_ = UPDATE_FAILED;
+			return false;
+		}
 	}
 	
 	// Now download new version.
