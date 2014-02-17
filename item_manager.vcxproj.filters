@@ -41,16 +41,10 @@
     <ClCompile Include="protobuf\steammessages.pb.cc">
       <Filter>source\protobufs</Filter>
     </ClCompile>
-    <ClCompile Include="item_display.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="item_manager.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="serialized_buffer.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="steam.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="alert.cpp">
@@ -76,15 +70,6 @@
     </ClCompile>
     <ClCompile Include="rounded_rectangle.cpp">
       <Filter>source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="slot_grid_view.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="slot_view.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="dragged_slot_view.cpp">
-      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc">
       <Filter>source\protobufs</Filter>
@@ -125,15 +110,6 @@
     <ClCompile Include="equip_status.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
-    <ClCompile Include="item_manager_view.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="button_manager.cpp">
-      <Filter>headers</Filter>
-    </ClCompile>
-    <ClCompile Include="button_notice.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="steam_inventory_manager.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
@@ -164,14 +140,38 @@
     <ClCompile Include="definition_loader.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
-    <ClCompile Include="item_decorator.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="kill_eater_ranks.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
     <ClCompile Include="updater.cpp">
       <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="dragged_slot_view.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="button_notice.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="item_decorator.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="item_display.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="item_manager_view.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="slot_grid_view.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="slot_view.cpp">
+      <Filter>source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="steam.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
+    <ClCompile Include="button_manager.cpp">
+      <Filter>headers\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -183,9 +183,6 @@
     </ClInclude>
     <ClInclude Include="protobuf\gcsdk_gcmessages.pb.h">
       <Filter>headers\protobufs</Filter>
-    </ClInclude>
-    <ClInclude Include="item_display.hpp">
-      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="item_manager.hpp">
       <Filter>headers</Filter>
@@ -220,16 +217,7 @@
     <ClInclude Include="rounded_rectangle.hpp">
       <Filter>headers\ui</Filter>
     </ClInclude>
-    <ClInclude Include="slot_view.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="definition_loader.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="slot_grid_view.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="dragged_slot_view.hpp">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="protobuf\tf_gcmessages.pb.h">
@@ -243,9 +231,6 @@
     </ClInclude>
     <ClInclude Include="item_shared.hpp">
       <Filter>headers\items</Filter>
-    </ClInclude>
-    <ClInclude Include="string_hasher.hpp">
-      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="attribute.hpp">
       <Filter>headers\items</Filter>
@@ -295,9 +280,6 @@
     <ClInclude Include="slot_array_listener.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
-    <ClInclude Include="item_manager_view.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="button_manager.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
@@ -306,12 +288,6 @@
     </ClInclude>
     <ClInclude Include="popup_listener.hpp">
       <Filter>headers\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="button_listener.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="item_manager_view_listener.hpp">
-      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="steam_inventory_manager.hpp">
       <Filter>headers\items</Filter>
@@ -334,23 +310,44 @@
     <ClInclude Include="dynamic_slot_array.hpp">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="slot_array_view_listener.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="slot_stack_view.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
     <ClInclude Include="inventory_action_interface.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
-    <ClInclude Include="item_decorator.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="kill_eater_ranks.hpp">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="updater.hpp">
       <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="button_listener.hpp">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="dragged_slot_view.hpp">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="item_decorator.hpp">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="item_display.hpp">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="item_manager_view.hpp">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="item_manager_view_listener.hpp">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_view.hpp">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_grid_view.hpp">
+      <Filter>headers\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_array_view_listener.hpp">
+      <Filter>headers\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
