@@ -5,8 +5,10 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <json/json.h>
+#include <jutil_version.hpp>
 #include <jui/gfx/font_factory.hpp>
 #include <jui/application/error_stack.hpp>
+#include <jui/jui_version.hpp>
 #include "serialized_buffer.hpp"
 #include "slot_view.hpp"
 #include "http_resource_loader.hpp"
@@ -24,7 +26,7 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.8.1";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9";
 const int APPLICATION_WIDTH	= 900;
 const int APPLICATION_HEIGHT = 540;
 
@@ -52,6 +54,7 @@ ItemManager::ItemManager( HINSTANCE instance )
 	: Application( instance ),
 	definition_loader_( nullptr ),
 	site_loader_( nullptr ),
+	updater_( nullptr ),
 	pending_deletes_( false )
 {
     JUTIL::AllocationManager* manager = JUTIL::AllocationManager::get_instance();
@@ -68,9 +71,6 @@ ItemManager::ItemManager( HINSTANCE instance )
 
 	// Set inventory event handler.
     inventory_.set_listener( this );
-
-	// Set default running function.
-	set_think( &ItemManager::waiting_for_items );
 }
 
 /*
@@ -89,6 +89,31 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
     // Prepare stack for logging.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
+	// Get downloader.
+	JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
+	if (downloader == nullptr) {
+		stack->log( "Failed to create downloader object." );
+		return PrecacheResourcesFailure;
+	}
+	// Allocate site loader.
+	if (!JUTIL::BaseAllocator::allocate( &site_loader_ )) {
+		stack->log( "Failed to allocate site loader object." );
+		return PrecacheResourcesFailure;
+	}
+	site_loader_ = new (site_loader_) HttpResourceLoader( &MANAGER_ROOT_URL, downloader );
+
+	// Create updater and remove previous files.
+	if (!JUTIL::BaseAllocator::allocate( &updater_ )) {
+		stack->log( "Failed to allocate object for updater." );
+		return PrecacheResourcesFailure;
+	}
+	new (updater_) Updater( downloader, site_loader_, &APPLICATION_VERSION );
+
+	// Remove previous files.
+	if (!updater_->remove_old_files()) {
+		return PrecacheResourcesFailure;
+	}
+
 	// Start up graphics and window.
     if (!title_.write( "%s (%s)", APPLICATION_TITLE.get_string(), APPLICATION_VERSION.get_string() )) {
         stack->log( "Failed to allocation application title." );
@@ -99,18 +124,6 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
     if (status != Success) {
         return status;
     }
-
-	// Get downloader.
-	JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
-	if (downloader == nullptr) {
-		stack->log( "Failed to create downloader object." );
-		return PrecacheResourcesFailure;
-	}
-	if (!JUTIL::BaseAllocator::allocate( &site_loader_ )) {
-		stack->log( "Failed to allocate site loader object." );
-		return PrecacheResourcesFailure;
-	}
-	site_loader_ = new (site_loader_) HttpResourceLoader( &MANAGER_ROOT_URL, downloader );
 
     // Create UI view and load necessary resources.
     if (!JUTIL::BaseAllocator::allocate( &view_ )) {
@@ -150,6 +163,26 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 		set_think( &ItemManager::exiting );
     }
 
+	// Check if update required.
+	UpdateCheckResult result = updater_->check_version_numbers();
+	if (result == CHECK_FAILED) {
+		return PrecacheResourcesFailure;
+	}
+	else if (result == UPDATE_REQUIRED) {
+		// Notify user of update.
+		const JUTIL::ConstantString UPDATE_ALERT( "The item manager is out of date and needs to be updated against your will. Press \"okay\". You have no choice!" );
+		if (!view_->create_error( &UPDATE_ALERT )) {
+			stack->log( "Failed to create update alert. This is embarassing." );
+			return PrecacheResourcesFailure;
+		}
+		set_think( &ItemManager::pending_update );
+		return Success;
+	}
+	else {
+		JUTIL::BaseAllocator::destroy( updater_ );
+		updater_ = nullptr;
+	}
+
 	// Generate non-base layout.
 	if (!view_->create_layout( &graphics_ )) {
 		const JUTIL::String* top = stack->get_top_error();
@@ -158,6 +191,14 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 		}
 		set_think( &ItemManager::exiting );
 	}
+
+	// Start waiting for items to come in.
+    const JUTIL::ConstantString PREPARING_MESSAGE = "Waiting for inventory message from Steam...";
+    if (!view_->set_loading_notice( &PREPARING_MESSAGE )) {
+        stack->log( "Failed to create loading notice." );
+        return PrecacheResourcesFailure;
+    }
+	set_think( &ItemManager::waiting_for_items );
 
     // All base resources loaded successfully.
     return Success;
@@ -185,8 +226,7 @@ void ItemManager::exit_application( void )
 	set_think( &ItemManager::exiting );
 }
 
-bool ItemManager::create_resources( void )
-{
+bool ItemManager::create_resources( void ){
     // Stack for logging.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
@@ -214,23 +254,14 @@ bool ItemManager::create_resources( void )
 	}
 	steam_items_.set_listener( this );
 
-	// Show progress notice.
-    const JUTIL::ConstantString PREPARING_MESSAGE = "Waiting for inventory message from Steam...";
-    if (!view_->set_loading_notice( &PREPARING_MESSAGE )) {
-        stack->log( "Failed to create loading notice." );
-        return false;
-    }
-
     return true;
 }
 
 void ItemManager::close_interfaces( void )
 {
-    // Delete definition resources.
     JUTIL::BaseAllocator::safe_destroy( &definition_loader_ );
-
-	// Delete site loader.
     JUTIL::BaseAllocator::safe_destroy( &site_loader_ );
+	JUTIL::BaseAllocator::safe_destroy( &updater_ );
 
 	// Free cached resources.
 	ItemDecorator::release();
@@ -414,6 +445,46 @@ bool ItemManager::updating_items( void )
 	return true;
 }
 
+/*
+ * Waiting for user to trigger update.
+ */
+bool ItemManager::pending_update( void )
+{
+	return true;
+}
+
+/*
+ * Waiting for update to complete.
+ */
+bool ItemManager::updating( void )
+{
+	// Stack for errors.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Don't try join until it's finished.
+	UpdateStatus status = updater_->get_update_status();
+	if (status != UPDATE_PENDING) {
+		update_thread_->join();
+		JUTIL::BaseAllocator::destroy( update_thread_ );
+
+		// Check return value.
+		if (status == UPDATE_FAILED) {
+			return false;
+		}
+
+		// Run new item manager.
+		if (!updater_->run_new_version()) {
+			stack->log( "Failed to run the new version of the item manager. I fail miserably, try to run it yourself." );
+			return false;
+		}
+		exit_application();
+	}
+	return true;
+}
+
+/*
+ * Waiting for application to close.
+ */
 bool ItemManager::exiting( void )
 {
     return true;
@@ -424,9 +495,29 @@ bool ItemManager::exiting( void )
  */
 bool ItemManager::on_error_acknowledged( void )
 {
-    // TODO: if this error is update-related, launch it here.
-    exit_application();
-    set_think( &ItemManager::exiting );
+	// Stack for reporting errors.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Check if we should update.
+	if (think_function_ == &ItemManager::pending_update) {
+		// Tell user we're updating now.
+		const JUTIL::ConstantString UPDATING_NOTICE( "Updating the item manager..." );
+		if (!view_->set_loading_notice( &UPDATING_NOTICE )) {
+			stack->log( "Failed to create updating notice." );
+			return false;
+		}
+
+		// Create thread for updating.
+		if (!JUTIL::BaseAllocator::allocate( &update_thread_ )) {
+			stack->log( "Failed to create updater thread." );
+			return false;
+		}
+		new (update_thread_) boost::thread( boost::bind( &Updater::update, updater_ ) );
+		set_think( &ItemManager::updating );
+	}
+	else {
+		exit_application();
+	}
     return true;
 }
 

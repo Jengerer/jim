@@ -170,6 +170,9 @@
     <ClCompile Include="kill_eater_ranks.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
+    <ClCompile Include="updater.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protobuf\base_gcmessages.pb.h">
@@ -345,6 +348,9 @@
     </ClInclude>
     <ClInclude Include="kill_eater_ranks.hpp">
       <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="updater.hpp">
+      <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
