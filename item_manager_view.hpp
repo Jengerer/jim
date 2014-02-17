@@ -101,7 +101,7 @@ private:
 private:
 
     // Inventory to create view for.
-	ItemSchema* schema_; // TODO: Make schema singleton so we don't have to pass around.
+	ItemSchema* schema_;
     Inventory* inventory_;
 	InventoryActionInterface* action_interface_;
 

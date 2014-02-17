@@ -1054,10 +1054,6 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 
 /*
  * Handle slot release event.
- * TASK: Better design may be closer to MVC; don't handle slot release here, trigger a controller
- * to handle abstraction externally, since otherwise we depend on SlotArray implementation in here. If this is
- * open sourced and you are reading this, I was programming with my fists at this point and just wanted
- * a working implementation. I'm sorry.
  */
 bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned int index )
 {
