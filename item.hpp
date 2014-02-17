@@ -18,6 +18,9 @@
 const unsigned int DEFAULT_STRANGE_TYPE = 0;
 const unsigned int STRANGE_TYPE_COUNT = 5;
 
+// Item flags.
+const unsigned int UNTRADABLE_FLAG = 0x1;
+
 class Item
 {
 public:
@@ -28,6 +31,7 @@ public:
 		EItemQuality quality,
 		uint32 count,
 		uint32 inventory_flags,
+		uint32 flags,
 		uint32 origin );
 	virtual ~Item( void );
 
@@ -44,6 +48,7 @@ public:
 	uint8			get_level( void ) const;
 	EItemQuality	get_quality( void ) const;
 	uint32			get_inventory_flags( void ) const;
+	uint32			get_flags( void ) const;
 	void			set_inventory_flags( uint32 inventory_flags );
 	uint32			get_count( void ) const;
 	uint32			get_origin( void ) const;
@@ -109,6 +114,7 @@ private:
 	void set_quality( EItemQuality quality );
 	void set_count( uint32 count );
 	void set_origin( uint32 origin );
+	void set_flags( uint32 flags );
 
 private:
 
@@ -119,6 +125,7 @@ private:
 	EItemQuality	quality_;
 	uint32			count_;
 	uint32			inventory_flags_;
+	uint32			flags_;
 	uint32			origin_;
 	bool			renamed_;
 

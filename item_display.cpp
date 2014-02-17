@@ -220,7 +220,7 @@ bool ItemDisplay::update_display( void )
 	}
 
 	// Write position flags.
-    if (!information.write( "\nFlags: 0x%x", item_->get_inventory_flags() )) {
+    if (!information.write( "\nInventory: 0x%x", item_->get_inventory_flags() )) {
         return false;
     }
 
@@ -228,6 +228,11 @@ bool ItemDisplay::update_display( void )
 	if (!information.write( "\nTool: %u", item_->get_tool_type() )) {
         return false;
     }
+
+	// Write extra flags.
+	if (!information.write( "\nFlags: 0x%x", item_->get_flags() )) {
+		return false;
+	}
 
 	// Write attribute names.
 	unsigned int i;
