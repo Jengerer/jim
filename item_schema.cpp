@@ -208,7 +208,7 @@ const JUTIL::DynamicString* ItemSchema::get_quality_name( uint32 quality_index )
 const JUTIL::DynamicString* ItemSchema::get_origin_name( uint32 origin_index ) const
 {
 	JUTIL::DynamicString* name;
-	if(!origin_names_.get( origin_index, &name )) {
+	if (!origin_names_.get( origin_index, &name )) {
 		name = nullptr;
 	}
 	return name;
@@ -217,7 +217,7 @@ const JUTIL::DynamicString* ItemSchema::get_origin_name( uint32 origin_index ) c
 const KillEaterType* ItemSchema::get_kill_eater_type( uint32 type_index ) const
 {
 	KillEaterType* type;
-	if(!kill_eater_types_.get( type_index, &type )){
+	if (!kill_eater_types_.get( type_index, &type )){
 		type = nullptr;
 	}
 	return type;
@@ -251,9 +251,9 @@ bool ItemSchema::resolve( Item* item, JUI::Graphics2D *graphics ) const
 
 	// Resolve all item attributes.
 	size_t i;
-	size_t length = item->get_attribute_count();
+	size_t length = item->get_local_attribute_count();
 	for (i = 0; i < length; ++i) {
-		Attribute* attribute = item->get_attribute( i );
+		Attribute* attribute = item->get_local_attribute( i );
 		if (!resolve( attribute )) {
 			stack->log( "Failed to resolve attribute with type index %u.\n", attribute->get_index() );
 			return false;

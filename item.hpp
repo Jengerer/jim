@@ -14,6 +14,10 @@
 #include <string/constant_string.hpp>
 #include <jui/gfx/texture.hpp>
 
+// Strange attribute constants.
+const unsigned int DEFAULT_STRANGE_TYPE = 0;
+const unsigned int STRANGE_TYPE_COUNT = 5;
+
 class Item
 {
 public:
@@ -66,11 +70,10 @@ public:
 	uint8 get_inventory_class_count( void ) const;
 
 	// Attribute based getters
-	uint32 get_crate_number( void ) const;
-	uint32 get_paint_value( uint32 index ) const;
-	uint32 get_craft_number( void ) const;
-	uint32 get_strange_number( uint32 index ) const;
-	uint32 get_strange_type( uint32 index ) const;
+	bool get_crate_number( uint32* out ) const;
+	bool get_craft_number( uint32* out ) const;
+	bool get_kill_eater_value( uint32 index, uint32* out ) const;
+	bool get_kill_eater_type( uint32 index, uint32* out ) const;
 
 	// Drawing and interaction.
 	const JUI::Texture* get_texture( void ) const;
@@ -80,7 +83,8 @@ public:
 
     // Attribute iteration.
     size_t get_attribute_count( void ) const;
-	Attribute* get_attribute( size_t index );
+	size_t get_local_attribute_count( void ) const;
+	Attribute* get_local_attribute( size_t index ) const;
     const Attribute* get_attribute( size_t index ) const;
     const Attribute* find_attribute( size_t index ) const;
 	const Attribute* find_attribute( const JUTIL::String* name ) const;

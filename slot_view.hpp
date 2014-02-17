@@ -30,18 +30,6 @@ public:
 	void update( const Slot* slot );
 	void update_item( const Item* item );
 
-	// Precaching class-wide resources.
-	static bool precache( JUI::Graphics2D* graphics );
-	static void release( void );
-
-private:
-	
-	// Font and text for indicating equipped.
-	static JUI::FontInterface* equipped_font_;
-	static JUI::Text* equipped_text_;
-	static JUI::FontInterface* crate_font_;
-	static JUI::Text* crate_text_;
-
 private:
 
 	RoundedRectangle* slot_rectangle_;

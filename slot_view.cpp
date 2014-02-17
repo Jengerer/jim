@@ -13,12 +13,6 @@ const double BACKGROUND_VALUE_RATIO = 2.8;
 const float SLOT_VISIBLE_ALPHA = 1.0f;
 const float SLOT_DISABLED_ALPHA = 0.6f;
 
-// Class-wide font/text resources.
-JUI::FontInterface* SlotView::equipped_font_	= nullptr;
-JUI::FontInterface* SlotView::crate_font_		= nullptr;
-JUI::Text* SlotView::equipped_text_				= nullptr;
-JUI::Text* SlotView::crate_text_				= nullptr;
-
 // Equipped text attributes.
 const JUTIL::ConstantString EQUIPPED_FONT_FACE	= "fonts/tf2build.ttf";
 const unsigned int EQUIPPED_FONT_SIZE			= 6;
@@ -133,46 +127,4 @@ void SlotView::update_item( const Item* item )
 	item_->set_item( item );
 	slot_rectangle_->set_colour( slot_colour );
 	slot_rectangle_->set_stroke( stroke_width, stroke_colour );
-}
-
-/*
- * Precache font and text object.
- */
-bool SlotView::precache( JUI::Graphics2D* graphics )
-{
-	// Create equipped font.
-	equipped_font_ = JUI::FontFactory::create_font( &EQUIPPED_FONT_FACE, EQUIPPED_FONT_SIZE );
-    if (equipped_font_ == nullptr) {
-        return false;
-    }
-
-	// Create crate number font.
-	crate_font_ = JUI::FontFactory::create_font( &CRATE_FONT_FACE, CRATE_FONT_SIZE );
-    if (crate_font_ == nullptr) {
-        return false;
-    }
-
-    // Create equipped text.
-    if (!JUTIL::BaseAllocator::allocate( &equipped_text_ )) {
-        return false;
-    }
-	equipped_text_ = new (equipped_text_) JUI::Text( equipped_font_ );
-	equipped_text_->set_text( &EQUIPPED_TEXT );
-
-	// Create crate text object.
-	// TODO: Move to crate-specific item view.
-	if (!JUTIL::BaseAllocator::allocate( &crate_text_ )) {
-        return false;
-    }
-	crate_text_ = new (crate_text_) JUI::Text( crate_font_ );
-    return true;
-}
-
-/*
- * Release font/text.
- */
-void SlotView::release( void )
-{
-    JUTIL::BaseAllocator::safe_destroy( &equipped_text_ );
-    JUTIL::BaseAllocator::safe_destroy( &crate_text_ );
 }
