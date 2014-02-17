@@ -14,14 +14,9 @@ const unsigned int REMOVE_RETRY_MAXIMUM = 8;
 
 // List of files to remove/update.
 const unsigned int UPDATE_FILES_COUNT = 3;
-const JUTIL::ConstantString JIM_FILE( "item_manager_new.exe" );
-#if defined(_DEBUG)
-	const JUTIL::ConstantString JUTIL_FILE( "jutil.dll" );
-	const JUTIL::ConstantString JUI_FILE( "jui.dll" );
-#else
-	const JUTIL::ConstantString JUTIL_FILE( "jutil.dll" );
-	const JUTIL::ConstantString JUI_FILE( "jui.dll" );
-#endif
+const JUTIL::ConstantString JIM_FILE( "item_manager.exe" );
+const JUTIL::ConstantString JUTIL_FILE( "jutil.dll" );
+const JUTIL::ConstantString JUI_FILE( "jui.dll" );
 const JUTIL::ConstantString* UPDATE_FILES[UPDATE_FILES_COUNT] = {
 	&JIM_FILE,
 	&JUTIL_FILE,
@@ -131,8 +126,10 @@ UpdateCheckResult Updater::check_version_numbers( void )
 	const JUTIL::ConstantString JIM_LATEST( jim_version.asCString() );
 
 	// If any of the components are out of date, return that we need to update.
-	is_jutil_latest_ = JUTIL_LATEST.is_equal( &JUTIL::JUTIL_VERSION );
-	is_jui_latest_ = JUI_LATEST.is_equal( &JUI::JUI_VERSION );
+	const JUTIL::String* JUTIL_CURRENT = JUTIL::get_version_string();
+	const JUTIL::String* JUI_CURRENT = JUI::get_version_string();
+	is_jutil_latest_ = JUTIL_LATEST.is_equal( JUTIL_CURRENT );
+	is_jui_latest_ = JUI_LATEST.is_equal( JUI_CURRENT );
 	is_jim_latest_ = JIM_LATEST.is_equal( jim_version_ );
 	if (!(is_jutil_latest_ && is_jui_latest_ && is_jim_latest_)) {
 		return UPDATE_REQUIRED;
