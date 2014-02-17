@@ -17,7 +17,6 @@ ItemSet::~ItemSet( void )
  */
 bool ItemSet::add( Item* item )
 {
-    // TODO: allow item set to reserve for initial item amount.
     if (!items_.push( item )) {
         return false;
     }
