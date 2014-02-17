@@ -103,16 +103,6 @@ bool SlotArray::is_slot_empty( unsigned int index ) const
 }
 
 /*
- * Return whether a slot is enabled.
- * TODO: redundant?
- */
-bool SlotArray::is_slot_enabled( unsigned int index ) const
-{
-    const Slot* slot = get_slot( index );
-    return slot->is_enabled();
-}
-
-/*
  * Returns whether the slot array contains an item, and optionally fills out
  * the index it's contained at.
  */

@@ -29,7 +29,6 @@ public:
 
 	// Item and slot query functions.
     bool is_slot_empty( unsigned int index ) const;
-    bool is_slot_enabled( unsigned int index ) const;
     bool contains_item( Item* item, unsigned int* index = nullptr ) const;
     Item* get_item( unsigned int index ) const;
 
