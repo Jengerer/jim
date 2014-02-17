@@ -567,6 +567,7 @@ Item* SteamInventoryManager::create_item_from_message( CSOEconItem* econ_item )
 		static_cast<EItemQuality>(econ_item->quality()),
 		econ_item->quantity(),
 		econ_item->inventory(),
+		econ_item->flags(),
 		econ_item->origin() );
 
 	// Check equip fields.

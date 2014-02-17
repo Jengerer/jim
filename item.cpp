@@ -37,6 +37,7 @@ Item::Item(
 	EItemQuality quality,
 	uint32 count,
 	uint32 inventory_flags,
+	uint32 flags,
 	uint32 origin )
 {
 	// Set basic attributes.
@@ -46,6 +47,7 @@ Item::Item(
 	set_quality( quality );
 	set_count( count );
 	set_inventory_flags( inventory_flags );
+	set_flags( flags );
 	set_origin( origin );
 	set_renamed( false );
 	set_selected( false );
@@ -168,11 +170,19 @@ EItemQuality Item::get_quality( void ) const
 }
 
 /*
- * Get flags for item.
+ * Get inventory flags for item.
  */
 uint32 Item::get_inventory_flags( void ) const
 {
 	return inventory_flags_;
+}
+
+/*
+ * Get extra flags for item.
+ */
+uint32 Item::get_flags( void ) const
+{
+	return flags_;
 }
 
 /*
@@ -302,6 +312,7 @@ bool Item::has_valid_inventory_flags( void ) const
 bool Item::is_tradable( void ) const
 {
 	return ((get_origin() != ORIGIN_ACHIEVEMENT) &&
+		((get_flags() & UNTRADABLE_FLAG) == 0) &&
 		(find_attribute( &CANNOT_TRADE_NAME ) == nullptr)) ||
 		(find_attribute( &ALWAYS_TRADE_NAME ) != nullptr);
 }
@@ -614,4 +625,9 @@ void Item::set_count( uint32 count )
 void Item::set_origin( uint32 origin )
 {
 	origin_ = origin;
+}
+
+void Item::set_flags( uint32 flags )
+{
+	flags_ = flags;
 }
