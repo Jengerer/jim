@@ -891,7 +891,28 @@ bool ItemManagerView::on_button_released( Button* button )
 
 	// Page view variables.
     if (button == craft_button_) {
-		if (!listener_->on_craft_items()) {
+		// Check if any selected items are untradable.
+		bool has_untradable = false;
+		DynamicSlotArray* selected = inventory_->get_selected_slots();
+		unsigned int i;
+		unsigned int count = selected->get_size();
+		for (i = 0; i < count; ++i) {
+			const Item* item = selected->get_item( i );
+			if (!item->is_tradable()) {
+				has_untradable = true;
+			}
+		}
+
+		// Show prompt if we're trying to craft untradable.
+		if (has_untradable) {
+			const JUTIL::ConstantString CRAFT_QUESTION( "You are trying to craft one or more untradable items. The result will be untradable. Continue?" );
+			craft_check_ = popups_->create_confirmation( &CRAFT_QUESTION );
+			if (craft_check_ != nullptr) {
+				stack->log( "Failed to create craft confirmation popup." );
+				return false;
+			}
+		}
+		else if (!listener_->on_craft_items()) {
 			return false;
 		}
     }
@@ -902,7 +923,7 @@ bool ItemManagerView::on_button_released( Button* button )
 		const JUTIL::ConstantString DELETE_QUESTION( "Are you sure you want to delete this item?" );
 		delete_check_= popups_->create_confirmation( &DELETE_QUESTION );
 		if (delete_check_ == nullptr) {
-			stack->log( "Failed to create craft confirmation popup." );
+			stack->log( "Failed to create delete confirmation popup." );
 			return false;
 		}
     }
@@ -924,6 +945,14 @@ bool ItemManagerView::on_popup_killed( Popup* popup )
 		ConfirmationResponse response = delete_check_->get_response();
 		if (response == RESPONSE_YES) {
 			if (!listener_->on_delete_item()) {
+				return false;
+			}
+		}
+	}
+	else if (popup == craft_check_) {
+		ConfirmationResponse response = craft_check_->get_response();
+		if (response == RESPONSE_YES) {
+			if (!listener_->on_craft_items()) {
 				return false;
 			}
 		}
