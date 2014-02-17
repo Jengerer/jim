@@ -148,6 +148,7 @@
     <ClCompile Include="serialized_buffer.cpp" />
     <ClCompile Include="slot.cpp" />
     <ClCompile Include="steam.cpp" />
+    <ClCompile Include="updater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="attribute_definition.hpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="slot_view.hpp" />
     <ClInclude Include="steam.hpp" />
     <ClInclude Include="string_hasher.hpp" />
+    <ClInclude Include="updater.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="jim_icon.ico" />

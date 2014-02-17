@@ -13,6 +13,7 @@
 #include "item_manager_view_listener.hpp"
 #include "item_schema.hpp"
 #include "steam_inventory_manager.hpp"
+#include "updater.hpp"
 
 class ItemManager
     : public JUI::Application,
@@ -44,6 +45,8 @@ public:
 	bool loading_schema( void );
 	bool running( void );
 	bool updating_items( void );
+	bool pending_update( void );
+	bool updating( void );
 	bool exiting( void );
 
     // View listener functions.
@@ -81,6 +84,8 @@ private:
 	// Application interfaces.
 	HttpResourceLoader* site_loader_;
     DefinitionLoader* definition_loader_;
+	Updater* updater_;
+	boost::thread* update_thread_;
 
     // Inventory and item members.
 	ItemSchema schema_;

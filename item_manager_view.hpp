@@ -120,6 +120,7 @@ private:
 
 	// Popups.
 	Alert* alert_;
+	Alert* update_alert_;
 	Alert* error_;
 	bool update_error_;
 	Notice* load_progress_;
