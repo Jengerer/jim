@@ -26,12 +26,9 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.1";
 const int APPLICATION_WIDTH	= 900;
 const int APPLICATION_HEIGHT = 540;
-
-// Updater resources.
-const JUTIL::ConstantString UPDATER_PATH = "auto_updater.exe";
 
 // UI attributes.
 const unsigned int EXIT_BUTTON_PADDING	= 10;
@@ -154,15 +151,6 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
         return PrecacheResourcesFailure;
     }
 
-    // Base resources successful; load extra resources.
-    if (!create_resources()) {
-        const JUTIL::String* top = stack->get_top_error();
-        if (!view_->create_error( top )) {
-            return PrecacheResourcesFailure;
-        }
-		set_think( &ItemManager::exiting );
-    }
-
 	// Check if update required.
 	UpdateCheckResult result = updater_->check_version_numbers();
 	if (result == CHECK_FAILED) {
@@ -182,6 +170,15 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 		JUTIL::BaseAllocator::destroy( updater_ );
 		updater_ = nullptr;
 	}
+
+	// Base resources successful; load extra resources.
+    if (!create_resources()) {
+        const JUTIL::String* top = stack->get_top_error();
+        if (!view_->create_error( top )) {
+            return PrecacheResourcesFailure;
+        }
+		set_think( &ItemManager::exiting );
+    }
 
 	// Generate non-base layout.
 	if (!view_->create_layout( &graphics_ )) {
@@ -248,7 +245,7 @@ bool ItemManager::create_resources( void ){
         return false;
     }
 
-    // Initialize steam.
+	// Initialize steam.
 	if (!steam_items_.load_interfaces()) {
 		return false;
 	}
