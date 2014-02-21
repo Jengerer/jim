@@ -51,7 +51,7 @@ const int PREVIOUS_PAGE_KEY_CODE = VK_LEFT;
 const int MULTIDRAG_KEY_CODE = VK_SHIFT;
 const int MULTISELECT_KEY_CODE = VK_CONTROL;
 const float DRAG_THRESHOLD = 25.0f;
-const long SWITCH_PAGE_DELAY = 500;
+const long SWITCH_PAGE_DELAY = 400;
 
 ItemManagerView::ItemManagerView( Inventory* inventory, ItemSchema* schema )
     : inventory_( inventory ),
@@ -76,7 +76,10 @@ ItemManagerView::ItemManagerView( Inventory* inventory, ItemSchema* schema )
 	  is_mouse_down_( false ),
 	  is_multiselect_pressed_( false ),
 	  was_clicked_selected_( false ),
-	  was_dragging_( false )
+	  was_dragging_( false ),
+	  is_right_pressed_( false),
+	  is_left_pressed_( false ),
+	  switch_page_time_( 0 )
 {
     button_manager_.set_event_listener( this );
 }
@@ -228,7 +231,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 
 	// Create inventory buttons.
 	JUI::FileTexture* craft_texture;
-    JUI::FileTexture* sort_texture;
+    // JUI::FileTexture* sort_texture;
     JUI::FileTexture* delete_texture;
     JUI::Graphics2D::ReturnStatus status;
 
@@ -238,11 +241,11 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
         return false;
     }
 
-    // Load sort texture.
+    /*// Load sort texture.
     status = graphics->get_texture( &SORT_ICON_TEXTURE, &sort_texture );
     if (status != JUI::Graphics2D::Success) {
         return false;
-    }
+    }*/
 
     // Load delete texture.
     status = graphics->get_texture( &DELETE_ICON_TEXTURE, &delete_texture );
@@ -252,7 +255,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 
 	// Create buttons.
     const JUTIL::ConstantString CRAFT_BUTTON_LABEL = "craft";
-    const JUTIL::ConstantString SORT_BUTTON_LABEL = "sort";
+    // const JUTIL::ConstantString SORT_BUTTON_LABEL = "sort";
     const JUTIL::ConstantString DELETE_BUTTON_LABEL = "delete";
     craft_button_ = button_manager_.create( &CRAFT_BUTTON_LABEL, craft_texture );
     if (craft_button_ == nullptr) {
@@ -264,7 +267,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 		stack->log( "Failed to add craft button to layout." );
 		return false;
 	}
-    sort_button_ = button_manager_.create( &SORT_BUTTON_LABEL, sort_texture );
+    /* sort_button_ = button_manager_.create( &SORT_BUTTON_LABEL, sort_texture );
     if (sort_button_ == nullptr ) {
         stack->log( "Failed to create sort button." );
         return false;
@@ -273,7 +276,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 		stack->log( "Failed to add sort button to layout." );
 		button_manager_.remove( sort_button_ );
 		return false;
-	}
+	} */
     delete_button_ = button_manager_.create( &DELETE_BUTTON_LABEL, delete_texture );
     if (delete_button_ == nullptr) {
         stack->log( "Failed to create delete button." );
@@ -287,7 +290,7 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 
 	// Set button states.
 	craft_button_->set_enabled( false );
-	sort_button_->set_enabled( false );
+	// sort_button_->set_enabled( false );
     delete_button_->set_enabled( false );
 
 	// Create previous page button.
@@ -541,6 +544,23 @@ bool ItemManagerView::on_enter_frame( void )
 	if (!update_item_display()) {
 		return false;
 	}
+
+	// Handle page movement.
+	long time = GetTickCount();
+	if (time >= switch_page_time_) {
+		if (is_right_pressed_) {
+			switch_page_time_ = time + SWITCH_PAGE_DELAY;
+			if (!next_page()) {
+				return false;
+			}
+		}
+		else if (is_left_pressed_) {
+			switch_page_time_ = time + SWITCH_PAGE_DELAY;
+			if (!previous_page()) {
+				return false;
+			}
+		}
+	}
 	
 	// Update notifications.
 	notifications_->update_notifications();
@@ -569,12 +589,16 @@ bool ItemManagerView::update_page_display( void )
 bool ItemManagerView::next_page( void )
 {
 	unsigned int active = inventory_view_->get_active_page();
-	unsigned int new_active = active + 1;
-	if (new_active != inventory_view_->get_page_count()) {
-		inventory_view_->set_active_page( new_active );
-		if (!update_page_display()) {
-			return false;
-		}
+	unsigned int new_active;
+	if (active == inventory_view_->get_page_count() - 1) {
+		new_active = 0;
+	}
+	else {
+		new_active = active + 1;
+	}
+	inventory_view_->set_active_page( new_active );
+	if (!update_page_display()) {
+		return false;
 	}
 	return true;
 }
@@ -585,12 +609,16 @@ bool ItemManagerView::next_page( void )
 bool ItemManagerView::previous_page( void )
 {
 	unsigned int active = inventory_view_->get_active_page();
-	if (active != 0) {
-		unsigned int new_active = active - 1;
-		inventory_view_->set_active_page( new_active );
-		if (!update_page_display()) {
-			return false;
-		}
+	unsigned int new_active;
+	if (active == 0) {
+		new_active = inventory_view_->get_page_count() - 1;
+	}
+	else {
+		new_active = active - 1;
+	}
+	inventory_view_->set_active_page( new_active );
+	if (!update_page_display()) {
+		return false;
 	}
 	return true;
 }
@@ -818,14 +846,10 @@ JUI::IOResult ItemManagerView::on_key_pressed( int key )
 		is_multiselect_pressed_ = true;
 	}
 	else if (key == NEXT_PAGE_KEY_CODE) {
-		if (!next_page()) {
-			return JUI::IO_RESULT_ERROR;
-		}
+		is_right_pressed_ = true;
 	}
 	else if (key == PREVIOUS_PAGE_KEY_CODE) {
-		if (!previous_page()) {
-			return JUI::IO_RESULT_ERROR;
-		}
+		is_left_pressed_ = true;
 	}
 	else {
 		return JUI::IO_RESULT_UNHANDLED;
@@ -840,6 +864,14 @@ JUI::IOResult ItemManagerView::on_key_released( int key )
 {
 	if (key == MULTISELECT_KEY_CODE) {
 		is_multiselect_pressed_ = false;
+	}
+	else if (key == NEXT_PAGE_KEY_CODE) {
+		is_right_pressed_ = false;
+		switch_page_time_ = GetTickCount();
+	}
+	else if (key == PREVIOUS_PAGE_KEY_CODE) {
+		is_left_pressed_ = false;
+		switch_page_time_ = GetTickCount();
 	}
 	else {
 		return JUI::IO_RESULT_UNHANDLED;
