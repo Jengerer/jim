@@ -39,7 +39,7 @@ const unsigned int TRIAL_SLOT_COUNT = 50;
 const unsigned int PREMIUM_SLOT_COUNT = 300;
 
 // Item manager resource loading URL.
-const JUTIL::ConstantString MANAGER_ROOT_URL = "http://www.jengerer.com/item_manager";
+const JUTIL::ConstantString MANAGER_ROOT_URL = "http://www.jengerer.com/item_manager/downloads";
 
 // Frame rate limiters.
 const DWORD FRAME_SPEED = 1000 / 60;
