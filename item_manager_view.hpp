@@ -137,6 +137,8 @@ private:
 	const SlotView* clicked_view_;
 	bool was_clicked_selected_;
 	bool was_dragging_;
+	bool is_right_pressed_;
+	bool is_left_pressed_;
 	int clicked_x_;
 	int clicked_y_;
 	long switch_page_time_;

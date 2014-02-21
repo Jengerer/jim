@@ -26,7 +26,7 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.1";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.2";
 const int APPLICATION_WIDTH	= 900;
 const int APPLICATION_HEIGHT = 540;
 
