@@ -26,7 +26,9 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.4.1";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.4.2";
+const int APPLICATION_FRAMERATE = 60;
+const long APPLICATION_FRAME_TIME = 1000 / APPLICATION_FRAMERATE;
 const int APPLICATION_WIDTH	= 900;
 const int APPLICATION_HEIGHT = 540;
 
@@ -40,9 +42,6 @@ const unsigned int PREMIUM_SLOT_COUNT = 300;
 
 // Item manager resource loading URL.
 const JUTIL::ConstantString MANAGER_ROOT_URL = "http://www.jengerer.com/item_manager/downloads";
-
-// Frame rate limiters.
-const DWORD FRAME_SPEED = 1000 / 60;
 
 /*
  * Item manager constructor.
@@ -166,41 +165,43 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 			return PrecacheResourcesFailure;
 		}
 		set_think( &ItemManager::pending_update );
-		return Success;
 	}
-	else {
+	else
+#endif
+	{
+		// No update needed, load as normal.
 		JUTIL::BaseAllocator::destroy( updater_ );
 		updater_ = nullptr;
-	}
-#endif
 
-	// Base resources successful; load extra resources.
-    if (!create_resources()) {
-        const JUTIL::String* top = stack->get_top_error();
-        if (!view_->create_error( top )) {
-            return PrecacheResourcesFailure;
-        }
-		set_think( &ItemManager::exiting );
-    }
+		// Base resources successful; load extra resources.
+		if (!create_resources()) {
+			const JUTIL::String* top = stack->get_top_error();
+			if (!view_->create_error( top )) {
+				return PrecacheResourcesFailure;
+			}
+			set_think( &ItemManager::exiting );
+		}
 
-	// Generate non-base layout.
-	if (!view_->create_layout( &graphics_ )) {
-		const JUTIL::String* top = stack->get_top_error();
-		if (!view_->create_error( top )) {
+		// Generate non-base layout.
+		if (!view_->create_layout( &graphics_ )) {
+			const JUTIL::String* top = stack->get_top_error();
+			if (!view_->create_error( top )) {
+				return PrecacheResourcesFailure;
+			}
+			set_think( &ItemManager::exiting );
+		}
+
+		// Start waiting for items to come in.
+		const JUTIL::ConstantString PREPARING_MESSAGE = "Waiting for inventory message from Steam...";
+		if (!view_->set_loading_notice( &PREPARING_MESSAGE )) {
+			stack->log( "Failed to create loading notice." );
 			return PrecacheResourcesFailure;
 		}
-		set_think( &ItemManager::exiting );
+		set_think( &ItemManager::waiting_for_items );
 	}
 
-	// Start waiting for items to come in.
-    const JUTIL::ConstantString PREPARING_MESSAGE = "Waiting for inventory message from Steam...";
-    if (!view_->set_loading_notice( &PREPARING_MESSAGE )) {
-        stack->log( "Failed to create loading notice." );
-        return PrecacheResourcesFailure;
-    }
-	set_think( &ItemManager::waiting_for_items );
-
     // All base resources loaded successfully.
+	next_frame_ = GetTickCount() + APPLICATION_FRAME_TIME;
     return Success;
 }
 
@@ -339,6 +340,19 @@ JUI::Application::ReturnStatus ItemManager::run( void )
         set_think( &ItemManager::exiting );
     }
 	draw_frame();
+	swap_buffers();
+
+	// Sleep for remainder of slice.
+	long time = static_cast<long>(GetTickCount());
+	long remainder = next_frame_ - time;
+	if (remainder > 0) {
+		Sleep(remainder);
+		next_frame_ += APPLICATION_FRAME_TIME;
+	}
+	else {
+		// If we missed deadline, don't bother trying to catch up.
+		next_frame_ = time + APPLICATION_FRAME_TIME;
+	}
     return Success;
 }
 
