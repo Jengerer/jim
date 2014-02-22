@@ -110,6 +110,7 @@ bool PopupDisplay::add_popup( Popup* popup )
     }
     // TODO: Make sure to remove popup if pushing to list fails.
     popups_.push_front( popup );
+	popup->set_state( POPUP_STATE_ACTIVE );
 
 	// Keep in center.
 	popup->center_to( this );

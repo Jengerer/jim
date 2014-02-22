@@ -36,9 +36,6 @@ public:
 	const Item* get_item( void ) const;
 	bool set_item( const Item *item );
 
-	// Getting item name.
-	const JUTIL::String* get_name( void ) const;
-
 	// Activity functions.
 	bool is_active( void ) const;
 	void set_active( bool is_active );
@@ -49,7 +46,7 @@ public:
 private:
 
 	// Name setter.
-	void set_name( const JUTIL::String* name );
+	void set_name( const JUTIL::WideString* name );
 
 protected:
 
@@ -62,8 +59,6 @@ private:
 	// Attributes.
 	bool is_active_;
 	const Item* item_;
-	const JUTIL::String* item_name_;
-
 	ItemSchema* schema_;
 
 	// Layout.
