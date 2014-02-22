@@ -111,6 +111,7 @@
     <ClCompile Include="item_set.cpp" />
     <ClCompile Include="item_manager_view.cpp" />
     <ClCompile Include="item_schema.cpp" />
+    <ClCompile Include="item_update_queue.cpp" />
     <ClCompile Include="kill_eater_level.cpp" />
     <ClCompile Include="kill_eater_ranks.cpp" />
     <ClCompile Include="kill_eater_type.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="item_manager_view_listener.hpp" />
     <ClInclude Include="item_schema.hpp" />
     <ClInclude Include="item_set.hpp" />
+    <ClInclude Include="item_update_queue.hpp" />
     <ClInclude Include="kill_eater_level.hpp" />
     <ClInclude Include="kill_eater_ranks.hpp" />
     <ClInclude Include="kill_eater_type.hpp" />

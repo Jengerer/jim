@@ -12,6 +12,7 @@
 #include "item_manager_view.hpp"
 #include "item_manager_view_listener.hpp"
 #include "item_schema.hpp"
+#include "item_update_queue.hpp"
 #include "steam_inventory_manager.hpp"
 #include "updater.hpp"
 
@@ -48,6 +49,10 @@ public:
 	bool pending_update( void );
 	bool updating( void );
 	bool exiting( void );
+
+	// Handle pushing updates to Steam.
+	void start_pushing_updates( void );
+	void update_pushing_notice( void );
 
     // View listener functions.
     virtual bool on_error_acknowledged( void );
@@ -91,7 +96,9 @@ private:
 	ItemSchema schema_;
 	Inventory inventory_;
     SteamInventoryManager steam_items_;
+	ItemUpdateQueue updates_;
 	bool pending_deletes_;
+	bool pushing_updates_;
 
     // User interface handle.
     ItemManagerView* view_;
