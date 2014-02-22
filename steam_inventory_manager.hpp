@@ -22,12 +22,6 @@ public:
     // Generic message handling functions.
     bool handle_callbacks( void );
 
-	// Pending item update functions.
-	bool queue_item_update( const Item* item );
-	void remove_item_update( const Item* item );
-	bool submit_item_updates( void ) const;
-	unsigned int get_pending_updates( void ) const;
-
 	// Single item change functions.
 	virtual bool move_item( const Item* item, unsigned int index ) const;
 	virtual bool update_item( const Item* item ) const;

@@ -26,7 +26,7 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.3";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.4";
 const int APPLICATION_WIDTH	= 900;
 const int APPLICATION_HEIGHT = 540;
 
@@ -52,7 +52,8 @@ ItemManager::ItemManager( HINSTANCE instance )
 	definition_loader_( nullptr ),
 	site_loader_( nullptr ),
 	updater_( nullptr ),
-	pending_deletes_( false )
+	pending_deletes_( false ),
+	pushing_updates_( false )
 {
     JUTIL::AllocationManager* manager = JUTIL::AllocationManager::get_instance();
     // manager->set_debug_break( 3733 );
@@ -210,12 +211,9 @@ void ItemManager::exit_application( void )
 {
 	// Don't run exit code if already exiting.
 	if (think_function_ == &ItemManager::running) {
-		if (steam_items_.get_pending_updates() != 0) {
+		if (updates_.get_queue_length() != 0) {
 			// We don't care about failures here; we'll keep trying anyway.
-			const JUTIL::ConstantString SAVING_ITEM( "Pushing item position updates to Steam..." );
-			view_->set_loading_notice( &SAVING_ITEM );
-			steam_items_.submit_item_updates();
-			set_think( &ItemManager::updating_items );
+			start_pushing_updates();
 			return;
 		}
 	}
@@ -437,7 +435,9 @@ bool ItemManager::updating_items( void )
 	if (!steam_items_.handle_callbacks()){
 		return false;
 	}
-	if (steam_items_.get_pending_updates() == 0) {
+
+	// Check if we're done.
+	if (updates_.get_queue_length() == 0) {
 		Application::exit_application();
 		set_think( &ItemManager::exiting );
 	}
@@ -490,6 +490,33 @@ bool ItemManager::updating( void )
 bool ItemManager::exiting( void )
 {
     return true;
+}
+
+/*
+ * Begin pushing items to Steam.
+ */
+void ItemManager::start_pushing_updates( void )
+{
+	// Push the first item.
+	pushing_updates_ = true;
+	const Item* first = updates_.get_next();
+	steam_items_.update_item( first );
+
+	// We don't care about failures, we have to keep trying anyway!
+	update_pushing_notice();
+	set_think( &ItemManager::updating_items );
+}
+
+/*
+ * Update notice text with our progress.
+ */
+void ItemManager::update_pushing_notice( void )
+{
+	unsigned int remaining = updates_.get_queue_length();
+	JUTIL::DynamicString message;
+	if (message.write( "Saving item position changes...\n%u updates remaining...", remaining )) {
+		view_->set_loading_notice( &message );
+	}
 }
 
 /*
@@ -595,7 +622,7 @@ bool ItemManager::on_delete_item( void )
 bool ItemManager::on_item_moved( Item* item )
 {
 	// Add item to be updated.
-	if (!steam_items_.queue_item_update( item )) {
+	if (!updates_.add( item )) {
 		return false;
 	}
 
@@ -649,7 +676,7 @@ void ItemManager::on_item_deleted( uint64 id )
 	Item* item = inventory_.find_item( id );
 	if (item != nullptr) {
 		inventory_.delete_item( item );
-		steam_items_.remove_item_update( item );
+		updates_.remove( item );
 
 		// If selected items get emptied, re-enable inventory.
 		if (pending_deletes_) {
@@ -681,6 +708,24 @@ bool ItemManager::on_item_updated( uint64 id, uint32 flags )
 	if (item == nullptr) {
 		stack->log( "Failed to find item to update." );
 		return false;
+	}
+
+	// Remove from queue if update was pushed.
+	if (item->get_inventory_flags() == flags) {
+		// Remove from queue.
+		if (updates_.remove( item )) {
+			// Send next update if we're pushing.
+			if (pushing_updates_ && (updates_.get_queue_length() != 0)) {
+				const Item* next = updates_.get_next();
+				if (!steam_items_.update_item( next )) {
+					stack->log( "Failed to send next update message." );
+					return false;
+				}
+
+				// Update notification if we can.
+				update_pushing_notice();
+			}
+		}
 	}
 	item->set_inventory_flags( flags );
 

@@ -48,56 +48,6 @@ bool SteamInventoryManager::handle_callbacks( void )
 }
 
 /*
- * Queue an item to be updated if not already.
- */
-bool SteamInventoryManager::queue_item_update( const Item* item )
-{
-	// Add to set if not already there.
-	uint64 id = item->get_unique_id();
-	if (!updated_.contains( id )) {
-		if (!updated_.insert( id, item )) {
-			return false;
-		}
-	}
-	return true;
-}
-
-/*
- * Remove an item to be updated.
- */
-void SteamInventoryManager::remove_item_update( const Item* item )
-{
-	// Remove if it's in the map.
-	uint64 id = item->get_unique_id();
-	if (updated_.contains( id )) {
-		updated_.remove( id );
-	}
-}
-
-/*
- * Push all pending item updates to Steam backend.
- */
-bool SteamInventoryManager::submit_item_updates( void ) const
-{
-	JUTIL::Map<uint64, const Item*>::Iterator i;
-	for (i = updated_.begin(); i.has_next(); i.next()) {
-		const Item* item = i.get_value();
-		if (!update_item( item )) {
-			return false;
-		}
-	}
-	return true;
-}
-
-/*
- * Get number of pending item updates.
- */
-unsigned int SteamInventoryManager::get_pending_updates( void ) const
-{
-	return updated_.get_length();
-}
-
-/*
  * Send new position to backend.
  */
 bool SteamInventoryManager::move_item( const Item* item, unsigned int index ) const
