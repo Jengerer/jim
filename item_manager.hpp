@@ -92,6 +92,9 @@ private:
 	Updater* updater_;
 	boost::thread* update_thread_;
 
+	// Framerate limiting parameters.
+	long next_frame_;
+
     // Inventory and item members.
 	ItemSchema schema_;
 	Inventory inventory_;

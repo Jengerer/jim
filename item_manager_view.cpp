@@ -541,6 +541,7 @@ NotificationQueue* ItemManagerView::get_notification_queue( void )
  */
 bool ItemManagerView::on_enter_frame( void )
 {
+	// Update item display opacity.
 	if (!update_item_display()) {
 		return false;
 	}

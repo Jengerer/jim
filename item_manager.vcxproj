@@ -64,7 +64,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>jutil_debug.lib;jui_debug.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jutil_debug.lib;jui_debug.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;jsoncpp.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
