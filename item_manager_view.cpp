@@ -51,7 +51,7 @@ const int PREVIOUS_PAGE_KEY_CODE = VK_LEFT;
 const int MULTIDRAG_KEY_CODE = VK_SHIFT;
 const int MULTISELECT_KEY_CODE = VK_CONTROL;
 const float DRAG_THRESHOLD = 25.0f;
-const long SWITCH_PAGE_DELAY = 400;
+const long SWITCH_PAGE_DELAY = 300;
 
 ItemManagerView::ItemManagerView( Inventory* inventory, ItemSchema* schema )
     : inventory_( inventory ),
@@ -701,6 +701,8 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
 	}
 
 	// Updated selected view position if it's active.
+	// TODO: Instead of resetting the item every frame, hide it temporarily and show if item is same.
+	item_display_->set_item( nullptr );
 	result = selected_view_->on_mouse_moved( mouse );
 	if (result != JUI::IO_RESULT_UNHANDLED) {
 		clamp_child( selected_view_ );
@@ -709,24 +711,24 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
 		long time = GetTickCount();
 		if (time > switch_page_time_) {
 			if (mouse->get_x() <= 0) {
+				// Update timer.
+				switch_page_time_ = time + SWITCH_PAGE_DELAY;
 				if (!previous_page()) {
 					return JUI::IO_RESULT_ERROR;
 				}
 			}
 			else if (mouse->get_x() >= get_width()) {
+				// Update timer.
+				switch_page_time_ = time + SWITCH_PAGE_DELAY;
 				if (!next_page()) {
 					return JUI::IO_RESULT_ERROR;
 				}
 			}
-
-			// Update timer.
-			switch_page_time_ = time + SWITCH_PAGE_DELAY;
 		}
 		return result;
 	}
 
     // Handle item containers.
-	item_display_->set_item( nullptr );
     if (inventory_view_ != nullptr) {
         result = inventory_view_->on_mouse_moved( mouse );
         if (result != JUI::IO_RESULT_UNHANDLED) {
