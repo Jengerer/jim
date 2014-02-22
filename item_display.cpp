@@ -162,7 +162,17 @@ bool ItemDisplay::update_display( void )
 			return false;
 		}
 	}
-	set_name( &item_name );
+
+	// Convert to multi-byte.
+    JUTIL::DynamicWideString wide_string;
+	int wide_size = MultiByteToWideChar( CP_UTF8, 0, item_name.get_string(), item_name.get_length(), nullptr, 0 );
+    if (!wide_string.set_length( wide_size )) {
+        return false;
+    }
+
+	// Convert to wide string.
+	MultiByteToWideChar( CP_UTF8, 0, item_name.get_string(), item_name.get_length(), wide_string.get_string(), wide_size );
+	set_name( &wide_string );
 
 	// Build information text.
     JUTIL::DynamicString information;
@@ -174,7 +184,13 @@ bool ItemDisplay::update_display( void )
 	for (uint32 i = 0; i < STRANGE_TYPE_COUNT; ++i) {
 		uint32 count;
 		uint32 eater_type;
-		if (item_->get_kill_eater_value( i, &count ) && item_->get_kill_eater_type( i, &eater_type )) {
+
+		// First check if we have a count.
+		if (item_->get_kill_eater_value( i, &count )) {
+			// Now match the type or get default.
+			if (!item_->get_kill_eater_type( i, &eater_type )) {
+				eater_type = DEFAULT_STRANGE_TYPE;
+			}
 			const KillEaterType* type = schema_->get_kill_eater_type( eater_type );
 			if (type != nullptr) {
 				if (!information.write( "\n%s: %u", type->get_description()->get_string(), count )) {
@@ -255,8 +271,7 @@ bool ItemDisplay::update_display( void )
 	}
 
 	// Get buffer of correct size.
-    JUTIL::DynamicWideString wide_string;
-	int wide_size = MultiByteToWideChar( CP_UTF8, 0, information.get_string(), information.get_length(), nullptr, 0 );
+	wide_size = MultiByteToWideChar( CP_UTF8, 0, information.get_string(), information.get_length(), nullptr, 0 );
     if (!wide_string.set_length( wide_size )) {
         return false;
     }
@@ -325,19 +340,10 @@ bool ItemDisplay::set_item( const Item *item )
 }
 
 /*
- * Get name of item.
- */
-const JUTIL::String* ItemDisplay::get_name( void ) const
-{
-	return item_name_;
-}
-
-/*
  * Set name of item to be displayed.
  */
-void ItemDisplay::set_name( const JUTIL::String* name )
+void ItemDisplay::set_name( const JUTIL::WideString* name )
 {
-	item_name_ = name;
 	name_text_->set_text( name );
 }
 

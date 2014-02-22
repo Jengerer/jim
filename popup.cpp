@@ -11,7 +11,9 @@ const JUI::Colour* POPUP_COLOUR = &JUI::COLOUR_BLACK;
 /*
  * Default popup constructor.
  */
-Popup::Popup( void ) : RoundedRectangleContainer( POPUP_PADDING )
+Popup::Popup( void )
+	: RoundedRectangleContainer( POPUP_PADDING ),
+	  state_( POPUP_STATE_HIDDEN )
 {
 }
 

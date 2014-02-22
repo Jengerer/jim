@@ -26,7 +26,7 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.2";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.3";
 const int APPLICATION_WIDTH	= 900;
 const int APPLICATION_HEIGHT = 540;
 
@@ -152,6 +152,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
     }
 
 	// Check if update required.
+#if !defined(_DEBUG)
 	UpdateCheckResult result = updater_->check_version_numbers();
 	if (result == CHECK_FAILED) {
 		return PrecacheResourcesFailure;
@@ -170,6 +171,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 		JUTIL::BaseAllocator::destroy( updater_ );
 		updater_ = nullptr;
 	}
+#endif
 
 	// Base resources successful; load extra resources.
     if (!create_resources()) {
@@ -439,6 +441,9 @@ bool ItemManager::updating_items( void )
 		Application::exit_application();
 		set_think( &ItemManager::exiting );
 	}
+	else {
+		// Resend the updates on pending items if we've timed out.
+	}
 	return true;
 }
 
@@ -657,6 +662,9 @@ void ItemManager::on_item_deleted( uint64 id )
 
 		// Update excluded in case we popped.
 		view_->update_excluded_page_display();
+
+		// Update button state since selection may have changed.
+		view_->update_buttons_state();
 	}
 }
 
