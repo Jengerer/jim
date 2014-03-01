@@ -26,7 +26,7 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.4.2";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.4.4";
 const int APPLICATION_FRAMERATE = 60;
 const long APPLICATION_FRAME_TIME = 1000 / APPLICATION_FRAMERATE;
 const int APPLICATION_WIDTH	= 900;
@@ -181,23 +181,24 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 			}
 			set_think( &ItemManager::exiting );
 		}
+		else {
+			// Generate non-base layout.
+			if (!view_->create_layout( &graphics_ )) {
+				const JUTIL::String* top = stack->get_top_error();
+				if (!view_->create_error( top )) {
+					return PrecacheResourcesFailure;
+				}
+				set_think( &ItemManager::exiting );
+			}
 
-		// Generate non-base layout.
-		if (!view_->create_layout( &graphics_ )) {
-			const JUTIL::String* top = stack->get_top_error();
-			if (!view_->create_error( top )) {
+			// Start waiting for items to come in.
+			const JUTIL::ConstantString PREPARING_MESSAGE = "Waiting for inventory message from Steam...";
+			if (!view_->set_loading_notice( &PREPARING_MESSAGE )) {
+				stack->log( "Failed to create loading notice." );
 				return PrecacheResourcesFailure;
 			}
-			set_think( &ItemManager::exiting );
+			set_think( &ItemManager::waiting_for_items );
 		}
-
-		// Start waiting for items to come in.
-		const JUTIL::ConstantString PREPARING_MESSAGE = "Waiting for inventory message from Steam...";
-		if (!view_->set_loading_notice( &PREPARING_MESSAGE )) {
-			stack->log( "Failed to create loading notice." );
-			return PrecacheResourcesFailure;
-		}
-		set_think( &ItemManager::waiting_for_items );
 	}
 
     // All base resources loaded successfully.

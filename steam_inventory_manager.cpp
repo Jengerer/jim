@@ -5,11 +5,20 @@
 #include "protobuf/steammessages.pb.h"
 #include "protobuf/gcsdk_gcmessages.pb.h"
 
+// File for logging messages sent and received.
+const JUTIL::ConstantString STEAM_LOG_FILE( "steam_messages.txt" );
+
 /*
  * Item and selection handler constructor.
  */
 SteamInventoryManager::SteamInventoryManager( void )
 {
+#if defined(LOG_STEAM_MESSAGES)
+
+	// Try to open file for logging.
+	fopen_s( &log_, STEAM_LOG_FILE.get_string(), "wb" );
+
+#endif
 }
 
 /*
@@ -18,6 +27,15 @@ SteamInventoryManager::SteamInventoryManager( void )
 SteamInventoryManager::~SteamInventoryManager( void )
 {
 	close_interfaces();
+
+#if defined(LOG_STEAM_MESSAGES)
+
+	// Close log file if open.
+	if (log_ != nullptr) {
+		fclose( log_ );
+	}
+
+#endif
 }
 
 /*
@@ -52,6 +70,11 @@ bool SteamInventoryManager::handle_callbacks( void )
  */
 bool SteamInventoryManager::move_item( const Item* item, unsigned int index ) const
 {
+#if defined(LOG_STEAM_MESSAGES)
+	fprintf( log_, "Sent move for item %llu.\n", item->get_unique_id() );
+	fflush( log_ );
+#endif
+
 	// Generate new flags.
 	uint32 flags = item->has_valid_inventory_flags() ? item->get_inventory_flags() : FL_ITEM_VALID;
 	flags = (flags & FL_ITEM_NONPOSITION) | ((index + 1) & FL_ITEM_POSITION);
@@ -71,6 +94,11 @@ bool SteamInventoryManager::move_item( const Item* item, unsigned int index ) co
  */
 bool SteamInventoryManager::update_item( const Item* item ) const
 {
+#if defined(LOG_STEAM_MESSAGES)
+	fprintf( log_, "Sent update for item %llu.\n", item->get_unique_id() );
+	fflush( log_ );
+#endif
+
 	GCSetItemPosition_t message;
 	message.itemID = item->get_unique_id();
 	message.position = item->get_inventory_flags();
@@ -85,6 +113,11 @@ bool SteamInventoryManager::update_item( const Item* item ) const
  */
 bool SteamInventoryManager::delete_item( const Item* item ) const
 {
+#if defined(LOG_STEAM_MESSAGES)
+	fprintf( log_, "Sent move for item %llu.\n", item->get_unique_id() );
+	fflush( log_ );
+#endif
+
 	GCDelete_t message;
 	message.itemID = item->get_unique_id();
 	return send_message(
@@ -128,6 +161,13 @@ void SteamInventoryManager::set_craft_item( unsigned int index, const Item* item
  */
 bool SteamInventoryManager::craft_items( void )
 {
+#if defined(LOG_STEAM_MESSAGES)
+	fprintf( log_, "Sent craft message.\n" );
+	fwrite( craft_buffer_.get_array(), craft_buffer_.get_size(), 1, log_ );
+	fprintf( log_, "\n" );
+	fflush( log_ );
+#endif
+
 	// Send message.
 	if (!send_message( GCCraft_t::k_iMessage, craft_buffer_.get_array(), craft_buffer_.get_size() )) {
         return false;
@@ -141,6 +181,11 @@ bool SteamInventoryManager::craft_items( void )
  */
 bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 {
+#if defined(LOG_STEAM_MESSAGES)
+	fprintf( log_, "Got callback with ID %d (0x%u).\n", id, id );
+	fflush( log_ );
+#endif
+
     // Handle callback if it's a GC message.
     if (id == GCMessageAvailable_t::k_iCallback) {
         // Get size of message waiting.
@@ -205,6 +250,11 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
  */
 bool SteamInventoryManager::handle_message( uint32 id, void* message )
 {
+#if defined(LOG_STEAM_MESSAGES)
+	fprintf( log_, "Got message with ID %d (0x%u).\n", id, id );
+	fflush( log_ );
+#endif
+
     // Handle by message ID.
 	switch (id) {
 		case GCCraftResponse_t::k_iMessage:
@@ -226,6 +276,11 @@ bool SteamInventoryManager::handle_message( uint32 id, void* message )
  */
 bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 size )
 {
+#if defined(LOG_STEAM_MESSAGES)
+	fprintf( log_, "Got protobuf message with ID %d (0x%u).\n", id, id );
+	fflush( log_ );
+#endif
+
     // Get error stack for logging.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 

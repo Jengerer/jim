@@ -100,6 +100,9 @@ private:
 
 private:
 
+	// View state.
+	bool is_fully_loaded_;
+
     // Inventory to create view for.
 	ItemSchema* schema_;
     Inventory* inventory_;

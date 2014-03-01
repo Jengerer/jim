@@ -6,6 +6,8 @@
 #include "inventory_action_interface.hpp"
 #include "steam_inventory_listener.hpp"
 
+#define LOG_STEAM_MESSAGES
+
 class SteamInventoryManager
     : public Steam,
       public InventoryActionInterface
@@ -50,6 +52,11 @@ private:
 
     // Steam inventory listener handle.
     SteamInventoryListener* listener_;
+
+#if defined(LOG_STEAM_MESSAGES)
+	// File for dumping data.
+	FILE* log_;
+#endif
 
 };
 

@@ -2,10 +2,6 @@
 #include <jui/application/error_stack.hpp>
 #include <jui/layout/horizontal_split_layout.hpp>
 
-// Application attributes.
-const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9";
-
 // General application layout.
 const unsigned int PADDING = 20;
 const unsigned int LAYOUT_SPACING = 10;
@@ -54,7 +50,8 @@ const float DRAG_THRESHOLD = 25.0f;
 const long SWITCH_PAGE_DELAY = 300;
 
 ItemManagerView::ItemManagerView( Inventory* inventory, ItemSchema* schema )
-    : inventory_( inventory ),
+    : is_fully_loaded_( false ),
+	  inventory_( inventory ),
 	  schema_( schema ),
       inventory_view_( nullptr ),
       excluded_view_( nullptr ),
@@ -467,6 +464,9 @@ bool ItemManagerView::create_layout( JUI::Graphics2D* graphics )
 	new (notifications_) NotificationQueue();
 	notifications_->set_position( get_width() - PADDING, get_height() - PADDING );
 
+	// View is fully loaded now.
+	is_fully_loaded_ = true;
+
 	// All created successfully.
 	return true;
 }
@@ -679,6 +679,11 @@ JUI::IOResult ItemManagerView::on_mouse_moved( JUI::Mouse* mouse )
         return result;
     }
 
+	// Don't handle mouse event further if we're not loaded properly.
+	if (!is_fully_loaded_) {
+		return JUI::IO_RESULT_UNHANDLED;
+	}
+
 	// If we drag the clicked mouse far enough away, start dragging.
 	if (is_mouse_down_ && (clicked_view_ != nullptr)) {
 		int dist_x = mouse->get_x() - clicked_x_;
@@ -767,6 +772,11 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
         return result;
     }
 
+	// Don't handle mouse event further if we're not loaded properly.
+	if (!is_fully_loaded_) {
+		return JUI::IO_RESULT_UNHANDLED;
+	}
+
     // Handle item containers.
     result = inventory_view_->on_mouse_clicked( mouse );
     if (result != JUI::IO_RESULT_UNHANDLED) {
@@ -803,6 +813,11 @@ JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
     if (result != JUI::IO_RESULT_UNHANDLED) {
         return result;
     }
+
+	// Don't handle mouse event further if we're not loaded properly.
+	if (!is_fully_loaded_) {
+		return JUI::IO_RESULT_UNHANDLED;
+	}
 
 	// Release dragged if holding anything.
 	result = selected_view_->on_mouse_released( mouse );
