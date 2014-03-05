@@ -89,6 +89,8 @@ bool SteamInventoryManager::move_item( const Item* item, unsigned int index ) co
 		sizeof(message) );
 } 
 
+#include <iostream>
+#include <fstream>
 /*
  * Update a single item.
  */
@@ -99,13 +101,42 @@ bool SteamInventoryManager::update_item( const Item* item ) const
 	fflush( log_ );
 #endif
 
-	GCSetItemPosition_t message;
-	message.itemID = item->get_unique_id();
-	message.position = item->get_inventory_flags();
-	return send_message( 
-		static_cast<uint32>(GCSetItemPosition_t::k_iMessage), 
-		static_cast<void*>(&message),
-		sizeof(message) );
+	// Update message type used in a few places.
+	uint32 update_message_id = k_EMsgGCUpdateItems | PROTOBUF_MESSAGE_FLAG;
+
+	// Get parameters from item.
+	uint64 id = item->get_unique_id();
+	uint32 inventory_flags = item->get_inventory_flags();
+
+	// Fill in EconItem protobuf and serialize.
+	CItemUpdate updated_item;
+	updated_item.set_id( id );
+	updated_item.set_position( inventory_flags );
+	int item_size = updated_item.ByteSize();
+	JUTIL::ArrayBuilder<char> buffer;
+	if (!buffer.set_size( item_size )) {
+		return false;
+	}
+	char* buffer_data = buffer.get_array();
+	updated_item.SerializeToArray( buffer_data, item_size );
+
+	// Fill in update protobuf.
+	CUpdateItems update_msg;	
+	update_msg.add_item_data( buffer_data, item_size );
+	int update_size = update_msg.ByteSize();
+	int message_size = update_size;
+	if (!buffer.set_size( message_size )) {
+		return false;
+	}
+	buffer_data = buffer.get_array();
+	update_msg.SerializeToArray( buffer_data, update_size );
+
+	char buf[1024];
+	char *wrt = buf;
+	for (int i = 0; i < message_size; ++i) {
+		wrt += sprintf(wrt, "%02x ", (unsigned char)buffer_data[i]);
+	}
+	return send_message( update_message_id, buffer_data, message_size );
 }
 
 /*
@@ -401,6 +432,12 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 					return false;
 				}
 				refresh.SerializeToArray( buffer.get_array(), size );
+				char hex[512];
+				char *write = hex;
+				hex[0] = '\0';
+				for (int i = 0; i < size; ++i) {
+					write += sprintf(write, "%02x ", (unsigned char)buffer.get_array()[i]);
+				}
 				if (!send_message( id, buffer.get_array(), size )) {
                     stack->log( "Failed to send inventory subscription refresh to Steam." );
                     return false;

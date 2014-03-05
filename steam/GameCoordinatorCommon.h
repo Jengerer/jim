@@ -156,6 +156,8 @@ typedef enum EGCMessages
 	k_EMsgGCBackpackSortFinished,
 	k_EMsgGCRequestItemSchemaData = 1060,
 
+	k_EMsgGCUpdateItems = 1100,
+
 	k_EMsgGCTrading_InitiateTradeRequest = 1501,
 	k_EMsgGCTrading_InitiateTradeResponse,
 	k_EMsgGCTrading_StartSession,

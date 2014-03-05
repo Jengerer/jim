@@ -730,13 +730,7 @@ bool ItemManager::on_item_updated( uint64 id, uint32 flags )
 		// Remove from queue.
 		if (updates_.remove( item )) {
 			// Send next update if we're pushing.
-			if (pushing_updates_ && (updates_.get_queue_length() != 0)) {
-				const Item* next = updates_.get_next();
-				if (!steam_items_.update_item( next )) {
-					stack->log( "Failed to send next update message." );
-					return false;
-				}
-
+			if (pushing_updates_) {
 				// Update notification if we can.
 				update_pushing_notice();
 			}
