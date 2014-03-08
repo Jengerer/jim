@@ -140,11 +140,8 @@ bool Inventory::place_item( Item* item )
 }
 
 /*
- * Move an item to an inventory slot and notify the listener.
- * This function should only be used if we want listeners to hear
- * about movement; not when filling/initializing the inventory.
- * The item's previous slot, if empty, should be cleaned externally
- * and is not handled here.
+ * Moves an item to a given index. Assumes that item position
+ * has been updated before moving here.
  */
 bool Inventory::move_item( Item* item, unsigned int index )
 {

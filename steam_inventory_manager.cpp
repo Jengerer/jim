@@ -192,7 +192,14 @@ bool SteamInventoryManager::craft_items( void )
 {
 #if defined(LOG_STEAM_MESSAGES)
 	fprintf( log_, "Sent craft message.\n" );
-	fwrite( craft_buffer_.get_array(), craft_buffer_.get_size(), 1, log_ );
+
+	// Dump the item IDs.
+	unsigned int i;
+	unsigned int length = craft_buffer_.get_size();
+	char* buffer = craft_buffer_.get_array();
+	for (i = 0; i < length; ++i) {
+		fprintf( log_, "%02x", static_cast<unsigned char>(buffer[i]) );
+	}
 	fprintf( log_, "\n" );
 	fflush( log_ );
 #endif
@@ -211,8 +218,12 @@ bool SteamInventoryManager::craft_items( void )
 bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 {
 #if defined(LOG_STEAM_MESSAGES)
-	fprintf( log_, "Got callback with ID %d (0x%u).\n", id, id );
-	fflush( log_ );
+	static uint32 previous_id = 0xFFFFFFFF;
+	if (id != previous_id) {
+		fprintf( log_, "Got callback with ID %d (0x%u).\n", id, id );
+		fflush( log_ );
+		previous_id = id;
+	}
 #endif
 
     // Handle callback if it's a GC message.

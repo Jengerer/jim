@@ -273,6 +273,10 @@ const JUI::Colour* Item::get_quality_colour( void ) const
 		return &QUALITY_VALVE_COLOUR;
 		break;
 
+	case k_EItemQuality_Collectors:
+		return &QUALITY_COLLECTORS_COLOUR;
+		break;
+
 	default:
 		return &QUALITY_COMMON_COLOUR;
 		break;

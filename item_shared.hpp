@@ -97,6 +97,7 @@ const JUI::Colour QUALITY_UNUSUAL_COLOUR	= JUI::Colour( 0x8650AC );
 const JUI::Colour QUALITY_HAUNTED_COLOUR	= JUI::Colour( 0x38F3AB );
 const JUI::Colour QUALITY_COMMUNITY_COLOUR	= JUI::Colour( 0x70B04A );
 const JUI::Colour QUALITY_VALVE_COLOUR		= JUI::Colour( 0xA50F79 );
+const JUI::Colour QUALITY_COLLECTORS_COLOUR	= JUI::Colour( 0xAA0000 );
 
 // Inventory flags.
 #define FL_ITEM_ALL			0xFFFFFFFF

@@ -195,7 +195,7 @@ const AttributeDefinition* ItemSchema::get_attribute_definition( uint16 attribut
 const JUTIL::DynamicString* ItemSchema::get_quality_name( uint32 quality_index ) const
 {
 	JUTIL::DynamicString* name;
-	if(!quality_names_.get( quality_index, &name )) {
+	if (!quality_names_.get( quality_index, &name )) {
 		name = nullptr;
 	}
 	return name;
