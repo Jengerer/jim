@@ -311,6 +311,11 @@ bool SteamInventoryManager::handle_message( uint32 id, void* message )
     return true;
 }
 
+#define WRITE_TO_FILE
+#if defined(READ_FROM_FILE) || defined(WRITE_TO_FILE)
+#include <fstream>
+#endif
+
 /*
  * Handle protobuf Steam message. Prepare your anus.
  */
@@ -330,15 +335,33 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 		{
 			// Get message.
 			CMsgSOCacheSubscribed cache_msg;
+#if !defined(READ_FROM_FILE)
 			if (!cache_msg.ParseFromArray( message, size )) {
                 return false;
             }
+#else
+			std::ifstream in_file( "inventory.bin", std::ios::binary );
+			if (!cache_msg.ParseFromIstream( &in_file )) {
+				return false;
+			}
+			in_file.close();
+#endif
+
+#if defined(WRITE_TO_FILE)
+			std::ofstream out_file("inventory.bin", std::ios::binary );
+			if (!cache_msg.SerializeToOstream( &out_file )) {
+				return false;
+			}
+			out_file.close();
+#endif
 			set_version( cache_msg.version() );
 
 			// Check that this is our backpack.
+#if !defined(READ_FROM_FILE)
 			if (cache_msg.owner() != get_steam_id()) {
 				return false;
 			}
+#endif
 
 			// Notify that inventory is being reset.
             listener_->on_inventory_reset();
@@ -382,24 +405,27 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 				case INVENTORY_SIZE_SUBSCRIPTION_ID:
 					{
                         // Ensure we own this inventory.
-						if (get_steam_id() == cache_msg.owner()) {
-							for (int i = 0; i < subscribed_type.object_data_size(); i++) {
-								CSOEconGameAccountClient client;
-                                const char* data = subscribed_type.object_data( i ).data();
-                                size_t size = subscribed_type.object_data( i ).size();
-								if (!client.ParseFromArray( data, size )) {
-                                    stack->log( "Failed to parse account client object from Steam message." );
-                                    return false;
-                                }
+#if !defined(READ_FROM_FILE)
+						if (get_steam_id() != cache_msg.owner()) {
+							break;
+						}
+#endif
+						for (int i = 0; i < subscribed_type.object_data_size(); i++) {
+							CSOEconGameAccountClient client;
+                            const char* data = subscribed_type.object_data( i ).data();
+                            size_t size = subscribed_type.object_data( i ).size();
+							if (!client.ParseFromArray( data, size )) {
+                                stack->log( "Failed to parse account client object from Steam message." );
+                                return false;
+                            }
 
-								// Check how many slots this backpack is supposed to have.
-                                bool is_trial_account = client.trial_account();
-								unsigned int extra_slots = client.additional_backpack_slots();
-								if (!listener_->on_inventory_resize( is_trial_account, extra_slots )) {
-                                    stack->log( "Failed to resize inventory." );
-                                    return false;
-                                }
-							}
+							// Check how many slots this backpack is supposed to have.
+                            bool is_trial_account = client.trial_account();
+							unsigned int extra_slots = client.additional_backpack_slots();
+							if (!listener_->on_inventory_resize( is_trial_account, extra_slots )) {
+                                stack->log( "Failed to resize inventory." );
+                                return false;
+                            }
 						}
 
 						break;
