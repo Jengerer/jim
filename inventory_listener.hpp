@@ -12,7 +12,6 @@ class InventoryListener
 public:
 
 	// Handle item position update.
-	virtual bool on_item_moved( Item* item ) = 0;
 	virtual void on_selection_changed( void ) = 0;
 
 };

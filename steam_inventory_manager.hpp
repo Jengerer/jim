@@ -5,6 +5,9 @@
 #include "steam.hpp"
 #include "inventory_action_interface.hpp"
 #include "steam_inventory_listener.hpp"
+#include "protobuf/base_gcmessages.pb.h"
+#include "protobuf/steammessages.pb.h"
+#include "protobuf/gcsdk_gcmessages.pb.h"
 
 #define LOG_STEAM_MESSAGES
 
@@ -26,8 +29,12 @@ public:
 
 	// Single item change functions.
 	virtual bool move_item( const Item* item, unsigned int index ) const;
-	virtual bool update_item( const Item* item ) const;
 	virtual bool delete_item( const Item* item ) const;
+
+	// Item position update functions.
+	void clear_item_updates( void );
+	bool add_item_update( const Item* item );
+	bool push_item_updates( void );
 
 	// Craft handling functions.
 	virtual bool set_craft_size( unsigned int count );
@@ -46,9 +53,9 @@ private:
 
 private:
 
-	// Crafting item buffer.
+	// Steam message buffers.
 	JUTIL::ArrayBuilder<char> craft_buffer_;
-	JUTIL::Map<uint64, const Item*> updated_;
+	CUpdateItems update_msg_;
 
     // Steam inventory listener handle.
     SteamInventoryListener* listener_;

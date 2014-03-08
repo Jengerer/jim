@@ -1140,6 +1140,9 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 		}
 	}
 	else if (was_dragging_) {
+		// Start a move transaction.
+		listener_->on_item_begin_move();
+
 		// Can only release dragged onto inventory.
 		// If we're dropping onto a full slot, this must be one item, inventory to inventory.
 		Item* item = slot->get_item();
@@ -1152,10 +1155,10 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 			inventory_->clear_selection();
 
 			// Move items and add them to update list.
-			if (!inventory_->move_item( dragged_item, index )) {
+			if (!listener_->on_item_moved( dragged_item, index )) {
 				return false;
 			}
-			if (!inventory_->move_item( replaced_item, dragged_index )) {
+			if (!listener_->on_item_moved( replaced_item, dragged_index )) {
 				return false;
 			}
 		}
@@ -1167,12 +1170,6 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 			unsigned int end = inventory->get_size();
 			unsigned int selected_end = selected->get_size();
 
-			// Displace selected items.
-			for (j = 0; j < selected_end; ++j) {
-				Item* current = selected->get_item( j );
-				inventory_->displace_item( current );
-			}
-
 			// Fit all selected on this page.
 			for (j = 0; j < selected_end; ++j) {
 				Item* current = selected->get_item( j );
@@ -1180,8 +1177,9 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 				// Find a new spot.
 				for (i = last_checked; i < end; ++i) {
 					const Slot* slot = inventory->get_slot( i );
-					if (!slot->has_item()) {
-						if (!inventory_->move_item( current, i )) {
+					const Item* replacing = slot->get_item();
+					if (!slot->has_item() || replacing->is_selected()) {
+						if (!listener_->on_item_moved( current, i )) {
 							return false;
 						}
 						last_checked = i + 1;
@@ -1189,6 +1187,11 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 					}
 				}
 			}
+		}
+
+		// Push the pending updates.
+		if (!listener_->on_item_end_move()) {
+			return false;
 		}
 	}
     return true;

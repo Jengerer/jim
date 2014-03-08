@@ -12,7 +12,6 @@
 #include "item_manager_view.hpp"
 #include "item_manager_view_listener.hpp"
 #include "item_schema.hpp"
-#include "item_update_queue.hpp"
 #include "steam_inventory_manager.hpp"
 #include "updater.hpp"
 
@@ -56,11 +55,13 @@ public:
 
     // View listener functions.
     virtual bool on_error_acknowledged( void );
+	virtual void on_item_begin_move( void );
+	virtual bool on_item_moved( Item* item, unsigned int index );
+	virtual bool on_item_end_move( void );
 	virtual bool on_craft_items( void );
 	virtual bool on_delete_item( void );
 
 	// Inventory listener functions.
-	virtual bool on_item_moved( Item* item );
 	virtual void on_selection_changed( void );
 
 	// Steam inventory listener functions.
@@ -99,7 +100,6 @@ private:
 	ItemSchema schema_;
 	Inventory inventory_;
     SteamInventoryManager steam_items_;
-	ItemUpdateQueue updates_;
 	bool pending_deletes_;
 	bool pushing_updates_;
 

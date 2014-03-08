@@ -173,9 +173,6 @@
     <ClCompile Include="button_manager.cpp">
       <Filter>headers\ui</Filter>
     </ClCompile>
-    <ClCompile Include="item_update_queue.cpp">
-      <Filter>source\items</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protobuf\base_gcmessages.pb.h">
@@ -350,9 +347,6 @@
       <Filter>headers\items</Filter>
     </ClInclude>
     <ClInclude Include="definition_loader.hpp">
-      <Filter>headers\items</Filter>
-    </ClInclude>
-    <ClInclude Include="item_update_queue.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>
