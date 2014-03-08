@@ -211,15 +211,6 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
  */
 void ItemManager::exit_application( void )
 {
-	// Don't run exit code if already exiting.
-	if (think_function_ == &ItemManager::running) {
-		if (updates_.get_queue_length() != 0) {
-			// We don't care about failures here; we'll keep trying anyway.
-			start_pushing_updates();
-			return;
-		}
-	}
-	
 	// Either no pending item updates or user got impatient.
 	Application::exit_application();
 	set_think( &ItemManager::exiting );
@@ -442,27 +433,6 @@ bool ItemManager::running( void )
 }
 
 /*
- * Wait for item updates to finish pending.
- */
-bool ItemManager::updating_items( void )
-{
-	// Wait for all item updates to get acknowledged.
-	if (!steam_items_.handle_callbacks()){
-		return false;
-	}
-
-	// Check if we're done.
-	if (updates_.get_queue_length() == 0) {
-		Application::exit_application();
-		set_think( &ItemManager::exiting );
-	}
-	else {
-		// Resend the updates on pending items if we've timed out.
-	}
-	return true;
-}
-
-/*
  * Waiting for user to trigger update.
  */
 bool ItemManager::pending_update( void )
@@ -508,33 +478,6 @@ bool ItemManager::exiting( void )
 }
 
 /*
- * Begin pushing items to Steam.
- */
-void ItemManager::start_pushing_updates( void )
-{
-	// Push the first item.
-	pushing_updates_ = true;
-	const Item* first = updates_.get_next();
-	steam_items_.update_item( first );
-
-	// We don't care about failures, we have to keep trying anyway!
-	update_pushing_notice();
-	set_think( &ItemManager::updating_items );
-}
-
-/*
- * Update notice text with our progress.
- */
-void ItemManager::update_pushing_notice( void )
-{
-	unsigned int remaining = updates_.get_queue_length();
-	JUTIL::DynamicString message;
-	if (message.write( "Saving item position changes...\n%u updates remaining...", remaining )) {
-		view_->set_loading_notice( &message );
-	}
-}
-
-/*
  * Handle error acknowledge event from view.
  */
 bool ItemManager::on_error_acknowledged( void )
@@ -563,6 +506,38 @@ bool ItemManager::on_error_acknowledged( void )
 		exit_application();
 	}
     return true;
+}
+
+/*
+ * Triggered when the view begins moving some items.
+ */
+void ItemManager::on_item_begin_move( void )
+{
+	steam_items_.clear_item_updates();
+}
+
+/*
+ * Handle item update event and trigger Steam message.
+ */
+bool ItemManager::on_item_moved( Item* item, unsigned int index )
+{
+	// Send request to update position.
+	item->set_position( index );
+	if (!steam_items_.add_item_update( item )) {
+		return false;
+	}
+	return true;
+}
+
+/*
+ * Triggered when the view is finished moving some items.
+ */
+bool ItemManager::on_item_end_move( void )
+{
+	if (!steam_items_.push_item_updates()) {
+		return false;
+	}
+	return true;
 }
 
 /*
@@ -632,21 +607,6 @@ bool ItemManager::on_delete_item( void )
 }
 
 /*
- * Handle item update event and trigger Steam message.
- */
-bool ItemManager::on_item_moved( Item* item )
-{
-	// Add item to be updated.
-	if (!updates_.add( item )) {
-		return false;
-	}
-
-	// Update excluded items in case we moved out.
-	view_->update_excluded_page_display();
-	return true;
-}
-
-/*
  * Handle selection set change.
  */
 void ItemManager::on_selection_changed( void )
@@ -691,7 +651,6 @@ void ItemManager::on_item_deleted( uint64 id )
 	Item* item = inventory_.find_item( id );
 	if (item != nullptr) {
 		inventory_.delete_item( item );
-		updates_.remove( item );
 
 		// If selected items get emptied, re-enable inventory.
 		if (pending_deletes_) {
@@ -724,23 +683,12 @@ bool ItemManager::on_item_updated( uint64 id, uint32 flags )
 		stack->log( "Failed to find item to update." );
 		return false;
 	}
-
-	// Remove from queue if update was pushed.
-	if (item->get_inventory_flags() == flags) {
-		// Remove from queue.
-		if (updates_.remove( item )) {
-			// Send next update if we're pushing.
-			if (pushing_updates_) {
-				// Update notification if we can.
-				update_pushing_notice();
-			}
-		}
-	}
 	item->set_inventory_flags( flags );
 
-	// Displace and move to new spot.
+	// Move to new spot; assume Steam will fix over-riding.
+	uint32 index = item->get_position();
 	inventory_.displace_item( item );
-	if (!inventory_.place_item( item )) {
+	if (!inventory_.move_item( item, index )) {
 		stack->log( "Failed to place updated item." );
 		return false;
 	}

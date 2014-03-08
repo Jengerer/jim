@@ -13,7 +13,6 @@ public:
 
 	// Single item change functions.
 	virtual bool move_item( const Item* item, unsigned int index ) const = 0;
-	virtual bool update_item( const Item* item ) const = 0;
 	virtual bool delete_item( const Item* item ) const = 0;
 	
 	// Craft handling functions.

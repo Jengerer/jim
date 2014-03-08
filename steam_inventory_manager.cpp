@@ -1,9 +1,6 @@
 #include "steam_inventory_manager.hpp"
 #include "serialized_buffer.hpp"
 #include "jui/application/error_stack.hpp"
-#include "protobuf/base_gcmessages.pb.h"
-#include "protobuf/steammessages.pb.h"
-#include "protobuf/gcsdk_gcmessages.pb.h"
 
 // File for logging messages sent and received.
 const JUTIL::ConstantString STEAM_LOG_FILE( "steam_messages.txt" );
@@ -89,56 +86,6 @@ bool SteamInventoryManager::move_item( const Item* item, unsigned int index ) co
 		sizeof(message) );
 } 
 
-#include <iostream>
-#include <fstream>
-/*
- * Update a single item.
- */
-bool SteamInventoryManager::update_item( const Item* item ) const
-{
-#if defined(LOG_STEAM_MESSAGES)
-	fprintf( log_, "Sent update for item %llu.\n", item->get_unique_id() );
-	fflush( log_ );
-#endif
-
-	// Update message type used in a few places.
-	uint32 update_message_id = k_EMsgGCUpdateItems | PROTOBUF_MESSAGE_FLAG;
-
-	// Get parameters from item.
-	uint64 id = item->get_unique_id();
-	uint32 inventory_flags = item->get_inventory_flags();
-
-	// Fill in EconItem protobuf and serialize.
-	CItemUpdate updated_item;
-	updated_item.set_id( id );
-	updated_item.set_position( inventory_flags );
-	int item_size = updated_item.ByteSize();
-	JUTIL::ArrayBuilder<char> buffer;
-	if (!buffer.set_size( item_size )) {
-		return false;
-	}
-	char* buffer_data = buffer.get_array();
-	updated_item.SerializeToArray( buffer_data, item_size );
-
-	// Fill in update protobuf.
-	CUpdateItems update_msg;	
-	update_msg.add_item_data( buffer_data, item_size );
-	int update_size = update_msg.ByteSize();
-	int message_size = update_size;
-	if (!buffer.set_size( message_size )) {
-		return false;
-	}
-	buffer_data = buffer.get_array();
-	update_msg.SerializeToArray( buffer_data, update_size );
-
-	char buf[1024];
-	char *wrt = buf;
-	for (int i = 0; i < message_size; ++i) {
-		wrt += sprintf(wrt, "%02x ", (unsigned char)buffer_data[i]);
-	}
-	return send_message( update_message_id, buffer_data, message_size );
-}
-
 /*
  * Delete a single item.
  */
@@ -155,6 +102,57 @@ bool SteamInventoryManager::delete_item( const Item* item ) const
 		static_cast<uint32>(GCDelete_t::k_iMessage),
 		&message,
 		sizeof(message));
+}
+
+/*
+ * Clear all items in the update message.
+ */
+void SteamInventoryManager::clear_item_updates( void )
+{
+	update_msg_.clear_item_data();
+}
+
+/*
+ * Add an item to be updated.
+ */
+bool SteamInventoryManager::add_item_update( const Item* item )
+{
+	// Fill in the message.
+	uint64 id = item->get_unique_id();
+	uint32 inventory_flags = item->get_inventory_flags();
+	CItemUpdate updated_item;
+	updated_item.set_id( id );
+	updated_item.set_position( inventory_flags );
+
+	// SErialize and add to the message.
+	int item_size = updated_item.ByteSize();
+	JUTIL::ArrayBuilder<char> buffer;
+	if (!buffer.set_size( item_size )) {
+		return false;
+	}
+	char* buffer_data = buffer.get_array();
+	updated_item.SerializeToArray( buffer_data, item_size );
+	update_msg_.add_item_data( buffer_data, item_size );
+	return true;
+}
+
+/*
+ * Update a single item.
+ */
+bool SteamInventoryManager::push_item_updates( void )
+{
+	// Update message type used in a few places.
+	uint32 update_message_id = k_EMsgGCUpdateItems | PROTOBUF_MESSAGE_FLAG;
+
+	// Serialize and send.
+	int message_size = update_msg_.ByteSize();
+	JUTIL::ArrayBuilder<char> buffer;
+	if (!buffer.set_size( message_size )) {
+		return false;
+	}
+	char* buffer_data = buffer.get_array();
+	update_msg_.SerializeToArray( buffer_data, message_size );
+	return send_message( update_message_id, buffer_data, message_size );
 }
 
 /*
@@ -462,16 +460,6 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
                     return false;
                 }
 
-				// Check if this is a response to a pending update.
-				uint64 id = updated_item.id();
-				uint32 flags = updated_item.inventory();
-				const Item* item;
-				if (updated_.get( id, &item )) {
-					if (item->get_inventory_flags() == flags) {
-						updated_.remove( id );
-					}
-				}
-
                 // Pass item ID and flags to listener.
                 if (!listener_->on_item_updated( updated_item.id(), updated_item.inventory() )) {
                     stack->log( "Failed to update item." );
@@ -499,16 +487,6 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
                         stack->log( "Failed to parse multiple item message from Steam." );
                         return false;
                     }
-
-					// Check if this is a response to a pending update.
-					uint64 id = updated_item.id();
-					uint32 flags = updated_item.inventory();
-					const Item* item;
-					if (updated_.get( id, &item )) {
-						if (item->get_inventory_flags() == flags) {
-							updated_.remove( id );
-						}
-					}
 
                     // Pass item ID and flags to listener.
                     if (!listener_->on_item_updated( updated_item.id(), updated_item.inventory() )) {

@@ -151,11 +151,6 @@ bool Inventory::move_item( Item* item, unsigned int index )
 	// Position in inventory and update flags.
 	item->set_position( index );
 	inventory_slots_.set_item( index, item );
-
-	// Notify listener.
-	if (!listener_->on_item_moved( item )) {
-		return false;
-	}
 	return true;
 }
 
