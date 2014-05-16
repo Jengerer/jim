@@ -8,7 +8,6 @@ AttributeDefinition::AttributeDefinition( JUTIL::String* name,
 	unsigned int index,
 	float min_value,
 	float max_value,
-	EffectType effect_type,
 	bool hidden,
 	bool is_integer )
 {
@@ -18,7 +17,6 @@ AttributeDefinition::AttributeDefinition( JUTIL::String* name,
 	attribute_class_ = attribute_class;
 	min_value_ = min_value;
 	max_value_ = max_value;
-	effect_type_ = effect_type;
 	hidden_ = hidden;
 	is_integer_ = is_integer;
 
@@ -75,14 +73,6 @@ float AttributeDefinition::get_min_value( void ) const
 float AttributeDefinition::get_max_value( void ) const
 {
 	return max_value_;
-}
-
-/*
- * Get effect type for this attribute.
- */
-EffectType AttributeDefinition::get_effect_type( void ) const
-{
-	return effect_type_;
 }
 
 /*

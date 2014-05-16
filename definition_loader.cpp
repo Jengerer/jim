@@ -42,6 +42,7 @@ const JUTIL::ConstantString EFFECT_TYPE_POSITIVE = "positive";
 const JUTIL::ConstantString EFFECT_TYPE_NEGATIVE = "negative";
 const JUTIL::ConstantString EFFECT_TYPE_NEUTRAL = "neutral";
 const JUTIL::ConstantString EFFECT_TYPE_VISUALS_MVM_BOSS = "visuals_mvm_boss";
+const JUTIL::ConstantString EFFECT_TYPE_FROM_LUT = "value_is_from_lookup_table";
 
 // Fallback definitions.
 const JUTIL::ConstantString FALLBACK_ITEM_TEXTURE = "img/backpack/unknown_item.png";
@@ -456,26 +457,6 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
 			max_value = attribute_min_value->asFloat();
 		}
 
-		// Get effect type, third char is different for each time.
-        const JUTIL::ConstantString effect_string = attribute_effect_type->asCString();
-		EffectType effect_type;
-		if (effect_string.is_equal( &EFFECT_TYPE_POSITIVE )) {
-			effect_type = EFFECT_POSITIVE;
-		}
-		else if (effect_string.is_equal( &EFFECT_TYPE_NEGATIVE )) {
-			effect_type = EFFECT_NEGATIVE;
-		}
-        else if (effect_string.is_equal( &EFFECT_TYPE_NEUTRAL )) {
-			effect_type = EFFECT_NEUTRAL;
-		}
-		else if (effect_string.is_equal( &EFFECT_TYPE_VISUALS_MVM_BOSS )) {
-			effect_type = EFFECT_VISUALS_MVM_BOSS;
-		}
-		else {
-            stack->log( "Unexpected attribute effect type '%s' received.", effect_string.get_string() );
-            return false;
-		}
-
 		// Allocate new name string.
         JUTIL::DynamicString* name_string;
         if (!JUTIL::BaseAllocator::allocate( &name_string )) {
@@ -519,7 +500,6 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
 			class_string,
             index,
 			min_value, max_value,
-			effect_type,
 			is_hidden,
 			is_integer );
 

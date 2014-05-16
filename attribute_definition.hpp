@@ -22,7 +22,6 @@ public:
         unsigned int index,
 		float min_value,
 		float max_value,
-		EffectType effect_type,
 		bool hidden,
 		bool is_integer );
     virtual ~AttributeDefinition();
@@ -33,7 +32,6 @@ public:
 	const JUTIL::String* get_attribute_class( void ) const;
 	float				get_min_value( void ) const;
 	float				get_max_value( void ) const;
-	EffectType			get_effect_type( void ) const;
 	bool				is_hidden( void ) const;
 	bool				is_integer( void ) const;
 
@@ -50,7 +48,6 @@ private:
 	unsigned int index_;
 	float min_value_;
 	float max_value_;
-	EffectType effect_type_;
 	bool hidden_;
 	bool is_integer_;
 
