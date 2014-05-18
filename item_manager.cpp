@@ -775,22 +775,49 @@ bool ItemManager::on_inventory_loaded( void )
 
 JUI::IOResult ItemManager::on_mouse_clicked( JUI::Mouse* mouse )
 {
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
     // Pass message to item manager view.
     JUI::IOResult result = view_->on_mouse_clicked( mouse );
+	if (result == JUI::IO_RESULT_ERROR) {
+		const JUTIL::String* top = stack->get_top_error();
+		if (!view_->create_error( top )) {
+			MessageBox( nullptr, top->get_string(), "Error while handling mouse click event!", MB_ICONERROR | MB_OK );
+		}
+		set_think( &ItemManager::exiting );
+	}
     return result;
 }
 
 JUI::IOResult ItemManager::on_mouse_released( JUI::Mouse* mouse )
 {
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
     // Pass message to item manager view.
     JUI::IOResult result = view_->on_mouse_released( mouse );
+	if (result == JUI::IO_RESULT_ERROR) {
+		const JUTIL::String* top = stack->get_top_error();
+		if (!view_->create_error( top )) {
+			MessageBox( nullptr, top->get_string(), "Error while handling mouse release event!", MB_ICONERROR | MB_OK );
+		}
+		set_think( &ItemManager::exiting );
+	}
     return result;
 }
 
 JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
 {
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	// Pass message to item manager view.
     JUI::IOResult result = view_->on_mouse_moved( mouse );
+	if (result == JUI::IO_RESULT_ERROR) {
+		const JUTIL::String* top = stack->get_top_error();
+		if (!view_->create_error( top )) {
+			MessageBox( nullptr, top->get_string(), "Error while handling mouse move event!", MB_ICONERROR | MB_OK );
+		}
+		set_think( &ItemManager::exiting );
+	}
     return result;
 }
 
@@ -799,11 +826,18 @@ JUI::IOResult ItemManager::on_mouse_moved( JUI::Mouse* mouse )
  */
 JUI::IOResult ItemManager::on_key_pressed( int key )
 {
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Pass message to item manager view.
 	JUI::IOResult result = view_->on_key_pressed( key );
-	if (result != JUI::IO_RESULT_HANDLED) {
-		return result;
+	if (result == JUI::IO_RESULT_ERROR) {
+		const JUTIL::String* top = stack->get_top_error();
+		if (!view_->create_error( top )) {
+			MessageBox( nullptr, top->get_string(), "Error while handling key press event!", MB_ICONERROR | MB_OK );
+		}
+		set_think( &ItemManager::exiting );
 	}
-	return JUI::IO_RESULT_UNHANDLED;
+	return result;
 }
 
 /*
@@ -811,9 +845,16 @@ JUI::IOResult ItemManager::on_key_pressed( int key )
  */
 JUI::IOResult ItemManager::on_key_released( int key )
 {
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Pass message to item manager view.
 	JUI::IOResult result = view_->on_key_released( key );
-	if (result != JUI::IO_RESULT_UNHANDLED) {
-		return result;
+	if (result == JUI::IO_RESULT_ERROR) {
+		const JUTIL::String* top = stack->get_top_error();
+		if (!view_->create_error( top )) {
+			MessageBox( nullptr, top->get_string(), "Error while handling key press event!", MB_ICONERROR | MB_OK );
+		}
+		set_think( &ItemManager::exiting );
 	}
 	return JUI::IO_RESULT_UNHANDLED;
 }
