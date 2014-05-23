@@ -217,6 +217,8 @@ bool SteamInventoryManager::craft_items( void )
  */
 bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 {
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 #if defined(LOG_STEAM_MESSAGES)
 	static uint32 previous_id = 0xFFFFFFFF;
 	if (id != previous_id) {
@@ -226,28 +228,31 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 	}
 #endif
 
-    // Handle callback if it's a GC message.
-    if (id == GCMessageAvailable_t::k_iCallback) {
-        // Get size of message waiting.
-	    uint32 size;
-        if (!has_message( &size )) {
-            return false;
-        }
+	switch (id) {
+	case GCMessageAvailable_t::k_iCallback:
+	{
+		// Get size of message waiting.
+		uint32 size;
+		if (!has_message( &size )) {
+			return false;
+		}
 		
-        // Get message from Steam.
-        uint32 message_id;
-        uint32 real_size;
-        JUTIL::ArrayBuilder<uint8> buffer;
-        if (!buffer.set_size( size )) {
-            return false;
-        }
-        if (!get_message( &message_id, buffer.get_array(), size, &real_size )) {
-            return false;
-        }
+		// Get message from Steam.
+		uint32 message_id;
+		uint32 real_size;
+		JUTIL::ArrayBuilder<uint8> buffer;
+		if (!buffer.set_size( size )) {
+			stack->log( "Failed to allocate buffer for game coordinator message." );
+			return false;
+		}
+		if (!get_message( &message_id, buffer.get_array(), size, &real_size )) {
+			stack->log( "Failed to retrieve message from Steam." );
+			return false;
+		}
 
-        // Check if message is protobuf message.
-        if ((message_id & PROTOBUF_MESSAGE_FLAG) == PROTOBUF_MESSAGE_FLAG) {
-            // Clear flag to get real message ID.
+		// Check if message is protobuf message.
+		if ((message_id & PROTOBUF_MESSAGE_FLAG) == PROTOBUF_MESSAGE_FLAG) {
+			// Clear flag to get real message ID.
 			message_id &= ~PROTOBUF_MESSAGE_FLAG;
 
 			// First get the protobuf struct header.
@@ -259,8 +264,8 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 			CMsgProtoBufHeader header_msg;
 			void* header_bytes = header_buffer.here();
 			if (!header_msg.ParseFromArray( header_bytes, header_size )) {
-                return false;
-            }
+				return false;
+			}
 			header_buffer.push( header_size );
 
 			// Check if we can set target ID.
@@ -268,18 +273,28 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 				set_target_id( header_msg.job_id_source() );
 			}
 
-            // Pass message to protobuf handler.
+			// Pass message to protobuf handler.
 			uint32 body_size = size - sizeof(GCProtobufHeader_t) - header_size;
  			if (!handle_protobuf( message_id, header_buffer.here(), body_size )) {
-                return false;
-            }
+				return false;
+			}
 		}
 		else {
-            // Handle non-protobuf message.
+			// Handle non-protobuf message.
 			if (!handle_message( message_id, buffer.get_array() )) {
-                return false;
-            }
+				return false;
+			}
 		}
+		break;
+	}
+
+	case IPCFailure_t::k_iCallback:
+		stack->log( "Lost connection to Steam client." );
+		return false;
+		break;
+
+	default:
+		break;
 	}
 
     return true;

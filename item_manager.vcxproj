@@ -169,6 +169,8 @@
     <ClInclude Include="kill_eater_ranks.hpp" />
     <ClInclude Include="kill_eater_type.hpp" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
+    <ClInclude Include="resource2.h" />
     <ClInclude Include="resource_loader_interface.hpp" />
     <ClInclude Include="slot_array.hpp" />
     <ClInclude Include="http_resource_loader.hpp" />
@@ -209,6 +211,9 @@
     <ClInclude Include="slot_view.hpp" />
     <ClInclude Include="steam.hpp" />
     <ClInclude Include="updater.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="jim_icon.ico" />
