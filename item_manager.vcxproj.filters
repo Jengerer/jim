@@ -74,9 +74,6 @@
     <ClCompile Include="protobuf\tf_gcmessages.pb.cc">
       <Filter>source\protobufs</Filter>
     </ClCompile>
-    <ClCompile Include="item.cpp">
-      <Filter>source\items</Filter>
-    </ClCompile>
     <ClCompile Include="inventory.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
@@ -173,6 +170,9 @@
     <ClCompile Include="button_manager.cpp">
       <Filter>headers\ui</Filter>
     </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protobuf\base_gcmessages.pb.h">
@@ -258,9 +258,6 @@
     </ClInclude>
     <ClInclude Include="equip_status.hpp">
       <Filter>headers\items</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>resources</Filter>
     </ClInclude>
     <ClInclude Include="slot_array.hpp">
       <Filter>headers\items</Filter>
@@ -349,10 +346,20 @@
     <ClInclude Include="definition_loader.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource2.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="jim_icon.ico">
-      <Filter>resources</Filter>
-    </None>
+    <ResourceCompile Include="resources.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="jim_icon.ico" />
   </ItemGroup>
 </Project>
