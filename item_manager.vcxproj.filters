@@ -346,13 +346,7 @@
     <ClInclude Include="definition_loader.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
-    <ClInclude Include="resource1.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="resource2.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

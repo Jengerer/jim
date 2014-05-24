@@ -68,8 +68,10 @@ bool SteamInventoryManager::handle_callbacks( void )
 bool SteamInventoryManager::move_item( const Item* item, unsigned int index ) const
 {
 #if defined(LOG_STEAM_MESSAGES)
-	fprintf( log_, "Sent move for item %llu.\n", item->get_unique_id() );
-	fflush( log_ );
+	if (log_ != nullptr) {
+		fprintf( log_, "Sent move for item %llu.\n", item->get_unique_id() );
+		fflush( log_ );
+	}
 #endif
 
 	// Generate new flags.
@@ -92,8 +94,10 @@ bool SteamInventoryManager::move_item( const Item* item, unsigned int index ) co
 bool SteamInventoryManager::delete_item( const Item* item ) const
 {
 #if defined(LOG_STEAM_MESSAGES)
-	fprintf( log_, "Sent move for item %llu.\n", item->get_unique_id() );
-	fflush( log_ );
+	if (log_ != nullptr) {
+		fprintf( log_, "Sent move for item %llu.\n", item->get_unique_id() );
+		fflush( log_ );
+	}
 #endif
 
 	GCDelete_t message;
@@ -191,7 +195,9 @@ void SteamInventoryManager::set_craft_item( unsigned int index, const Item* item
 bool SteamInventoryManager::craft_items( void )
 {
 #if defined(LOG_STEAM_MESSAGES)
-	fprintf( log_, "Sent craft message.\n" );
+	if (log_ != nullptr) {
+		fprintf( log_, "Sent craft message.\n" );
+	}
 
 	// Dump the item IDs.
 	unsigned int i;
@@ -221,7 +227,7 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 
 #if defined(LOG_STEAM_MESSAGES)
 	static uint32 previous_id = 0xFFFFFFFF;
-	if (id != previous_id) {
+	if (log_ != nullptr && id != previous_id) {
 		fprintf( log_, "Got callback with ID %d (0x%u).\n", id, id );
 		fflush( log_ );
 		previous_id = id;
@@ -234,6 +240,7 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 		// Get size of message waiting.
 		uint32 size;
 		if (!has_message( &size )) {
+			stack->log( "Message marked available, but none found." );
 			return false;
 		}
 		
@@ -288,8 +295,9 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 		break;
 	}
 
+	case LogonFailure_t::k_iCallback:
 	case IPCFailure_t::k_iCallback:
-		stack->log( "Lost connection to Steam client." );
+		stack->log( "Lost connection to Steam. Please check that the Steam network is online and restart the item manager." );
 		return false;
 		break;
 
@@ -306,8 +314,10 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 bool SteamInventoryManager::handle_message( uint32 id, void* message )
 {
 #if defined(LOG_STEAM_MESSAGES)
-	fprintf( log_, "Got message with ID %d (0x%u).\n", id, id );
-	fflush( log_ );
+	if (log_ != nullptr) {
+		fprintf( log_, "Got message with ID %d (0x%u).\n", id, id );
+		fflush( log_ );
+	}
 #endif
 
     // Handle by message ID.
@@ -337,8 +347,10 @@ bool SteamInventoryManager::handle_message( uint32 id, void* message )
 bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 size )
 {
 #if defined(LOG_STEAM_MESSAGES)
-	fprintf( log_, "Got protobuf message with ID %d (0x%u).\n", id, id );
-	fflush( log_ );
+	if (log_ != nullptr) {
+		fprintf( log_, "Got protobuf message with ID %u (0x%x).\n", id, id );
+		fflush( log_ );
+	}
 #endif
 
     // Get error stack for logging.

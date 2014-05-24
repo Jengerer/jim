@@ -93,6 +93,10 @@ private:
 	Updater* updater_;
 	boost::thread* update_thread_;
 
+	// We can't just check think function since exiting is equal
+	// to pending update in the release build.
+	bool is_pending_update_;
+
 	// Framerate limiting parameters.
 	long next_frame_;
 
@@ -101,7 +105,6 @@ private:
 	Inventory inventory_;
     SteamInventoryManager steam_items_;
 	bool pending_deletes_;
-	bool pushing_updates_;
 
     // User interface handle.
     ItemManagerView* view_;

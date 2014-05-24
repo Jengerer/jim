@@ -26,7 +26,7 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.4.8";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.5.2";
 const int APPLICATION_FRAMERATE = 60;
 const long APPLICATION_FRAME_TIME = 1000 / APPLICATION_FRAMERATE;
 const int APPLICATION_WIDTH	= 900;
@@ -51,8 +51,9 @@ ItemManager::ItemManager( HINSTANCE instance )
 	definition_loader_( nullptr ),
 	site_loader_( nullptr ),
 	updater_( nullptr ),
+	is_pending_update_( false ),
 	pending_deletes_( false ),
-	pushing_updates_( false )
+	think_function_( nullptr )
 {
     JUTIL::AllocationManager* manager = JUTIL::AllocationManager::get_instance();
     // manager->set_debug_break( 3733 );
@@ -68,6 +69,9 @@ ItemManager::ItemManager( HINSTANCE instance )
 
 	// Set inventory event handler.
     inventory_.set_listener( this );
+
+	// No think function by default.
+	set_think( nullptr );
 }
 
 /*
@@ -165,6 +169,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
 			return PrecacheResourcesFailure;
 		}
 		set_think( &ItemManager::pending_update );
+		is_pending_update_ = true;
 	}
 	else
 #endif
@@ -486,7 +491,7 @@ bool ItemManager::on_error_acknowledged( void )
 	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
 	// Check if we should update.
-	if (think_function_ == &ItemManager::pending_update) {
+	if (is_pending_update_) {
 		// Tell user we're updating now.
 		const JUTIL::ConstantString UPDATING_NOTICE( "Updating the item manager..." );
 		if (!view_->set_loading_notice( &UPDATING_NOTICE )) {
@@ -522,7 +527,8 @@ void ItemManager::on_item_begin_move( void )
 bool ItemManager::on_item_moved( Item* item, unsigned int index )
 {
 	// Send request to update position.
-	item->set_position( index );
+	inventory_.displace_item( item );
+	inventory_.move_item( item, index );
 	if (!steam_items_.add_item_update( item )) {
 		return false;
 	}
