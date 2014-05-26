@@ -92,11 +92,16 @@ void Inventory::delete_item( Item* item )
 
     // Clear from slots.
     if (!inventory_slots_.remove_item( item )) {
-		excluded_slots_.remove_item( item );
-		excluded_slots_.compress_slots();
+		// Compress excluded if we removed from there.
+		if (excluded_slots_.remove_item( item )) {
+			excluded_slots_.compress_slots();
+		}
 	}
-    selected_slots_.remove_item( item );
-	selected_slots_.compress_slots();
+
+	// Can be selected as well, delete and compress if it's in there.
+    if (selected_slots_.remove_item( item )) {
+		selected_slots_.compress_slots();
+	}
 }
 
 /*

@@ -104,7 +104,6 @@ private:
 	ItemSchema schema_;
 	Inventory inventory_;
     SteamInventoryManager steam_items_;
-	bool pending_deletes_;
 
     // User interface handle.
     ItemManagerView* view_;

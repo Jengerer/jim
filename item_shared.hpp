@@ -63,7 +63,8 @@ enum EEquipSlot {
 };
 
 enum EItemOrigins {
-	ORIGIN_ACHIEVEMENT = 1
+	ORIGIN_ACHIEVEMENT = 1,
+	ORIGIN_CRAFTED = 4
 };
 
 enum EItemToolType {
