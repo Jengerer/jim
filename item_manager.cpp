@@ -26,7 +26,7 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.5.2";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.5.3";
 const int APPLICATION_FRAMERATE = 60;
 const long APPLICATION_FRAME_TIME = 1000 / APPLICATION_FRAMERATE;
 const int APPLICATION_WIDTH	= 900;
@@ -52,7 +52,6 @@ ItemManager::ItemManager( HINSTANCE instance )
 	site_loader_( nullptr ),
 	updater_( nullptr ),
 	is_pending_update_( false ),
-	pending_deletes_( false ),
 	think_function_( nullptr )
 {
     JUTIL::AllocationManager* manager = JUTIL::AllocationManager::get_instance();
@@ -563,13 +562,6 @@ bool ItemManager::on_craft_items( void )
 			steam_items_.set_craft_item( i, item );
 		}
 		if (steam_items_.craft_items()) {
-			// Block access to inventory until we get a response.
-			const JUTIL::ConstantString CRAFT_PENDING( "Waiting for crafting response..." );
-			if (!view_->set_loading_notice( &CRAFT_PENDING )) {
-				stack->log( "Failed to create craft pending notice." );
-				return false;
-			}
-			pending_deletes_ = true;
 			return true;
 		}
 	}
@@ -596,19 +588,15 @@ bool ItemManager::on_delete_item( void )
 		stack->log( "Attempting to delete more than one item." );
 		return false;
 	}
+
+	// Delete immediately and send message.
 	Item* item = selected->get_item( 0 );
+	inventory_.delete_item( item );
 	if (!steam_items_.delete_item( item )) {
 		stack->log( "Failed to send item delete message." );
 		return false;
 	}
 
-	// Create pending message.
-	const JUTIL::ConstantString DELETE_PENDING( "Waiting for deletion response..." );
-	if (!view_->set_loading_notice( &DELETE_PENDING )) {
-		stack->log( "Failed to create delete pending notice." );
-		return false;
-	}
-	pending_deletes_ = true;
 	return true;
 }
 
@@ -658,15 +646,6 @@ void ItemManager::on_item_deleted( uint64 id )
 	if (item != nullptr) {
 		inventory_.delete_item( item );
 
-		// If selected items get emptied, re-enable inventory.
-		if (pending_deletes_) {
-			DynamicSlotArray* selected = inventory_.get_selected_slots();
-			if (selected->get_size() == 0) {
-				view_->destroy_loading_notice();
-				pending_deletes_ = false;
-			}
-		}
-
 		// Update excluded in case we popped.
 		view_->update_excluded_page_display();
 
@@ -709,12 +688,6 @@ bool ItemManager::on_item_updated( uint64 id, uint32 flags )
  */
 void ItemManager::on_craft_failed( void )
 {
-	// Get rid of the pending craft notice.
-	if (pending_deletes_) {
-		view_->destroy_loading_notice();
-		pending_deletes_ = false;
-	}
-
 	// Post alert.
 	const JUTIL::ConstantString CRAFT_ERROR( "Ze item combination. It does nothing! Craft failed!" );
 	view_->create_alert( &CRAFT_ERROR );
