@@ -6,9 +6,6 @@ int main(int argc, char** argv)
 
 	printf("Okay, I kind of lied. There are some extra files that need to be downloaded before the new item manager runs...\n\n");
 	Sleep(1500);
-	printf("Performing rename wizardry...\n");
-	DeleteFile("item_manager.exe.old");
-	MoveFile(executable, "item_manager.exe.old");
 
 	Curl* curl = Curl::get_instance();
 	printf("Invoking jui.dll...\n");
@@ -56,7 +53,7 @@ int main(int argc, char** argv)
 	}
 
 	std::string jim_url = "http://www.jengerer.com/item_manager/downloads/item_manager.exe";
-	std::string jim_dest = "item_manager.exe";
+	std::string jim_dest = "item_manager.exe.new";
 	printf("Finally, getting item_manager.exe...\n");
 	if (!curl->download(&jim_url, &jim_dest)) {
 		printf("Failed... This likely means I'm a failure and you should get the item manager from http://www.jengerer.com/item_manager/ instead.\n");
@@ -64,7 +61,14 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
+	printf("Performing rename wizardry...\n");
+	DeleteFile("item_manager.exe.old");
+	MoveFile(executable, "item_manager.exe.old");
+	MoveFile(jim_dest.c_str(), "item_manager.exe");
+	printf("Deleting auto_updater.exe. R.I.P.\n");
+	DeleteFile("auto_updater.exe");
 	printf("It's aliiive! Starting the new item manager...\n");
+	Sleep(1500);
 
 	// Create structs.
 	STARTUPINFO si;
@@ -74,7 +78,7 @@ int main(int argc, char** argv)
 	ZeroMemory( &pi, sizeof(pi) );
 
 	// Create copy of file name.
-	if (!CreateProcess( NULL, &jim_dest.at(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+	if (!CreateProcess( NULL, "item_manager.exe", NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
 		return false;
 	}
 

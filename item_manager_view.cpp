@@ -1124,7 +1124,7 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 
 	// Don't allow actions on disabled slots.
 	if (!slot->is_enabled()) {
-		return false;
+		return true;
 	}
 
 	// We want to deselect only if we release on undragged, clicked, and previously selected slot.
