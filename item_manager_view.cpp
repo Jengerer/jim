@@ -957,7 +957,7 @@ bool ItemManagerView::on_button_released( Button* button )
 		if (has_untradable) {
 			const JUTIL::ConstantString CRAFT_QUESTION( "You are trying to craft one or more untradable items. The result will be untradable. Continue?" );
 			craft_check_ = popups_->create_confirmation( &CRAFT_QUESTION );
-			if (craft_check_ != nullptr) {
+			if (craft_check_ == nullptr) {
 				stack->log( "Failed to create craft confirmation popup." );
 				return false;
 			}
