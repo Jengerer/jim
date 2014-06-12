@@ -432,7 +432,6 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
         Json::Value* attribute_is_integer;
         bool success = get_member( &attribute, &ATTRIBUTE_NAME_KEY, &attribute_name ) &&
             get_member( &attribute, &ATTRIBUTE_INDEX_KEY, &attribute_index ) &&
-            get_member( &attribute, &ATTRIBUTE_CLASS_KEY, &attribute_class ) &&
             get_member( &attribute, &ATTRIBUTE_EFFECT_TYPE_KEY, &attribute_effect_type ) &&
             get_member( &attribute, &ATTRIBUTE_IS_HIDDEN_KEY, &attribute_is_hidden ) &&
             get_member( &attribute, &ATTRIBUTE_IS_INTEGER_KEY, &attribute_is_integer );
@@ -440,6 +439,30 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
             stack->log( "Unexpected attribute format found." );
             return false;
         }
+
+		// Attribute effect type can be null now, so default.
+		JUTIL::String* class_string;
+		if (get_member( &attribute, &ATTRIBUTE_CLASS_KEY, &attribute_class )) {
+			// Allocate class string.
+			JUTIL::DynamicString* dynamic_string;
+			if (!JUTIL::BaseAllocator::allocate( &dynamic_string )) {
+				return false;
+			}
+			new (dynamic_string) JUTIL::DynamicString();
+			if (!dynamic_string->write( "%s", attribute_class->asCString() )) {
+				return false;
+			}
+			class_string = dynamic_string;
+		}
+		else {
+			// Allocate empty static string.
+			JUTIL::ConstantString* static_string;
+			if (!JUTIL::BaseAllocator::allocate( &static_string )) {
+				return false;
+			}
+			new (static_string) JUTIL::ConstantString( "" );
+			class_string = static_string;
+		}
 
 		// Min/max value doesn't seem required anymore, so just default to zero.
 		float min_value;
@@ -460,24 +483,13 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
 		// Allocate new name string.
         JUTIL::DynamicString* name_string;
         if (!JUTIL::BaseAllocator::allocate( &name_string )) {
+			JUTIL::BaseAllocator::destroy( class_string );
             return false;
         }
         name_string = new (name_string) JUTIL::DynamicString();
         if (!name_string->write( "%s", attribute_name->asCString() )) {
             JUTIL::BaseAllocator::destroy( name_string );
-            return false;
-        }
-
-        // Allocate class string.
-        JUTIL::DynamicString* class_string;
-        if (!JUTIL::BaseAllocator::allocate( &class_string )) {
-            JUTIL::BaseAllocator::destroy( name_string );
-            return false;
-        }
-        class_string = new (class_string) JUTIL::DynamicString();
-        if (!class_string->write( "%s", attribute_class->asCString() )) {
-            JUTIL::BaseAllocator::destroy( name_string );
-            JUTIL::BaseAllocator::destroy( class_string );
+			JUTIL::BaseAllocator::destroy( class_string );
             return false;
         }
 
