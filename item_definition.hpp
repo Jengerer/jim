@@ -21,15 +21,13 @@ public:
 	ItemDefinition(
 		JUTIL::String* name,
 		JUTIL::DynamicString* image,
-		uint32 class_flags,
-		EItemSlot slot );
+		uint32 class_flags );
 	~ItemDefinition( void );
 
 	// Item information attributes.
 	const JUTIL::String* get_name( void ) const;
 	uint32 get_class_flags( void ) const;
 	uint8 get_class_count( void ) const;
-	EItemSlot get_slot( void ) const;
 	EItemToolType get_tool_type( void ) const;
 	void set_tool_type( EItemToolType tool_type );
 
@@ -48,7 +46,6 @@ private:
 	// Private attribute setters.
 	void set_name( JUTIL::String* name );
 	void set_class_flags( uint32 class_flags );
-	void set_slot( EItemSlot slot );
 
 private:
 
@@ -58,7 +55,6 @@ private:
 	JUTIL::DynamicString image_;
 	uint32 class_flags_;
 	uint8 class_count_;
-	EItemSlot slot_;
 	EItemToolType tool_type_;
 	JUTIL::Vector<Attribute*> attributes_;
 

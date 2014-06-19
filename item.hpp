@@ -69,7 +69,6 @@ public:
 
 	// Equipment handling.
 	bool is_tradable( void ) const;
-	EItemSlot get_item_slot( void ) const;
 	uint32 get_inventory_classes( void ) const;
 	bool class_uses( uint32 class_flags ) const;
 	uint8 get_inventory_class_count( void ) const;
