@@ -4,24 +4,13 @@
 #include "item_shared.hpp"
 #include <string/string.hpp>
 
-enum EffectType
-{
-	EFFECT_POSITIVE,
-	EFFECT_NEGATIVE,
-	EFFECT_NEUTRAL,
-	EFFECT_VISUALS_MVM_BOSS,
-};
-
 class AttributeDefinition
 {
 
 public:
 
 	AttributeDefinition( JUTIL::String* name,
-		JUTIL::String* attribute_class,
         unsigned int index,
-		float min_value,
-		float max_value,
 		bool hidden,
 		bool is_integer );
     virtual ~AttributeDefinition();
@@ -29,11 +18,8 @@ public:
 	// Accessing main attributes.
 	const JUTIL::String* get_name( void ) const;
 	unsigned int get_index( void ) const;
-	const JUTIL::String* get_attribute_class( void ) const;
-	float				get_min_value( void ) const;
-	float				get_max_value( void ) const;
-	bool				is_hidden( void ) const;
-	bool				is_integer( void ) const;
+	bool is_hidden( void ) const;
+	bool is_integer( void ) const;
 
 	// Optional attributes.
 	bool has_description( void ) const;
@@ -44,10 +30,7 @@ public:
 private:
 
 	JUTIL::String* name_;
-    JUTIL::String* attribute_class_;
 	unsigned int index_;
-	float min_value_;
-	float max_value_;
 	bool hidden_;
 	bool is_integer_;
 

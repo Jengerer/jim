@@ -6,13 +6,11 @@
 ItemDefinition::ItemDefinition(
 	JUTIL::String* name,
 	JUTIL::DynamicString* image,
-	uint32 class_flags,
-	EItemSlot slot ) :
+	uint32 class_flags ) :
     texture_( nullptr )
 {
 	set_name( name );
 	set_class_flags( class_flags );
-	set_slot( slot );
 	set_tool_type( TOOL_INVALID );
 	
 	// Take hold of image file string.
@@ -61,14 +59,6 @@ uint32 ItemDefinition::get_class_flags( void ) const
 uint8 ItemDefinition::get_class_count( void ) const
 {
 	return class_count_;
-}
-
-/*
- * Get equipment slot for item.
- */
-EItemSlot ItemDefinition::get_slot( void ) const
-{
-	return slot_;
 }
 
 /*
@@ -167,11 +157,6 @@ void ItemDefinition::set_class_flags( uint32 class_flags )
 
 		class_flags = class_flags >> 1;
 	}
-}
-
-void ItemDefinition::set_slot( EItemSlot slot )
-{
-	slot_ = slot;
 }
 
 void ItemDefinition::set_tool_type( EItemToolType tool_type )

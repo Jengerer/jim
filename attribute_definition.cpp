@@ -4,19 +4,13 @@
  * Attribute information constructor by attribute parameters.
  */
 AttributeDefinition::AttributeDefinition( JUTIL::String* name,
-    JUTIL::String* attribute_class,
 	unsigned int index,
-	float min_value,
-	float max_value,
 	bool hidden,
 	bool is_integer )
 {
 	// Set main attributes.
 	name_ = name;
 	index_ = index;
-	attribute_class_ = attribute_class;
-	min_value_ = min_value;
-	max_value_ = max_value;
 	hidden_ = hidden;
 	is_integer_ = is_integer;
 
@@ -30,7 +24,6 @@ AttributeDefinition::AttributeDefinition( JUTIL::String* name,
 AttributeDefinition::~AttributeDefinition( void )
 {
     JUTIL::BaseAllocator::destroy( name_ );
-    JUTIL::BaseAllocator::destroy( attribute_class_ );
     JUTIL::BaseAllocator::safe_destroy( &description_ );
     JUTIL::BaseAllocator::safe_destroy( &format_ );
 }
@@ -49,30 +42,6 @@ const JUTIL::String* AttributeDefinition::get_name( void ) const
 unsigned int AttributeDefinition::get_index( void ) const
 {
 	return index_;
-}
-
-/*
- * Get name of class for this attribute.
- */
-const JUTIL::String* AttributeDefinition::get_attribute_class( void ) const
-{
-	return attribute_class_;
-}
-
-/*
- * Get minimum value for this attribute.
- */
-float AttributeDefinition::get_min_value( void ) const
-{
-	return min_value_;
-}
-
-/*
- * Get maximum value for this attribute.
- */
-float AttributeDefinition::get_max_value( void ) const
-{
-	return max_value_;
 }
 
 /*

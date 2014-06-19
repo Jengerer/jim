@@ -327,12 +327,6 @@ bool Item::class_uses( uint32 class_flags ) const
 	return (get_inventory_classes() & class_flags) != 0;
 }
 
-/* Gets the slot this item equips to. */
-EItemSlot Item::get_item_slot( void ) const
-{
-	return definition_->get_slot();
-}
-
 /* Gets all item equip flags. */
 uint32 Item::get_inventory_classes( void ) const
 {

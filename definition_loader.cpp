@@ -75,7 +75,6 @@ const JUTIL::ConstantString KILL_EATER_SCORE_KEY = "required_score";
 // Attribute JSON members.
 const JUTIL::ConstantString ATTRIBUTE_NAME_KEY = "name";
 const JUTIL::ConstantString ATTRIBUTE_INDEX_KEY = "defindex";
-const JUTIL::ConstantString ATTRIBUTE_CLASS_KEY = "attribute_class";
 const JUTIL::ConstantString ATTRIBUTE_VALUE_KEY = "value";
 const JUTIL::ConstantString ATTRIBUTE_MIN_VALUE_KEY = "min_value";
 const JUTIL::ConstantString ATTRIBUTE_MAX_VALUE_KEY = "max_value";
@@ -207,25 +206,8 @@ bool DefinitionLoader::load()
 	// Set this thread's render context.
 	graphics_->set_render_context( graphics_->get_loading_context() );
 
-	// Create slot name map.
-    bool success = slots_.insert( &SLOT_NONE_NAME, ITEM_SLOT_NONE ) &&
-        slots_.insert( &SLOT_INVALID_NAME, ITEM_SLOT_INVALID ) &&
-        slots_.insert( &SLOT_PRIMARY_NAME, ITEM_SLOT_PRIMARY ) &&
-        slots_.insert( &SLOT_SECONDARY_NAME, ITEM_SLOT_SECONDARY ) &&
-        slots_.insert( &SLOT_MELEE_NAME, ITEM_SLOT_MELEE ) &&
-        slots_.insert( &SLOT_PDA_NAME, ITEM_SLOT_PDA ) &&
-        slots_.insert( &SLOT_PDA2_NAME, ITEM_SLOT_PDA2 ) &&
-        slots_.insert( &SLOT_BUILDING_NAME, ITEM_SLOT_BUILDING ) &&
-        slots_.insert( &SLOT_HEAD_NAME, ITEM_SLOT_HEAD ) &&
-        slots_.insert( &SLOT_MISC_NAME, ITEM_SLOT_MISC ) &&
-        slots_.insert( &SLOT_ACTION_NAME, ITEM_SLOT_ACTION ) &&
-        slots_.insert( &SLOT_GRENADE_NAME, ITEM_SLOT_GRENADE );
-    if (!success) {
-        stack->log( "Failed to create slot map." );
-        return false;
-    }
-
 	// Create class map.
+	bool success;
     success = classes_.insert( &CLASS_NONE_NAME, INVENTORY_CLASS_NONE ) &&
         classes_.insert( &CLASS_SCOUT_NAME, INVENTORY_CLASS_SCOUT ) &&
         classes_.insert( &CLASS_SOLDIER_NAME, INVENTORY_CLASS_SOLDIER ) &&
@@ -386,8 +368,7 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 	fallback = new (fallback) ItemDefinition(
 		unknown_name,
 		&fallback_image,
-		FALLBACK_ITEM_CLASS_FLAGS,
-		FALLBACK_ITEM_SLOT );
+		FALLBACK_ITEM_CLASS_FLAGS );
     schema_->set_fallback_definition( fallback );
 
     // Make sure item loading succeeded.
@@ -424,15 +405,10 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
 		// Get necessary members.
         Json::Value* attribute_name;
         Json::Value* attribute_index;
-        Json::Value* attribute_class;
-        Json::Value* attribute_min_value;
-        Json::Value* attribute_max_value;
-        Json::Value* attribute_effect_type;
         Json::Value* attribute_is_hidden;
         Json::Value* attribute_is_integer;
         bool success = get_member( &attribute, &ATTRIBUTE_NAME_KEY, &attribute_name ) &&
             get_member( &attribute, &ATTRIBUTE_INDEX_KEY, &attribute_index ) &&
-            get_member( &attribute, &ATTRIBUTE_EFFECT_TYPE_KEY, &attribute_effect_type ) &&
             get_member( &attribute, &ATTRIBUTE_IS_HIDDEN_KEY, &attribute_is_hidden ) &&
             get_member( &attribute, &ATTRIBUTE_IS_INTEGER_KEY, &attribute_is_integer );
         if (!success) {
@@ -440,56 +416,14 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
             return false;
         }
 
-		// Attribute effect type can be null now, so default.
-		JUTIL::String* class_string;
-		if (get_member( &attribute, &ATTRIBUTE_CLASS_KEY, &attribute_class )) {
-			// Allocate class string.
-			JUTIL::DynamicString* dynamic_string;
-			if (!JUTIL::BaseAllocator::allocate( &dynamic_string )) {
-				return false;
-			}
-			new (dynamic_string) JUTIL::DynamicString();
-			if (!dynamic_string->write( "%s", attribute_class->asCString() )) {
-				return false;
-			}
-			class_string = dynamic_string;
-		}
-		else {
-			// Allocate empty static string.
-			JUTIL::ConstantString* static_string;
-			if (!JUTIL::BaseAllocator::allocate( &static_string )) {
-				return false;
-			}
-			new (static_string) JUTIL::ConstantString( "" );
-			class_string = static_string;
-		}
-
-		// Min/max value doesn't seem required anymore, so just default to zero.
-		float min_value;
-		float max_value;
-		if (!get_member( &attribute, &ATTRIBUTE_MIN_VALUE_KEY, &attribute_min_value )) {
-			min_value = 0.0f;
-		}
-		else {
-			min_value = attribute_min_value->asFloat();
-		}
-		if (!get_member( &attribute, &ATTRIBUTE_MAX_VALUE_KEY, &attribute_max_value )) {
-			max_value = 0.0f;
-		}
-		else {
-			max_value = attribute_min_value->asFloat();
-		}
-
 		// Allocate new name string.
         JUTIL::DynamicString* name_string;
         if (!JUTIL::BaseAllocator::allocate( &name_string )) {
-			JUTIL::BaseAllocator::destroy( class_string );
             return false;
         }
         name_string = new (name_string) JUTIL::DynamicString();
         if (!name_string->write( "%s", attribute_name->asCString() )) {
             JUTIL::BaseAllocator::destroy( name_string );
-			JUTIL::BaseAllocator::destroy( class_string );
             return false;
         }
 
@@ -504,14 +438,11 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
         AttributeDefinition* attrib_info;
         if (!JUTIL::BaseAllocator::allocate( &attrib_info )) {
             JUTIL::BaseAllocator::destroy( name_string );
-            JUTIL::BaseAllocator::destroy( class_string );
             return false;
         }
 		attrib_info = new (attrib_info) AttributeDefinition(
 			name_string,
-			class_string,
             index,
-			min_value, max_value,
 			is_hidden,
 			is_integer );
 
@@ -973,17 +904,6 @@ bool DefinitionLoader::load_item( Json::Value* item,
 		}
     }
 
-    // Load item slots.
-    Json::Value* item_slot;
-    EItemSlot slot = ITEM_SLOT_NONE;
-    if (get_member( item, &ITEM_SLOT_KEY, &item_slot )) {
-        const JUTIL::ConstantString slot_name = item_slot->asCString();
-        if (!slots_.get( &slot_name, &slot )) {
-            stack->log( "Unknown slot type found in definitions.");
-            return false;
-        }
-    }
-
 	// Get classes, if they exist.
     Json::Value* item_classes;
 	unsigned int classes = INVENTORY_CLASS_ALL;
@@ -1016,7 +936,7 @@ bool DefinitionLoader::load_item( Json::Value* item,
         stack->log( "Failed to create item information object.");
         return false;
     }
-    information = new (information) ItemDefinition( name, image, classes, slot );
+    information = new (information) ItemDefinition( name, image, classes );
 
 	// Load tool info and alternate textures
 	Json::Value* tool;
@@ -1124,7 +1044,6 @@ void DefinitionLoader::clean_up( void )
 {
 	set_state( LOADING_STATE_CLEANUP );
 	root_.clear();
-	slots_.clear();
 	classes_.clear();
 	graphics_->set_render_context( graphics_->get_loading_context() );
 }
