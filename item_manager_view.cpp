@@ -854,6 +854,9 @@ JUI::IOResult ItemManagerView::on_mouse_released( JUI::Mouse* mouse )
  */
 JUI::IOResult ItemManagerView::on_key_pressed( int key )
 {
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
 	// Ignore key presses if we have a popup.
 	if (popups_->has_popup()) {
 		return JUI::IO_RESULT_HANDLED;
@@ -864,10 +867,14 @@ JUI::IOResult ItemManagerView::on_key_pressed( int key )
 		is_multiselect_pressed_ = true;
 	}
 	else if (key == NEXT_PAGE_KEY_CODE) {
-		is_right_pressed_ = true;
+		if (!next_page()) {
+			stack->log( "Error while switching to next page!" );
+		}
 	}
 	else if (key == PREVIOUS_PAGE_KEY_CODE) {
-		is_left_pressed_ = true;
+		if (!previous_page()) {
+			stack->log( "Error while switching to previous page." );
+		}
 	}
 	else {
 		return JUI::IO_RESULT_UNHANDLED;

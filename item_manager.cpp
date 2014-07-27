@@ -26,7 +26,7 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.5.7";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.5.8";
 const int APPLICATION_FRAMERATE = 60;
 const long APPLICATION_FRAME_TIME = 1000 / APPLICATION_FRAMERATE;
 const int APPLICATION_WIDTH	= 900;
@@ -42,6 +42,10 @@ const unsigned int PREMIUM_SLOT_COUNT = 300;
 
 // Item manager resource loading URL.
 const JUTIL::ConstantString MANAGER_ROOT_URL = "http://www.jengerer.com/item_manager/downloads";
+
+// Error compilation strings.
+const char* ERROR_FORMAT_FIRST = "#%u: %s";
+const char* ERROR_FORMAT_NEXT = "\n\n#%u: %s";
 
 /*
  * Item manager constructor.
@@ -327,10 +331,24 @@ JUI::Application::ReturnStatus ItemManager::run( void )
 	
     // Attempt to think; print error if failed.
     if (!think()) {
-        // Create error message.
-        JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-        const JUTIL::String* error = stack->get_top_error();
-        if (!view_->create_error( error )) {
+		// Get error stack.
+		JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+        // Compile errors into one message.
+		size_t length = stack->get_error_count();
+		size_t i;
+		const char* format_string = ERROR_FORMAT_FIRST;
+		JUTIL::DynamicString error_string;
+		for (i = 0; i < length; ++i) {
+			const JUTIL::String* error = stack->get_error( i );
+			if (!error_string.write( format_string, i + 1, error->get_string() )) {
+				return NoMemoryFailure;
+			}
+
+			// Set next line to put a newline before.
+			format_string = ERROR_FORMAT_NEXT;
+		}
+        if (!view_->create_error( &error_string )) {
             return NoMemoryFailure;
         }
         set_think( &ItemManager::exiting );
@@ -367,7 +385,12 @@ bool ItemManager::think( void )
  */
 bool ItemManager::waiting_for_items( void )
 {
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Just wait for inventory message to change think.
 	if (!steam_items_.handle_callbacks()) {
+		stack->log( "Failed to handle callbacks while waiting for items." );
 		return false;
 	}
 	return true;
