@@ -49,12 +49,16 @@ void SteamInventoryManager::set_listener( SteamInventoryListener* listener )
  */
 bool SteamInventoryManager::handle_callbacks( void )
 {
+	// Get error stack reference.
+	JUI::ErrorStack *stack = JUI::ErrorStack::get_instance();
+
     CallbackMsg_t callback;
     if (get_callback( &callback )) {
 		// Pass callback to handling function.
 		unsigned int id = callback.m_iCallback;
 		void* message = callback.m_pubParam;
 		if (!handle_callback( id, message )) {
+			stack->log( "Failed to handle received callback." );
 			return false;
 		}
 		release_callback();
@@ -271,6 +275,7 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 			CMsgProtoBufHeader header_msg;
 			void* header_bytes = header_buffer.here();
 			if (!header_msg.ParseFromArray( header_bytes, header_size )) {
+				stack->log( "Failed to parse game coordinator message." );
 				return false;
 			}
 			header_buffer.push( header_size );
@@ -283,12 +288,14 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 			// Pass message to protobuf handler.
 			uint32 body_size = size - sizeof(GCProtobufHeader_t) - header_size;
  			if (!handle_protobuf( message_id, header_buffer.here(), body_size )) {
+				stack->log( "Failed to handle protobuf game coordinator message." );
 				return false;
 			}
 		}
 		else {
 			// Handle non-protobuf message.
 			if (!handle_message( message_id, buffer.get_array() )) {
+				stack->log( "Failed to handle regular message." );
 				return false;
 			}
 		}
@@ -377,6 +384,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 #if defined(WRITE_TO_FILE)
 			std::ofstream out_file("inventory.bin", std::ios::binary );
 			if (!cache_msg.SerializeToOstream( &out_file )) {
+				stack->log( "Failed to serialize inventory to file." );
 				return false;
 			}
 			out_file.close();
