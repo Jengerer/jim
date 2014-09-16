@@ -59,7 +59,7 @@ ItemManager::ItemManager( HINSTANCE instance )
 	think_function_( nullptr )
 {
     JUTIL::AllocationManager* manager = JUTIL::AllocationManager::get_instance();
-    manager->set_debug_break( 3577 );
+    // manager->set_debug_break( 3577 );
 
 	// Set application size.
 	set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
