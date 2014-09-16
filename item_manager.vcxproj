@@ -106,6 +106,7 @@
     <ClCompile Include="button_notice.cpp" />
     <ClCompile Include="dynamic_slot_array.cpp" />
     <ClCompile Include="equip_status.cpp" />
+    <ClCompile Include="gc_protobuf_message.cpp" />
     <ClCompile Include="http_resource_loader.cpp" />
     <ClCompile Include="item_decorator.cpp" />
     <ClCompile Include="item_set.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="button_notice.hpp" />
     <ClInclude Include="dynamic_slot_array.hpp" />
     <ClInclude Include="equip_status.hpp" />
+    <ClInclude Include="gc_protobuf_message.hpp" />
     <ClInclude Include="inventory_action_interface.hpp" />
     <ClInclude Include="inventory_listener.hpp" />
     <ClInclude Include="item_decorator.hpp" />

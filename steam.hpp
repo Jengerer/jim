@@ -2,17 +2,8 @@
 
 #include <stdexcept>
 #include "steam/SteamclientAPI.h"
-#include "protobuf/steammessages.pb.h"
 #include "protobuf/base_gcmessages.pb.h"
-
-// Header for receiving protobuf messages.
-#pragma pack(push, 1)
-struct GCProtobufHeader_t
-{
-	uint32 m_EMsg;
-	uint32 m_cubProtobufHeader;
-};
-#pragma pack(pop)
+#include "gc_protobuf_message.hpp"
 
 // Protobuf flag.
 const unsigned int PROTOBUF_MESSAGE_FLAG = 0x80000000;
@@ -38,7 +29,7 @@ public:
 	bool has_message( uint32* size ) const;
 	bool get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* real_size ) const;
 	bool send_message( unsigned int id, const void* buffer, uint32 size ) const;
-	bool send_protobuf_message( uint64 job_id_target, unsigned int id, const void* buffer, uint32 size ) const;
+	bool send_protobuf_message( const GCProtobufMessage* message ) const;
 
 	// SO version handling.
 	void set_version( uint64 version );
