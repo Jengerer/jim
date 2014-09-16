@@ -2,20 +2,11 @@
 #include "serialized_buffer.hpp"
 #include "jui/application/error_stack.hpp"
 
-// File for logging messages sent and received.
-const JUTIL::ConstantString STEAM_LOG_FILE( "steam_messages.txt" );
-
 /*
  * Item and selection handler constructor.
  */
 SteamInventoryManager::SteamInventoryManager( void )
 {
-#if defined(LOG_STEAM_MESSAGES)
-
-	// Try to open file for logging.
-	fopen_s( &log_, STEAM_LOG_FILE.get_string(), "wb" );
-
-#endif
 }
 
 /*
@@ -24,15 +15,6 @@ SteamInventoryManager::SteamInventoryManager( void )
 SteamInventoryManager::~SteamInventoryManager( void )
 {
 	close_interfaces();
-
-#if defined(LOG_STEAM_MESSAGES)
-
-	// Close log file if open.
-	if (log_ != nullptr) {
-		fclose( log_ );
-	}
-
-#endif
 }
 
 /*
@@ -160,7 +142,7 @@ bool SteamInventoryManager::push_item_updates( void )
 	}
 	char* buffer_data = buffer.get_array();
 	update_msg_.SerializeToArray( buffer_data, message_size );
-	return send_message( update_message_id, buffer_data, message_size );
+	return send_protobuf_message( 0, update_message_id, buffer_data, message_size );
 }
 
 /*
@@ -202,16 +184,6 @@ bool SteamInventoryManager::craft_items( void )
 	if (log_ != nullptr) {
 		fprintf( log_, "Sent craft message.\n" );
 	}
-
-	// Dump the item IDs.
-	unsigned int i;
-	unsigned int length = craft_buffer_.get_size();
-	char* buffer = craft_buffer_.get_array();
-	for (i = 0; i < length; ++i) {
-		fprintf( log_, "%02x", static_cast<unsigned char>(buffer[i]) );
-	}
-	fprintf( log_, "\n" );
-	fflush( log_ );
 #endif
 
 	// Send message.
@@ -281,13 +253,17 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 			header_buffer.push( header_size );
 
 			// Check if we can set target ID.
+			uint64 job_id_source;
 			if (header_msg.has_job_id_source()) {
-				set_target_id( header_msg.job_id_source() );
+				job_id_source = header_msg.job_id_source();
+			}
+			else {
+				job_id_source = 0;
 			}
 
 			// Pass message to protobuf handler.
 			uint32 body_size = size - sizeof(GCProtobufHeader_t) - header_size;
- 			if (!handle_protobuf( message_id, header_buffer.here(), body_size )) {
+ 			if (!handle_protobuf( message_id, header_buffer.here(), body_size, job_id_source )) {
 				stack->log( "Failed to handle protobuf game coordinator message." );
 				return false;
 			}
@@ -320,13 +296,6 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
  */
 bool SteamInventoryManager::handle_message( uint32 id, void* message )
 {
-#if defined(LOG_STEAM_MESSAGES)
-	if (log_ != nullptr) {
-		fprintf( log_, "Got message with ID %d (0x%u).\n", id, id );
-		fflush( log_ );
-	}
-#endif
-
     // Handle by message ID.
 	switch (id) {
 		case GCCraftResponse_t::k_iMessage:
@@ -351,15 +320,8 @@ bool SteamInventoryManager::handle_message( uint32 id, void* message )
 /*
  * Handle protobuf Steam message. Prepare your anus.
  */
-bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 size )
+bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 size, uint64 job_id_source )
 {
-#if defined(LOG_STEAM_MESSAGES)
-	if (log_ != nullptr) {
-		fprintf( log_, "Got protobuf message with ID %u (0x%x).\n", id, id );
-		fflush( log_ );
-	}
-#endif
-
     // Get error stack for logging.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
@@ -502,13 +464,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 					return false;
 				}
 				refresh.SerializeToArray( buffer.get_array(), size );
-				char hex[512];
-				char *write = hex;
-				hex[0] = '\0';
-				for (int i = 0; i < size; ++i) {
-					write += sprintf(write, "%02x ", (unsigned char)buffer.get_array()[i]);
-				}
-				if (!send_message( id, buffer.get_array(), size )) {
+				if (!send_protobuf_message( job_id_source, id, buffer.get_array(), size )) {
                     stack->log( "Failed to send inventory subscription refresh to Steam." );
                     return false;
                 }

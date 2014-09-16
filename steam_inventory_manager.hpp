@@ -9,8 +9,6 @@
 #include "protobuf/steammessages.pb.h"
 #include "protobuf/gcsdk_gcmessages.pb.h"
 
-#define LOG_STEAM_MESSAGES
-
 class SteamInventoryManager
     : public Steam,
       public InventoryActionInterface
@@ -46,7 +44,7 @@ private:
     // Internal message handling.
     bool handle_callback( uint32 id, void* message );
     bool handle_message( uint32 id, void* message );
-    bool handle_protobuf( uint32 id, void* message, unsigned int size );
+    bool handle_protobuf( uint32 id, void* message, unsigned int size, uint64 job_id_source );
 
     // Item object management.
     Item* create_item_from_message( CSOEconItem* item );
@@ -59,11 +57,6 @@ private:
 
     // Steam inventory listener handle.
     SteamInventoryListener* listener_;
-
-#if defined(LOG_STEAM_MESSAGES)
-	// File for dumping data.
-	FILE* log_;
-#endif
 
 };
 
