@@ -929,7 +929,10 @@ bool DefinitionLoader::load_item( Json::Value* item,
 
 	// Best effort to download the file; use fallback if failed.
     if (!downloader->check_and_get( image, image_url )) {
-
+		if (!image->copy( &FALLBACK_ITEM_TEXTURE )) {
+			stack->log( "Failed to copy fallback item texture name." );
+            return false;
+        }
 	}
     
 	// Generate information object.
