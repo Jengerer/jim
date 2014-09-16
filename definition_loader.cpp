@@ -928,7 +928,9 @@ bool DefinitionLoader::load_item( Json::Value* item,
     JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
 
 	// Best effort to download the file; use fallback if failed.
-    downloader->check_and_get( image, image_url );
+    if (!downloader->check_and_get( image, image_url )) {
+
+	}
     
 	// Generate information object.
     ItemDefinition* information;

@@ -17,6 +17,9 @@ struct GCProtobufHeader_t
 // Protobuf flag.
 const unsigned int PROTOBUF_MESSAGE_FLAG = 0x80000000;
 
+// Log messages to file.
+#define LOG_STEAM_MESSAGES
+
 class Steam
 {
 
@@ -35,6 +38,7 @@ public:
 	bool has_message( uint32* size ) const;
 	bool get_message( unsigned int* id, void* buffer, uint32 size, unsigned int* real_size ) const;
 	bool send_message( unsigned int id, const void* buffer, uint32 size ) const;
+	bool send_protobuf_message( uint64 job_id_target, unsigned int id, const void* buffer, uint32 size ) const;
 
 	// SO version handling.
 	void set_version( uint64 version );
@@ -43,13 +47,19 @@ public:
 	// Steam getters.
 	uint64 get_steam_id( void ) const;
 
-	// For sending protobuf headers.
-	void set_target_id( uint64 target_id );
-	void generate_protobuf_header( CMsgProtoBufHeader *header_msg ) const;
-
 private:
 
 	uint64 get_target_id( void ) const;
+
+protected:
+
+#if defined(LOG_STEAM_MESSAGES)
+	// File for dumping data.
+	FILE* log_;
+	
+	// Dump raw byte information to file.
+	void log_bytes( const void *buffer, unsigned int size ) const;
+#endif
 
 private:
 
@@ -63,7 +73,6 @@ private:
 	ISteamGameCoordinator001* game_coordinator_;
 
 	// Steam interface target.
-	uint64 target_id_;
 	uint64 version_;
 
 	// For function loading.

@@ -9,18 +9,39 @@
 bool (*Steam_BGetCallback) (HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg, HSteamCall *phSteamCall);
 void (*Steam_FreeLastCallback) (HSteamPipe hSteamPipe);
 
+// File for logging messages sent and received.
+const JUTIL::ConstantString STEAM_LOG_FILE( "steam_messages.txt" );
+
 Steam::Steam( void )
 {
 	// Set to null.
 	steam_client_	= nullptr;
 	pipe_			= 0;
 	user_			= 0;
+	version_		= 0;
+	// target_id_		= 0;
+
+#if defined(LOG_STEAM_MESSAGES)
+
+	// Try to open file for logging.
+	fopen_s( &log_, STEAM_LOG_FILE.get_string(), "w" );
+
+#endif
 }
 
 Steam::~Steam( void )
 {
 	//Steam has been destroyed.
 	close_interfaces();
+
+#if defined(LOG_STEAM_MESSAGES)
+
+	// Close log file if open.
+	if (log_ != nullptr) {
+		fclose( log_ );
+	}
+
+#endif
 }
 
 /*
@@ -212,6 +233,14 @@ bool Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned i
         stack->log( "Failed to retrieve message from game coordinator." );
         return false;
     }
+
+	// Log the message before processing.
+#if defined(LOG_STEAM_MESSAGES)
+	if (log_ != nullptr) {
+		fprintf( log_, "Received message of type 0x%x with size %u.\n", *id, *real_size );
+		log_bytes( buffer, size );
+	}
+#endif
     return true;
 }
 
@@ -220,52 +249,62 @@ bool Steam::get_message( unsigned int* id, void* buffer, uint32 size, unsigned i
  */
 bool Steam::send_message( uint32 id, const void* buffer, uint32 size ) const
 {
-	// Stack for reporting errors.
-	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
-
-	// Check if we need a protobuf header sent.
-    EGCResults result;
-	if ((id & PROTOBUF_MESSAGE_FLAG) == PROTOBUF_MESSAGE_FLAG) {
-		// Create header for response.
-		CMsgProtoBufHeader response_header;
-		generate_protobuf_header( &response_header );
-
-		// Serialize header.
-		int header_size = response_header.ByteSize();
-		JUTIL::ArrayBuilder<char> header_buffer;
-		if (!header_buffer.set_size( header_size )) {
-			stack->log( "Failed to size buffer for protobuf header." );
-			return false;
-		}
-		response_header.SerializeToArray( header_buffer.get_array(), header_size );
-
-		// Fill in struct.
-		GCProtobufHeader_t structHeader;
-		structHeader.m_cubProtobufHeader = header_size;
-		structHeader.m_EMsg = id;
-
-		// Append messages.
-		uint32 response_size = sizeof( GCProtobufHeader_t ) + header_size + size;
-        JUTIL::ArrayBuilder<char> response;
-        if (!response.set_size( response_size )) {
-            return false;
-        }
-		SerializedBuffer response_buffer( response.get_array() );
-		response_buffer.write( &structHeader, sizeof( GCProtobufHeader_t ) );
-		response_buffer.write( header_buffer.get_array(), header_size );
-		response_buffer.write( buffer, size );
-		result = game_coordinator_->SendMessage( id, response_buffer.start(), response_size );
+ #if defined(LOG_STEAM_MESSAGES)
+	if (log_ != nullptr) {
+		fprintf( log_, "Sending message of type 0x%x with size %d.\n", id, size );
+		log_bytes( buffer, size );
 	}
-	else {
-		// Just send it.
-		result = game_coordinator_->SendMessage( id, buffer, size );
-	}
+#endif
 
-    // Check if sent successfully.
+	EGCResults result = game_coordinator_->SendMessage( id, buffer, size );
     if (result != k_EGCResultOK) {
         return false;
     }
     return true;
+}
+
+/* Send a protobuf message. */
+bool Steam::send_protobuf_message( uint64 job_id_target, unsigned int id, const void *buffer, uint32 size ) const
+{
+	GCProtobufHeader_t header;
+	CMsgProtoBufHeader protobuf_header;
+	unsigned int message_size = sizeof(GCProtobufHeader_t) + size;
+	unsigned int protobuf_header_size;
+	
+	// Check if we need a protobuf header.
+	if (job_id_target != 0) {
+		protobuf_header.set_job_id_target( job_id_target );
+		protobuf_header.set_client_steam_id( get_steam_id() );
+		protobuf_header_size = protobuf_header.ByteSize();
+		message_size += protobuf_header_size;
+	}
+	else {
+		protobuf_header_size = 0;
+	}
+	header.m_EMsg = id;
+	header.m_cubProtobufHeader = protobuf_header_size;
+
+	// Allocate buffer for all headers.
+	JUTIL::ArrayBuilder<char> message;
+	if (!message.set_size( message_size )) {
+		return false;
+	}
+
+	// Fill in the message.
+	void *message_buffer = message.get_array();
+	SerializedBuffer serializer( message_buffer );
+	serializer.write( &header, sizeof(header) );
+	if (job_id_target != 0) {
+		if (!protobuf_header.SerializeToArray( serializer.here(), protobuf_header_size )) {
+			return false;
+		}
+		serializer.push( protobuf_header_size );
+	}
+	serializer.write( buffer, size );
+	if (!send_message( id, message_buffer, message_size )) {
+		return false;
+	}
+	return true;
 }
 
 /*
@@ -293,27 +332,16 @@ uint64 Steam::get_steam_id( void ) const
 	return steamId.ConvertToUint64();
 }
 
-/*
- * Set target of protobuf messages.
- */
-void Steam::set_target_id( uint64 targetId )
+#if defined( LOG_STEAM_MESSAGES )
+/* Debug log function. */
+void Steam::log_bytes( const void *buffer, unsigned int size ) const
 {
-	target_id_ = targetId;
+	// Dump the bytes to file.
+	const unsigned char *bytes = static_cast<const unsigned char*>(buffer);
+	for (unsigned int i = 0; i < size; ++i) {
+		fprintf( log_, "%02x ", bytes[i] );
+	}
+	fprintf( log_, "\n" );
+	fflush( log_ );
 }
-
-/*
- * Get target of protobuf messages.
- */
-uint64 Steam::get_target_id( void ) const
-{
-	return target_id_;
-}
-
-/*
- * Fill out protobuf header message.
- */
-void Steam::generate_protobuf_header( CMsgProtoBufHeader *header ) const
-{
-	header->set_client_steam_id( get_steam_id() );
-	header->set_job_id_target( get_target_id() );
-}
+#endif
