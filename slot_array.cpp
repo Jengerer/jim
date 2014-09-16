@@ -39,9 +39,14 @@ bool SlotArray::set_size( unsigned int size )
 	unsigned int i;
 	unsigned int old_size = get_size();
 
+	// Don't do anything if no change.
+	if (size == old_size) {
+		return true;
+	}
+
 	// Delete slots if shrinking.
     Slot* slot;
-    if (size <= old_size) {
+    if (size < old_size) {
 		// Empty slots and update before deleting.
 		for (i = size; i < old_size; ++i) {
 			set_item( i, nullptr );
