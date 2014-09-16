@@ -44,7 +44,7 @@ private:
     // Internal message handling.
     bool handle_callback( uint32 id, void* message );
     bool handle_message( uint32 id, void* message );
-    bool handle_protobuf( uint32 id, void* message, unsigned int size, uint64 job_id_source );
+    bool handle_protobuf( const GCProtobufMessage *message );
 
     // Item object management.
     Item* create_item_from_message( CSOEconItem* item );

@@ -1,62 +1,122 @@
 #include "gc_protobuf_message.hpp"
+#include <jui/application/error_stack.hpp>
+
+/* Constructor for outbound protobuf message. */
+GCProtobufMessage::GCProtobufMessage( uint32 message_id ) : message_id_( message_id )
+{
+}
 
 /* Constructor for protobuf message. */
 GCProtobufMessage::GCProtobufMessage(
 	uint32 message_id,
 	uint64 target_id,
-	uint64 steam_id )
+	uint64 steam_id ) : message_id_( message_id )
 {
 	// Check if we need to set up protobuf header.
 	if (target_id != 0) {
 		protobuf_header_.set_client_steam_id( steam_id );
 		protobuf_header_.set_job_id_target( target_id );
-		protobuf_header_size = protobuf_header.ByteSize();
 	}
-	else {
-		protobuf_header_size = 0;
-	}
-	header_.m_eMsg = message_id;
-	header_.m_cubProtobufHeader = protobuf_header_size;
 }
 
-/* Get the header with protobuf header information. */
-GCProtobufHeader_t* GCProtobufMessage::get_header( void )
+/* Get the ID for this message. */
+uint32 GCProtobufMessage::get_message_id( void ) const
 {
-	return &header_;
+	return message_id_;
 }
 
 /* Get the protobuf header. */
-CMsgProtoBufHeader* GCProtobufHeader::get_protobuf_header( void )
+CMsgProtoBufHeader* GCProtobufMessage::get_protobuf_header( void )
 {
 	return &protobuf_header_;
 }
 
-/* Initialize a message with current header information for payload. */
-bool GCProtobufHeader::initialize_message( google::protobuf::Message* payload )
+/* Initialize a message from a received protobuf message buffer. */
+bool GCProtobufMessage::initialize_inbound_message( JUTIL::ArrayBuilder<uint8>* input_buffer )
 {
+	// Error logging.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Take the buffer from the input.
+	unsigned int size = input_buffer->get_size();
+	uint8* buffer = input_buffer->release();
+	message_buffer_.set_array( buffer, size );
+
+	// Get information from the header.
+	GCProtobufMessageHeader* header = reinterpret_cast<GCProtobufMessageHeader*>( buffer );
+	char* next_buffer = reinterpret_cast<char*>( header + 1 );
+	
+	// Get the protobuf header if one exists.
+	uint32 protobuf_header_size = header->protobuf_header_size;
+	if (protobuf_header_size != 0) {
+		if (!protobuf_header_.ParseFromArray( next_buffer, protobuf_header_size )) {
+			stack->log( "Failed to parse protobuf header from message." );
+			return false;
+		}
+	}
+	return true;
+}
+
+/* Initialize an outbound message with current header information for payload. */
+bool GCProtobufMessage::initialize_outbound_message( google::protobuf::Message* payload )
+{
+	// Error logging.
+	JUI::ErrorStack *stack = JUI::ErrorStack::get_instance();
+
 	// Calculate buffer size.
-	unsigned int header_size;
-	unsigned int protobuf_header_size;
+	unsigned int protobuf_header_size = protobuf_header_.ByteSize();
+	unsigned int header_size = sizeof(GCProtobufMessageHeader) + protobuf_header_size;
 	unsigned int payload_size = payload->ByteSize();
-	unsigned int buffer_size = sizeof(GCProtobufHeader_t) + payload_size;
+	unsigned int buffer_size = header_size + payload_size;
 
 	// Check if we should attach protobuf header.
-	// TODO: Maybe the protobuf size is 0 if empty?
 	if (!message_buffer_.set_size( buffer_size )) {
+		stack->log( "Failed to allocate buffer for protobuf message." );
 		return false;
 	}
 
 	// Copy the headers over.
-	char* buffer = message_buffer_.get_array();
-	GCProtobufHeader_t* buffer_Header = static_cast<GCProtobufHeader_t*>(buffer);
-	buffer_header->m_eMsg = message_id;
-	buffer_header->m_cubProtobufHeader = protobuf_header_size;
+	uint8* buffer = message_buffer_.get_array();
+	GCProtobufMessageHeader* buffer_header = reinterpret_cast<GCProtobufMessageHeader*>(buffer);
+	buffer_header->message_id = message_id_;
+	buffer_header->protobuf_header_size = protobuf_header_size;
 
 	// Copy the payload over.
-	char* payload_buffer = &buffer[header_size];
+	uint8* payload_buffer = &buffer[header_size];
 	if (!payload->SerializeToArray( payload_buffer, payload_size )) {
+		stack->log( "Failed to write payload to buffer." );
 		return false;
 	}
 	return true;
 }
 
+/* Get the prepared buffer to send. */
+const void* GCProtobufMessage::get_message_buffer( void ) const
+{
+	return message_buffer_.get_array();
+}
+
+/* Get the size of the prepared message. */
+unsigned int GCProtobufMessage::get_message_size( void ) const
+{
+	return message_buffer_.get_size();
+}
+
+/* Get the payload from the buffer. */
+const void* GCProtobufMessage::get_payload( void ) const
+{
+	// Get the memory past the header size.
+	return reinterpret_cast<const void*>(message_buffer_.get_array() + get_header_size());
+}
+
+/* Get the payload size. */
+unsigned int GCProtobufMessage::get_payload_size( void ) const
+{
+	return message_buffer_.get_size() - get_header_size();
+}
+
+/* Get the header size. */
+unsigned int GCProtobufMessage::get_header_size( void ) const
+{
+	return sizeof(GCProtobufMessageHeader) + protobuf_header_.ByteSize();
+}

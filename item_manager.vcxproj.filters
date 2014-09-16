@@ -173,6 +173,9 @@
     <ClCompile Include="item.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
+    <ClCompile Include="gc_protobuf_message.cpp">
+      <Filter>source\items</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protobuf\base_gcmessages.pb.h">
@@ -348,6 +351,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="gc_protobuf_message.hpp">
+      <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

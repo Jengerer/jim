@@ -1,6 +1,7 @@
 #include "steam_inventory_manager.hpp"
 #include "serialized_buffer.hpp"
 #include "jui/application/error_stack.hpp"
+#include "gc_protobuf_message.hpp"
 
 /*
  * Item and selection handler constructor.
@@ -134,15 +135,12 @@ bool SteamInventoryManager::push_item_updates( void )
 	// Update message type used in a few places.
 	uint32 update_message_id = k_EMsgGCUpdateItems | PROTOBUF_MESSAGE_FLAG;
 
-	// Serialize and send.
-	int message_size = update_msg_.ByteSize();
-	JUTIL::ArrayBuilder<char> buffer;
-	if (!buffer.set_size( message_size )) {
+	// Serialize and send it.
+	GCProtobufMessage message( update_message_id, 0, get_steam_id() );
+	if (!message.initialize_outbound_message( &update_msg_ )) {
 		return false;
 	}
-	char* buffer_data = buffer.get_array();
-	update_msg_.SerializeToArray( buffer_data, message_size );
-	return send_protobuf_message( 0, update_message_id, buffer_data, message_size );
+	return send_protobuf_message( &message );
 }
 
 /*
@@ -238,32 +236,25 @@ bool SteamInventoryManager::handle_callback( uint32 id, void* message )
 			// Clear flag to get real message ID.
 			message_id &= ~PROTOBUF_MESSAGE_FLAG;
 
-			// First get the protobuf struct header.
-			SerializedBuffer header_buffer( buffer.get_array() );
-			GCProtobufHeader_t* header_struct = header_buffer.get<GCProtobufHeader_t>();
-			uint32 header_size = header_struct->m_cubProtobufHeader;
-
-			// Now get the real protobuf header.
-			CMsgProtoBufHeader header_msg;
-			void* header_bytes = header_buffer.here();
-			if (!header_msg.ParseFromArray( header_bytes, header_size )) {
-				stack->log( "Failed to parse game coordinator message." );
+			// Get protobuf message.
+			GCProtobufMessage protobuf_message( message_id );
+			if (!protobuf_message.initialize_inbound_message( &buffer )) {
+				stack->log( "Failed to get inbound protobuf message." );
 				return false;
 			}
-			header_buffer.push( header_size );
 
 			// Check if we can set target ID.
+			CMsgProtoBufHeader *protobuf_header = protobuf_message.get_protobuf_header();
 			uint64 job_id_source;
-			if (header_msg.has_job_id_source()) {
-				job_id_source = header_msg.job_id_source();
+			if (protobuf_header->has_job_id_source()) {
+				job_id_source = protobuf_header->job_id_source();
 			}
 			else {
 				job_id_source = 0;
 			}
 
 			// Pass message to protobuf handler.
-			uint32 body_size = size - sizeof(GCProtobufHeader_t) - header_size;
- 			if (!handle_protobuf( message_id, header_buffer.here(), body_size, job_id_source )) {
+ 			if (!handle_protobuf( &protobuf_message )) {
 				stack->log( "Failed to handle protobuf game coordinator message." );
 				return false;
 			}
@@ -320,19 +311,22 @@ bool SteamInventoryManager::handle_message( uint32 id, void* message )
 /*
  * Handle protobuf Steam message. Prepare your anus.
  */
-bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 size, uint64 job_id_source )
+bool SteamInventoryManager::handle_protobuf( const GCProtobufMessage *message )
 {
     // Get error stack for logging.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
     // Handle message from ID.
+	uint32 id = message->get_message_id();
+	const void* payload = message->get_payload();
+	unsigned int payload_size = message->get_payload_size();
 	switch (id) {
 	case k_ESOMsg_CacheSubscribed:
 		{
 			// Get message.
 			CMsgSOCacheSubscribed cache_msg;
 #if !defined(READ_FROM_FILE)
-			if (!cache_msg.ParseFromArray( message, size )) {
+			if (!cache_msg.ParseFromArray( payload, payload_size )) {
                 return false;
             }
 #else
@@ -441,7 +435,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 	case k_ESOMsg_CacheSubscriptionCheck:
 		{
 			CMsgSOCacheSubscriptionCheck check;
-			if (!check.ParseFromArray( message, size )) {
+			if (!check.ParseFromArray( payload, payload_size)) {
                 stack->log( "Failed to parse inventory subscription check." );
                 return false;
             }
@@ -458,13 +452,12 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
                 // Serialize and send.
 				int size = refresh.ByteSize();
 				unsigned int id = PROTOBUF_MESSAGE_FLAG | static_cast<unsigned int>(k_ESOMsg_CacheSubscriptionRefresh);
-				JUTIL::ArrayBuilder<char> buffer;
-				if (!buffer.set_size( size )) {
+				GCProtobufMessage refresh_message( id );
+				if (!refresh_message.initialize_outbound_message( &refresh )) {
 					stack->log( "Failed to size message buffer." );
 					return false;
 				}
-				refresh.SerializeToArray( buffer.get_array(), size );
-				if (!send_protobuf_message( job_id_source, id, buffer.get_array(), size )) {
+				if (!send_protobuf_message( &refresh_message )) {
                     stack->log( "Failed to send inventory subscription refresh to Steam." );
                     return false;
                 }
@@ -475,7 +468,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 	case k_ESOMsg_Update:
 		{
 			CMsgSOSingleObject update_msg;
-			if (!update_msg.ParseFromArray( message, size )) {
+			if (!update_msg.ParseFromArray( payload, payload_size )) {
                 stack->log( "Failed to parse item update message from Steam." );
                 return false;
             }
@@ -501,7 +494,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 	case k_ESOMsg_UpdateMultiple:
 		{
 			CMsgSOMultipleObjects update_msg;
-			if (!update_msg.ParseFromArray( message, size )) {
+			if (!update_msg.ParseFromArray( payload, payload_size )) {
                 stack->log( "Failed to parse multiple item update message from Steam." );
                 return false;
             }
@@ -537,7 +530,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 		{
 			// Get object created.
 			CMsgSOSingleObject create_msg;
-			if (!create_msg.ParseFromArray( message, size )) {
+			if (!create_msg.ParseFromArray( payload, payload_size )) {
                 stack->log( "Failed to parse item creation message from Steam." );
                 return false;
             }
@@ -570,7 +563,7 @@ bool SteamInventoryManager::handle_protobuf( uint32 id, void* message, uint32 si
 		{
 			// Get deleted message.
 			CMsgSOSingleObject delete_msg;
-			if (!delete_msg.ParseFromArray( message, size )) {
+			if (!delete_msg.ParseFromArray( payload, payload_size )) {
                 stack->log( "Failed to parse item deletion message from Steam." );
                 return false;
             }

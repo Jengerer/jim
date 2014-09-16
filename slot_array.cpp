@@ -12,6 +12,7 @@ SlotArray::SlotArray( void )
  */
 SlotArray::~SlotArray( void )
 {
+	destroy_slots();
 }
 
 /*

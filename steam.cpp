@@ -264,44 +264,13 @@ bool Steam::send_message( uint32 id, const void* buffer, uint32 size ) const
 }
 
 /* Send a protobuf message. */
-bool Steam::send_protobuf_message( uint64 job_id_target, unsigned int id, const void *buffer, uint32 size ) const
+bool Steam::send_protobuf_message( const GCProtobufMessage* message ) const
 {
-	GCProtobufHeader_t header;
-	CMsgProtoBufHeader protobuf_header;
-	unsigned int message_size = sizeof(GCProtobufHeader_t) + size;
-	unsigned int protobuf_header_size;
-	
-	// Check if we need a protobuf header.
-	if (job_id_target != 0) {
-		protobuf_header.set_job_id_target( job_id_target );
-		protobuf_header.set_client_steam_id( get_steam_id() );
-		protobuf_header_size = protobuf_header.ByteSize();
-		message_size += protobuf_header_size;
-	}
-	else {
-		protobuf_header_size = 0;
-	}
-	header.m_EMsg = id;
-	header.m_cubProtobufHeader = protobuf_header_size;
-
-	// Allocate buffer for all headers.
-	JUTIL::ArrayBuilder<char> message;
-	if (!message.set_size( message_size )) {
-		return false;
-	}
-
-	// Fill in the message.
-	void *message_buffer = message.get_array();
-	SerializedBuffer serializer( message_buffer );
-	serializer.write( &header, sizeof(header) );
-	if (job_id_target != 0) {
-		if (!protobuf_header.SerializeToArray( serializer.here(), protobuf_header_size )) {
-			return false;
-		}
-		serializer.push( protobuf_header_size );
-	}
-	serializer.write( buffer, size );
-	if (!send_message( id, message_buffer, message_size )) {
+	// Just send the message.
+	if (!send_message( message->get_message_id(), 
+		message->get_message_buffer(),
+		message->get_message_size() ))
+	{
 		return false;
 	}
 	return true;
