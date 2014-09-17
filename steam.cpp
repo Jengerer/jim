@@ -279,8 +279,8 @@ bool Steam::send_protobuf_message( const GCProtobufMessage* message ) const
  */
 uint64 Steam::get_steam_id( void ) const
 {
-	CSteamID steamId = steam_user_->GetSteamID();
-	return steamId.ConvertToUint64();
+	CSteamID steam_id = steam_user_->GetSteamID();
+	return steam_id.ConvertToUint64();
 }
 
 #if defined( LOG_STEAM_MESSAGES )
