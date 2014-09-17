@@ -19,6 +19,9 @@ public:
 	SteamInventoryManager( void );
 	virtual ~SteamInventoryManager( void );
 
+	// Initialize and destroy.
+	virtual bool load_interfaces( void );
+
     // Setting inventory listener.
     void set_listener( SteamInventoryListener* listener );
 
@@ -45,6 +48,14 @@ private:
     bool handle_callback( uint32 id, void* message );
     bool handle_message( uint32 id, void* message );
     bool handle_protobuf( const GCProtobufMessage *message );
+
+	// Protobuf message handling functions.
+	bool handle_cache_subscribed( const GCProtobufMessage *message );
+	bool handle_cache_subscription_check( const GCProtobufMessage *message );
+	bool handle_update( const GCProtobufMessage *message );
+	bool handle_update_multiple( const GCProtobufMessage *message );
+	bool handle_create( const GCProtobufMessage *message );
+	bool handle_deleted( const GCProtobufMessage *message );
 
     // Item object management.
     Item* create_item_from_message( CSOEconItem* item );
