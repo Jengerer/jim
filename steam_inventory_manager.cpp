@@ -7,6 +7,7 @@
  * Item and selection handler constructor.
  */
 SteamInventoryManager::SteamInventoryManager( void )
+	: version_( 0 )
 {
 }
 
@@ -26,12 +27,7 @@ bool SteamInventoryManager::load_interfaces( void )
 	if (!Steam::load_interfaces()) {
 		return false;
 	}
-
-	// Send client welcome.
-	CMsgProtoBufHeader header;
-	GCProtobufMessage msg( 4004 );
-	msg.initialize_outbound_message( &header );
-	send_protobuf_message(&msg);
+	return true;
 }
 
 /*
@@ -175,7 +171,6 @@ bool SteamInventoryManager::set_craft_size( unsigned int count )
 	GCCraft_t* message = reinterpret_cast<GCCraft_t*>(craft_buffer_.get_array());
 	message->blueprint = 0xFFFF;
 	message->itemcount = count;
-
 	return true;
 }
 
@@ -387,7 +382,7 @@ bool SteamInventoryManager::handle_cache_subscribed( const GCProtobufMessage *me
 	}
 	out_file.close();
 #endif
-	set_version( cache_msg.version() );
+	version_ =  cache_msg.version();
 
 	// Check that this is our backpack.
 #if !defined(READ_FROM_FILE)
@@ -494,8 +489,8 @@ bool SteamInventoryManager::handle_cache_subscription_check( const GCProtobufMes
 
 	// Compare version.
 	uint64 version = check.version();
-	if (get_version() != version) {
-		set_version( version );
+	if (version_ != version) {
+		version_ = version;
 
 		// Send refresh.
 		CMsgSOCacheSubscriptionRefresh refresh;
@@ -534,7 +529,7 @@ bool SteamInventoryManager::handle_update( const GCProtobufMessage* message )
         stack->log( "Failed to parse item update message from Steam." );
         return false;
     }
-	set_version( update_msg.version() );
+	version_ = update_msg.version();
 	if (update_msg.type_id() == 1) {
 		CSOEconItem updated_item;
 		if (!updated_item.ParseFromArray( update_msg.object_data().data(), update_msg.object_data().size() )) {
@@ -568,7 +563,7 @@ bool SteamInventoryManager::handle_update_multiple( const GCProtobufMessage *mes
         stack->log( "Failed to parse multiple item update message from Steam." );
         return false;
     }
-	set_version( update_msg.version() );
+	version_ = update_msg.version();
 
 	// Update each item one at a time.
 	for (int i = 0; i < update_msg.objects_size(); i++) {
@@ -607,7 +602,7 @@ bool SteamInventoryManager::handle_create( const GCProtobufMessage* message )
         stack->log( "Failed to parse item creation message from Steam." );
         return false;
     }
-	set_version( create_msg.version() );
+	version_ = create_msg.version();
 
 	// Get item from object.
 	CSOEconItem created_item;
@@ -649,7 +644,7 @@ bool SteamInventoryManager::handle_deleted( const GCProtobufMessage* message )
         stack->log( "Failed to parse item deletion message from Steam." );
         return false;
     }
-	set_version( delete_msg.version() );
+	version_ = delete_msg.version();
 
 	// Get ID of deleted item.
 	CSOEconItem deleted_item;
