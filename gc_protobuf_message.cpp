@@ -103,16 +103,13 @@ unsigned int GCProtobufMessage::get_message_size( void ) const
 }
 
 /* Get the payload from the buffer. */
-const void* GCProtobufMessage::get_payload( void ) const
+void GCProtobufMessage::get_payload( const void** payload_out, unsigned int* size_out ) const
 {
 	// Get the memory past the header size.
-	return reinterpret_cast<const void*>(message_buffer_.get_array() + get_header_size());
-}
-
-/* Get the payload size. */
-unsigned int GCProtobufMessage::get_payload_size( void ) const
-{
-	return message_buffer_.get_size() - get_header_size();
+	unsigned int payload_offset = get_header_size();
+	unsigned int payload_size = message_buffer_.get_size() - payload_offset;
+	*payload_out = reinterpret_cast<const void*>(message_buffer_.get_array() + payload_offset);
+	*size_out = payload_size;
 }
 
 /* Get the header size. */

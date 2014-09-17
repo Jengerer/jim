@@ -41,8 +41,7 @@ public:
 	unsigned int get_message_size( void ) const;
 
 	// Get the payload from the buffer.
-	const void* get_payload( void ) const;
-	unsigned int get_payload_size( void ) const;
+	void get_payload( const void** payload_out, unsigned int *size_out ) const;
 
 private:
 

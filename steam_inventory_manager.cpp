@@ -19,6 +19,22 @@ SteamInventoryManager::~SteamInventoryManager( void )
 }
 
 /*
+ * Load interfaces and begin inventory management.
+ */
+bool SteamInventoryManager::load_interfaces( void )
+{
+	if (!Steam::load_interfaces()) {
+		return false;
+	}
+
+	// Send client welcome.
+	CMsgProtoBufHeader header;
+	GCProtobufMessage msg( 4004 );
+	msg.initialize_outbound_message( &header );
+	send_protobuf_message(&msg);
+}
+
+/*
  * Set the interface for handling steam inventory events.
  */
 void SteamInventoryManager::set_listener( SteamInventoryListener* listener )
@@ -318,274 +334,333 @@ bool SteamInventoryManager::handle_protobuf( const GCProtobufMessage *message )
 
     // Handle message from ID.
 	uint32 id = message->get_message_id();
-	const void* payload = message->get_payload();
-	unsigned int payload_size = message->get_payload_size();
 	switch (id) {
 	case k_ESOMsg_CacheSubscribed:
-		{
-			// Get message.
-			CMsgSOCacheSubscribed cache_msg;
-#if !defined(READ_FROM_FILE)
-			if (!cache_msg.ParseFromArray( payload, payload_size )) {
-                return false;
-            }
-#else
-			std::ifstream in_file( "inventory.bin", std::ios::binary );
-			if (!cache_msg.ParseFromIstream( &in_file )) {
-				return false;
-			}
-			in_file.close();
-#endif
-
-#if defined(WRITE_TO_FILE)
-			std::ofstream out_file("inventory.bin", std::ios::binary );
-			if (!cache_msg.SerializeToOstream( &out_file )) {
-				stack->log( "Failed to serialize inventory to file." );
-				return false;
-			}
-			out_file.close();
-#endif
-			set_version( cache_msg.version() );
-
-			// Check that this is our backpack.
-#if !defined(READ_FROM_FILE)
-			if (cache_msg.owner() != get_steam_id()) {
-				return false;
-			}
-#endif
-
-			// Notify that inventory is being reset.
-            listener_->on_inventory_reset();
-								
-			// Add items.
-            const unsigned int INVENTORY_ITEMS_SUBSCRIPTION_ID = 1;
-            const unsigned int INVENTORY_SIZE_SUBSCRIPTION_ID = 7;
-			for (int i = 0; i < cache_msg.objects_size(); i++) {
-				CMsgSOCacheSubscribed_SubscribedType subscribed_type = cache_msg.objects( i );
-				switch (subscribed_type.type_id()) {
-				case INVENTORY_ITEMS_SUBSCRIPTION_ID:
-					{
-						// Ensure we own this item.
-						for (int i = 0; i < subscribed_type.object_data_size(); i++) {
-                            // Get data.
-                            const char* data = subscribed_type.object_data( i ).data();
-                            size_t size = subscribed_type.object_data( i ).size();
-                            CSOEconItem econ_item;
-							if (!econ_item.ParseFromArray( data, size )) {
-                                stack->log( "Failed to parse item object from Steam message." );
-                                return false;
-                            }
-
-                            // Get item from protobuf.
-                            Item* item = create_item_from_message( &econ_item );
-                            if (item == nullptr) {
-                                stack->log( "Failed to create item from Steam object." );
-                                return false;
-                            }
-
-                            // Send to listener.
-                            if (!listener_->on_item_created( item )) {
-                                JUTIL::BaseAllocator::destroy( item );
-                                stack->log( "Failed to add item to inventory." );
-                                return false;
-                            }
-						}
-
-						break;
-					}
-				case INVENTORY_SIZE_SUBSCRIPTION_ID:
-					{
-                        // Ensure we own this inventory.
-#if !defined(READ_FROM_FILE)
-						if (get_steam_id() != cache_msg.owner()) {
-							break;
-						}
-#endif
-						for (int i = 0; i < subscribed_type.object_data_size(); i++) {
-							CSOEconGameAccountClient client;
-                            const char* data = subscribed_type.object_data( i ).data();
-                            size_t size = subscribed_type.object_data( i ).size();
-							if (!client.ParseFromArray( data, size )) {
-                                stack->log( "Failed to parse account client object from Steam message." );
-                                return false;
-                            }
-
-							// Check how many slots this backpack is supposed to have.
-                            bool is_trial_account = client.trial_account();
-							unsigned int extra_slots = client.additional_backpack_slots();
-							if (!listener_->on_inventory_resize( is_trial_account, extra_slots )) {
-                                stack->log( "Failed to resize inventory." );
-                                return false;
-                            }
-						}
-
-						break;
-					}
-				}
-			}
-
-            // Trigger post-load event.
-            if (!listener_->on_inventory_loaded()) {
-                stack->log( "Inventory post-load handling failed." );
-                return false;
-            }
-			break;
-		}
-
+		return handle_cache_subscribed( message );
 	case k_ESOMsg_CacheSubscriptionCheck:
-		{
-			CMsgSOCacheSubscriptionCheck check;
-			if (!check.ParseFromArray( payload, payload_size)) {
-                stack->log( "Failed to parse inventory subscription check." );
-                return false;
-            }
-
-			// Compare version.
-			uint64 version = check.version();
-			if (get_version() != version) {
-				set_version( version );
-
-				// Send refresh.
-				CMsgSOCacheSubscriptionRefresh refresh;
-				refresh.set_owner( get_steam_id() );
-
-                // Serialize and send.
-				int size = refresh.ByteSize();
-				unsigned int id = PROTOBUF_MESSAGE_FLAG | static_cast<unsigned int>(k_ESOMsg_CacheSubscriptionRefresh);
-				GCProtobufMessage refresh_message( id );
-				if (!refresh_message.initialize_outbound_message( &refresh )) {
-					stack->log( "Failed to size message buffer." );
-					return false;
-				}
-				if (!send_protobuf_message( &refresh_message )) {
-                    stack->log( "Failed to send inventory subscription refresh to Steam." );
-                    return false;
-                }
-			}
-			break;
-		}
-
+		return handle_cache_subscription_check( message );
 	case k_ESOMsg_Update:
-		{
-			CMsgSOSingleObject update_msg;
-			if (!update_msg.ParseFromArray( payload, payload_size )) {
-                stack->log( "Failed to parse item update message from Steam." );
-                return false;
-            }
-			set_version( update_msg.version() );
-
-			if (update_msg.type_id() == 1) {
-				CSOEconItem updated_item;
-				if (!updated_item.ParseFromArray( update_msg.object_data().data(), update_msg.object_data().size() )) {
-                    stack->log( "Failed to parse item update message from Steam." );
-                    return false;
-                }
-
-                // Pass item ID and flags to listener.
-                if (!listener_->on_item_updated( updated_item.id(), updated_item.inventory() )) {
-                    stack->log( "Failed to update item." );
-                    return false;
-                }
-			}
-
-			break;
-		}
-
+		return handle_update( message );
 	case k_ESOMsg_UpdateMultiple:
-		{
-			CMsgSOMultipleObjects update_msg;
-			if (!update_msg.ParseFromArray( payload, payload_size )) {
-                stack->log( "Failed to parse multiple item update message from Steam." );
-                return false;
-            }
-			set_version( update_msg.version() );
-
-			for (int i = 0; i < update_msg.objects_size(); i++) {
-				CMsgSOMultipleObjects::SingleObject current_object = update_msg.objects( i );
-				if (current_object.type_id() == 1) {
-					CSOEconItem updated_item;
-					if (!updated_item.ParseFromArray( current_object.object_data().data(), current_object.object_data().size() )) {
-                        stack->log( "Failed to parse multiple item message from Steam." );
-                        return false;
-                    }
-
-                    // Pass item ID and flags to listener.
-                    if (!listener_->on_item_updated( updated_item.id(), updated_item.inventory() )) {
-                        stack->log( "Failed to update item." );
-                        return false;
-                    }
-				}
-			}
-
-			break;
-		}
-
-	case k_EMsgGCUpdateItemSchema:
-		{
-			// Not handling yet, since no translation.
-			break;
-		}
-
+		return handle_update_multiple( message );
 	case SOMsgCreate_t::k_iMessage:
-		{
-			// Get object created.
-			CMsgSOSingleObject create_msg;
-			if (!create_msg.ParseFromArray( payload, payload_size )) {
-                stack->log( "Failed to parse item creation message from Steam." );
-                return false;
-            }
-			set_version( create_msg.version() );
-
-			// Get item from object.
-			CSOEconItem created_item;
-			if (!created_item.ParseFromArray( create_msg.object_data().data(), create_msg.object_data().size() )) {
-                stack->log( "Failed to parse created item from Steam message." );
-                return false;
-            }
-
-			// Now add item.
-            Item* item = create_item_from_message( &created_item );
-            if (item == nullptr) {
-                stack->log( "Failed to create new item from Steam message." );
-                return false;
-            }
-
-            // Pass new item to listener.
-            if (!listener_->on_item_created( item )) {
-                JUTIL::BaseAllocator::destroy( item );
-                stack->log( "Failed to add item to inventory." );
-                return false;
-            }
-			break;
-		}
-
+		return handle_create( message );
 	case SOMsgDeleted_t::k_iMessage:
-		{
-			// Get deleted message.
-			CMsgSOSingleObject delete_msg;
-			if (!delete_msg.ParseFromArray( payload, payload_size )) {
-                stack->log( "Failed to parse item deletion message from Steam." );
-                return false;
-            }
-			set_version( delete_msg.version() );
-
-			// Get ID of deleted item.
-			CSOEconItem deleted_item;
-			if (!deleted_item.ParseFromArray( delete_msg.object_data().data(), delete_msg.object_data().size() )) {
-                stack->log( "Failed to parse deleted item object from Steam." );
-                return false;
-            }
-
-            // Notify listener that this item is deleted.
-            listener_->on_item_deleted( deleted_item.id() );
-			break;
-		}
-
+		return handle_deleted( message );
 	default:
 		break;
 	}
 
     return true;
+}
+
+/* Handle message with inventory data. */
+bool SteamInventoryManager::handle_cache_subscribed( const GCProtobufMessage *message )
+{
+	// Error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get payload.
+	const void* payload;
+	unsigned int payload_size;
+	message->get_payload( &payload, &payload_size );
+
+	// Get message.
+	CMsgSOCacheSubscribed cache_msg;
+#if !defined(READ_FROM_FILE)
+	if (!cache_msg.ParseFromArray( payload, payload_size )) {
+        return false;
+    }
+#else
+	std::ifstream in_file( "inventory.bin", std::ios::binary );
+	if (!cache_msg.ParseFromIstream( &in_file )) {
+		return false;
+	}
+	in_file.close();
+#endif
+
+#if defined(WRITE_TO_FILE)
+	std::ofstream out_file("inventory.bin", std::ios::binary );
+	if (!cache_msg.SerializeToOstream( &out_file )) {
+		stack->log( "Failed to serialize inventory to file." );
+		return false;
+	}
+	out_file.close();
+#endif
+	set_version( cache_msg.version() );
+
+	// Check that this is our backpack.
+#if !defined(READ_FROM_FILE)
+	if (cache_msg.owner() != get_steam_id()) {
+		return false;
+	}
+#endif
+
+	// Notify that inventory is being reset.
+    listener_->on_inventory_reset();
+								
+	// Add items.
+    const unsigned int INVENTORY_ITEMS_SUBSCRIPTION_ID = 1;
+    const unsigned int INVENTORY_SIZE_SUBSCRIPTION_ID = 7;
+	for (int i = 0; i < cache_msg.objects_size(); i++) {
+		CMsgSOCacheSubscribed_SubscribedType subscribed_type = cache_msg.objects( i );
+		switch (subscribed_type.type_id()) {
+		case INVENTORY_ITEMS_SUBSCRIPTION_ID:
+			{
+				// Ensure we own this item.
+				for (int i = 0; i < subscribed_type.object_data_size(); i++) {
+                    // Get data.
+                    const char* data = subscribed_type.object_data( i ).data();
+                    size_t size = subscribed_type.object_data( i ).size();
+                    CSOEconItem econ_item;
+					if (!econ_item.ParseFromArray( data, size )) {
+                        stack->log( "Failed to parse item object from Steam message." );
+                        return false;
+                    }
+
+                    // Get item from protobuf.
+                    Item* item = create_item_from_message( &econ_item );
+                    if (item == nullptr) {
+                        stack->log( "Failed to create item from Steam object." );
+                        return false;
+                    }
+
+                    // Send to listener.
+                    if (!listener_->on_item_created( item )) {
+                        JUTIL::BaseAllocator::destroy( item );
+                        stack->log( "Failed to add item to inventory." );
+                        return false;
+                    }
+				}
+
+				break;
+			}
+		case INVENTORY_SIZE_SUBSCRIPTION_ID:
+			{
+                // Ensure we own this inventory.
+#if !defined(READ_FROM_FILE)
+				if (get_steam_id() != cache_msg.owner()) {
+					break;
+				}
+#endif
+				for (int i = 0; i < subscribed_type.object_data_size(); i++) {
+					CSOEconGameAccountClient client;
+                    const char* data = subscribed_type.object_data( i ).data();
+                    size_t size = subscribed_type.object_data( i ).size();
+					if (!client.ParseFromArray( data, size )) {
+                        stack->log( "Failed to parse account client object from Steam message." );
+                        return false;
+                    }
+
+					// Check how many slots this backpack is supposed to have.
+                    bool is_trial_account = client.trial_account();
+					unsigned int extra_slots = client.additional_backpack_slots();
+					if (!listener_->on_inventory_resize( is_trial_account, extra_slots )) {
+                        stack->log( "Failed to resize inventory." );
+                        return false;
+                    }
+				}
+
+				break;
+			}
+		}
+	}
+
+    // Trigger post-load event.
+    if (!listener_->on_inventory_loaded()) {
+        stack->log( "Inventory post-load handling failed." );
+        return false;
+    }
+	return true;
+}
+
+/* Handle subscription check message; send reply if out of date. */
+bool SteamInventoryManager::handle_cache_subscription_check( const GCProtobufMessage* message )
+{
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get payload.
+	const void* payload;
+	unsigned int payload_size;
+	message->get_payload( &payload, &payload_size );
+
+	// Parse subscription.
+	CMsgSOCacheSubscriptionCheck check;
+	if (!check.ParseFromArray( payload, payload_size)) {
+        stack->log( "Failed to parse inventory subscription check." );
+        return false;
+    }
+
+	// Compare version.
+	uint64 version = check.version();
+	if (get_version() != version) {
+		set_version( version );
+
+		// Send refresh.
+		CMsgSOCacheSubscriptionRefresh refresh;
+		refresh.set_owner( get_steam_id() );
+
+        // Serialize and send.
+		int size = refresh.ByteSize();
+		unsigned int id = PROTOBUF_MESSAGE_FLAG | static_cast<unsigned int>(k_ESOMsg_CacheSubscriptionRefresh);
+		GCProtobufMessage refresh_message( id );
+		if (!refresh_message.initialize_outbound_message( &refresh )) {
+			stack->log( "Failed to size message buffer." );
+			return false;
+		}
+		if (!send_protobuf_message( &refresh_message )) {
+            stack->log( "Failed to send inventory subscription refresh to Steam." );
+            return false;
+        }
+	}
+	return true;
+}
+
+/* Handle item update. */
+bool SteamInventoryManager::handle_update( const GCProtobufMessage* message )
+{
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get payload.
+	const void* payload;
+	unsigned int payload_size;
+	message->get_payload( &payload, &payload_size );
+
+	// Get the message.
+	CMsgSOSingleObject update_msg;
+	if (!update_msg.ParseFromArray( payload, payload_size )) {
+        stack->log( "Failed to parse item update message from Steam." );
+        return false;
+    }
+	set_version( update_msg.version() );
+	if (update_msg.type_id() == 1) {
+		CSOEconItem updated_item;
+		if (!updated_item.ParseFromArray( update_msg.object_data().data(), update_msg.object_data().size() )) {
+            stack->log( "Failed to parse item update message from Steam." );
+            return false;
+        }
+
+        // Pass item ID and flags to listener.
+        if (!listener_->on_item_updated( updated_item.id(), updated_item.inventory() )) {
+            stack->log( "Failed to update item." );
+            return false;
+        }
+	}
+	return true;
+}
+
+/* Handle multiple item updates. */
+bool SteamInventoryManager::handle_update_multiple( const GCProtobufMessage *message )
+{
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get payload.
+	const void* payload;
+	unsigned int payload_size;
+	message->get_payload( &payload, &payload_size );
+
+	// Get the message.
+	CMsgSOMultipleObjects update_msg;
+	if (!update_msg.ParseFromArray( payload, payload_size )) {
+        stack->log( "Failed to parse multiple item update message from Steam." );
+        return false;
+    }
+	set_version( update_msg.version() );
+
+	// Update each item one at a time.
+	for (int i = 0; i < update_msg.objects_size(); i++) {
+		CMsgSOMultipleObjects::SingleObject current_object = update_msg.objects( i );
+		if (current_object.type_id() == 1) {
+			CSOEconItem updated_item;
+			if (!updated_item.ParseFromArray( current_object.object_data().data(), current_object.object_data().size() )) {
+                stack->log( "Failed to parse multiple item message from Steam." );
+                return false;
+            }
+
+            // Pass item ID and flags to listener.
+            if (!listener_->on_item_updated( updated_item.id(), updated_item.inventory() )) {
+                stack->log( "Failed to update item." );
+                return false;
+            }
+		}
+	}
+	return true;
+}
+
+/* Handle item creation message. */
+bool SteamInventoryManager::handle_create( const GCProtobufMessage* message )
+{
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get payload.
+	const void* payload;
+	unsigned int payload_size;
+	message->get_payload( &payload, &payload_size );
+
+	// Get object created.
+	CMsgSOSingleObject create_msg;
+	if (!create_msg.ParseFromArray( payload, payload_size )) {
+        stack->log( "Failed to parse item creation message from Steam." );
+        return false;
+    }
+	set_version( create_msg.version() );
+
+	// Get item from object.
+	CSOEconItem created_item;
+	if (!created_item.ParseFromArray( create_msg.object_data().data(), create_msg.object_data().size() )) {
+        stack->log( "Failed to parse created item from Steam message." );
+        return false;
+    }
+
+	// Now add item.
+    Item* item = create_item_from_message( &created_item );
+    if (item == nullptr) {
+        stack->log( "Failed to create new item from Steam message." );
+        return false;
+    }
+
+    // Pass new item to listener.
+    if (!listener_->on_item_created( item )) {
+        JUTIL::BaseAllocator::destroy( item );
+        stack->log( "Failed to add item to inventory." );
+        return false;
+    }
+	return true;
+}
+
+/* Handle item deletion message. */
+bool SteamInventoryManager::handle_deleted( const GCProtobufMessage* message )
+{
+	// Get error stack.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get payload.
+	const void* payload;
+	unsigned int payload_size;
+	message->get_payload( &payload, &payload_size );
+
+	// Get deleted message.
+	CMsgSOSingleObject delete_msg;
+	if (!delete_msg.ParseFromArray( payload, payload_size )) {
+        stack->log( "Failed to parse item deletion message from Steam." );
+        return false;
+    }
+	set_version( delete_msg.version() );
+
+	// Get ID of deleted item.
+	CSOEconItem deleted_item;
+	if (!deleted_item.ParseFromArray( delete_msg.object_data().data(), delete_msg.object_data().size() )) {
+        stack->log( "Failed to parse deleted item object from Steam." );
+        return false;
+    }
+
+    // Notify listener that this item is deleted.
+    listener_->on_item_deleted( deleted_item.id() );
+	return true;
 }
 
 /*
