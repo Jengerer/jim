@@ -18,8 +18,6 @@ Steam::Steam( void )
 	steam_client_	= nullptr;
 	pipe_			= 0;
 	user_			= 0;
-	version_		= 0;
-	// target_id_		= 0;
 
 #if defined(LOG_STEAM_MESSAGES)
 
@@ -274,22 +272,6 @@ bool Steam::send_protobuf_message( const GCProtobufMessage* message ) const
 		return false;
 	}
 	return true;
-}
-
-/*
- * Set Steam inventory/schema version.
- */
-void Steam::set_version( uint64 version )
-{
-	version_ = version;
-}
-
-/*
- * Get Steam inventory/schema version.
- */
-uint64 Steam::get_version( void ) const
-{
-	return version_;
 }
 
 /*

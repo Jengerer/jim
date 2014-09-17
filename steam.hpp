@@ -31,10 +31,6 @@ public:
 	bool send_message( unsigned int id, const void* buffer, uint32 size ) const;
 	bool send_protobuf_message( const GCProtobufMessage* message ) const;
 
-	// SO version handling.
-	void set_version( uint64 version );
-	uint64 get_version( void ) const;
-
 	// Steam getters.
 	uint64 get_steam_id( void ) const;
 
@@ -62,9 +58,6 @@ private:
 	ISteamClient008* steam_client_;
 	ISteamUser012* steam_user_;
 	ISteamGameCoordinator001* game_coordinator_;
-
-	// Steam interface target.
-	uint64 version_;
 
 	// For function loading.
 	HMODULE client_dll_;

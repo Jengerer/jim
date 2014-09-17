@@ -66,6 +66,9 @@ private:
 	JUTIL::ArrayBuilder<char> craft_buffer_;
 	CUpdateItems update_msg_;
 
+	// Version of the inventory we have from backend.
+	uint64 version_;
+
     // Steam inventory listener handle.
     SteamInventoryListener* listener_;
 
