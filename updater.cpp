@@ -23,7 +23,6 @@ const JUTIL::ConstantString* UPDATE_FILES[UPDATE_FILES_COUNT] = {
 	&JUI_FILE
 };
 
-
 /*
  * Just set the downloader object we're using to get the files.
  */
@@ -198,6 +197,19 @@ bool Updater::update_file( const JUTIL::String* file )
 	// Stack for reporting errors.
 	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
+	// Get name for new file.
+	JUTIL::DynamicString new_name;
+	if (!new_name.write( "%s.new", file->get_string() )) {
+		status_ = UPDATE_FAILED;
+		return false;
+	}
+
+	// Save the new version before moving the old one.
+	if (!site_loader_->update_resource( &new_name, file )) {
+		status_ = UPDATE_FAILED;
+		return false;
+	}
+
 	// Need to move current file to .old suffix.
 	JUTIL::DynamicString moved_name;
 	if (!moved_name.write( "%s.old", file->get_string() )) {
@@ -219,9 +231,10 @@ bool Updater::update_file( const JUTIL::String* file )
 			return false;
 		}
 	}
-	
-	// Now download new version.
-	if (!site_loader_->update_resource( file, file )) {
+
+	// Now move the new one to the original spot.
+	if (!MoveFile( new_name.get_string(), file->get_string() )) {
+		stack->log( "Failed to rename updated file to original name." );
 		status_ = UPDATE_FAILED;
 		return false;
 	}

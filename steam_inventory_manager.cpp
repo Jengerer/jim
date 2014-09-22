@@ -7,7 +7,7 @@
  * Item and selection handler constructor.
  */
 SteamInventoryManager::SteamInventoryManager( void )
-	: version_( 0 )
+	: has_version_( false ), version_( 0 )
 {
 }
 
@@ -489,8 +489,9 @@ bool SteamInventoryManager::handle_cache_subscription_check( const GCProtobufMes
 
 	// Compare version.
 	uint64 version = check.version();
-	if (version_ != version) {
+	if (!has_version_ || (version_ != version)) {
 		version_ = version;
+		has_version_ = true;
 
 		// Send refresh.
 		CMsgSOCacheSubscriptionRefresh refresh;

@@ -67,6 +67,7 @@ private:
 	CUpdateItems update_msg_;
 
 	// Version of the inventory we have from backend.
+	bool has_version_;
 	uint64 version_;
 
     // Steam inventory listener handle.
