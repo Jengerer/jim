@@ -64,7 +64,7 @@ private:
 
 	// Steam message buffers.
 	JUTIL::ArrayBuilder<char> craft_buffer_;
-	CUpdateItems update_msg_;
+	CMsgSetItemPositions update_msg_;
 
 	// Version of the inventory we have from backend.
 	bool has_version_;

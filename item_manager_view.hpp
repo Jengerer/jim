@@ -146,6 +146,11 @@ private:
 	int clicked_y_;
 	long switch_page_time_;
 
+	// Linear selection.
+	SlotArray* last_array_selected_;
+	unsigned int last_index_selected_;
+	unsigned int last_end_selected_;
+
     // UI buttons.
 	Button* craft_button_;
 	Button* sort_button_;
@@ -165,6 +170,7 @@ private:
 	// Keyboard state members.
 	bool is_mouse_down_;
 	bool is_multiselect_pressed_;
+	bool is_shift_down_;
 
 };
 

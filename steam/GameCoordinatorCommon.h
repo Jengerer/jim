@@ -189,9 +189,9 @@ typedef enum EGCMessages
 	k_EMsgGCStorePurchaseQueryTxn,
 	k_EMsgGCStorePurchaseQueryTxnResponse,
 
-	k_EMsgGCSystemMessage = 4001,
-	k_EMsgGCReplicateConVars,
-	k_EMsgGCConVarUpdated,
+	k_EMsgGCSystemMessageOld = 4001,
+	k_EMsgGCReplicateConVarsOld,
+	k_EMsgGCConVarUpdatedOld,
 
 	k_EMsgGCReportWarKill = 5001,
 	k_EMsgGCVoteKickBanPlayer = 5018,
@@ -201,7 +201,7 @@ typedef enum EGCMessages
 	k_EMsgGCFreeTrial_ChooseMostHelpfulFriend,
 	k_EMsgGCRequestTF2Friends,
 	k_EMsgGCRequestTF2FriendsResponse,
-	k_EMsgGCReplay_UploadedToYouTube,
+	k_EMsgGCReplay_UploadedToYouTubeOld,
 	k_EMsgGCReplay_SubmitContestEntry,
 	k_EMsgGCReplay_SubmitContestEntryResponse,
 
