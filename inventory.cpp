@@ -221,6 +221,12 @@ void Inventory::set_slot_mode( InventorySlotMode slot_mode )
  */
 bool Inventory::set_selected( Item* item, bool is_selected )
 {
+	// Check if already at that state.
+	if (item->is_selected() == is_selected) {
+		return true;
+	}
+	item->set_selected( is_selected );
+
     // Toggle selection state in container.
     if (is_selected) {
         if (!selected_slots_.push_item( item )) {

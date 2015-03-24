@@ -112,7 +112,7 @@ bool SteamInventoryManager::delete_item( const Item* item ) const
  */
 void SteamInventoryManager::clear_item_updates( void )
 {
-	update_msg_.clear_item_data();
+	update_msg_.clear_item_positions();
 }
 
 /*
@@ -120,22 +120,18 @@ void SteamInventoryManager::clear_item_updates( void )
  */
 bool SteamInventoryManager::add_item_update( const Item* item )
 {
+	JUI::ErrorStack *stack = JUI::ErrorStack::get_instance();
+
 	// Fill in the message.
 	uint64 id = item->get_unique_id();
 	uint32 inventory_flags = item->get_inventory_flags();
-	CItemUpdate updated_item;
-	updated_item.set_id( id );
-	updated_item.set_position( inventory_flags );
-
-	// SErialize and add to the message.
-	int item_size = updated_item.ByteSize();
-	JUTIL::ArrayBuilder<char> buffer;
-	if (!buffer.set_size( item_size )) {
+	CMsgSetItemPositions::ItemPosition *updated_item = update_msg_.add_item_positions();
+	if (updated_item == nullptr) {
+		stack->log( "Failed to add updated item to update message." );
 		return false;
 	}
-	char* buffer_data = buffer.get_array();
-	updated_item.SerializeToArray( buffer_data, item_size );
-	update_msg_.add_item_data( buffer_data, item_size );
+	updated_item->set_item_id( id );
+	updated_item->set_position( inventory_flags );
 	return true;
 }
 

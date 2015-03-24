@@ -220,5 +220,11 @@ void SlotArray::empty_slots( void )
  */
 void SlotArray::destroy_slots( void )
 {
-	set_size( 0 );
+	unsigned int i;
+	unsigned int end = get_size();
+	for (i = 0; i < end; ++i) {
+		Slot* slot = slots_.at( i );
+		JUTIL::BaseAllocator::destroy( slot );
+	}
+	slots_.clear();
 }

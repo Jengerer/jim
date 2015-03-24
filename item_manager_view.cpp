@@ -43,11 +43,17 @@ const unsigned int EXCLUDED_PAGE_HEIGHT = 1;
 
 // Keys for handling UI.
 const int NEXT_PAGE_KEY_CODE = VK_RIGHT;
+const int NEXT_PAGE_KEY_CODE_ALT = 0x44;
 const int PREVIOUS_PAGE_KEY_CODE = VK_LEFT;
-const int MULTIDRAG_KEY_CODE = VK_SHIFT;
+const int PREVIOUS_PAGE_KEY_CODE_ALT = 0x41;
+const int LINEAR_SELECT_KEY_CODE = VK_SHIFT;
 const int MULTISELECT_KEY_CODE = VK_CONTROL;
 const float DRAG_THRESHOLD = 25.0f;
 const long SWITCH_PAGE_DELAY = 300;
+
+// Linear select parameters.
+const unsigned int INVALID_INDEX = 0xFFFFFFFF;
+const unsigned int MAXIMUM_SELECTION_SIZE = 50;
 
 ItemManagerView::ItemManagerView( Inventory* inventory, ItemSchema* schema )
     : is_fully_loaded_( false ),
@@ -70,13 +76,17 @@ ItemManagerView::ItemManagerView( Inventory* inventory, ItemSchema* schema )
 	  next_button_( nullptr ),
       heading_font_( nullptr ),
       page_font_( nullptr ),
-	  is_mouse_down_( false ),
-	  is_multiselect_pressed_( false ),
 	  was_clicked_selected_( false ),
 	  was_dragging_( false ),
 	  is_right_pressed_( false),
 	  is_left_pressed_( false ),
-	  switch_page_time_( 0 )
+	  switch_page_time_( 0 ),
+	  last_array_selected_( nullptr ),
+	  last_index_selected_( INVALID_INDEX ),
+	  last_end_selected_( INVALID_INDEX ),
+	  is_mouse_down_( false ),
+	  is_multiselect_pressed_( false ),
+	  is_shift_down_( false )
 {
     button_manager_.set_event_listener( this );
 }
@@ -794,8 +804,11 @@ JUI::IOResult ItemManagerView::on_mouse_clicked( JUI::Mouse* mouse )
 	}
 
 	// No items or buttons clicked, deselect all if not in multi-mode.
-	if (!is_multiselect_pressed_) {
+	if (!is_multiselect_pressed_ && !is_shift_down_) {
 		inventory_->clear_selection();
+		last_array_selected_ = nullptr;
+		last_index_selected_ = INVALID_INDEX;
+		last_end_selected_ = INVALID_INDEX;
 	}
     return JUI::IO_RESULT_UNHANDLED;
 }
@@ -863,20 +876,26 @@ JUI::IOResult ItemManagerView::on_key_pressed( int key )
 	}
 
 	// Now handle actual key press event.
-	if (key == MULTISELECT_KEY_CODE) {
+	switch (key) {
+	case MULTISELECT_KEY_CODE:
 		is_multiselect_pressed_ = true;
-	}
-	else if (key == NEXT_PAGE_KEY_CODE) {
+		break;
+	case NEXT_PAGE_KEY_CODE:
+	case NEXT_PAGE_KEY_CODE_ALT:
 		if (!next_page()) {
 			stack->log( "Error while switching to next page!" );
 		}
-	}
-	else if (key == PREVIOUS_PAGE_KEY_CODE) {
+		break;
+	case PREVIOUS_PAGE_KEY_CODE:
+	case PREVIOUS_PAGE_KEY_CODE_ALT:
 		if (!previous_page()) {
 			stack->log( "Error while switching to previous page." );
 		}
-	}
-	else {
+		break;
+	case LINEAR_SELECT_KEY_CODE:
+		is_shift_down_ = true;
+		break;
+	default:
 		return JUI::IO_RESULT_UNHANDLED;
 	}
 	return JUI::IO_RESULT_HANDLED;
@@ -887,18 +906,22 @@ JUI::IOResult ItemManagerView::on_key_pressed( int key )
  */
 JUI::IOResult ItemManagerView::on_key_released( int key )
 {
-	if (key == MULTISELECT_KEY_CODE) {
+	switch (key) {
+	case MULTISELECT_KEY_CODE:
 		is_multiselect_pressed_ = false;
-	}
-	else if (key == NEXT_PAGE_KEY_CODE) {
+		break;
+	case NEXT_PAGE_KEY_CODE:
 		is_right_pressed_ = false;
 		switch_page_time_ = GetTickCount();
-	}
-	else if (key == PREVIOUS_PAGE_KEY_CODE) {
+		break;
+	case PREVIOUS_PAGE_KEY_CODE:
 		is_left_pressed_ = false;
 		switch_page_time_ = GetTickCount();
-	}
-	else {
+		break;
+	case LINEAR_SELECT_KEY_CODE:
+		is_shift_down_ = false;
+		break;
+	default:
 		return JUI::IO_RESULT_UNHANDLED;
 	}
 	return JUI::IO_RESULT_HANDLED;
@@ -1093,17 +1116,90 @@ bool ItemManagerView::on_slot_clicked( JUI::Mouse* mouse,
 	clicked_x_ = mouse->get_x();
 	clicked_y_ = mouse->get_y();
 
-	// A clicked slot is always selected if not already.
-	if (!is_multiselect_pressed_) {
-		inventory_->clear_selection();
+	// Check if we're linear selecting.
+	if (is_shift_down_ &&
+		(last_array_selected_ == container) &&
+		(last_index_selected_ != INVALID_INDEX))
+	{
+		unsigned int smaller_index;
+		unsigned int larger_index;
+		if (index < last_index_selected_) {
+			smaller_index = index;
+			larger_index = last_index_selected_;
+		}
+		else {
+			smaller_index = last_index_selected_;
+			larger_index = index;
+		}
+		unsigned int difference = (larger_index - smaller_index) + 1;
+		if (difference > MAXIMUM_SELECTION_SIZE) {
+			JUTIL::DynamicString errorMessage;
+			if (errorMessage.write("Can't multi-select more than %u items at a time!", MAXIMUM_SELECTION_SIZE)) {
+				notifications_->add_notification( &errorMessage, nullptr );
+			}
+			return true;
+		}
+
+		// Check if deselection necessary.
+		if (((last_end_selected_ > last_index_selected_) && (index < last_end_selected_)) ||
+			(last_end_selected_ < last_index_selected_) && (index > last_end_selected_))
+		{
+			// If we're choosing a different end, deselect until this one.
+			unsigned int deselect_start;
+			unsigned int deselect_end;
+			if (last_end_selected_ != INVALID_INDEX) {
+				if (index < last_end_selected_) {
+					deselect_start = index;
+					deselect_end = last_end_selected_;
+				}
+				else {
+					deselect_start = last_end_selected_;
+					deselect_end = index;
+				}
+
+				for (unsigned int i = deselect_start; i <= deselect_end; ++i) {
+					Item *item = container->get_item( i );
+					if (item == nullptr) {
+						continue;
+					}
+					if (!inventory_->set_selected( item, false )) {
+						return false;
+					}
+					container->update_slot( i );
+				}
+			}
+		}
+		last_end_selected_ = index;
+
+		// Now do the new linear select.
+		for (unsigned int i = smaller_index; i <= larger_index; ++i) {
+			Item* item = container->get_item( i );
+			if (item == nullptr) {
+				continue;
+			}
+			if (!inventory_->set_selected( item, true )) {
+				return false;
+			}
+			container->update_slot( i );
+		}
 	}
-	Item* item = slot->get_item();
-	was_clicked_selected_ = item->is_selected();
-	if (!was_clicked_selected_) {
-		item->set_selected( true );
-		container->update_slot( index );
-		if (!inventory_->set_selected( item, true )) {
-			return false;
+	else {
+		last_end_selected_ = INVALID_INDEX;
+		if (!is_multiselect_pressed_ && !is_shift_down_) {
+			// A clicked slot is always selected if not already.
+			inventory_->clear_selection();
+			last_array_selected_ = nullptr;
+			last_index_selected_ = INVALID_INDEX;
+		}
+		Item* item = slot->get_item();
+		was_clicked_selected_ = item->is_selected();
+		if (!was_clicked_selected_) {
+			if (!inventory_->set_selected( item, true )) {
+				return false;
+			}
+			container->update_slot( index );
+			last_array_selected_ = container;
+			last_index_selected_ = index;
 		}
 	}
     return true;
@@ -1138,15 +1234,23 @@ bool ItemManagerView::on_slot_released( SlotArrayInterface* slot_array, unsigned
 	if (view == clicked_view_) {
 		if (was_clicked_selected_) {
 			Item* item = slot->get_item();
-			bool new_selected = !item->is_selected();
-			item->set_selected( new_selected );
-			container->update_slot( index );
-			if (!inventory_->set_selected( item, new_selected )) {
+			if (!inventory_->set_selected( item, false )) {
 				return false;
 			}
+			container->update_slot( index );
+
+			// If we deselect, reset shift-selection.
+			last_array_selected_ = nullptr;
+			last_index_selected_ = INVALID_INDEX;
+			last_end_selected_ = INVALID_INDEX;
 		}
 	}
 	else if (was_dragging_) {
+		// Reset dragging.
+		last_array_selected_ = nullptr;
+		last_index_selected_ = INVALID_INDEX;
+		last_end_selected_ = INVALID_INDEX;
+
 		// Start a move transaction.
 		listener_->on_item_begin_move();
 
