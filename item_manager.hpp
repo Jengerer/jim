@@ -91,7 +91,7 @@ private:
 	HttpResourceLoader* site_loader_;
     DefinitionLoader* definition_loader_;
 	Updater* updater_;
-	boost::thread* update_thread_;
+	std::thread* update_thread_;
 
 	// We can't just check think function since exiting is equal
 	// to pending update in the release build.

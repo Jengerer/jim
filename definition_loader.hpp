@@ -5,7 +5,8 @@
 #include <containers/hash_map.hpp>
 
 #include <jui/gfx/graphics_2d.hpp>
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 #include <json/json.h>
 
 #include "resource_loader_interface.hpp"
@@ -84,8 +85,8 @@ private:
 
 	// Threading parameters.
 	volatile bool should_stop_;
-	boost::thread* thread_;
-	boost::mutex mutex_;		
+	std::thread* thread_;
+	std::mutex mutex_;		
 
 	// Parsing members.
 	Json::Value root_;

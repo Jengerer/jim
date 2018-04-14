@@ -357,7 +357,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resources.rc" />
+    <ResourceCompile Include="item_manager.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="jim_icon.ico" />

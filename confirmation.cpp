@@ -1,6 +1,7 @@
 #include "confirmation.hpp"
 #include <jui/layout/horizontal_layout.hpp>
 #include <string/string.hpp>
+#include <cassert>
 
 const int BUTTON_SPACING = 10;
 

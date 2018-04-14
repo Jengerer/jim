@@ -103,8 +103,11 @@ UpdateCheckResult Updater::check_version_numbers( void )
 
 	// Parse the JSON.
 	Json::Value root;
-	Json::Reader reader;
-	if (!reader.parse( versions.get_string(), root, false )) {
+	Json::CharReaderBuilder builder;
+	Json::CharReader* reader = builder.newCharReader();
+	const char* versions_start = versions.get_string();
+	const char* versions_end = versions_start + versions.get_length();
+	if (!reader->parse( versions_start, versions_end, &root, NULL )) {
 		stack->log( "Failed to parse version file." );
 		return CHECK_FAILED;
 	}
