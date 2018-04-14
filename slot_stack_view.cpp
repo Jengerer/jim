@@ -14,10 +14,17 @@ const JUTIL::ConstantString SELECTION_COUNT_TEXT_FONT( "fonts/tf2build.ttf" );
 const unsigned int SELECTION_COUNT_TEXT_SIZE = 12;
 const JUI::Colour SELECTION_COUNT_TEXT_COLOUR = JUI::COLOUR_WHITE;
 
-SlotStackView::SlotStackView( SlotArrayInterface* slot_array )
-    : slot_array_( slot_array ),
-	  is_dragging_( false ),
-	  count_font_( nullptr )
+SlotStackView::SlotStackView( SlotArrayInterface* slot_array ) :
+	slot_array_( slot_array ),
+	listener_( nullptr ),
+	count_font_( nullptr ),
+	count_container_( nullptr ),
+	count_text_( nullptr ),
+	is_dragging_( false ),
+	offset_x_( 0 ),
+	offset_y_( 0 ),
+	return_x_( 0 ),
+	return_y_( 0 )
 {
 	set_alpha( STACK_NORMAL_ALPHA );
 }

@@ -4,7 +4,8 @@
 /*
  * Constructor for storing item information by item parameters.
  */
-KillEaterRanks::KillEaterRanks( void )
+KillEaterRanks::KillEaterRanks( void ) :
+	levels_()
 {
 }
 

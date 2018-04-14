@@ -1,8 +1,10 @@
 #include "slot_book_view.hpp"
 
-SlotBookView::SlotBookView( SlotArrayInterface* slot_array, unsigned int page_width, unsigned int page_height )
-	: SlotGridView( slot_array, page_width, page_height ),
-	  active_page_( 0 )
+SlotBookView::SlotBookView( SlotArrayInterface* slot_array, unsigned int page_width, unsigned int page_height ) :
+	SlotGridView( slot_array, page_width, page_height ),
+	active_page_( 0 ),
+	page_width_( 0 ),
+	page_height_( 0 )
 {
 }
 

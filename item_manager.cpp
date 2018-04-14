@@ -52,15 +52,19 @@ const char* ERROR_FORMAT_NEXT = "\n\n#%u: %s";
  */
 ItemManager::ItemManager( HINSTANCE instance )
 	: Application( instance ),
-	definition_loader_( nullptr ),
 	site_loader_( nullptr ),
+	definition_loader_(nullptr),
 	updater_( nullptr ),
+	update_thread_( nullptr ),
 	is_pending_update_( false ),
+	next_frame_( 0 ),
+	schema_(),
+	inventory_(),
+	steam_items_(),
+	view_( nullptr ),
+	title_(),
 	think_function_( nullptr )
 {
-    JUTIL::AllocationManager* manager = JUTIL::AllocationManager::get_instance();
-    // manager->set_debug_break( 3577 );
-
 	// Set application size.
 	set_size( APPLICATION_WIDTH, APPLICATION_HEIGHT );
 
@@ -72,9 +76,6 @@ ItemManager::ItemManager( HINSTANCE instance )
 
 	// Set inventory event handler.
     inventory_.set_listener( this );
-
-	// No think function by default.
-	set_think( nullptr );
 }
 
 /*

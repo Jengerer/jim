@@ -1,7 +1,8 @@
 #include "item_set.hpp"
 #include <cassert>
 
-ItemSet::ItemSet( void )
+ItemSet::ItemSet( void ) :
+	items_()
 {
 }
 

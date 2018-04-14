@@ -3,10 +3,10 @@
 /*
  * Resource loader constructor.
  */
-HttpResourceLoader::HttpResourceLoader( const JUTIL::String* url, JUI::FileDownloader* downloader )
+HttpResourceLoader::HttpResourceLoader( const JUTIL::String* url, JUI::FileDownloader* downloader ) :
+	url_( url ),
+	downloader_( downloader )
 {
-	set_url( url );
-	set_downloader( downloader );
 }
 
 /*

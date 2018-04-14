@@ -12,9 +12,7 @@ class KillEaterLevel
 
 public:
 
-	KillEaterLevel(
-		uint32 score,
-		JUTIL::String* prefix);
+	KillEaterLevel( uint32 score, JUTIL::String* prefix );
 	~KillEaterLevel( void );
 
 	// Item information attributes.

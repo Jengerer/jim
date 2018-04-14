@@ -4,12 +4,12 @@
 /*
  * Constructor by index and value.
  */
-Attribute::Attribute( uint32 index )
+Attribute::Attribute( uint32 index ) :
+	value_(),
+	index_( index ),
+	definition_( nullptr ),
+	description_()
 {
-	index_ = index;
-
-	// To be resolved.
-	definition_ = nullptr;
 }
 
 /*

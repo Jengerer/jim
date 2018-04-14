@@ -6,16 +6,14 @@
 AttributeDefinition::AttributeDefinition( JUTIL::String* name,
 	unsigned int index,
 	bool hidden,
-	bool is_integer )
+	bool is_integer ) :
+	name_( name ),
+	index_( index ),
+	hidden_( hidden ),
+	is_integer_( is_integer ),
+	description_( nullptr ),
+	format_( nullptr )
 {
-	// Set main attributes.
-	name_ = name;
-	index_ = index;
-	hidden_ = hidden;
-	is_integer_ = is_integer;
-
-    // No description by default.
-    set_description( nullptr, nullptr );
 }
 
 /*

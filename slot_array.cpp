@@ -3,7 +3,9 @@
 /*
  * Slot array constructor.
  */
-SlotArray::SlotArray( void )
+SlotArray::SlotArray( void ) :
+	slots_(),
+	listener_( nullptr )
 {
 }
 

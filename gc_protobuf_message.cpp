@@ -2,7 +2,10 @@
 #include <jui/application/error_stack.hpp>
 
 /* Constructor for outbound protobuf message. */
-GCProtobufMessage::GCProtobufMessage( uint32 message_id ) : message_id_( message_id )
+GCProtobufMessage::GCProtobufMessage( uint32 message_id ) :
+	message_id_( message_id ),
+	protobuf_header_(),
+	message_buffer_()
 {
 }
 
