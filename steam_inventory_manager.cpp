@@ -310,7 +310,7 @@ bool SteamInventoryManager::handle_message( uint32 id, void* message )
     return true;
 }
 
-#define WRITE_TO_FILE
+// #define WRITE_TO_FILE
 #if defined(READ_FROM_FILE) || defined(WRITE_TO_FILE)
 #include <fstream>
 #endif

@@ -9,7 +9,7 @@
 const unsigned int PROTOBUF_MESSAGE_FLAG = 0x80000000;
 
 // Log messages to file.
-#define LOG_STEAM_MESSAGES
+// #define LOG_STEAM_MESSAGES
 
 class Steam
 {
