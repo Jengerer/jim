@@ -1,7 +1,9 @@
 #include "button_manager.hpp"
 
-ButtonManager::ButtonManager( void )
-    : clicked_( nullptr )
+ButtonManager::ButtonManager( void ) :
+	clicked_( nullptr ),
+	buttons_(),
+	listener_( nullptr )
 {
 }
 

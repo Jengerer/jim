@@ -13,12 +13,12 @@ void (*Steam_FreeLastCallback) (HSteamPipe hSteamPipe);
 const JUTIL::ConstantString STEAM_LOG_FILE( "steam_messages.txt" );
 
 Steam::Steam( void ) :
-	user_(0),
-	pipe_(0),
-	steam_client_(nullptr),
-	steam_user_(nullptr),
-	game_coordinator_(nullptr),
-	client_dll_(nullptr)
+	user_( 0 ),
+	pipe_( 0 ),
+	steam_client_( nullptr ),
+	steam_user_( nullptr ),
+	game_coordinator_( nullptr ),
+	client_dll_( nullptr )
 {
 #if defined(LOG_STEAM_MESSAGES)
 

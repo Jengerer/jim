@@ -143,16 +143,21 @@ bool get_member( Json::Value* root, const JUTIL::String* member, Json::Value** o
 /*
  * Definition loader constructor by graphics object.
  */
-DefinitionLoader::DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schema, NotificationQueue* notifications )
+DefinitionLoader::DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schema, NotificationQueue* notifications ) : 
+	graphics_( graphics ),
+	schema_( schema ),
+	notifications_( notifications ),
+	thread_( nullptr ),
+	mutex_(),
+	root_(),
+	classes_(),
+	tools_(),
+	name_map_(),
+	progress_( 0.f ),
+	state_( LOADING_STATE_NONE ),
+	progress_message_(),
+	has_state_changed_( false )
 {
-	graphics_ = graphics;
-    schema_ = schema;
-	notifications_ = notifications;
-    thread_ = nullptr;
-
-    // Initialize progress/state.
-	set_progress( 0.0f );
-	set_state( LOADING_STATE_NONE );
 }
 
 /*
@@ -270,7 +275,7 @@ bool DefinitionLoader::load()
 	Json::CharReader* reader = builder.newCharReader();
 	const char* definition_start = definition.get_string();
 	const char* definition_end = definition_start + definition.get_length();
-	if (!reader->parse( definition_start, definition_end, &root_, NULL )) {
+	if (!reader->parse( definition_start, definition_end, &root_, nullptr )) {
         stack->log( "Failed to parse item definition JSON.");
         set_state( LOADING_STATE_ERROR );
         return false;

@@ -30,27 +30,25 @@ const JUTIL::ConstantString STRANGE_TYPE_NAMES[STRANGE_TYPE_COUNT] =
 /*
  * Item constructor from attributes.
  */
-Item::Item(
-	uint64 unique_id,
+Item::Item(	uint64 unique_id,
 	uint16 type_index,
 	uint8 level,
 	EItemQuality quality,
 	uint32 count,
 	uint32 inventory_flags,
 	uint32 flags,
-	uint32 origin )
+	uint32 origin ) :
+	unique_id_( unique_id ),
+	type_index_( type_index ),
+	level_( level ),
+	quality_( quality ),
+	count_( count ),
+	inventory_flags_( inventory_flags ),
+	flags_( flags ),
+	origin_( origin ),
+	renamed_( false ),
+	is_selected_( false )
 {
-	// Set basic attributes.
-	set_unique_id( unique_id );
-	set_type_index( type_index );
-	set_level( level );
-	set_quality( quality );
-	set_count( count );
-	set_inventory_flags( inventory_flags );
-	set_flags( flags );
-	set_origin( origin );
-	set_renamed( false );
-	set_selected( false );
 }
 
 /*

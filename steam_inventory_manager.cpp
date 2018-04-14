@@ -6,8 +6,12 @@
 /*
  * Item and selection handler constructor.
  */
-SteamInventoryManager::SteamInventoryManager( void )
-	: has_version_( false ), version_( 0 )
+SteamInventoryManager::SteamInventoryManager( void ) :
+	craft_buffer_(),
+	update_msg_(),
+	has_version_( false ),
+	version_( 0 ),
+	listener_( nullptr )
 {
 }
 

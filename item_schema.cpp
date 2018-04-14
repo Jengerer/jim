@@ -4,10 +4,16 @@
 /*
  * Item schema constructor.
  */
-ItemSchema::ItemSchema( void )
+ItemSchema::ItemSchema( void ) :
+	is_loaded_( false ),
+	item_definitions_(),
+	attribute_definitions_(),
+	quality_names_(),
+	origin_names_(),
+	kill_eater_types_(),
+	kill_eater_ranks_(),
+	fallback_( nullptr )
 {
-	set_loaded( false );
-    fallback_ = nullptr;
 }
 
 /*

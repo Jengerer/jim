@@ -3,10 +3,10 @@
 /*
  * Slot constructor.
  */
-Slot::Slot( void )
+Slot::Slot( void ) :
+	item_( nullptr ),
+	is_enabled_( true )
 {
-	set_item( nullptr );
-	set_enabled( true );
 }
 
 /*

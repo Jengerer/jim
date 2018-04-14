@@ -3,12 +3,10 @@
 /*
  * Constructor
  */
-EquippedStatus::EquippedStatus( EEquipClass equip_class,
-		EEquipSlot equip_slot )
+EquippedStatus::EquippedStatus( EEquipClass equip_class, EEquipSlot equip_slot ) :
+	equip_class_( equip_class ),
+	equip_slot_( equip_slot )
 {
-	// Set basic attributes.
-	set_equip_class( equip_class );
-	set_equip_slot( equip_slot );
 }
 
 /*

@@ -3,12 +3,10 @@
 /*
  * Constructor for storing item information by item parameters.
  */
-KillEaterLevel::KillEaterLevel(
-		uint32 score,
-		JUTIL::String* prefix)
+KillEaterLevel::KillEaterLevel(uint32 score, JUTIL::String* prefix ) :
+	score_( score ),
+	prefix_( prefix )
 {
-	set_score( score );
-	set_prefix( prefix );
 }
 
 /*

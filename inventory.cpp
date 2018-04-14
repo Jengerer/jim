@@ -3,7 +3,12 @@
 /*
  * Inventory constructor.
  */
-Inventory::Inventory( void )
+Inventory::Inventory( void ) :
+	items_(),
+	inventory_slots_(),
+	excluded_slots_(),
+	selected_slots_(),
+	listener_( nullptr )
 {
 }
 

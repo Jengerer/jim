@@ -7,12 +7,14 @@ ItemDefinition::ItemDefinition(
 	JUTIL::String* name,
 	JUTIL::DynamicString* image,
 	uint32 class_flags ) :
-    texture_( nullptr )
+	name_( name ),
+    texture_( nullptr ),
+	image_(),
+	class_flags_( class_flags ),
+	class_count_( 0 ),
+	tool_type_( TOOL_INVALID ),
+	attributes_()
 {
-	set_name( name );
-	set_class_flags( class_flags );
-	set_tool_type( TOOL_INVALID );
-	
 	// Take hold of image file string.
 	size_t len = image->get_length();
 	char* image_str = image->release();

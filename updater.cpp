@@ -26,11 +26,14 @@ const JUTIL::ConstantString* UPDATE_FILES[UPDATE_FILES_COUNT] = {
 /*
  * Just set the downloader object we're using to get the files.
  */
-Updater::Updater( JUI::FileDownloader* downloader, HttpResourceLoader* site_loader,	const JUTIL::String* jim_version )
-	: downloader_( downloader ),
-	  site_loader_( site_loader ),
-	  jim_version_( jim_version ),
-	  status_( UPDATE_PENDING )
+Updater::Updater( JUI::FileDownloader* downloader, HttpResourceLoader* site_loader,	const JUTIL::String* jim_version ) :
+	downloader_( downloader ),
+	site_loader_( site_loader ),
+	jim_version_( jim_version ),
+	status_( UPDATE_PENDING ),
+	is_jutil_latest_( false ),
+	is_jui_latest_( false ),
+	is_jim_latest_( false )
 {
 }
 
@@ -107,7 +110,7 @@ UpdateCheckResult Updater::check_version_numbers( void )
 	Json::CharReader* reader = builder.newCharReader();
 	const char* versions_start = versions.get_string();
 	const char* versions_end = versions_start + versions.get_length();
-	if (!reader->parse( versions_start, versions_end, &root, NULL )) {
+	if (!reader->parse( versions_start, versions_end, &root, nullptr )) {
 		stack->log( "Failed to parse version file." );
 		return CHECK_FAILED;
 	}
@@ -178,7 +181,7 @@ bool Updater::run_new_version( void )
 	if (!file.copy( &JIM_FILE )) {
 		return false;
 	}
-	if (!CreateProcess( NULL, file.get_string(), NULL, NULL, FALSE, 0, NULL, NULL, &si,	&pi)) {
+	if (!CreateProcess( nullptr, file.get_string(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si,	&pi)) {
 		return false;
 	}
 	return true;
