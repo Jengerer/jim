@@ -260,14 +260,16 @@ bool DefinitionLoader::load()
     }
 
 	// Get definition file.
+	constexpr long definition_load_timeout = 30;
+	downloader->set_timeout( definition_load_timeout );
     JUTIL::DynamicString definition;
-    if (!downloader->read_cached( &SCHEMA_FILE_LOCATION, &SCHEMA_URL, &definition )) {
-		// Skip the cache in case of a fail.
-		if (!downloader->read( &SCHEMA_URL, &definition )) {
-			stack->log( "Failed to read schema from Steam web API.");
-			set_state( LOADING_STATE_ERROR );
-			return false;
-		}
+	const bool succeeded = downloader->read_cached( &SCHEMA_FILE_LOCATION, &SCHEMA_URL, &definition ) || downloader->read( &SCHEMA_URL, &definition );
+	downloader->clear_timeout();
+    if(!succeeded)
+	{
+		stack->log( "Failed to read schema from Steam web API.");
+		set_state( LOADING_STATE_ERROR );
+		return false;
     }
 
 	// Parse definition file.
