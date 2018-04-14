@@ -44,14 +44,9 @@ public:
 	bool waiting_for_items( void );
 	bool loading_schema( void );
 	bool running( void );
-	bool updating_items( void );
 	bool pending_update( void );
 	bool updating( void );
 	bool exiting( void );
-
-	// Handle pushing updates to Steam.
-	void start_pushing_updates( void );
-	void update_pushing_notice( void );
 
     // View listener functions.
     virtual bool on_error_acknowledged( void );
@@ -72,9 +67,6 @@ public:
     virtual void on_inventory_reset( void );
     virtual bool on_inventory_resize( bool is_trial_account, uint32 extra_slots );
     virtual bool on_inventory_loaded( void );
-
-	// Input handling.
-	bool handle_keyboard( void );
 
 	// Mouse input handling.
 	virtual JUI::IOResult on_mouse_clicked( JUI::Mouse* mouse );
