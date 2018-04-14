@@ -2,7 +2,6 @@
 #define HTTP_RESOURCE_LOADER_H
 
 #include <string>
-#include <hash_map>
 #include <jui/net/file_downloader.hpp>
 #include <string/string_hasher.hpp>
 

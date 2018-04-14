@@ -1,4 +1,5 @@
 #include "alert.hpp"
+#include <cassert>
 
 // Button label strings.
 const JUTIL::ConstantString OKAY_BUTTON_LABEL = "okay";

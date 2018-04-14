@@ -529,7 +529,7 @@ bool ItemManager::on_error_acknowledged( void )
 			stack->log( "Failed to create updater thread." );
 			return false;
 		}
-		new (update_thread_) boost::thread( boost::bind( &Updater::update, updater_ ) );
+		new (update_thread_) std::thread( std::bind( &Updater::update, updater_ ) );
 		set_think( &ItemManager::updating );
 	}
 	else {

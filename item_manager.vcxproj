@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -15,17 +15,20 @@
     <RootNamespace>ItemManager</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>item_manager</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -45,10 +48,10 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration) Output\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(SDK_LIB_DIR)\protobuf\src;$(SDK_LIB_DIR)\jsoncpp\include;$(SDK_LIB_DIR)\boost\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SdkLibraryPath)jui\include;$(SdkLibraryPath)jutil\include;$(SdkLibraryPath)protobuf\src;$(SdkLibraryPath)jsoncpp\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(SDK_LIB_DIR)\protobuf\src;$(SDK_LIB_DIR)\jsoncpp\include;$(SDK_LIB_DIR)\boost\include;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SDK_LIB_DIR)\jui\lib;$(SDK_LIB_DIR)\jutil\lib;$(SDK_LIB_DIR)\protobuf\vsprojects\Release;$(SDK_LIB_DIR)\jsoncpp\libs\Release\;$(SDK_LIB_DIR)\boost\lib;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SDK_LIB_DIR)\jui\lib;$(SDK_LIB_DIR)\jutil\lib;$(SDK_LIB_DIR)\protobuf\vsprojects\Debug;$(SDK_LIB_DIR)\jsoncpp\libs\Debug\;$(SDK_LIB_DIR)\boost\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SdkLibraryPath)jui\lib;$(SdkLibraryPath)jutil\lib;$(SdkLibraryPath)protobuf\Debug;$(SdkLibraryPath)jsoncpp\makefiles\msvc2010\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -64,7 +67,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>jutil_debug.lib;jui_debug.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;jsoncpp.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jutil_debug.lib;jui_debug.lib;glu32.lib;opengl32.lib;libprotobufd.lib;steam/steam_api.lib;lib_json.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -213,7 +216,7 @@
     <ClInclude Include="updater.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resources.rc" />
+    <ResourceCompile Include="item_manager.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="jim_icon.ico" />

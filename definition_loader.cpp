@@ -1,6 +1,7 @@
 #include "definition_loader.hpp"
 #include <jui/application/error_stack.hpp>
 #include <jui/net/file_downloader.hpp>
+#include <cassert>
 
 // Schema URL.
 const JUTIL::ConstantString SCHEMA_URL = "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en";
@@ -179,7 +180,7 @@ bool DefinitionLoader::begin( void )
     if (!JUTIL::BaseAllocator::allocate( &thread_ )) {
         return false;
     }
-	thread_ = new (thread_) boost::thread( boost::bind( &DefinitionLoader::load, this ) );
+	thread_ = new (thread_) std::thread( std::bind( &DefinitionLoader::load, this ) );
     return true;
 }
 
@@ -265,8 +266,11 @@ bool DefinitionLoader::load()
     }
 
 	// Parse definition file.
-	Json::Reader reader;
-	if (!reader.parse( definition.get_string(), root_, false )) {
+	Json::CharReaderBuilder builder;
+	Json::CharReader* reader = builder.newCharReader();
+	const char* definition_start = definition.get_string();
+	const char* definition_end = definition_start + definition.get_length();
+	if (!reader->parse( definition_start, definition_end, &root_, NULL )) {
         stack->log( "Failed to parse item definition JSON.");
         set_state( LOADING_STATE_ERROR );
         return false;
@@ -519,7 +523,8 @@ bool DefinitionLoader::load_qualities( Json::Value* result )
 	// Go through each quality and map the index to its full name.
 	for (Json::ValueIterator i = qualities->begin(); i != qualities->end(); ++i) {
 		// Get the token for the quality index entry.
-		const JUTIL::ConstantString quality_token = i.memberName();
+		const JSONCPP_STRING json_name = i.name();
+		const JUTIL::ConstantString quality_token = json_name.c_str();
 		unsigned int index = (*i).asUInt();
 
 		// Find the matching quality string.

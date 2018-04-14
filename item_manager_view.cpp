@@ -1,6 +1,7 @@
 #include "item_manager_view.hpp"
 #include <jui/application/error_stack.hpp>
 #include <jui/layout/horizontal_split_layout.hpp>
+#include <cassert>
 
 // General application layout.
 const unsigned int PADDING = 20;
