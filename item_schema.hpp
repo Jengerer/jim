@@ -13,8 +13,8 @@
 // Definition structures.
 typedef JUTIL::Map<uint16, ItemDefinition*> ItemDefinitionMap;
 typedef JUTIL::Map<uint16, AttributeDefinition*> AttributeDefinitionMap;
-typedef JUTIL::Map<uint32, JUTIL::DynamicString*> QualityNameMap;
-typedef JUTIL::Map<uint32, JUTIL::DynamicString*> OriginNameMap;
+typedef JUTIL::Vector<JUTIL::DynamicString*> QualityNameMap;
+typedef JUTIL::Vector<JUTIL::DynamicString*> OriginNameMap;
 typedef JUTIL::Map<uint32, KillEaterType*> KillEaterTypeMap;
 typedef JUTIL::HashMap<unsigned int, const JUTIL::String*, KillEaterRanks*, JUTIL::StringHasher> KillEaterRankMap;
 
@@ -37,8 +37,8 @@ public:
     // Definition management.
     bool add_item_definition( uint16 index, ItemDefinition* item_definition );
     bool add_attribute_definition( uint16 index, AttributeDefinition* attribute_definition );
-	bool add_quality_name( uint32 index, JUTIL::DynamicString* quality_name );
-	bool add_origin_name( uint32 index, JUTIL::DynamicString* origin_name );
+	bool add_quality_name( JUTIL::DynamicString* quality_name );
+	bool add_origin_name( JUTIL::DynamicString* origin_name );
 	bool add_kill_eater_type( uint32 index, KillEaterType* kill_eater_type );
 	bool add_kill_eater_ranks( const JUTIL::String* name, KillEaterRanks* kill_eater_rank );
 
