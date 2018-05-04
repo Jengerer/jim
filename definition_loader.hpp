@@ -81,9 +81,12 @@ private:
 	bool on_root_object_begin( const JUTIL::ConstantString& object );
 	bool on_root_object_end();
 	bool on_result_object_begin( const JUTIL::ConstantString& object );
+	bool on_origin_names_object_begin( const JUTIL::ConstantString& index );
+	bool on_origin_names_object_end();
 	bool on_item_begin( const JUTIL::ConstantString& index );
 	bool on_item_end();
 	bool on_item_subobject_begin( const JUTIL::ConstantString& name );
+	bool on_item_subobject_end();
 	bool on_item_attribute_begin( const JUTIL::ConstantString& index );
 	bool on_item_attribute_end();
 	bool on_item_tool_begin( const JUTIL::ConstantString& name );
@@ -91,7 +94,6 @@ private:
 	// Property methods
 	bool on_quality_name_property( const JUTIL::ConstantString& quality_key, const JUTIL::ConstantString& quality_value );
 	bool on_origin_name_property( const JUTIL::ConstantString& key, const JUTIL::ConstantString& value );
-	bool on_item_property( const JUTIL::ConstantString& key, const JUTIL::ConstantString& value );
 	bool on_attribute_property( const JUTIL::ConstantString& key, const JUTIL::ConstantString& value );
 	bool on_tool_property( const JUTIL::ConstantString& key, const JUTIL::ConstantString& value );
 
@@ -138,9 +140,6 @@ private:
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EInventoryClass, JUTIL::StringHasher> classes_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EItemToolType, JUTIL::StringHasher> tools_;
     JUTIL::HashMap<unsigned int, const JUTIL::String*, uint16, JUTIL::StringHasher> name_map_;
-
-	// Temporary objects for parsing
-	ItemDefinition* current_item_;
 
 	// State members.
 	float progress_;

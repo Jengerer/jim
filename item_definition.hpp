@@ -18,13 +18,11 @@ class ItemDefinition
 
 public:
 
-	ItemDefinition();
+	ItemDefinition(
+		JUTIL::String* name,
+		JUTIL::DynamicString* image,
+		uint32 class_flags );
 	~ItemDefinition( void );
-
-	// Initialization
-	void set_name( JUTIL::String* name );
-	void set_image( JUTIL::DynamicString* image );
-	void set_class_flags( uint32 class_flags );
 
 	// Item information attributes.
 	const JUTIL::String* get_name( void ) const;
@@ -42,6 +40,12 @@ public:
     // Get the texture for this item.
 	void load_texture( JUI::Graphics2D* graphics, const JUI::Texture* fallback );
 	const JUI::Texture* get_texture( void ) const;
+
+private:
+
+	// Private attribute setters.
+	void set_name( JUTIL::String* name );
+	void set_class_flags( uint32 class_flags );
 
 private:
 
