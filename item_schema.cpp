@@ -68,9 +68,9 @@ bool ItemSchema::add_attribute_definition( uint16 index, AttributeDefinition* at
 /*
  * Add quality name to schema.
  */
-bool ItemSchema::add_quality_name( JUTIL::DynamicString* quality_name )
+bool ItemSchema::add_quality_name( uint32 index, JUTIL::DynamicString* quality_name )
 {
-	if(!quality_names_.push( quality_name )) {
+	if(!quality_names_.insert( index, quality_name )) {
 		return false;
 	}
 	return true;
@@ -79,9 +79,9 @@ bool ItemSchema::add_quality_name( JUTIL::DynamicString* quality_name )
 /*
  * Add origin name to schema.
  */
-bool ItemSchema::add_origin_name( JUTIL::DynamicString* origin_name )
+bool ItemSchema::add_origin_name( uint32 index, JUTIL::DynamicString* origin_name )
 {
-	if (!origin_names_.push( origin_name )) {
+	if (!origin_names_.insert( index, origin_name )) {
 		return false;
 	}
 	return true;
