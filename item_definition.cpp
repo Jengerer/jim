@@ -146,12 +146,6 @@ void ItemDefinition::set_name( JUTIL::String* name )
 	name_ = name;
 }
 
-void ItemDefinition::set_image( JUTIL::DynamicString* image )
-{
-	const size_t length = image->get_length();
-	image_.set_string( image->release(), length );
-}
-
 void ItemDefinition::set_class_flags( uint32 class_flags )
 {
 	class_flags_ = class_flags;
