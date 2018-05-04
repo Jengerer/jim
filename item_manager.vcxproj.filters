@@ -176,9 +176,6 @@
     <ClCompile Include="gc_protobuf_message.cpp">
       <Filter>source\items</Filter>
     </ClCompile>
-    <ClCompile Include="vdf_parser.cpp">
-      <Filter>source\items</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protobuf\base_gcmessages.pb.h">
@@ -356,9 +353,6 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="gc_protobuf_message.hpp">
-      <Filter>headers\items</Filter>
-    </ClInclude>
-    <ClInclude Include="vdf_parser.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
   </ItemGroup>
