@@ -162,6 +162,9 @@ DefinitionLoader::~DefinitionLoader( void )
 		end();
         JUTIL::BaseAllocator::destroy( thread_ );
 	}
+
+	// Destroy temporaries
+	JUTIL::BaseAllocator::safe_destroy( &current_item_ );
 }
 
 /*
@@ -412,6 +415,50 @@ bool DefinitionLoader::on_result_object_begin( const JUTIL::ConstantString& obje
 	
 	push_handlers( begin_handler, end_handler, property_handler );
 	return true;
+}
+
+/* Begin a new item definition. */
+bool DefinitionLoader::on_item_begin( const JUTIL::ConstantString& index )
+{
+	if(!JUTIL::BaseAllocator::allocate( &current_item_ ))
+	{
+		JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
+		error_stack->log( "Failed to allocate temporary item!" );
+		return false;
+	}
+	new (current_item_) ItemDefinition();
+	
+	// Set handlers
+	push_handlers( &on_item_subobject_begin, &on_item_end, &on_item_property );
+	return true;
+}
+
+/* End the item definition. */
+bool DefinitionLoader::on_item_end()
+{
+	if(current_item_)
+	{
+		JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
+		error_stack->log( "Item ended without getting definition index." );
+		return false;
+	}
+
+	return true;
+}
+
+/* Receive an item property. */
+bool DefinitionLoader::on_item_property( const JUTIL::ConstantString& key, const JUTIL::ConstantString& value )
+{
+	// Download the image
+    JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
+
+	// Best effort to download the file; use fallback if failed.
+    if (!downloader->check_and_get( image, image_url )) {
+		if (!image->copy( &FALLBACK_ITEM_TEXTURE )) {
+			stack->log( "Failed to copy fallback item texture name." );
+            return false;
+        }
+	}
 }
 
 /* Handle a new quality name value. */
@@ -1022,17 +1069,6 @@ bool DefinitionLoader::load_item( Json::Value* item,
         }
     }
 
-    // Load texture; fall back to default if failed.
-    JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
-
-	// Best effort to download the file; use fallback if failed.
-    if (!downloader->check_and_get( image, image_url )) {
-		if (!image->copy( &FALLBACK_ITEM_TEXTURE )) {
-			stack->log( "Failed to copy fallback item texture name." );
-            return false;
-        }
-	}
-    
 	// Generate information object.
     ItemDefinition* information;
     if (!JUTIL::BaseAllocator::allocate( &information )) {
