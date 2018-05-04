@@ -4,8 +4,9 @@
 #include <cassert>
 
 // Schema URL.
-const JUTIL::ConstantString SCHEMA_URL = "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=vdf&language=en";
-const JUTIL::ConstantString SCHEMA_FILE_LOCATION = "schema/schema.vdf";
+const JUTIL::ConstantString SCHEMA_URL = "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en";
+const JUTIL::ConstantString SCHEMA_FILE_LOCATION = "schema/schema.json";
+
 const JUTIL::ConstantString SCHEMA_CACHED_LOAD_FAIL_MESSAGE = "Failed to load cached item schema";
 
 // Status strings.
@@ -52,6 +53,12 @@ const unsigned int FALLBACK_ITEM_CLASS_FLAGS = 0;
 const EItemSlot FALLBACK_ITEM_SLOT = ITEM_SLOT_NONE;
 
 // JSON parsing object names.
+const JUTIL::ConstantString RESULT_KEY = "result";
+const JUTIL::ConstantString ATTRIBUTES_KEY = "attributes";
+const JUTIL::ConstantString ITEMS_KEY = "items";
+const JUTIL::ConstantString QUALITIES_KEY = "qualities";
+const JUTIL::ConstantString QUALITY_NAMES_KEY = "qualityNames";
+const JUTIL::ConstantString ORIGIN_NAMES_KEY = "originNames";
 const JUTIL::ConstantString ORIGIN_INDEX_KEY = "origin";
 const JUTIL::ConstantString ORIGIN_NAME_KEY = "name";
 const JUTIL::ConstantString KILL_EATER_CLASS_KEY = "name";
@@ -218,7 +225,7 @@ bool DefinitionLoader::load()
         classes_.insert( &CLASS_SNIPER_NAME, INVENTORY_CLASS_SNIPER ) &&
         classes_.insert( &CLASS_SPY_NAME, INVENTORY_CLASS_SPY );
     if (!success) {
-        stack->log( "Failed to create class map." );
+        stack->log( "Failed to create class map.");
         return false;
     }
 
@@ -260,216 +267,31 @@ bool DefinitionLoader::load()
 	downloader->clear_timeout();
     if(!succeeded)
 	{
-		stack->log( "Failed to read schema from Steam Web API.");
+		stack->log( "Failed to read schema from Steam web API.");
 		set_state( LOADING_STATE_ERROR );
 		return false;
     }
 
-	// Set up primary handlers
-	push_handlers( &on_root_object_begin, &on_error_object_end, &on_error_property );
-
 	// Parse definition file.
-	const JUTIL::ConstantString definition_text( definition.get_string(), definition.get_length() );
-	VdfParser parser(*this);
-	if (!parser.parse( definition_text )) {
-        stack->log( "Failed to parse item definition VDF.");
+	Json::CharReaderBuilder builder;
+	Json::CharReader* reader = builder.newCharReader();
+	const char* definition_start = definition.get_string();
+	const char* definition_end = definition_start + definition.get_length();
+	if (!reader->parse( definition_start, definition_end, &root_, nullptr )) {
+        stack->log( "Failed to parse item definition JSON.");
         set_state( LOADING_STATE_ERROR );
         return false;
 	}
 
+    // Try load definitions.
+    if (!load_definitions( &root_ )) {
+        set_state( LOADING_STATE_ERROR );
+        return false;
+    }
+
 	clean_up();
 	set_state( LOADING_STATE_FINISHED );
     return true;
-}
-
-/* Push a set of handlers onto the stack. */
-bool DefinitionLoader::push_handlers( ObjectBeginHandler begin_handler, ObjectEndHandler end_handler, PropertyHandler property_handler )
-{
-	if(!object_begin_stack_.push( begin_handler ) || !object_end_stack_.push( end_handler ) || !property_stack_.push( property_handler ))
-	{
-		JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
-		error_stack->log( "Failed to push handlers onto stack!" );
-		return false;
-	}
-
-	return true;
-}
-
-/*
- * Remove one level of handlers when an object ends.
- * Returns true if all pops succeeded.
- */
-bool DefinitionLoader::pop_handlers()
-{
-	// Validate pop
-	const size_t begin_size = object_begin_stack_.get_length();
-	const size_t end_size = object_end_stack_.get_length();
-	const size_t property_size = property_stack_.get_length();
-	if ((begin_size == 0) || (end_size == 0) || (property_size == 0)) {
-		return false;
-	}
-
-	object_begin_stack_.erase(begin_size - 1 );
-	object_end_stack_.erase( end_size - 1 );
-	property_stack_.erase( property_size - 1 );
-	return true;
-}
-
-/* Handle a generic object being started. */
-bool DefinitionLoader::on_default_object_begin( const JUTIL::ConstantString& name )
-{
-	// Add default property handlers
-	push_handlers( &on_default_object_begin, &on_default_object_end, &on_default_property );
-	return true;
-}
-
-/* Handle a generic object being ended. */
-bool DefinitionLoader::on_default_object_end()
-{
-	JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
-	if (!pop_handlers()) {
-		error_stack->log( "Failed to pop from handler stacks!" );
-		return false;
-	}
-
-	return true;
-}
-
-/* Handle a generic property that's unimportant. */
-bool DefinitionLoader::on_default_property( const JUTIL::ConstantString& key, const JUTIL::ConstantString& value )
-{
-	return true;
-}
-
-/* Handle receiving a property where we know there shouldn't be any. */
-bool DefinitionLoader::on_error_object_begin( const JUTIL::ConstantString& object )
-{
-	JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
-	error_stack->log( "Unexpected object with name '%s' found!", object.get_string() );
-	return false;
-}
-
-/* Handle receiving a property where we know there shouldn't be any. */
-bool DefinitionLoader::on_error_object_end()
-{
-	JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
-	error_stack->log( "Unexpected object end found!" );
-	return false;
-}
-
-/* Handle receiving a property where we know there shouldn't be any. */
-bool DefinitionLoader::on_error_property( const JUTIL::ConstantString& key, const JUTIL::ConstantString& value )
-{
-	JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
-	error_stack->log( "Unexpected property '%s' with value %s'!", key.get_string(), value.get_string() );
-	return false;
-}
-
-/* Handle an object created at root level. Should be a result object. */
-bool DefinitionLoader::on_root_object_begin( const JUTIL::ConstantString& object )
-{
-	static const JUTIL::ConstantString RESULT_KEY = "result";
-	if(!object.is_equal( &RESULT_KEY ))
-	{
-		JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
-		error_stack->log("Unexpected object of name '%s' at root.", object);
-		return false;
-	}
-
-	return push_handlers( &on_result_object_begin, &on_root_object_end, &on_default_property );
-}
-
-/* Handle root object being finished. */
-bool DefinitionLoader::on_root_object_end()
-{
-	// TODO: We're all done!
-	return true;
-}
-
-/* Handle object created in result object. */
-bool DefinitionLoader::on_result_object_begin( const JUTIL::ConstantString& object )
-{
-	ObjectBeginHandler begin_handler = &on_default_object_begin;
-	ObjectEndHandler end_handler = &on_default_object_end;
-	PropertyHandler property_handler = &on_default_property;
-
-	// Check for the different sub-object types
-	static const JUTIL::ConstantString QUALITY_NAMES_KEY = "qualityNames";
-	static const JUTIL::ConstantString ORIGIN_NAMES_KEY = "originNames";
-	static const JUTIL::ConstantString ITEMS_KEY = "items";
-	static const JUTIL::ConstantString ATTRIBUTES_KEY = "attributes";
-	if (object.is_equal( &QUALITY_NAMES_KEY )) {
-		// Balls deep, assume the quality names are in zero-indexed order
-		// No sub-objects, only quality pairs
-		begin_handler = &on_error_object_begin;
-		property_handler = &on_quality_name_property;
-	}
-	else if (object.is_equal( &ORIGIN_NAMES_KEY )) {
-		// Origin names are put in objects, no properties
-		begin_handler = &on_origin_names_object_begin;
-		property_handler = &on_error_property;
-	}
-	
-	push_handlers( begin_handler, end_handler, property_handler );
-	return true;
-}
-
-/* Handle a new quality name value. */
-bool DefinitionLoader::on_quality_name_property( const JUTIL::ConstantString& key, const JUTIL::ConstantString& value )
-{
-	JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
-
-	// Copy the value (localized name) to schema
-	// Assume in order with contiguous zero-index
-	JUTIL::DynamicString* copy;
-	if(!JUTIL::BaseAllocator::allocate( &copy ))
-	{
-		error_stack->log("Failed to allocate quality name string.");
-		return false;
-	}
-	new (copy) JUTIL::DynamicString();
-	if(!copy->write( "%s", value.get_string() ))
-	{
-		error_stack->log("Failed to write copy of quality name string.");
-		return false;
-	}
-	if(!schema_->add_quality_name( copy ))
-	{
-		JUTIL::BaseAllocator::destroy( copy );
-		error_stack->log("Failed to add copy of quality name string.");
-		return false;
-	}
-
-	return true;
-}
-
-/* Handle a new quality name value. */
-bool DefinitionLoader::on_origin_name_property( const JUTIL::ConstantString& key, const JUTIL::ConstantString& value )
-{
-	JUI::ErrorStack* error_stack = JUI::ErrorStack::get_instance();
-
-	// Copy the value (localized name) to schema
-	// Assume in order with contiguous zero-index
-	JUTIL::DynamicString* copy;
-	if(!JUTIL::BaseAllocator::allocate( &copy ))
-	{
-		error_stack->log("Failed to allocate origin name string.");
-		return false;
-	}
-	new (copy) JUTIL::DynamicString();
-	if(!copy->write( "%s", value.get_string() ))
-	{
-		error_stack->log("Failed to write copy of origin name string.");
-		return false;
-	}
-	if(!schema_->add_origin_name( copy ))
-	{
-		JUTIL::BaseAllocator::destroy( copy );
-		error_stack->log("Failed to add copy of origin name string.");
-		return false;
-	}
-
-	return true;
 }
 
 /*
@@ -479,6 +301,43 @@ bool DefinitionLoader::load_definitions( Json::Value* root )
 {
     // Stack for reporting.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+    // Get result.
+    Json::Value* result;
+    if (!get_member( &root_, &RESULT_KEY, &result )) {
+        stack->log( "Failed to get result from definitions." );
+        return false;
+    }
+		
+	// Start loading attributes.
+	if (!load_attributes( result )) {
+		return false;
+	}
+
+	// Load quality names.
+	if (!load_qualities( result )) {
+		return false;
+	}
+
+	// Load origin names.
+	if (!load_origins( result )) {
+		return false;
+	}
+
+	// Load kill eater ranks.
+	if (!load_kill_eater_ranks( result )) {
+		return false;
+	}
+
+	// Load kill eater types.
+	if (!load_kill_eater_types( result )) {
+		return false;
+	}
+
+	// Load item definitions.
+	if (!load_items( result )) {
+		return false;
+	}
 
     // Get fallback texture.
     JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
@@ -645,6 +504,61 @@ bool DefinitionLoader::load_attributes( Json::Value* result )
 		set_progress( loaded_attribs, num_attribs );
 	}
 
+	return true;
+}
+
+/*
+ * Load the quality names/indices into the schema.
+ */
+bool DefinitionLoader::load_qualities( Json::Value* result )
+{
+	// Error stack for reporting.
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+
+	// Get qualities from result.
+	Json::Value* qualities;
+	Json::Value* quality_names;
+	if (!get_member( result, &QUALITIES_KEY, &qualities )) {
+		stack->log( "Failed to find qualities in definitions." );
+		return false;
+	}
+	if (!get_member( result, &QUALITY_NAMES_KEY, &quality_names )) {
+		stack->log( "Failed to find quality names in definitions." );
+		return false;
+	}
+
+	// Go through each quality and map the index to its full name.
+	for (Json::ValueIterator i = qualities->begin(); i != qualities->end(); ++i) {
+		// Get the token for the quality index entry.
+		const JSONCPP_STRING json_name = i.name();
+		const JUTIL::ConstantString quality_token = json_name.c_str();
+		unsigned int index = (*i).asUInt();
+
+		// Find the matching quality string.
+		Json::Value* quality_name;
+		if (!get_member( quality_names, &quality_token, &quality_name )) {
+			stack->log( "Failed to find matching quality name for index." );
+			return false;
+		}
+
+		// Insert mapping for index to name.
+		JUTIL::DynamicString* name;
+		if (!JUTIL::BaseAllocator::allocate( &name )) {
+			stack->log( "Failed to allocate string to store quality name." );
+			return false;
+		}
+		new (name) JUTIL::DynamicString();
+		if (!name->write( "%s", quality_name->asCString() )) {
+			JUTIL::BaseAllocator::destroy( name );
+			stack->log( "Failed to write quality name to string." );
+			return false;
+		}
+		if (!schema_->add_quality_name( index, name )) {
+			JUTIL::BaseAllocator::destroy( name );
+			stack->log( "Failed to add quality to schema.");
+			return false;
+		}
+	}
 	return true;
 }
 
