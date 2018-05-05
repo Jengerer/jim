@@ -4,10 +4,11 @@
 #include <cassert>
 
 // Schema URL.
-const JUTIL::ConstantString SCHEMA_URL = "http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en";
-const JUTIL::ConstantString SCHEMA_FILE_LOCATION = "schema/schema.json";
-
-const JUTIL::ConstantString SCHEMA_CACHED_LOAD_FAIL_MESSAGE = "Failed to load cached item schema";
+const JUTIL::ConstantString SCHEMA_ITEMS_URL = "http://api.steampowered.com/IEconItems_440/GetSchemaItems/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en";
+const JUTIL::ConstantString SCHEMA_OVERVIEW_URL = "http://api.steampowered.com/IEconItems_440/GetSchemaOverview/v0001/?key=0270F315C25E569307FEBDB67A497A2E&format=json&language=en";
+const JUTIL::ConstantString SCHEMA_ITEMS_FILE_LOCATION = "schema/items.json";
+const JUTIL::ConstantString SCHEMA_OVERVIEW_FILE_LOCATION = "schema/overview.json";
+const JUTIL::ConstantString SCHEMA_CACHED_LOAD_FAIL_MESSAGE = "Failed to load cached item schema!";
 
 // Status strings.
 const JUTIL::ConstantString DEFAULT_STATUS_MESSAGE = "Loading...\nCouldn't generate progress string...\nJengerer's prescription: proceed as normal...";
@@ -149,7 +150,8 @@ DefinitionLoader::DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schem
 	notifications_( notifications ),
 	thread_( nullptr ),
 	mutex_(),
-	root_(),
+	items_root_(),
+	overview_root_(),
 	classes_(),
 	tools_(),
 	name_map_(),
@@ -259,32 +261,55 @@ bool DefinitionLoader::load()
         return false;
     }
 
-	// Get definition file.
+	// Get item definition file.
 	constexpr long definition_load_timeout = 30;
 	downloader->set_timeout( definition_load_timeout );
-    JUTIL::DynamicString definition;
-	const bool succeeded = downloader->read_cached( &SCHEMA_FILE_LOCATION, &SCHEMA_URL, &definition ) || downloader->read( &SCHEMA_URL, &definition );
+    JUTIL::DynamicString items_text;
+	bool succeeded = downloader->read_cached( &SCHEMA_ITEMS_FILE_LOCATION, &SCHEMA_ITEMS_URL, &items_text ) || downloader->read( &SCHEMA_ITEMS_FILE_LOCATION, &items_text );
 	downloader->clear_timeout();
     if(!succeeded)
 	{
-		stack->log( "Failed to read schema from Steam web API.");
+		stack->log( "Failed to read schema items from Steam web API.");
 		set_state( LOADING_STATE_ERROR );
 		return false;
     }
 
-	// Parse definition file.
+	// Get overview definition file.
+	downloader->set_timeout( definition_load_timeout );
+    JUTIL::DynamicString overview_text;
+	succeeded = downloader->read_cached( &SCHEMA_OVERVIEW_FILE_LOCATION, &SCHEMA_OVERVIEW_URL, &overview_text ) || downloader->read( &SCHEMA_OVERVIEW_FILE_LOCATION, &overview_text );
+	downloader->clear_timeout();
+    if(!succeeded)
+	{
+		stack->log( "Failed to read schema overview from Steam web API.");
+		set_state( LOADING_STATE_ERROR );
+		return false;
+    }
+
+	// Parse item definition file.
 	Json::CharReaderBuilder builder;
 	Json::CharReader* reader = builder.newCharReader();
-	const char* definition_start = definition.get_string();
-	const char* definition_end = definition_start + definition.get_length();
-	if (!reader->parse( definition_start, definition_end, &root_, nullptr )) {
+	const char* items_definition_start = items_text.get_string();
+	const char* items_definition_end = items_definition_start + items_text.get_length();
+	if (!reader->parse( items_definition_start, items_definition_end, &items_root_, nullptr )) {
         stack->log( "Failed to parse item definition JSON.");
         set_state( LOADING_STATE_ERROR );
         return false;
 	}
 
+	// Parse overview definition file.
+	std::string errors;
+	reader = builder.newCharReader();
+	const char* overview_definition_start = overview_text.get_string();
+	const char* overview_definition_end = overview_definition_start + overview_text.get_length();
+	if (!reader->parse( overview_definition_start, overview_definition_end, &overview_root_, &errors )) {
+        stack->log( "Failed to parse overview definition JSON.");
+        set_state( LOADING_STATE_ERROR );
+        return false;
+	}
+
     // Try load definitions.
-    if (!load_definitions( &root_ )) {
+    if (!load_definitions( &items_root_, &overview_root_ )) {
         set_state( LOADING_STATE_ERROR );
         return false;
     }
@@ -297,45 +322,50 @@ bool DefinitionLoader::load()
 /*
  * Load definitions from JSON root object.
  */
-bool DefinitionLoader::load_definitions( Json::Value* root )
+bool DefinitionLoader::load_definitions( Json::Value* items_root, Json::Value* overview_root )
 {
     // Stack for reporting.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
-    // Get result.
-    Json::Value* result;
-    if (!get_member( &root_, &RESULT_KEY, &result )) {
-        stack->log( "Failed to get result from definitions." );
+    // Get results from both.
+    Json::Value* items_result;
+    if (!get_member( &items_root_, &RESULT_KEY, &items_result )) {
+        stack->log( "Failed to get result from item definitions." );
         return false;
     }
+	Json::Value* overview_result;
+	if (!get_member( &overview_root_, &RESULT_KEY, &overview_result )) {
+		stack->log( "Failed to get result from overview definition." );
+		return false;
+	}
 		
 	// Start loading attributes.
-	if (!load_attributes( result )) {
+	if (!load_attributes( overview_result )) {
 		return false;
 	}
 
 	// Load quality names.
-	if (!load_qualities( result )) {
+	if (!load_qualities( overview_result )) {
 		return false;
 	}
 
 	// Load origin names.
-	if (!load_origins( result )) {
+	if (!load_origins( overview_result )) {
 		return false;
 	}
 
 	// Load kill eater ranks.
-	if (!load_kill_eater_ranks( result )) {
+	if (!load_kill_eater_ranks( overview_result )) {
 		return false;
 	}
 
 	// Load kill eater types.
-	if (!load_kill_eater_types( result )) {
+	if (!load_kill_eater_types( overview_result )) {
 		return false;
 	}
 
 	// Load item definitions.
-	if (!load_items( result )) {
+	if (!load_items( items_result )) {
 		return false;
 	}
 
@@ -1060,7 +1090,8 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemDefiniti
 void DefinitionLoader::clean_up( void )
 {
 	set_state( LOADING_STATE_CLEANUP );
-	root_.clear();
+	items_root_.clear();
+	overview_root_.clear();
 	classes_.clear();
 	graphics_->set_render_context( graphics_->get_loading_context() );
 }

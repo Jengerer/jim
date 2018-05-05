@@ -52,7 +52,7 @@ public:
 private:
 
 	bool load( void );
-    bool load_definitions( Json::Value* root );
+    bool load_definitions( Json::Value* items_root, Json::Value* overview_root );
 	bool load_attributes( Json::Value* result );
 	bool load_qualities( Json::Value* result );
 	bool load_origins( Json::Value* result );
@@ -89,7 +89,8 @@ private:
 	std::mutex mutex_;		
 
 	// Parsing members.
-	Json::Value root_;
+	Json::Value items_root_;
+	Json::Value overview_root_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EInventoryClass, JUTIL::StringHasher> classes_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EItemToolType, JUTIL::StringHasher> tools_;
     JUTIL::HashMap<unsigned int, const JUTIL::String*, uint16, JUTIL::StringHasher> name_map_;

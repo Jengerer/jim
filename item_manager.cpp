@@ -26,7 +26,7 @@
 
 // Application attributes.
 const JUTIL::ConstantString APPLICATION_TITLE = "Jengerer's Item Manager";
-const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.6.5";
+const JUTIL::ConstantString APPLICATION_VERSION = "0.9.9.9.9.9.9.6.6";
 const int APPLICATION_FRAMERATE = 60;
 const long APPLICATION_FRAME_TIME = 1000 / APPLICATION_FRAMERATE;
 const int APPLICATION_WIDTH	= 900;
@@ -160,7 +160,7 @@ JUI::Application::ReturnStatus ItemManager::initialize( void )
     }
 
 	// Check if update required.
-#if !defined(_DEBUG) || 1
+#if !defined(_DEBUG)
 	UpdateCheckResult result = updater_->check_version_numbers();
 	if (result == CHECK_FAILED) {
 		return PrecacheResourcesFailure;
