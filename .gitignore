@@ -19,3 +19,8 @@
 *.txt
 *.bin
 *.opendb
+*.sum
+*.date
+*.json
+*.ipdb
+*.iobj

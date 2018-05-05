@@ -49,8 +49,8 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SdkLibraryPath)jui\include;$(SdkLibraryPath)jutil\include;$(SdkLibraryPath)protobuf\src;$(SdkLibraryPath)jsoncpp\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SDK_LIB_DIR)\jui\include;$(SDK_LIB_DIR)\jutil\include;$(SDK_LIB_DIR)\protobuf\src;$(SDK_LIB_DIR)\jsoncpp\include;$(SDK_LIB_DIR)\boost\include;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SDK_LIB_DIR)\jui\lib;$(SDK_LIB_DIR)\jutil\lib;$(SDK_LIB_DIR)\protobuf\vsprojects\Release;$(SDK_LIB_DIR)\jsoncpp\libs\Release\;$(SDK_LIB_DIR)\boost\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SdkLibraryPath)jui\include;$(SdkLibraryPath)jutil\include;$(SdkLibraryPath)protobuf\src;$(SdkLibraryPath)jsoncpp\include;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SdkLibraryPath)jui\lib;$(SdkLibraryPath)jutil\lib;$(SdkLibraryPath)protobuf\Release;$(SdkLibraryPath)jsoncpp\makefiles\msvc2010\Release;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SdkLibraryPath)jui\lib;$(SdkLibraryPath)jutil\lib;$(SdkLibraryPath)protobuf\Debug;$(SdkLibraryPath)jsoncpp\makefiles\msvc2010\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -82,7 +82,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -90,7 +90,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>jutil.lib;jui.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jutil.lib;jui.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;lib_json.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
