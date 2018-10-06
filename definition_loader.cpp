@@ -150,15 +150,15 @@ DefinitionLoader::DefinitionLoader( JUI::Graphics2D* graphics, ItemSchema* schem
 	notifications_( notifications ),
 	thread_( nullptr ),
 	mutex_(),
-	items_root_(),
-	overview_root_(),
 	classes_(),
 	tools_(),
 	name_map_(),
 	progress_( 0.f ),
 	state_( LOADING_STATE_NONE ),
 	progress_message_(),
-	has_state_changed_( false )
+	has_state_changed_( false ),
+	items_segment_index_( 0 ),
+	next_definition_index_( 0 )
 {
 }
 
@@ -203,10 +203,19 @@ void DefinitionLoader::end( void )
 	thread_->join();
 }
 
+/* Trampoline to start actual load. */
+void DefinitionLoader::load()
+{
+	if(!load_private())
+	{
+		set_state( LOADING_STATE_ERROR );
+	}
+}
+
 /*
  * Load item definitions.
  */
-bool DefinitionLoader::load()
+bool DefinitionLoader::load_private()
 {
 	// Get error stack.
 	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
@@ -257,63 +266,87 @@ bool DefinitionLoader::load()
     JUI::FileDownloader* downloader = JUI::FileDownloader::get_instance();
     if (downloader == nullptr) {
         stack->log( "Failed to create downloader.");
-        set_state( LOADING_STATE_ERROR );
         return false;
     }
 
-	// Get item definition file.
+	// Set timeout in case it takes too long
 	constexpr long definition_load_timeout = 30;
 	downloader->set_timeout( definition_load_timeout );
-    JUTIL::DynamicString items_text;
-	bool succeeded = downloader->read_cached( &SCHEMA_ITEMS_FILE_LOCATION, &SCHEMA_ITEMS_URL, &items_text ) || downloader->read( &SCHEMA_ITEMS_FILE_LOCATION, &items_text );
-	downloader->clear_timeout();
-    if(!succeeded)
-	{
-		stack->log( "Failed to read schema items from Steam web API.");
-		set_state( LOADING_STATE_ERROR );
-		return false;
-    }
 
 	// Get overview definition file.
-	downloader->set_timeout( definition_load_timeout );
     JUTIL::DynamicString overview_text;
-	succeeded = downloader->read_cached( &SCHEMA_OVERVIEW_FILE_LOCATION, &SCHEMA_OVERVIEW_URL, &overview_text ) || downloader->read( &SCHEMA_OVERVIEW_FILE_LOCATION, &overview_text );
-	downloader->clear_timeout();
+	bool succeeded = downloader->read_cached( &SCHEMA_OVERVIEW_FILE_LOCATION, &SCHEMA_OVERVIEW_URL, &overview_text ) || downloader->read( &SCHEMA_OVERVIEW_FILE_LOCATION, &overview_text );
     if(!succeeded)
 	{
 		stack->log( "Failed to read schema overview from Steam web API.");
-		set_state( LOADING_STATE_ERROR );
 		return false;
     }
 
-	// Parse item definition file.
+	// Parse overview definition file.
+	Json::Value overview_root;
 	Json::CharReaderBuilder builder;
 	Json::CharReader* reader = builder.newCharReader();
-	const char* items_definition_start = items_text.get_string();
-	const char* items_definition_end = items_definition_start + items_text.get_length();
-	if (!reader->parse( items_definition_start, items_definition_end, &items_root_, nullptr )) {
-        stack->log( "Failed to parse item definition JSON.");
-        set_state( LOADING_STATE_ERROR );
-        return false;
-	}
-
-	// Parse overview definition file.
-	std::string errors;
-	reader = builder.newCharReader();
 	const char* overview_definition_start = overview_text.get_string();
 	const char* overview_definition_end = overview_definition_start + overview_text.get_length();
-	if (!reader->parse( overview_definition_start, overview_definition_end, &overview_root_, &errors )) {
+	if (!reader->parse( overview_definition_start, overview_definition_end, &overview_root, NULL )) {
         stack->log( "Failed to parse overview definition JSON.");
-        set_state( LOADING_STATE_ERROR );
         return false;
 	}
 
     // Try load definitions.
-    if (!load_definitions( &items_root_, &overview_root_ )) {
+    if (!load_overview( &overview_root )) {
         set_state( LOADING_STATE_ERROR );
         return false;
     }
 
+	// Now load the items until we're done
+	while (next_definition_index_ >= 0)
+	{
+		// Build URL string
+		JUTIL::DynamicString items_url;
+		if (!items_url.write( "%s&start=%d", SCHEMA_ITEMS_URL.get_string(), next_definition_index_ ))
+		{
+			stack->log( "Failed to write schema items URL!" );
+			return false;
+		}
+		JUTIL::DynamicString items_file;
+		if (!items_file.write( "schema/items.%u.json", items_segment_index_++))
+		{
+			stack->log( "Failed to write schema items file path!" );
+			return false;
+		}
+
+		JUTIL::DynamicString items_text;
+		succeeded = downloader->read_cached( &items_file, &items_url, &items_text ) || downloader->read( &items_url, &items_text );
+		if(!succeeded)
+		{
+			stack->log( "Failed to read schema items from Steam web API.");
+			set_state( LOADING_STATE_ERROR );
+			return false;
+		}
+
+		// Parse item definition file.
+		reader = builder.newCharReader();
+		Json::Value items_root;
+		const char* items_definition_start = items_text.get_string();
+		const char* items_definition_end = items_definition_start + items_text.get_length();
+		if (!reader->parse( items_definition_start, items_definition_end, &items_root, nullptr )) {
+			stack->log( "Failed to parse item definition JSON.");
+			set_state( LOADING_STATE_ERROR );
+			return false;
+		}
+
+		// Feed the value into the handler
+		if (!load_items_segment( &items_root ))
+		{
+			stack->log( "Failed to load items segment!" );
+			set_state( LOADING_STATE_ERROR );
+			return false;
+		}
+	}
+
+	schema_->set_loaded(true);
+	downloader->clear_timeout();
 	clean_up();
 	set_state( LOADING_STATE_FINISHED );
     return true;
@@ -322,19 +355,14 @@ bool DefinitionLoader::load()
 /*
  * Load definitions from JSON root object.
  */
-bool DefinitionLoader::load_definitions( Json::Value* items_root, Json::Value* overview_root )
+bool DefinitionLoader::load_overview( Json::Value* overview_root )
 {
     // Stack for reporting.
     JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
 
-    // Get results from both.
-    Json::Value* items_result;
-    if (!get_member( &items_root_, &RESULT_KEY, &items_result )) {
-        stack->log( "Failed to get result from item definitions." );
-        return false;
-    }
+    // Get results from overview.
 	Json::Value* overview_result;
-	if (!get_member( &overview_root_, &RESULT_KEY, &overview_result )) {
+	if (!get_member( overview_root, &RESULT_KEY, &overview_result )) {
 		stack->log( "Failed to get result from overview definition." );
 		return false;
 	}
@@ -361,11 +389,6 @@ bool DefinitionLoader::load_definitions( Json::Value* items_root, Json::Value* o
 
 	// Load kill eater types.
 	if (!load_kill_eater_types( overview_result )) {
-		return false;
-	}
-
-	// Load item definitions.
-	if (!load_items( items_result )) {
 		return false;
 	}
 
@@ -411,9 +434,24 @@ bool DefinitionLoader::load_definitions( Json::Value* items_root, Json::Value* o
 		&fallback_image,
 		FALLBACK_ITEM_CLASS_FLAGS );
     schema_->set_fallback_definition( fallback );
+	return true;
+}
 
-    // Make sure item loading succeeded.
-	schema_->set_loaded( true );
+bool DefinitionLoader::load_items_segment( Json::Value* items_root )
+{
+	// Get current segment root
+	JUI::ErrorStack* stack = JUI::ErrorStack::get_instance();
+	Json::Value* items_result;
+    if (!get_member( items_root, &RESULT_KEY, &items_result )) {
+        stack->log( "Failed to get result from item definitions." );
+        return false;
+    }
+
+	// Load item definitions.
+	if (!load_items( items_result )) {
+		return false;
+	}
+
     return true;
 }
 
@@ -877,6 +915,18 @@ bool DefinitionLoader::load_items( Json::Value* result )
 		set_progress( loaded_items, num_items );
 	}
 
+	// Check if there are more to be had
+	Json::Value* next_index;
+	static const JUTIL::ConstantString NEXT_DEFINITION_INDEX_KEY("next");
+	if (get_member( result, &NEXT_DEFINITION_INDEX_KEY, &next_index ))
+	{
+		next_definition_index_ = next_index->asInt();
+	}
+	else
+	{
+		next_definition_index_ = -1;
+	}
+
 	return true;
 }
 
@@ -1090,8 +1140,6 @@ bool DefinitionLoader::load_item_attribute( Json::Value* attribute, ItemDefiniti
 void DefinitionLoader::clean_up( void )
 {
 	set_state( LOADING_STATE_CLEANUP );
-	items_root_.clear();
-	overview_root_.clear();
 	classes_.clear();
 	graphics_->set_render_context( graphics_->get_loading_context() );
 }
@@ -1194,7 +1242,7 @@ bool DefinitionLoader::update_progress_message( void )
 		break;
 
 	case LOADING_STATE_LOADING_ITEMS:
-		if (!progress_message_.write( "Loading items from schema...\n%.2f%%", progress )) {
+		if (!progress_message_.write( "Loading segment #%u of items from schema...\n%.2f%%", items_segment_index_ + 1, progress )) {
 			return false;
 		}
 		break;
