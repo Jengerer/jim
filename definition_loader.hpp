@@ -51,8 +51,10 @@ public:
 
 private:
 
-	bool load( void );
-    bool load_definitions( Json::Value* items_root, Json::Value* overview_root );
+	void load( void );
+	bool load_private( void );
+	bool load_overview( Json::Value* overview_root );
+	bool load_items_segment( Json::Value* items_root );
 	bool load_attributes( Json::Value* result );
 	bool load_qualities( Json::Value* result );
 	bool load_origins( Json::Value* result );
@@ -89,8 +91,6 @@ private:
 	std::mutex mutex_;		
 
 	// Parsing members.
-	Json::Value items_root_;
-	Json::Value overview_root_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EInventoryClass, JUTIL::StringHasher> classes_;
 	JUTIL::HashMap<unsigned int, const JUTIL::String*, EItemToolType, JUTIL::StringHasher> tools_;
     JUTIL::HashMap<unsigned int, const JUTIL::String*, uint16, JUTIL::StringHasher> name_map_;
@@ -100,6 +100,8 @@ private:
 	DefinitionLoaderState state_;
 	JUTIL::DynamicString progress_message_;
 	bool has_state_changed_;
+	unsigned int items_segment_index_;
+	int next_definition_index_;
 	
 };
 
