@@ -27,3 +27,4 @@
 *.vsidx
 *.db-wal
 *.db-shm
+Debug/
