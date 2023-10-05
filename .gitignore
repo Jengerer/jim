@@ -24,3 +24,6 @@
 *.json
 *.ipdb
 *.iobj
+*.vsidx
+*.db-wal
+*.db-shm
