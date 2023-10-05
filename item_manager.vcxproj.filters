@@ -349,11 +349,11 @@
     <ClInclude Include="definition_loader.hpp">
       <Filter>headers\items</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="gc_protobuf_message.hpp">
       <Filter>headers\items</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -361,5 +361,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="jim_icon.ico" />
+    <None Include="image1.bin" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="img\manager\delete.png" />
+    <Image Include="img\manager\gear.png" />
   </ItemGroup>
 </Project>

@@ -53,8 +53,6 @@ private:
 
 	// Information about whether each component is up to date.
 	UpdateStatus status_;
-	bool is_jutil_latest_;
-	bool is_jui_latest_;
 	bool is_jim_latest_;
 
 };
