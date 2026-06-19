@@ -274,13 +274,32 @@ bool DefinitionLoader::load_private()
 	downloader->set_timeout( definition_load_timeout );
 
 	// Get overview definition file.
+	unsigned int retry = 0;
+	constexpr unsigned int RETRY_COUNT = 5;
     JUTIL::DynamicString overview_text;
-	bool succeeded = downloader->read_cached( &SCHEMA_OVERVIEW_FILE_LOCATION, &SCHEMA_OVERVIEW_URL, &overview_text ) || downloader->read( &SCHEMA_OVERVIEW_FILE_LOCATION, &overview_text );
-    if(!succeeded)
+	bool succeeded = false;
+	while (!succeeded)
 	{
-		stack->log( "Failed to read schema overview from Steam web API.");
-		return false;
-    }
+		succeeded = downloader->read_cached(&SCHEMA_OVERVIEW_FILE_LOCATION, &SCHEMA_OVERVIEW_URL, &overview_text);
+		if (!succeeded)
+		{
+			stack->clear();
+			succeeded = downloader->read(&SCHEMA_OVERVIEW_FILE_LOCATION, &overview_text);
+			if (!succeeded)
+			{
+				if (retry++ < RETRY_COUNT)
+				{
+					stack->clear();
+				}
+				else
+				{
+					stack->log("Failed to read schema overview from Steam web API.");
+					set_state(LOADING_STATE_ERROR);
+					return false;
+				}
+			}
+		}
+	}
 
 	// Parse overview definition file.
 	Json::Value overview_root;
@@ -316,13 +335,30 @@ bool DefinitionLoader::load_private()
 			return false;
 		}
 
+		retry = 0;
+		succeeded = false;
 		JUTIL::DynamicString items_text;
-		succeeded = downloader->read_cached( &items_file, &items_url, &items_text ) || downloader->read( &items_url, &items_text );
-		if(!succeeded)
+		while (!succeeded)
 		{
-			stack->log( "Failed to read schema items from Steam web API.");
-			set_state( LOADING_STATE_ERROR );
-			return false;
+			succeeded = downloader->read_cached(&items_file, &items_url, &items_text);
+			if (!succeeded)
+			{
+				stack->clear();
+				succeeded = downloader->read(&items_url, &items_text);
+				if (!succeeded)
+				{
+					if (retry++ < RETRY_COUNT)
+					{
+						stack->clear();
+					}
+					else
+					{
+						stack->log("Failed to read schema items from Steam web API.");
+						set_state(LOADING_STATE_ERROR);
+						return false;
+					}
+				}
+			}
 		}
 
 		// Parse item definition file.
