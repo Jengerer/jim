@@ -48,10 +48,10 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration) Output\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SdkLibraryPath)jui\include;$(SdkLibraryPath)jutil\include;$(SdkLibraryPath)protobuf\src;$(SdkLibraryPath)jsoncpp\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SdkLibraryPath)jui\include;$(SdkLibraryPath)jutil\include;$(SdkLibraryPath)protobuf\src;$(SdkLibraryPath)jsoncpp\include;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SdkLibraryPath)zlib\build\MinSizeRel;$(SdkLibraryPath)libpng\build\MinSizeRel;$(SdkLibraryPath)curl\build\lib\libcurl_object.dir\MinSizeRel;$(SdkLibraryPath)freetype\build\MinSizeRel;$(SdkLibraryPath)jui\lib;$(SdkLibraryPath)jutil\lib;$(SdkLibraryPath)protobuf\cmake\build\MinSizeRel;$(SdkLibraryPath)jsoncpp\build\lib\MinSizeRel;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SdkLibraryPath)zlib\build\Debug;$(SdkLibraryPath)libpng\build\Debug;$(SdkLibraryPath)curl\build\lib\libcurl_object.dir\Debug;$(SdkLibraryPath)freetype\build\Debug;$(SdkLibraryPath)jui\lib;$(SdkLibraryPath)jutil\lib;$(SdkLibraryPath)protobuf\cmake\build\Debug;$(SdkLibraryPath)jsoncpp\build\lib\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\jui\include;..\jutil\include;..\protobuf\src;..\jsoncpp\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\jui\include;..\jutil\include;..\protobuf\src;..\jsoncpp\include;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\zlib\build\MinSizeRel;..\libpng\build\MinSizeRel;..\curl\build\lib\libcurl_object.dir\MinSizeRel;..\freetype\build\MinSizeRel;..\jui\lib;..\jutil\lib;..\protobuf\cmake\build\MinSizeRel;..\jsoncpp\build\lib\MinSizeRel;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\zlib\build\Debug;..\libpng\build\Debug;..\curl\build\lib\libcurl_object.dir\Debug;..\freetype\build\Debug;..\jui\lib;..\jutil\lib;..\protobuf\cmake\build\Debug;..\jsoncpp\build\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -67,7 +67,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>jutil_debug.lib;jui_debug.lib;glu32.lib;opengl32.lib;libprotobufd.lib;steam/steam_api.lib;jsoncpp_static.lib;winmm.lib;ws2_32.lib;freetyped.lib;libcurl_object.lib;libpng16_staticd.lib;zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jutil_debug.lib;jui_debug.lib;glu32.lib;opengl32.lib;libprotobufd.lib;steam/steam_api.lib;jsoncpp_static.lib;winmm.lib;ws2_32.lib;freetyped.lib;libcurl_object.lib;libpng16_staticd.lib;zlibstaticd.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -90,7 +90,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>jutil.lib;jui.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;jsoncpp_static.lib;winmm.lib;ws2_32.lib;freetype.lib;libcurl_object.lib;libpng16_static.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jutil.lib;jui.lib;glu32.lib;opengl32.lib;libprotobuf.lib;steam/steam_api.lib;jsoncpp_static.lib;winmm.lib;ws2_32.lib;freetype.lib;libcurl_object.lib;libpng16_static.lib;zlibstatic.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>

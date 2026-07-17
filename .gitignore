@@ -28,3 +28,4 @@
 *.db-wal
 *.db-shm
 Debug/
+/third_party/build
