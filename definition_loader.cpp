@@ -1,11 +1,12 @@
 #include "definition_loader.hpp"
+#include "steam_api_key.hpp"
 #include <jui/application/error_stack.hpp>
 #include <jui/net/file_downloader.hpp>
 #include <cassert>
 
 // Schema URL.
-const JUTIL::ConstantString SCHEMA_ITEMS_URL = "http://api.steampowered.com/IEconItems_440/GetSchemaItems/v0001/?key=***REMOVED***&format=json&language=en";
-const JUTIL::ConstantString SCHEMA_OVERVIEW_URL = "http://api.steampowered.com/IEconItems_440/GetSchemaOverview/v0001/?key=***REMOVED***&format=json&language=en";
+const JUTIL::ConstantString SCHEMA_ITEMS_URL = "http://api.steampowered.com/IEconItems_440/GetSchemaItems/v0001/?key=" STEAM_WEB_API_KEY "&format=json&language=en";
+const JUTIL::ConstantString SCHEMA_OVERVIEW_URL = "http://api.steampowered.com/IEconItems_440/GetSchemaOverview/v0001/?key=" STEAM_WEB_API_KEY "&format=json&language=en";
 const JUTIL::ConstantString SCHEMA_ITEMS_FILE_LOCATION = "schema/items.json";
 const JUTIL::ConstantString SCHEMA_OVERVIEW_FILE_LOCATION = "schema/overview.json";
 const JUTIL::ConstantString SCHEMA_CACHED_LOAD_FAIL_MESSAGE = "Failed to load cached item schema!";

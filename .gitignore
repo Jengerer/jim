@@ -29,3 +29,6 @@
 *.db-shm
 Debug/
 /third_party/build
+
+# Local secrets (see steam_api_key.example.hpp)
+steam_api_key.hpp
